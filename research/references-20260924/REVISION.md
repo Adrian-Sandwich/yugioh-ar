@@ -114,3 +114,35 @@ Nuevo componente propuesto: `índice del clasificador -> etiqueta/ID de arte -> 
 5. Integrar el método elegido detrás de `/analyze` y conservar esquinas/timestamp. Añadir seguimiento por copia física antes de animaciones 3D.
 
 Este turno descarga y revisa referencias. No modifica el reconocedor ni afirma que DRAW2 ya funcione en vivo.
+
+## Revisión adicional del 25/09/2026 (tarde): cinco recursos propuestos
+
+Leídos por HTTP desde esta sesión; no se descargaron modelos ni datos nuevos.
+
+| Recurso | Qué es | Veredicto |
+|---|---|---|
+| [Nyckel: yugioh-card-category](https://www.nyckel.com/pretrained-classifiers/yugioh-card-category/) | Clasificador alojado de 10 tipos de carta (Normal, Effect, Fusion, Link, Pendulum, Continuous, Counter, Equip, Field, Monster). Sólo API en la nube, sin pesos, sin métricas ni dataset publicados. | **No usar.** No identifica cartas, exige enviar cada imagen a un servicio externo y el tipo ya está en el catálogo (`frameType`/`category`). |
+| [Jaster111/YuGiOCR](https://github.com/Jaster111/YuGiOCR) | 2022, 7 estrellas, sin licencia, inactivo. Canny + dilatación + `approxPolyDP` de 4 puntos, filtro de proporción 1.15–1.4, deskew, Tesseract `--psm 7` sobre la franja del nombre y `difflib.get_close_matches` contra `cardinfo.php`. | **Nada que adoptar.** Es un subconjunto de lo que ya hacemos con más garantías: RapidOCR multilingüe, consenso entre capturas, sugerencias aproximadas separadas de la identidad. Su emparejamiento difuso sustituye el texto leído por el nombre más parecido, justo lo que este proyecto prohíbe. Falla con oclusión, como reconoce su README. |
+| [Gholamrezadar/yolo11-poker-hand-detection-and-analysis](https://github.com/Gholamrezadar/yolo11-poker-hand-detection-and-analysis/) | YOLO11 detección estándar sobre un dataset Roboflow de naipes (2,020 imágenes, 8,080 instancias), 30 épocas, 3.8 h en T4, mAP50 0.995 en su propio dataset; ONNX en CPU ~105 ms. Sin licencia. | **Sólo referencia de coste.** No detecta esquinas ni sigue cartas; el análisis de manos es Monte Carlo, no visión. Sirve como punto de comparación de tiempos de entrenamiento y de inferencia ONNX para `yolo11_pose`, no como técnica. |
+| [Lowhur: reconocer 10,000+ cartas](https://towardsdatascience.com/i-made-an-ai-to-recognize-over-10-000-yugioh-cards-26fc6aed1588/) | Ya revisado arriba (repositorio clonado). Detalles no recogidos antes: red triplete con ResNet-101, aumentos de brillo/contraste/desplazamiento por tener una imagen por clase, *blur pooling* para invariancia a desplazamientos, reordenación del top-n por puntos ORB, embeddings precalculados; ~99 % sólo sobre imágenes oficiales alteradas, ~5 s por predicción en Jetson Nano; sin validación en fotos reales. | **Dos lecciones aplicables.** (1) Su 99 % es sobre datos sintéticos; nuestro índice de embeddings comparte el riesgo (una referencia por arte, pocas fotos reales), y la respuesta es la de `PLAN_VECTORES_E_INVARIANCIA.md`, hoy pospuesta. (2) La verificación geométrica del top-n es barata y ya tenemos la pieza: SIFT + RANSAC de `recognition.py` aplicados sólo a los cinco candidatos del embedding. Es el experimento que propone la sección siguiente. |
+| [YGOPRODeck API](https://ygoprodeck.com/api-guide/) | `cardinfo.php` con nombres, id (passcode), `card_sets` (código, rareza, precio), `card_images` (completa, pequeña y **arte recortado**), `misc`, `checkDBVer.php`; idiomas fr/de/it/pt (sin español); 20 peticiones/s; obligatorio descargar y alojar las imágenes, no enlazarlas. | **Ya lo usamos indirectamente y falta explotarlo.** YGOJSON, nuestra fuente, deriva de YGOPRODeck y el registro guarda `art_url` de `images.ygoprodeck.com/images/cards_cropped/` para 15,014 de 16,121 ilustraciones, más 14,278 identificadores `ygoprodeck_card_id`. El arte recortado es exactamente la región que comparan SIFT y el encoder, y hoy el piloto usa 63 referencias de carta completa de TDOANE. Sin español, Neuron sigue siendo necesario para nombres ES. |
+
+### Qué conviene hacer con esto
+
+1. **Descargar el arte recortado de YGOPRODeck** para las ilustraciones del
+   registro, respetando 20 peticiones/s y alojándolo en `downloads/` con
+   manifiesto y hashes como CardsOricaBR. Da una referencia de arte por
+   `artwork_id` para todo el catálogo, no sólo el piloto, y permite regenerar
+   el índice de embeddings con recorte de arte en vez de carta completa. Hay
+   que comparar sobre las mismas capturas antes de sustituir el índice actual.
+2. **Verificación geométrica del top-5 del embedding** con SIFT + RANSAC contra
+   esas referencias de arte. Objetivo: aceptar casos como la candidata 4 de la
+   escena real (similitud 0.63, bajo el umbral 0.80) sólo cuando la homografía
+   confirme la ilustración, sin bajar umbrales. Medir aceptaciones correctas,
+   falsas aceptaciones con desconocidos y coste por candidata.
+3. **Comprobar frescura** de la instantánea de YGOJSON (abril de 2026) con
+   `checkDBVer.php` y decidir si el registro necesita una ruta de actualización
+   directa desde la API para cartas nuevas. No sustituir YGOJSON: conserva
+   procedencia, UUIDs y sets que la API no expone igual.
+4. Descartar Nyckel y YuGiOCR; anotar el repositorio de póker sólo como
+   referencia de tiempos para `yolo11_pose/README.md`.
