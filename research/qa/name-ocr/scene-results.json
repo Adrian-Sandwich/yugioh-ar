@@ -1,0 +1,174 @@
+[
+  {
+    "candidate": 3,
+    "name_ocr": {
+      "text": "BLUE-EYES WHITE DRAGON",
+      "score": 0.996,
+      "variant": "original",
+      "orientation": 180,
+      "matches": [
+        {
+          "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+          "names": [
+            {
+              "language": "en",
+              "name": "Blue-Eyes White Dragon"
+            }
+          ]
+        }
+      ],
+      "status": "matched",
+      "ambiguous": false,
+      "match_kind": "normalized",
+      "suggestions": [],
+      "raw_observations": [
+        {
+          "text": "0052/30N",
+          "score": 0.5074,
+          "variant": "original",
+          "orientation": 0
+        },
+        {
+          "text": "1/0 /0",
+          "score": 0.479,
+          "variant": "tight_contrast",
+          "orientation": 0
+        },
+        {
+          "text": "BLUE-EYES WHITE DRAGON",
+          "score": 0.996,
+          "variant": "original",
+          "orientation": 180
+        }
+      ],
+      "registry_available": true
+    }
+  },
+  {
+    "candidate": 5,
+    "name_ocr": {
+      "text": "DARR NAGICIAN",
+      "score": 0.9469,
+      "variant": "tight_contrast",
+      "orientation": 180,
+      "matches": [],
+      "status": "not_in_registry",
+      "ambiguous": false,
+      "match_kind": null,
+      "suggestions": [],
+      "raw_observations": [
+        {
+          "text": "0012/330501V/1",
+          "score": 0.7149,
+          "variant": "original",
+          "orientation": 0
+        },
+        {
+          "text": "0T1/30 052110",
+          "score": 0.4655,
+          "variant": "tight_contrast",
+          "orientation": 0
+        },
+        {
+          "text": "DARR MAGICIAN A",
+          "score": 0.8959,
+          "variant": "original",
+          "orientation": 180
+        },
+        {
+          "text": "DARR NAGICIAN",
+          "score": 0.9469,
+          "variant": "tight_contrast",
+          "orientation": 180
+        }
+      ],
+      "registry_available": true
+    }
+  },
+  {
+    "candidate": 6,
+    "name_ocr": {
+      "text": "NUMBER 39: UTOPIA",
+      "score": 0.9936,
+      "variant": "original",
+      "orientation": 180,
+      "matches": [
+        {
+          "card_id": "c2e1b77c-8a38-4a26-8274-e8d6aea7e776",
+          "names": [
+            {
+              "language": "en",
+              "name": "Number 39: Utopia"
+            }
+          ]
+        }
+      ],
+      "status": "matched",
+      "ambiguous": false,
+      "match_kind": "normalized",
+      "suggestions": [],
+      "raw_observations": [
+        {
+          "text": "0002",
+          "score": 0.472,
+          "variant": "original",
+          "orientation": 0
+        },
+        {
+          "text": "/ 00",
+          "score": 0.4651,
+          "variant": "tight_contrast",
+          "orientation": 0
+        },
+        {
+          "text": "NUMBER 39: UTOPIA",
+          "score": 0.9936,
+          "variant": "original",
+          "orientation": 180
+        }
+      ],
+      "registry_available": true
+    }
+  },
+  {
+    "candidate": 7,
+    "name_ocr": {
+      "text": "0 2/000",
+      "score": 0.4741,
+      "variant": "tight_contrast",
+      "orientation": 0,
+      "matches": [],
+      "status": "low_confidence",
+      "ambiguous": false,
+      "match_kind": null,
+      "suggestions": [],
+      "raw_observations": [
+        {
+          "text": "0/30/251VS0",
+          "score": 0.4702,
+          "variant": "original",
+          "orientation": 0
+        },
+        {
+          "text": "0 2/000",
+          "score": 0.4741,
+          "variant": "tight_contrast",
+          "orientation": 0
+        },
+        {
+          "text": "022",
+          "score": 0.368,
+          "variant": "original",
+          "orientation": 180
+        },
+        {
+          "text": "ODA8PNDRON",
+          "score": 0.468,
+          "variant": "tight_contrast",
+          "orientation": 180
+        }
+      ],
+      "registry_available": true
+    }
+  }
+]

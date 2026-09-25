@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "real_passcode": "89631139",
+  "real_ocr_score": 0.8842,
+  "checks": [
+    "projective rectification",
+    "180-degree orientation fallback",
+    "leading zeroes",
+    "blank rejection",
+    "clipped card rejection",
+    "real photograph reading",
+    "typed passcode lookup, not image IDs",
+    "distinct-frame consensus",
+    "conflict and ambiguity handling",
+    "small-text confirmation guard",
+    "separate physical copies",
+    "nonblocking latest-frame queue"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "status": "matched",
+  "code": "LED3-EN006",
+  "matches": [
+    {
+      "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "printings": [
+        {
+          "language": "en",
+          "rarity": "common",
+          "edition": "1st"
+        },
+        {
+          "language": "en",
+          "rarity": "Common",
+          "edition": null
+        }
+      ]
+    }
+  ],
+  "raw_observations": [
+    {
+      "text": "LED3-EN006",
+      "score": 0.96456,
+      "codes": [
+        "LED3-EN006"
+      ],
+      "orientation": 0,
+      "region": 0
+    },
+    {
+      "text": "",
+      "score": 0.0,
+      "codes": [],
+      "orientation": 0,
+      "region": 1
+    },
+    {
+      "text": "ATK/3000 DEF/2500",
+      "score": 0.99934,
+      "codes": [],
+      "orientation": 0,
+      "region": 2
+    },
+    {
+      "text": "",
+      "score": 0.0,
+      "codes": [],
+      "orientation": 180,
+      "region": 0
+    },
+    {
+      "text": "",
+      "score": 0.0,
+      "codes": [],
+      "orientation": 180,
+      "region": 1
+    },
+    {
+      "text": "BLS B-BUWH",
+      "score": 0.75295,
+      "codes": [],
+      "orientation": 180,
+      "region": 2
+    }
+  ]
+}

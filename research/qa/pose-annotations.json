@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": [
+    "browser clicks/export",
+    "17-field label",
+    "partial corpus not train-ready",
+    "unreviewed rejected",
+    "same session split rejected"
+  ]
+}

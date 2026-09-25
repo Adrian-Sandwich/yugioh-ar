@@ -1,0 +1,164 @@
+{
+  "status": "passed",
+  "geometry_ms_single_run": 376.8,
+  "refined": 5,
+  "snapped": 1,
+  "total": 9,
+  "manual_approximation_not_benchmark": [
+    {
+      "candidate": 3,
+      "before_corner_error_px": 37.4,
+      "after_corner_error_px": 7.5
+    },
+    {
+      "candidate": 4,
+      "before_corner_error_px": 122.6,
+      "after_corner_error_px": 2.3
+    },
+    {
+      "candidate": 5,
+      "before_corner_error_px": 37.2,
+      "after_corner_error_px": 9.5
+    },
+    {
+      "candidate": 6,
+      "before_corner_error_px": 17.7,
+      "after_corner_error_px": 5.9
+    },
+    {
+      "candidate": 7,
+      "before_corner_error_px": 31.9,
+      "after_corner_error_px": 8.8
+    }
+  ],
+  "results": [
+    {
+      "geometry_status": "frame_edge"
+    },
+    {
+      "geometry_status": "frame_edge"
+    },
+    {
+      "geometry_status": "frame_edge"
+    },
+    {
+      "corners": [
+        [
+          1761.0,
+          496.5
+        ],
+        [
+          1578.0,
+          679.5
+        ],
+        [
+          1306.5,
+          417.0
+        ],
+        [
+          1483.5,
+          226.5
+        ]
+      ],
+      "geometry_status": "contour_refined",
+      "geometry_iou": 0.77,
+      "geometry_source": "contours_lines"
+    },
+    {
+      "corners": [
+        [
+          1031.7967529296875,
+          56.5439453125
+        ],
+        [
+          1317.64208984375,
+          81.70682525634766
+        ],
+        [
+          1273.043212890625,
+          495.1707458496094
+        ],
+        [
+          993.8555908203125,
+          474.762451171875
+        ]
+      ],
+      "geometry_status": "contour_refined",
+      "geometry_iou": 0.544,
+      "geometry_source": "snapped_edges"
+    },
+    {
+      "corners": [
+        [
+          982.5076293945312,
+          461.0274963378906
+        ],
+        [
+          904.6383666992188,
+          700.8982543945312
+        ],
+        [
+          531.8130493164062,
+          585.2025756835938
+        ],
+        [
+          608.460693359375,
+          339.1565246582031
+        ]
+      ],
+      "geometry_status": "contour_refined",
+      "geometry_iou": 0.721,
+      "geometry_source": "contours_lines"
+    },
+    {
+      "corners": [
+        [
+          276.0,
+          586.5
+        ],
+        [
+          532.5,
+          688.5
+        ],
+        [
+          388.5,
+          1048.5
+        ],
+        [
+          138.0,
+          948.0
+        ]
+      ],
+      "geometry_status": "contour_refined",
+      "geometry_iou": 0.891,
+      "geometry_source": "contours_lines"
+    },
+    {
+      "corners": [
+        [
+          271.70257568359375,
+          108.76559448242188
+        ],
+        [
+          515.8602905273438,
+          239.60818481445312
+        ],
+        [
+          334.72259521484375,
+          586.9309692382812
+        ],
+        [
+          96.05105590820312,
+          460.487548828125
+        ]
+      ],
+      "geometry_status": "contour_refined",
+      "geometry_iou": 0.768,
+      "geometry_source": "contours_lines"
+    },
+    {
+      "geometry_status": "unresolved"
+    }
+  ],
+  "limitations": "Single real scene; conservative abstention; no learned segmentation; thresholds uncalibrated."
+}

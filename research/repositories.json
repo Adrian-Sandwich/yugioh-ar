@@ -1,0 +1,54 @@
+﻿[
+    {
+        "name":  "tcg-ar",
+        "path":  "repos\\tcg-ar",
+        "remote":  "https://github.com/ULiege-VIULab/tcg-ar.git",
+        "commit":  "ee69f2f5a1dc128e3a2932a33b90268f3a530285",
+        "commit_date":  "2026-08-08",
+        "sparse":  false,
+        "tracked_files":  276,
+        "downloaded_files":  274,
+        "status":  [
+
+                   ]
+    },
+    {
+        "name":  "augmented-reality-card-game",
+        "path":  "repos\\augmented-reality-card-game",
+        "remote":  "https://github.com/josephjwilson/augmented-reality-card-game.git",
+        "commit":  "c24b00657a74a08829d2065c314a9557996aa7d4",
+        "commit_date":  "2023-10-16",
+        "sparse":  false,
+        "tracked_files":  1023,
+        "downloaded_files":  994,
+        "status":  [
+
+                   ]
+    },
+    {
+        "name":  "opencv-identifier-source",
+        "path":  "repos\\opencv-identifier-source",
+        "remote":  "https://github.com/haddad-github/OpenCV-YugiohCard-Identifier.git",
+        "commit":  "4a087053666cc380a9e2e9892d7ce80a79e1f6b7",
+        "commit_date":  "2022-04-09",
+        "sparse":  true,
+        "tracked_files":  11819,
+        "downloaded_files":  5,
+        "status":  [
+
+                   ]
+    },
+    {
+        "name":  "hololens-source",
+        "path":  "repos\\hololens-source",
+        "remote":  "https://github.com/Generalkidd/Yugioh-For-HoloLens.git",
+        "commit":  "151cb254c1511dce13222aa9b926e4af35a3000d",
+        "commit_date":  "2017-01-23",
+        "sparse":  true,
+        "tracked_files":  21150,
+        "downloaded_files":  388,
+        "status":  [
+
+                   ]
+    }
+]

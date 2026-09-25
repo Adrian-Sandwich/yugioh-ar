@@ -1,0 +1,59 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prueba de reflejos — siete cartas</title><style>body{background:#10141d;color:#ecf1f9;font:16px system-ui;margin:24px auto;max-width:1400px;padding:0 20px}a{color:#8de5ca}table{border-collapse:collapse;width:100%}td,th{padding:12px;border:1px solid #425169;text-align:left}img{max-width:100%;height:230px;object-fit:contain}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.sample{background:#192335;padding:14px;border-radius:10px}small{display:block;color:#bed0df}h2{margin-top:40px}@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
+<h1>Reflejos: comparación sobre una captura real</h1><p>Siete instancias de la misma escena y una foto cercana de control. Prueba exploratoria, sin imagen limpia pareada. Las puntuaciones son similitudes del piloto, no probabilidades.</p>
+<p>Las siete cartas: Ojos Anómalos (dos copias), Utopía, Dragón Negro, Mago Oscuro, Juicio Solemne y Dragón Blanco. La primera opción correcta no equivale a una identificación aceptada.</p>
+<table><tr><th>Variante</th><th>Primera opción correcta</th><th>Aceptadas correctas</th><th>Falsas aceptaciones</th><th>Seriales en mesa</th><th>Serial cercano</th><th>Restauración mediana</th></tr>
+<tr><td>original</td><td>7/7</td><td>4/7</td><td>0</td><td>0/7</td><td>Sí</td><td>—</td></tr>
+<tr><td>clahe</td><td>7/7</td><td>4/7</td><td>0</td><td>0/7</td><td>Sí</td><td>—</td></tr>
+<tr><td>docshrnet</td><td>7/7</td><td>4/7</td><td>0</td><td>0/7</td><td>Sí</td><td>17.01 s/carta</td></tr>
+<tr><td>mimo-shdocs</td><td>7/7</td><td>4/7</td><td>0</td><td>0/7</td><td>Sí</td><td>27.98 s/carta</td></tr>
+</table><p>Los tiempos de restauración son CPU, dos hilos, con otros servicios activos; excluyen captura y reconocimiento. No representan un límite de rendimiento del modelo.</p>
+<h2>table-01 · Dragón de Péndulo de Ojos Anómalos</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-01.png"><img src="outputs/original/table-01.png" alt="original: table-01"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.417 · margen 0.307</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-01.png"><img src="outputs/clahe/table-01.png" alt="clahe: table-01"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.396 · margen 0.285</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-01.png"><img src="outputs/docshrnet/table-01.png" alt="docshrnet: table-01"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.429 · margen 0.324</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-01.png"><img src="outputs/mimo-shdocs/table-01.png" alt="mimo-shdocs: table-01"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.394 · margen 0.274</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>table-02 · Número 39: Utopía</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-02.png"><img src="outputs/original/table-02.png" alt="original: table-02"></a><p>Número 39: Utopía</p><small>Aceptada · similitud 0.908 · margen 0.790</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-02.png"><img src="outputs/clahe/table-02.png" alt="clahe: table-02"></a><p>Número 39: Utopía</p><small>Aceptada · similitud 0.894 · margen 0.760</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-02.png"><img src="outputs/docshrnet/table-02.png" alt="docshrnet: table-02"></a><p>Número 39: Utopía</p><small>Aceptada · similitud 0.894 · margen 0.777</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-02.png"><img src="outputs/mimo-shdocs/table-02.png" alt="mimo-shdocs: table-02"></a><p>Número 39: Utopía</p><small>Aceptada · similitud 0.910 · margen 0.800</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>table-03 · Dragón Negro de Ojos Rojos</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-03.png"><img src="outputs/original/table-03.png" alt="original: table-03"></a><p>Dragón Negro de Ojos Rojos</p><small>Aceptada · similitud 0.921 · margen 0.651</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-03.png"><img src="outputs/clahe/table-03.png" alt="clahe: table-03"></a><p>Dragón Negro de Ojos Rojos</p><small>Aceptada · similitud 0.918 · margen 0.641</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-03.png"><img src="outputs/docshrnet/table-03.png" alt="docshrnet: table-03"></a><p>Dragón Negro de Ojos Rojos</p><small>Aceptada · similitud 0.909 · margen 0.644</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-03.png"><img src="outputs/mimo-shdocs/table-03.png" alt="mimo-shdocs: table-03"></a><p>Dragón Negro de Ojos Rojos</p><small>Aceptada · similitud 0.920 · margen 0.640</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>table-04 · Mago Oscuro</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-04.png"><img src="outputs/original/table-04.png" alt="original: table-04"></a><p>Mago Oscuro</p><small>Rechazada · similitud 0.661 · margen 0.477</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-04.png"><img src="outputs/clahe/table-04.png" alt="clahe: table-04"></a><p>Mago Oscuro</p><small>Rechazada · similitud 0.591 · margen 0.373</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-04.png"><img src="outputs/docshrnet/table-04.png" alt="docshrnet: table-04"></a><p>Mago Oscuro</p><small>Rechazada · similitud 0.621 · margen 0.436</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-04.png"><img src="outputs/mimo-shdocs/table-04.png" alt="mimo-shdocs: table-04"></a><p>Mago Oscuro</p><small>Rechazada · similitud 0.638 · margen 0.409</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>table-05 · Dragón de Péndulo de Ojos Anómalos</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-05.png"><img src="outputs/original/table-05.png" alt="original: table-05"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.595 · margen 0.443</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-05.png"><img src="outputs/clahe/table-05.png" alt="clahe: table-05"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.598 · margen 0.404</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-05.png"><img src="outputs/docshrnet/table-05.png" alt="docshrnet: table-05"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.576 · margen 0.418</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-05.png"><img src="outputs/mimo-shdocs/table-05.png" alt="mimo-shdocs: table-05"></a><p>Dragón de Péndulo de Ojos Anómalos</p><small>Rechazada · similitud 0.581 · margen 0.446</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>table-06 · Juicio Solemne</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-06.png"><img src="outputs/original/table-06.png" alt="original: table-06"></a><p>Juicio Solemne</p><small>Aceptada · similitud 0.837 · margen 0.689</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-06.png"><img src="outputs/clahe/table-06.png" alt="clahe: table-06"></a><p>Juicio Solemne</p><small>Aceptada · similitud 0.866 · margen 0.706</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-06.png"><img src="outputs/docshrnet/table-06.png" alt="docshrnet: table-06"></a><p>Juicio Solemne</p><small>Aceptada · similitud 0.809 · margen 0.662</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-06.png"><img src="outputs/mimo-shdocs/table-06.png" alt="mimo-shdocs: table-06"></a><p>Juicio Solemne</p><small>Aceptada · similitud 0.840 · margen 0.693</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>table-07 · Dragón Blanco de Ojos Azules</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/table-07.png"><img src="outputs/original/table-07.png" alt="original: table-07"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.938 · margen 0.691</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/table-07.png"><img src="outputs/clahe/table-07.png" alt="clahe: table-07"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.925 · margen 0.671</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/table-07.png"><img src="outputs/docshrnet/table-07.png" alt="docshrnet: table-07"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.941 · margen 0.693</small><small>OCR: Sin lectura</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/table-07.png"><img src="outputs/mimo-shdocs/table-07.png" alt="mimo-shdocs: table-07"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.942 · margen 0.693</small><small>OCR: Sin lectura</small></article>
+</div>
+<h2>close-blue · Dragón Blanco cercano</h2><div class="grid">
+<article class="sample"><h3>original</h3><a href="outputs/original/close-blue.png"><img src="outputs/original/close-blue.png" alt="original: close-blue"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.921 · margen 0.626</small><small>OCR: 89631139</small></article>
+<article class="sample"><h3>clahe</h3><a href="outputs/clahe/close-blue.png"><img src="outputs/clahe/close-blue.png" alt="clahe: close-blue"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.916 · margen 0.662</small><small>OCR: 89631139</small></article>
+<article class="sample"><h3>docshrnet</h3><a href="outputs/docshrnet/close-blue.png"><img src="outputs/docshrnet/close-blue.png" alt="docshrnet: close-blue"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.916 · margen 0.621</small><small>OCR: 89631139</small></article>
+<article class="sample"><h3>mimo-shdocs</h3><a href="outputs/mimo-shdocs/close-blue.png"><img src="outputs/mimo-shdocs/close-blue.png" alt="mimo-shdocs: close-blue"></a><p>Dragón Blanco de Ojos Azules</p><small>Aceptada · similitud 0.912 · margen 0.600</small><small>OCR: 89631139</small></article>
+</div>
+<p>Modelos externos evaluados sin entrenar ni modificar pesos. Los originales y cada salida están disponibles haciendo clic en la imagen.</p></html>

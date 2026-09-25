@@ -1,0 +1,31 @@
+{
+  "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+  "sqlite": "3.50.4",
+  "packages_current_environment": {
+    "ultralytics": "8.4.163",
+    "torch": "2.14.0",
+    "torchvision": "0.29.0",
+    "onnxruntime": null,
+    "opencv-python": "5.0.0.93",
+    "rapidocr": null
+  },
+  "free_disk_gb": 125.9,
+  "required_assets": {
+    "data/registry/registry.sqlite": true,
+    "data/catalog/catalog.sqlite": true,
+    "data/pilot/catalog.json": true,
+    "data/pilot/embeddings.npy": true,
+    "downloads/reference-assets/draw2/onnx/ygo_yolo.onnx": true,
+    "data/models/vit_small_features.onnx": true,
+    "downloads/reference-assets/yolo11-pose/yolo11n-pose.pt": true,
+    "downloads/reference-assets/yolo11-pose/yolo11s-pose.pt": true
+  },
+  "torch_runtime": {
+    "version": "2.14.0+cpu",
+    "cuda_available": false,
+    "cuda_version": null,
+    "device": "CPU"
+  }
+}

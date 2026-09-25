@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "frames_while_first_inference_running": 8,
+  "checks": [
+    "independent capture and inference",
+    "no repeated repaint of unchanged frame",
+    "slow result visible on analyzed frame after live-overlay expiry",
+    "POST JPEG analysis",
+    "recognition error recovery and lock release",
+    "busy response preserves session and reference image",
+    "pause/resume",
+    "camera reconnect",
+    "late image decode discarded after pause",
+    "transparent AR including black pixels",
+    "no browser JS errors"
+  ]
+}

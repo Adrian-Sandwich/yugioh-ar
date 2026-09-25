@@ -1,0 +1,26 @@
+{
+  "review_date": "2026-09-25",
+  "DocSHRNet": {
+    "repository": "https://github.com/shallweiwei/DocSHRNet",
+    "checkpoint": "https://drive.usercontent.google.com/download?id=1St86y5F_ltZXWGjIhjBfUkB81VsgRBvc&export=download&confirm=t",
+    "file": "downloads/glare-models/docshrnet.pth",
+    "license_note": "Repository README declares CC BY-NC-SA 4.0."
+  },
+  "MIMO-UNetPlus-SHDocs": {
+    "repository": "https://github.com/JovinLeong/SHDocs",
+    "checkpoint": "https://drive.usercontent.google.com/download?id=1KYpwIinRQhET2BDsx5F18pIBzGwnv0yJ&export=download&confirm=t",
+    "file": "downloads/glare-models/mimo-shdocs.pkl",
+    "variant": "First generalization study, trained on SHDocs; not the original GoPro deblurring checkpoint."
+  },
+  "UnReflectAnything": {
+    "repository": "https://github.com/alberto-rota/UnReflectAnything",
+    "checkpoint": "https://huggingface.co/AlbeRota/UnReflectAnything/resolve/main/weights/full_model_weights.pt",
+    "config": "https://huggingface.co/AlbeRota/UnReflectAnything/resolve/main/configs/pretrained_config.yaml",
+    "file": "downloads/glare-models/unreflect-full.pt",
+    "code_version": "1.1.1",
+    "status": "Checkpoint downloaded and SHA256 verified; inference not run.",
+    "dependency_check": "https://huggingface.co/facebook/dinov3-vitl16-pretrain-lvd1689m/resolve/main/config.json returned HTTP 401 without authentication.",
+    "next_requirement": "Authorized access to upstream DINOv3 and a compatible environment. The clone includes a public-mirror substitution but it was not used to work around the upstream access restriction.",
+    "license_note": "MIT project plus separate DINO license; retain both."
+  }
+}

@@ -1,0 +1,24 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anotar esquinas de cartas</title>
+<style>:root{color-scheme:dark}body{font:16px system-ui;background:#10151e;color:#edf3ff;margin:24px;max-width:1200px}button,input,select{font:inherit;padding:8px;margin:5px}canvas{max-width:100%;height:auto;border:1px solid #7d91ab;cursor:crosshair}p{line-height:1.5}#status{color:#9fe5c5}label{display:inline-block}button:disabled{opacity:.4}</style>
+<h1>Anotar las cuatro esquinas</h1>
+<p>Abre una foto y marca cada carta completa: <b>superior izquierda → superior derecha → inferior derecha → inferior izquierda</b>, según el nombre impreso de la carta, aunque aparezca girada en la foto. Repite para todas las cartas.</p>
+<p>Esta herramienta inicial admite esquinas visibles. Si hay cartas tapadas o cortadas, conserva la foto para el conjunto de oclusiones; no marques la escena como completa ni inventes sus esquinas.</p>
+<input id="imageFile" type="file" accept="image/jpeg,image/png" aria-label="Fotografía">
+<label>Sesión <input id="session" placeholder="mesa-a-sesion-01" pattern="[A-Za-z0-9_-]+"></label>
+<label>Partición <select id="split"><option value="train">Entrenamiento</option><option value="val">Validación</option><option value="test">Prueba reservada</option></select></label>
+<p>Una sesión completa pertenece a una sola partición. Guarda el JSON junto a la foto original.</p>
+<canvas id="canvas" width="960" height="540"></canvas>
+<div><button id="undo">Deshacer punto/carta</button><button id="clear">Limpiar anotaciones</button></div>
+<label><input id="reviewed" type="checkbox">Revisé el orden y marqué todas las cartas de esta foto (o confirmé que no contiene ninguna).</label>
+<button id="export" disabled>Guardar anotaciones JSON</button><p id="status" role="status">Esperando foto.</p>
+<script>
+const $=s=>document.querySelector(s),canvas=$('#canvas'),ctx=canvas.getContext('2d');
+let photo=null,file=null,hash='',points=[],cards=[];
+function paint(){ctx.clearRect(0,0,canvas.width,canvas.height);if(photo)ctx.drawImage(photo,0,0);ctx.lineWidth=Math.max(2,canvas.width/600);ctx.font=`bold ${Math.max(16,canvas.width/70)}px system-ui`;for(const ps of [...cards,points]){if(!ps.length)continue;ctx.beginPath();ps.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));if(ps.length===4)ctx.closePath();ctx.strokeStyle='#80ffbc';ctx.stroke();ps.forEach(([x,y],i)=>{ctx.fillStyle='#ff5252';ctx.fillRect(x-4,y-4,8,8);ctx.fillText(['TL','TR','BR','BL'][i],x+6,y-6)})}$('#status').textContent=`${cards.length} cartas · ${points.length}/4 puntos de la siguiente.`;$('#export').disabled=!file||points.length>0;}
+$('#imageFile').onchange=async()=>{const next=$('#imageFile').files[0];if(!next)return;const bytes=await next.arrayBuffer();hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');if(photo)photo.close();photo=await createImageBitmap(next);file=next;canvas.width=photo.width;canvas.height=photo.height;points=[];cards=[];$('#reviewed').checked=false;paint()};
+canvas.onclick=e=>{if(!photo)return;const box=canvas.getBoundingClientRect();points.push([(e.clientX-box.left)*canvas.width/box.width,(e.clientY-box.top)*canvas.height/box.height]);if(points.length===4){cards.push(points);points=[]}$('#reviewed').checked=false;paint()};
+$('#undo').onclick=()=>{if(points.length)points.pop();else if(cards.length){points=cards.pop();points.pop()}$('#reviewed').checked=false;paint()};
+$('#clear').onclick=()=>{points=[];cards=[];$('#reviewed').checked=false;paint()};
+$('#export').onclick=()=>{const session=$('#session').value.trim();if(!/^[A-Za-z0-9_-]{1,64}$/.test(session)||!$('#reviewed').checked){$('#status').textContent='Indica una sesión y confirma la revisión antes de guardar.';return}const record={version:1,image:file.name,image_sha256:hash,width:canvas.width,height:canvas.height,session,split:$('#split').value,reviewed:true,exhaustive:true,corner_order:['TL','TR','BR','BL'],objects:cards.map(corners=>({corners,visibility:[2,2,2,2],label_source:'human clicks; reviewed in annotator'}))};const link=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));link.href=url;link.download=file.name+'.pose.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('#status').textContent='JSON exportado. Conserva también la foto original.'};
+</script></html>

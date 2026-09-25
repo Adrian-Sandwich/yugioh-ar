@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "pixel_identical_cases": [
+    "empty_False",
+    "unstable_False",
+    "single_False",
+    "overlap_False",
+    "empty_True",
+    "unstable_True",
+    "single_True",
+    "overlap_True"
+  ],
+  "checks": [
+    "overlapping transparent sprites",
+    "opaque black pixels",
+    "no detections and unstable detections",
+    "one resize for repeated sprite",
+    "replacement invalidates canvas",
+    "bounded LRU eviction",
+    "explicit invalidation",
+    "composition limited to occupied region"
+  ],
+  "timing": "Not benchmarked; warp unchanged, identical alpha arithmetic on bounded regions"
+}

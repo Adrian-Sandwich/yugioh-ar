@@ -1,0 +1,18 @@
+# Entornos virtuales y caches de Python
+.venv*/
+__pycache__/
+*.pyc
+# Estado de ejecucion, logs y temporales
+.runtime/
+tmp*/
+Ultralytics/
+# Datos, descargas, clones externos y respaldos (varios GB; se copian aparte, ver research/TRANSFERENCIA_GENERAL.md)
+data/
+downloads/
+repos/
+transfer/
+# Salidas pesadas de experimentos (pesos de entrenamiento y benchmark de reflejos)
+research/yolo11_pose/runs/
+research/glare-benchmark/inputs/
+research/glare-benchmark/outputs/
+research/glare-benchmark/models/

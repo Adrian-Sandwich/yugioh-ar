@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-09-25T17:20:11.920258+00:00",
+  "cards": 14734,
+  "pilot_cards": 50,
+  "coverage": {
+    "en": {
+      "cards_with_name": 14734,
+      "cards_with_printings": 14130,
+      "cards_with_name_without_printings": 604
+    },
+    "es": {
+      "cards_with_name": 14314,
+      "cards_with_printings": 13839,
+      "cards_with_name_without_printings": 492
+    },
+    "de": {
+      "cards_with_name": 14332,
+      "cards_with_printings": 13942,
+      "cards_with_name_without_printings": 410
+    },
+    "fr": {
+      "cards_with_name": 14351,
+      "cards_with_printings": 13943,
+      "cards_with_name_without_printings": 408
+    },
+    "pt": {
+      "cards_with_name": 12463,
+      "cards_with_printings": 12301,
+      "cards_with_name_without_printings": 229
+    }
+  },
+  "cards_without_passcode": 635,
+  "shared_passcodes": {
+    "50590801": [
+      "02a38f7d-0c2c-417b-9935-6c179c19e49b",
+      "1d7b7e44-e421-4f3c-bfb8-ed361f976d3c"
+    ],
+    "18795635": [
+      "05350190-5bd9-4c6d-bdc2-714faf8070ac",
+      "a7848d5d-6046-4732-a60e-3181bda3ff59"
+    ],
+    "20938824": [
+      "0e358b73-dff0-4181-8d24-d2261a04ed1e",
+      "a425a140-2c9c-4fc0-9605-5fdb32e66ba8"
+    ],
+    "83838727": [
+      "1e306301-1c77-4fc3-8da6-9ee730718838",
+      "64a980d5-6629-47ea-8d3b-12cee1c27fd0"
+    ],
+    "97227123": [
+      "25bb386f-b9a1-4005-aaad-b9c0d1c6ab59",
+      "b470149a-62a7-479a-adfa-d878aae54f52"
+    ],
+    "55154344": [
+      "42bba501-8915-464b-8eaa-6effbb83170c",
+      "cc08efa1-bf81-4c5e-aadb-6143dedea851"
+    ],
+    "17749468": [
+      "4659025d-0a47-46bc-ab3c-027a0b41dae4",
+      "f1875505-14e6-4846-b305-5888f9c3f1fc"
+    ],
+    "06798031": [
+      "5a57cb93-c032-4b5a-8179-7e3636e02a64",
+      "c025eab4-0cf8-4a32-bf0e-a7402499e6ea"
+    ],
+    "31786838": [
+      "6c25efd8-f56d-4238-8e0d-d53821a5c833",
+      "ca41aafd-684b-4479-981e-06132ae3e2f3"
+    ],
+    "56651978": [
+      "737dfa1e-91d2-48b2-b523-99662809d4a1",
+      "9d1aae32-70db-40a8-91ae-c663fdf9dbc1"
+    ],
+    "27420823": [
+      "8196cbfd-220e-4f6d-bb84-73cae2c07402",
+      "bacb727c-f82f-4c9e-8f33-6b283750c799"
+    ],
+    "20726052": [
+      "8900bac3-3ccb-4f33-a31f-71c51ef13eb6",
+      "dbf7a067-733d-442b-afde-e39f6b94f7d4"
+    ],
+    "20415050": [
+      "da1a11b1-e866-42c2-93ae-990b249b1592",
+      "f94da51d-20a1-42dc-a176-a703ab8dcde9"
+    ]
+  },
+  "invalid_passcodes": [],
+  "issues_by_kind": {
+    "ambiguous_neuron_cid": 90,
+    "duplicate_neuron_cid": 9,
+    "invalid_passcode": 3,
+    "unmapped_game_pack": 17
+  },
+  "review_counts": {
+    "missing_name": 2272,
+    "missing_printing": 2435,
+    "missing_passcode": 635,
+    "missing_art": 118,
+    "shared_passcode": 26
+  }
+}

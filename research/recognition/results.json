@@ -1,0 +1,88 @@
+[
+  {
+    "sample": "carta-2026-09-25T04-15-11-032Z.jpg",
+    "expected": true,
+    "detections": [
+      {
+        "id": "blue-eyes-user-art-01",
+        "name": "Blue-Eyes White Dragon",
+        "corners": [
+          [
+            797.5999755859375,
+            361.5
+          ],
+          [
+            1056.0999755859375,
+            264.6000061035156
+          ],
+          [
+            1208.199951171875,
+            660.9000244140625
+          ],
+          [
+            945.0999755859375,
+            752.7000122070312
+          ]
+        ],
+        "inliers": 218,
+        "matches": 222,
+        "inlier_ratio": 0.982,
+        "reference_coverage": 0.406
+      }
+    ],
+    "processing_ms": 304.6,
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "sample": "carta-2026-09-25T04-13-54-278Z.jpg",
+    "expected": true,
+    "detections": [
+      {
+        "id": "blue-eyes-user-art-01",
+        "name": "Blue-Eyes White Dragon",
+        "corners": [
+          [
+            798.9000244140625,
+            396.3999938964844
+          ],
+          [
+            1078.300048828125,
+            254.89999389648438
+          ],
+          [
+            1294.199951171875,
+            692.7000122070312
+          ],
+          [
+            1001.0999755859375,
+            819.0999755859375
+          ]
+        ],
+        "inliers": 285,
+        "matches": 286,
+        "inlier_ratio": 0.997,
+        "reference_coverage": 0.412
+      }
+    ],
+    "processing_ms": 317.4,
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "sample": "same-background-card-masked",
+    "expected": false,
+    "detections": [],
+    "processing_ms": 311.9,
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "sample": "blank",
+    "expected": false,
+    "detections": [],
+    "processing_ms": 148.7,
+    "width": 1280,
+    "height": 720
+  }
+]

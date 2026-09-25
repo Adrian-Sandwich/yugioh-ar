@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "samples": [
+    "close-blue.png",
+    "table-01.png",
+    "table-02.png",
+    "table-03.png",
+    "table-04.png",
+    "table-05.png",
+    "table-06.png",
+    "table-07.png"
+  ],
+  "checks": [
+    "classifier still returns five predictions",
+    "retrieval skips classifier softmax",
+    "bit-identical normalized features",
+    "bit-identical pilot cosine scores"
+  ],
+  "timing": "Not benchmarked; ONNX forward remains unchanged"
+}

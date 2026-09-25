@@ -1,0 +1,57 @@
+[
+  {
+    "file": "research\\references-20260924\\medium-draw.html",
+    "url": "https://medium.com/@hich.tala.phd/how-i-trained-a-model-to-detect-and-recognise-a-wide-range-of-yu-gi-oh-cards-6ea71da007fd",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "research\\references-20260924\\towardsdatascience.html",
+    "url": "https://towardsdatascience.com/i-made-an-ai-to-recognize-over-10-000-yugioh-cards-26fc6aed1588/",
+    "status": 200,
+    "final_url": "https://towardsdatascience.com/i-made-an-ai-to-recognize-over-10-000-yugioh-cards-26fc6aed1588/",
+    "bytes": 149160,
+    "sha256": "2f5020bac3ec95b58fb0006eedc5da2456d87b5738c4e4f095a3b84d5a22e71a"
+  },
+  {
+    "file": "research\\references-20260924\\reddit-draw.html",
+    "url": "https://www.reddit.com/r/yugioh/comments/1avcvae/i_trained_a_deep_learning_model_to_detect_yugioh/",
+    "status": 200,
+    "final_url": "https://www.reddit.com/r/yugioh/comments/1avcvae/i_trained_a_deep_learning_model_to_detect_yugioh/",
+    "bytes": 8472,
+    "sha256": "7651762c7179a7b43ef6ee62ac2d48c3389e489be3614dfb3fa5f62180a21b87"
+  },
+  {
+    "file": "research\\references-20260924\\roboflow.html",
+    "url": "https://universe.roboflow.com/unikl-ai/yu-gi-oh-card-detection",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "research\\references-20260924\\roboflow-download.html",
+    "url": "https://universe.roboflow.com/unikl-ai/yu-gi-oh-card-detection/dataset/1/download/yolov8",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "research\\references-20260924\\hf-draw.json",
+    "url": "https://huggingface.co/api/models/HichTala/draw?blobs=true",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/models/HichTala/draw?blobs=true",
+    "bytes": 2250,
+    "sha256": "81ddfafba5daab2d6859133a8269908eebf4dc75c13e3ba21a412022ba039ce3"
+  },
+  {
+    "file": "research\\references-20260924\\hf-draw2.json",
+    "url": "https://huggingface.co/api/models/HichTala/draw2?blobs=true",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/models/HichTala/draw2?blobs=true",
+    "bytes": 3506,
+    "sha256": "4e0c67b360a5ff9f30b4a09e6d4adb11cc299a93d53d5a0e091b155f34461821"
+  },
+  {
+    "file": "research\\references-20260924\\hf-retro-dataset.json",
+    "url": "https://huggingface.co/api/datasets/HichTala/tw-2008-ygo-dataset?blobs=true",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/datasets/HichTala/tw-2008-ygo-dataset?blobs=true",
+    "bytes": 1737,
+    "sha256": "935fa8feee625ec1d3e4fd94f48329823dcbf01ae765afa8e3bd61d40d5e1456"
+  }
+]

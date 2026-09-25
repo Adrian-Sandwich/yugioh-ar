@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "reference_image": "user-reference.jpg",
+  "coordinate_system": "x_min,y_min,x_max,y_max normalized to rectified full card, origin top left",
+  "status": "manual approximate annotation priors; validate before automated cropping",
+  "template": "classic non-pendulum monster",
+  "zones": {
+    "name": [0.06, 0.035, 0.82, 0.14],
+    "attribute": [0.82, 0.035, 0.97, 0.14],
+    "level_or_rank": [0.05, 0.14, 0.95, 0.21],
+    "illustration": [0.10, 0.21, 0.90, 0.72],
+    "set_code_classic": [0.54, 0.71, 0.96, 0.77],
+    "legacy_edition": [0.07, 0.71, 0.50, 0.77],
+    "type_line": [0.05, 0.77, 0.94, 0.81],
+    "description": [0.05, 0.80, 0.95, 0.91],
+    "attack_defense": [0.44, 0.90, 0.95, 0.95],
+    "passcode": [0.035, 0.955, 0.38, 0.995],
+    "copyright_edition_footer": [0.35, 0.95, 0.94, 0.995],
+    "security_foil": [0.92, 0.94, 0.99, 0.995]
+  },
+  "requires_separate_templates": ["pendulum", "link", "spell", "trap", "skill", "token", "rush_duel"],
+  "identifiers": {
+    "passcode": {"type": "nullable text", "pattern": "^[0-9]{8}$", "scope": "identity", "cardinality": "zero or more per identity"},
+    "set_code": {"type": "nullable text", "scope": "printing observation", "unique": false},
+    "neuron_cid": {"type": "integer", "scope": "official page identifier, not printed passcode"},
+    "game_id": {"type": "text", "scope": "simulator resource"},
+    "image_source_id": {"type": "text", "scope": "source artwork resource, not passcode evidence"}
+  }
+}

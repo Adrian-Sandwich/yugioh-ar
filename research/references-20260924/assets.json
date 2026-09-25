@@ -1,0 +1,134 @@
+[
+  {
+    "repo": "HichTala/draw",
+    "revision": "bf542b350ecef00400f92bc4dc785df9177ffa02",
+    "url": "https://huggingface.co/HichTala/draw/resolve/bf542b350ecef00400f92bc4dc785df9177ffa02/README.md",
+    "file": "downloads\\reference-assets\\draw\\README.md",
+    "expected_bytes": 8679,
+    "status": "downloaded",
+    "bytes": 8679,
+    "sha256": "4e70ad2825e857fec2abf04aa42357c906dbc8944bf46f6cdb627be9cf270cbb",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw",
+    "revision": "bf542b350ecef00400f92bc4dc785df9177ffa02",
+    "url": "https://huggingface.co/HichTala/draw/resolve/bf542b350ecef00400f92bc4dc785df9177ffa02/yolo_ygo.pt",
+    "file": "downloads\\reference-assets\\draw\\yolo_ygo.pt",
+    "expected_bytes": 6223907,
+    "status": "downloaded",
+    "bytes": 6223907,
+    "sha256": "c11d56b91853ae00a0c2c387fb8e567342aa4a06c65f1f3ea08720334d50eeee",
+    "upstream_sha256_verified": true
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/README.md",
+    "file": "downloads\\reference-assets\\draw2\\README.md",
+    "expected_bytes": 8928,
+    "status": "downloaded",
+    "bytes": 8928,
+    "sha256": "cb8db97696545a2f85130138b5778b8893191d97aef471c2da9bac0c1902eb15",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/cardnames.json",
+    "file": "downloads\\reference-assets\\draw2\\cardnames.json",
+    "expected_bytes": 3499131,
+    "status": "downloaded",
+    "bytes": 3499131,
+    "sha256": "538cbb44e9f899780875243a1da32e3e08a6098d46664e7f7c3190f30a411f74",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/config.json",
+    "file": "downloads\\reference-assets\\draw2\\config.json",
+    "expected_bytes": 1222343,
+    "status": "downloaded",
+    "bytes": 1222343,
+    "sha256": "aef74f8c18029f902e5fb8cd73dbfa61bae1ac1a3ea7b5353a71168ea5c92269",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/draw_config.json",
+    "file": "downloads\\reference-assets\\draw2\\draw_config.json",
+    "expected_bytes": 306,
+    "status": "downloaded",
+    "bytes": 306,
+    "sha256": "6926c8392e93b969e9e6c891066a8fcd4561ea9337e1913fcfa29bd848b2a806",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/onnx/card_labels_yugiscan.json",
+    "file": "downloads\\reference-assets\\draw2\\onnx\\card_labels_yugiscan.json",
+    "expected_bytes": 575524,
+    "status": "downloaded",
+    "bytes": 575524,
+    "sha256": "4f558eeef0be9f530d1f4b58eab0520af21ef845c6482105161be98db290b90b",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/onnx/cardnames_onnx.json",
+    "file": "downloads\\reference-assets\\draw2\\onnx\\cardnames_onnx.json",
+    "expected_bytes": 2233213,
+    "status": "downloaded",
+    "bytes": 2233213,
+    "sha256": "edd7802f759c3484dff8be5cb2e8be83da2819c5ba6296e0929fd4b5aa00fcc5",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/onnx/vit_yugiscan_int8.onnx",
+    "file": "downloads\\reference-assets\\draw2\\onnx\\vit_yugiscan_int8.onnx",
+    "expected_bytes": 97580672,
+    "status": "downloaded",
+    "bytes": 97580672,
+    "sha256": "bcde9c36204d391f44d11038a5dcd7742b99f1fcbdf26583670be29010cd8bd9",
+    "upstream_sha256_verified": true
+  },
+  {
+    "repo": "HichTala/draw2",
+    "revision": "1030c147c4d0c1c48a3467581ec317087d233f9d",
+    "url": "https://huggingface.co/HichTala/draw2/resolve/1030c147c4d0c1c48a3467581ec317087d233f9d/onnx/ygo_yolo.onnx",
+    "file": "downloads\\reference-assets\\draw2\\onnx\\ygo_yolo.onnx",
+    "expected_bytes": 39016336,
+    "status": "downloaded",
+    "bytes": 39016336,
+    "sha256": "449e0d42cbf8429b170abf44d50cda29beeeb05dc80890102e12c06d6358cf97",
+    "upstream_sha256_verified": true
+  },
+  {
+    "repo": "HichTala/tw-2008-ygo-dataset",
+    "revision": "9d3f9e303e30bf6925f4403a36c6d5b39196d31e",
+    "url": "https://huggingface.co/datasets/HichTala/tw-2008-ygo-dataset/resolve/9d3f9e303e30bf6925f4403a36c6d5b39196d31e/README.md",
+    "file": "downloads\\reference-assets\\retro-dataset\\README.md",
+    "expected_bytes": 8746,
+    "status": "downloaded",
+    "bytes": 8746,
+    "sha256": "e13c05c00c62bf36c9f53b9422866dfd3be15454d05a363a7278f74c2c367e1f",
+    "upstream_sha256_verified": false
+  },
+  {
+    "repo": "HichTala/tw-2008-ygo-dataset",
+    "revision": "9d3f9e303e30bf6925f4403a36c6d5b39196d31e",
+    "url": "https://huggingface.co/datasets/HichTala/tw-2008-ygo-dataset/resolve/9d3f9e303e30bf6925f4403a36c6d5b39196d31e/club_yugioh_dataset.zip",
+    "file": "downloads\\reference-assets\\retro-dataset\\club_yugioh_dataset.zip",
+    "expected_bytes": 47342137,
+    "status": "downloaded",
+    "bytes": 47342137,
+    "sha256": "cf2ad7de08f989e15a248c5bf5160c39305a83a25c9d726ac1f8614360261ee7",
+    "upstream_sha256_verified": true
+  }
+]

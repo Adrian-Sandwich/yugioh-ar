@@ -1,0 +1,67 @@
+{
+  "sample": "../captures/carta-2026-09-25T04-15-19-512Z.jpg",
+  "native_card_size": [
+    478.07000732421875,
+    710.317626953125
+  ],
+  "best": {
+    "passcode": "89631139",
+    "text": "89631139 1 Edit",
+    "score": 0.8842,
+    "variant": "tight",
+    "orientation": 0,
+    "numbers": [
+      "89631139"
+    ]
+  },
+  "ambiguous": false,
+  "observations": [
+    {
+      "text": "89631139 1 Edit",
+      "score": 0.8842,
+      "variant": "tight",
+      "orientation": 0,
+      "numbers": [
+        "89631139"
+      ]
+    },
+    {
+      "text": "9631139  Edition",
+      "score": 0.9293,
+      "variant": "wide",
+      "orientation": 0,
+      "numbers": []
+    },
+    {
+      "text": "89631139  Edition",
+      "score": 0.8622,
+      "variant": "contrast",
+      "orientation": 0,
+      "numbers": [
+        "89631139"
+      ]
+    },
+    {
+      "text": "",
+      "score": 0.0,
+      "variant": "tight",
+      "orientation": 180,
+      "numbers": []
+    },
+    {
+      "text": "",
+      "score": 0.0,
+      "variant": "wide",
+      "orientation": 180,
+      "numbers": []
+    },
+    {
+      "text": "",
+      "score": 0.0,
+      "variant": "contrast",
+      "orientation": 180,
+      "numbers": []
+    }
+  ],
+  "processing_ms": 602
+}

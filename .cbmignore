@@ -1,0 +1,16 @@
+# Index application code, not downloaded datasets, dependencies or third-party clones.
+.venv/
+.venv-eval/
+.venv-glare/
+.runtime/
+__pycache__/
+downloads/
+repos/
+data/
+tmp*/
+research/qa/
+research/glare-benchmark/inputs/
+research/glare-benchmark/outputs/
+.venv-pose/
+transfer/
+Ultralytics/

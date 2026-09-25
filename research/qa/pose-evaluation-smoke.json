@@ -1,0 +1,62 @@
+{
+  "summary": {
+    "images": 4,
+    "truth_instances": 9,
+    "predicted_instances": 0,
+    "matched_bbox_iou_05": 0,
+    "bbox_precision": null,
+    "bbox_recall": 0.0,
+    "matched_corners_measured": 0,
+    "corner_error_px_median": null,
+    "corner_error_diagonal_median": null,
+    "wall_ms_p50": 32.57030000008854,
+    "wall_ms_p95": 33.76470499996458,
+    "caution": "Single-frame batch1 predict wall time; small samples/synthetic scenes are not deployment validation."
+  },
+  "observations": [
+    {
+      "image": "images/val/00000.jpg",
+      "truth": 3,
+      "predicted": 0,
+      "matched": 0,
+      "visible_corner_error_px": [],
+      "visible_corner_error_diagonal": [],
+      "elapsed_ms": 31.941400000050635
+    },
+    {
+      "image": "images/val/00001.jpg",
+      "truth": 2,
+      "predicted": 0,
+      "matched": 0,
+      "visible_corner_error_px": [],
+      "visible_corner_error_diagonal": [],
+      "elapsed_ms": 33.19920000012644
+    },
+    {
+      "image": "images/val/00002.jpg",
+      "truth": 1,
+      "predicted": 0,
+      "matched": 0,
+      "visible_corner_error_px": [],
+      "visible_corner_error_diagonal": [],
+      "elapsed_ms": 31.83149999995294
+    },
+    {
+      "image": "images/val/00003.jpg",
+      "truth": 3,
+      "predicted": 0,
+      "matched": 0,
+      "visible_corner_error_px": [],
+      "visible_corner_error_diagonal": [],
+      "elapsed_ms": 33.864499999936015
+    }
+  ],
+  "weights": "research\\yolo11_pose\\runs\\yolo11n-smoke-3\\weights\\best.pt",
+  "ultralytics": "8.4.163",
+  "torch": "2.14.0+cpu",
+  "device": "cpu",
+  "imgsz": 320,
+  "matching": "greedy one-to-one bbox IoU >= 0.5; semantic TL/TR/BR/BL order, no cyclic minimization",
+  "visibility_warning": "Stock loss treats v=1 and v=2 as present. Output confidence is NOT observed/occluded classification.",
+  "deployable": false
+}

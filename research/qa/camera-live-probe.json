@@ -1,0 +1,10 @@
+{
+  "live": true,
+  "frames_received": 68,
+  "completed_analyses": 2,
+  "duration_seconds": 19.02,
+  "images_changed": true,
+  "status": "Cámara en vivo · fotograma 68 · 199 ms",
+  "detection": "Último análisis: Dragón Blanco de Ojos Azules · objeto 3 · confirmada / Mago Oscuro · objeto 12 · detectada / Dragón Negro de Ojos Rojos · objeto 1 · confirmada · 3586.1 ms",
+  "javascript_errors": []
+}

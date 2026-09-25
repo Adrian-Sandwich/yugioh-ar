@@ -1,0 +1,1873 @@
+[
+  {
+    "method": "sift",
+    "sample": "synthetic-multiple",
+    "source": "synthetic; gallery images reused, not accuracy evidence",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "c0285d04-cadd-402d-a865-799a182d7510"
+    ],
+    "accepted_count": 3,
+    "correct_identity_instances": 3,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "id": "tdoane:card:36996508.jpg",
+        "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+        "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+        "sprite_ref": "tdoane:sprite:36996508.png",
+        "name": "Mago Oscuro",
+        "corners": [
+          [
+            1130.0999755859375,
+            100.0
+          ],
+          [
+            1440.0999755859375,
+            149.89999389648438
+          ],
+          [
+            1390.0,
+            610.0999755859375
+          ],
+          [
+            1090.0,
+            549.9000244140625
+          ]
+        ],
+        "inliers": 411,
+        "matches": 413,
+        "inlier_ratio": 0.995,
+        "reference_coverage": 0.321,
+        "track_id": 1,
+        "stable": true
+      },
+      {
+        "id": "tdoane:card:89631139.jpg",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+        "sprite_ref": "tdoane:sprite:89631139.png",
+        "name": "Dragón Blanco de Ojos Azules",
+        "corners": [
+          [
+            90.0,
+            109.9000015258789
+          ],
+          [
+            364.8999938964844,
+            75.0999984741211
+          ],
+          [
+            389.8999938964844,
+            545.0
+          ],
+          [
+            70.0999984741211,
+            575.0
+          ]
+        ],
+        "inliers": 274,
+        "matches": 280,
+        "inlier_ratio": 0.979,
+        "reference_coverage": 0.388,
+        "track_id": 2,
+        "stable": true
+      },
+      {
+        "id": "tdoane:card:89631139.jpg",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+        "sprite_ref": "tdoane:sprite:89631139.png",
+        "name": "Dragón Blanco de Ojos Azules",
+        "corners": [
+          [
+            600.2000122070312,
+            259.6000061035156
+          ],
+          [
+            835.0,
+            180.5
+          ],
+          [
+            959.7999877929688,
+            605.2999877929688
+          ],
+          [
+            714.9000244140625,
+            675.7000122070312
+          ]
+        ],
+        "inliers": 240,
+        "matches": 243,
+        "inlier_ratio": 0.988,
+        "reference_coverage": 0.395,
+        "track_id": 3,
+        "stable": true
+      }
+    ],
+    "processing_ms": 3443.3,
+    "width": 1600,
+    "height": 900,
+    "references": 63,
+    "mode": "sift-pilot"
+  },
+  {
+    "method": "sift",
+    "sample": "synthetic-shadow-rotation",
+    "source": "synthetic geometry/illumination smoke test",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "c0285d04-cadd-402d-a865-799a182d7510"
+    ],
+    "accepted_count": 3,
+    "correct_identity_instances": 3,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "id": "tdoane:card:36996508.jpg",
+        "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+        "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+        "sprite_ref": "tdoane:sprite:36996508.png",
+        "name": "Mago Oscuro",
+        "corners": [
+          [
+            469.3999938964844,
+            799.5
+          ],
+          [
+            159.3000030517578,
+            749.4000244140625
+          ],
+          [
+            209.39999389648438,
+            289.6000061035156
+          ],
+          [
+            509.3999938964844,
+            349.3999938964844
+          ]
+        ],
+        "inliers": 399,
+        "matches": 401,
+        "inlier_ratio": 0.995,
+        "reference_coverage": 0.322
+      },
+      {
+        "id": "tdoane:card:89631139.jpg",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+        "sprite_ref": "tdoane:sprite:89631139.png",
+        "name": "Dragón Blanco de Ojos Azules",
+        "corners": [
+          [
+            1509.4000244140625,
+            789.5
+          ],
+          [
+            1234.300048828125,
+            824.5
+          ],
+          [
+            1209.5999755859375,
+            354.6000061035156
+          ],
+          [
+            1529.0999755859375,
+            324.6000061035156
+          ]
+        ],
+        "inliers": 225,
+        "matches": 226,
+        "inlier_ratio": 0.996,
+        "reference_coverage": 0.271
+      },
+      {
+        "id": "tdoane:card:89631139.jpg",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+        "sprite_ref": "tdoane:sprite:89631139.png",
+        "name": "Dragón Blanco de Ojos Azules",
+        "corners": [
+          [
+            999.2999877929688,
+            639.7000122070312
+          ],
+          [
+            764.4000244140625,
+            719.2000122070312
+          ],
+          [
+            639.7999877929688,
+            294.3999938964844
+          ],
+          [
+            884.4000244140625,
+            223.89999389648438
+          ]
+        ],
+        "inliers": 220,
+        "matches": 224,
+        "inlier_ratio": 0.982,
+        "reference_coverage": 0.379
+      }
+    ],
+    "processing_ms": 2976.4,
+    "width": 1600,
+    "height": 900,
+    "references": 63,
+    "mode": "sift-pilot"
+  },
+  {
+    "method": "sift",
+    "sample": "blank",
+    "source": "controlled negative",
+    "expected": [],
+    "accepted_count": 0,
+    "correct_identity_instances": 0,
+    "false_identity_instances": 0,
+    "detections": [],
+    "processing_ms": 162.4,
+    "width": 1280,
+    "height": 720,
+    "references": 63,
+    "mode": "sift-pilot"
+  },
+  {
+    "method": "sift",
+    "sample": "synthetic-outside-pilot",
+    "source": "synthetic; identity excluded from pilot, present in full catalog",
+    "expected": [],
+    "accepted_count": 0,
+    "correct_identity_instances": 0,
+    "false_identity_instances": 0,
+    "detections": [],
+    "processing_ms": 1884.5,
+    "width": 1280,
+    "height": 720,
+    "references": 63,
+    "mode": "sift-pilot"
+  },
+  {
+    "method": "sift",
+    "sample": "carta-2026-09-25T04-15-11-032Z.jpg",
+    "source": "real capture; one identity, one session",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "id": "tdoane:card:89631140.jpg",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+        "sprite_ref": "tdoane:sprite:89631140.png",
+        "name": "Dragón Blanco de Ojos Azules",
+        "corners": [
+          [
+            788.5999755859375,
+            359.79998779296875
+          ],
+          [
+            1063.5999755859375,
+            258.1000061035156
+          ],
+          [
+            1215.0,
+            657.5
+          ],
+          [
+            939.9000244140625,
+            761.5
+          ]
+        ],
+        "inliers": 218,
+        "matches": 223,
+        "inlier_ratio": 0.978,
+        "reference_coverage": 0.392,
+        "track_id": 1,
+        "stable": true
+      }
+    ],
+    "processing_ms": 4912.5,
+    "width": 1920,
+    "height": 1080,
+    "references": 63,
+    "mode": "sift-pilot"
+  },
+  {
+    "method": "sift",
+    "sample": "carta-2026-09-25T04-13-54-278Z.jpg",
+    "source": "real capture; one identity, one session",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "id": "tdoane:card:89631140.jpg",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+        "sprite_ref": "tdoane:sprite:89631140.png",
+        "name": "Dragón Blanco de Ojos Azules",
+        "corners": [
+          [
+            789.9000244140625,
+            396.20001220703125
+          ],
+          [
+            1086.0,
+            246.3000030517578
+          ],
+          [
+            1303.5999755859375,
+            688.9000244140625
+          ],
+          [
+            996.4000244140625,
+            829.5999755859375
+          ]
+        ],
+        "inliers": 287,
+        "matches": 293,
+        "inlier_ratio": 0.98,
+        "reference_coverage": 0.392,
+        "track_id": 1,
+        "stable": true
+      }
+    ],
+    "processing_ms": 4053.5,
+    "width": 1920,
+    "height": 1080,
+    "references": 63,
+    "mode": "sift-pilot"
+  },
+  {
+    "method": "draw2-small",
+    "sample": "synthetic-multiple",
+    "source": "synthetic; gallery images reused, not accuracy evidence",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "c0285d04-cadd-402d-a865-799a182d7510"
+    ],
+    "accepted_count": 3,
+    "correct_identity_instances": 3,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+        "corners": [
+          [
+            1117.9249267578125,
+            97.48687744140625
+          ],
+          [
+            1442.1239013671875,
+            121.111083984375
+          ],
+          [
+            1406.7701416015625,
+            606.2765502929688
+          ],
+          [
+            1082.5711669921875,
+            582.65234375
+          ]
+        ],
+        "score": 0.8580572605133057,
+        "margin": 0.8577549016044941,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 2686,
+            "label": "Dark-Magician-46986414",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "score": 0.8580572605133057
+          },
+          {
+            "index": 2691,
+            "label": "Dark-Magician-of-Chaos-40737112",
+            "card_id": "9dd2ce8b-589d-4733-9644-eab895111c71",
+            "score": 0.0003023589088115841
+          },
+          {
+            "index": 2687,
+            "label": "Dark-Magician-Girl-38033121",
+            "card_id": "6cb08e9f-e85c-464b-b3ec-71fe7790ceb7",
+            "score": 0.00010538431524764746
+          },
+          {
+            "index": 526,
+            "label": "Apprentice-Illusion-Magician-30603688",
+            "card_id": "2d963e76-0567-4877-8af3-799c4f81ccef",
+            "score": 0.00010267581819789484
+          },
+          {
+            "index": 5587,
+            "label": "Harpie-Lady-Phoenix-Formation-86308219",
+            "card_id": "6c1f8f99-a53b-4a4f-b905-9f5428ae0b14",
+            "score": 0.00010065350215882063
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9600430727005005
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            71.01762390136719,
+            79.96080017089844
+          ],
+          [
+            383.5135498046875,
+            79.62460327148438
+          ],
+          [
+            384.04510498046875,
+            573.6910400390625
+          ],
+          [
+            71.54917907714844,
+            574.0272216796875
+          ]
+        ],
+        "score": 0.8774970769882202,
+        "margin": 0.8773756869850331,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 1320,
+            "label": "Blue-Eyes-White-Dragon-89631139",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "score": 0.8774970769882202
+          },
+          {
+            "index": 1308,
+            "label": "Blue-Eyes-Alternative-White-Dragon-38517737",
+            "card_id": "edf6fefd-6856-4409-aa04-82e0b23c70df",
+            "score": 0.00012139000318711624
+          },
+          {
+            "index": 1315,
+            "label": "Blue-Eyes-Toon-Dragon-53183600",
+            "card_id": "c039e56f-9a89-4f5a-a43f-e4109265978c",
+            "score": 9.567153756506741e-05
+          },
+          {
+            "index": 2686,
+            "label": "Dark-Magician-46986414",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "score": 7.310564251383767e-05
+          },
+          {
+            "index": 8230,
+            "label": "Nibiru,-the-Primal-Being-27204311",
+            "card_id": "049334b7-33ab-4f61-b0a2-7a2b385c8e77",
+            "score": 6.422612204914913e-05
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9359254240989685
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            582.058837890625,
+            239.28538513183594
+          ],
+          [
+            841.810791015625,
+            165.35116577148438
+          ],
+          [
+            971.5662841796875,
+            621.2191772460938
+          ],
+          [
+            711.8143310546875,
+            695.1534423828125
+          ]
+        ],
+        "score": 0.8913893103599548,
+        "margin": 0.8912545125349425,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 1320,
+            "label": "Blue-Eyes-White-Dragon-89631139",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "score": 0.8913893103599548
+          },
+          {
+            "index": 1308,
+            "label": "Blue-Eyes-Alternative-White-Dragon-38517737",
+            "card_id": "edf6fefd-6856-4409-aa04-82e0b23c70df",
+            "score": 0.00013479782501235604
+          },
+          {
+            "index": 1315,
+            "label": "Blue-Eyes-Toon-Dragon-53183600",
+            "card_id": "c039e56f-9a89-4f5a-a43f-e4109265978c",
+            "score": 8.771795546635985e-05
+          },
+          {
+            "index": 8230,
+            "label": "Nibiru,-the-Primal-Being-27204311",
+            "card_id": "049334b7-33ab-4f61-b0a2-7a2b385c8e77",
+            "score": 5.640782183036208e-05
+          },
+          {
+            "index": 2668,
+            "label": "Dark-Horus-66214679",
+            "card_id": "7a057d13-105b-49a3-90c6-622a50f08f03",
+            "score": 5.6272419897140935e-05
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9289264678955078
+      }
+    ],
+    "processing_ms": 1722.3,
+    "mode": "classifier",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "draw2-small",
+    "sample": "synthetic-shadow-rotation",
+    "source": "synthetic geometry/illumination smoke test",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "c0285d04-cadd-402d-a865-799a182d7510"
+    ],
+    "accepted_count": 3,
+    "correct_identity_instances": 3,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+        "corners": [
+          [
+            481.19012451171875,
+            811.3563232421875
+          ],
+          [
+            159.95274353027344,
+            790.7357177734375
+          ],
+          [
+            192.21876525878906,
+            288.0817565917969
+          ],
+          [
+            513.4561157226562,
+            308.702392578125
+          ]
+        ],
+        "score": 0.8499884009361267,
+        "margin": 0.8496688781597186,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 2686,
+            "label": "Dark-Magician-46986414",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "score": 0.8499884009361267
+          },
+          {
+            "index": 2691,
+            "label": "Dark-Magician-of-Chaos-40737112",
+            "card_id": "9dd2ce8b-589d-4733-9644-eab895111c71",
+            "score": 0.000319522776408121
+          },
+          {
+            "index": 2687,
+            "label": "Dark-Magician-Girl-38033121",
+            "card_id": "6cb08e9f-e85c-464b-b3ec-71fe7790ceb7",
+            "score": 0.0001213985524373129
+          },
+          {
+            "index": 5587,
+            "label": "Harpie-Lady-Phoenix-Formation-86308219",
+            "card_id": "6c1f8f99-a53b-4a4f-b905-9f5428ae0b14",
+            "score": 0.00011630290100583807
+          },
+          {
+            "index": 7135,
+            "label": "Magician's-Valkyria-80304126",
+            "card_id": "9d336875-633d-48cc-8f72-d203e9eee989",
+            "score": 0.0001158250670414418
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9570397734642029
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            1531.5706787109375,
+            811.7052612304688
+          ],
+          [
+            1207.2340087890625,
+            813.06396484375
+          ],
+          [
+            1205.2127685546875,
+            330.57513427734375
+          ],
+          [
+            1529.5494384765625,
+            329.2164306640625
+          ]
+        ],
+        "score": 0.8789687752723694,
+        "margin": 0.8788560116881854,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 1320,
+            "label": "Blue-Eyes-White-Dragon-89631139",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "score": 0.8789687752723694
+          },
+          {
+            "index": 1315,
+            "label": "Blue-Eyes-Toon-Dragon-53183600",
+            "card_id": "c039e56f-9a89-4f5a-a43f-e4109265978c",
+            "score": 0.00011276358418399468
+          },
+          {
+            "index": 1308,
+            "label": "Blue-Eyes-Alternative-White-Dragon-38517737",
+            "card_id": "edf6fefd-6856-4409-aa04-82e0b23c70df",
+            "score": 0.00010482151992619038
+          },
+          {
+            "index": 2686,
+            "label": "Dark-Magician-46986414",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "score": 6.861172732897103e-05
+          },
+          {
+            "index": 8230,
+            "label": "Nibiru,-the-Primal-Being-27204311",
+            "card_id": "049334b7-33ab-4f61-b0a2-7a2b385c8e77",
+            "score": 6.682339881081134e-05
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.928012490272522
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            1020.33642578125,
+            665.9156494140625
+          ],
+          [
+            753.6793212890625,
+            741.986328125
+          ],
+          [
+            619.6783447265625,
+            272.26092529296875
+          ],
+          [
+            886.33544921875,
+            196.19024658203125
+          ]
+        ],
+        "score": 0.8770090341567993,
+        "margin": 0.8768899156566476,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 1320,
+            "label": "Blue-Eyes-White-Dragon-89631139",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "score": 0.8770090341567993
+          },
+          {
+            "index": 1308,
+            "label": "Blue-Eyes-Alternative-White-Dragon-38517737",
+            "card_id": "edf6fefd-6856-4409-aa04-82e0b23c70df",
+            "score": 0.00011911850015167147
+          },
+          {
+            "index": 1315,
+            "label": "Blue-Eyes-Toon-Dragon-53183600",
+            "card_id": "c039e56f-9a89-4f5a-a43f-e4109265978c",
+            "score": 0.00010626837320160121
+          },
+          {
+            "index": 12947,
+            "label": "Vision-with-Eyes-of-Blue-35659410",
+            "card_id": "cbcf1825-f062-403b-89ac-bbb1aec34a7b",
+            "score": 6.69715809635818e-05
+          },
+          {
+            "index": 8230,
+            "label": "Nibiru,-the-Primal-Being-27204311",
+            "card_id": "049334b7-33ab-4f61-b0a2-7a2b385c8e77",
+            "score": 6.0336671594996005e-05
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9080095291137695
+      }
+    ],
+    "processing_ms": 1745.7,
+    "mode": "classifier",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "draw2-small",
+    "sample": "blank",
+    "source": "controlled negative",
+    "expected": [],
+    "accepted_count": 0,
+    "correct_identity_instances": 0,
+    "false_identity_instances": 0,
+    "detections": [],
+    "processing_ms": 245.3,
+    "mode": "classifier",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "draw2-small",
+    "sample": "synthetic-outside-pilot",
+    "source": "synthetic; identity excluded from pilot, present in full catalog",
+    "expected": [
+      "4c8a3e1a-30cb-4c54-8010-8a51a034dea2"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "4c8a3e1a-30cb-4c54-8010-8a51a034dea2",
+        "corners": [
+          [
+            471.21453857421875,
+            125.91404724121094
+          ],
+          [
+            783.4395751953125,
+            122.943603515625
+          ],
+          [
+            787.5673217773438,
+            556.8140869140625
+          ],
+          [
+            475.34228515625,
+            559.7845458984375
+          ]
+        ],
+        "score": 0.7624411582946777,
+        "margin": 0.7621287652000319,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 11777,
+            "label": "Ten-Thousand-Dragon-10000",
+            "card_id": "4c8a3e1a-30cb-4c54-8010-8a51a034dea2",
+            "score": 0.7624411582946777
+          },
+          {
+            "index": 12860,
+            "label": "Vennominaga-the-Deity-of-Poisonous-Snakes-8062132",
+            "card_id": "73b9be4e-1e00-4386-8ca4-6f702283219e",
+            "score": 0.0003123930946458131
+          },
+          {
+            "index": 3868,
+            "label": "Erebus-the-Underworld-Monarch-23064604",
+            "card_id": "b0ba4171-c39d-4ada-8c7e-2476feea78a9",
+            "score": 0.00024050273350439966
+          },
+          {
+            "index": 12989,
+            "label": "Vorse-Raider-14898066",
+            "card_id": "4c9c7b8b-47ad-43e7-8a21-b5f3f0380616",
+            "score": 0.0002188647777074948
+          },
+          {
+            "index": 1115,
+            "label": "Big-Winged-Berfomet-55461744",
+            "card_id": "cf559c1b-0d23-42e3-b2d8-734b3cb2362a",
+            "score": 0.00020253422553651035
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9274205565452576
+      }
+    ],
+    "processing_ms": 718.1,
+    "mode": "classifier",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "draw2-small",
+    "sample": "carta-2026-09-25T04-15-11-032Z.jpg",
+    "source": "real capture; one identity, one session",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            764.467041015625,
+            344.95184326171875
+          ],
+          [
+            1064.6630859375,
+            224.25173950195312
+          ],
+          [
+            1245.2952880859375,
+            673.5062255859375
+          ],
+          [
+            945.0993041992188,
+            794.206298828125
+          ]
+        ],
+        "score": 0.8575942516326904,
+        "margin": 0.8573934983869549,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 1320,
+            "label": "Blue-Eyes-White-Dragon-89631139",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "score": 0.8575942516326904
+          },
+          {
+            "index": 9719,
+            "label": "Red-Eyes-Black-Dragon-74677422",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "score": 0.00020075324573554099
+          },
+          {
+            "index": 1315,
+            "label": "Blue-Eyes-Toon-Dragon-53183600",
+            "card_id": "c039e56f-9a89-4f5a-a43f-e4109265978c",
+            "score": 0.00011340849596308544
+          },
+          {
+            "index": 641,
+            "label": "Armed-Dragon-LV10-59464593",
+            "card_id": "63477a95-ec3b-4c76-91bf-ed1d57e48a5f",
+            "score": 0.00010042693611467257
+          },
+          {
+            "index": 1308,
+            "label": "Blue-Eyes-Alternative-White-Dragon-38517737",
+            "card_id": "edf6fefd-6856-4409-aa04-82e0b23c70df",
+            "score": 9.54316055867821e-05
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9209291934967041
+      }
+    ],
+    "processing_ms": 815.4,
+    "mode": "classifier",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "draw2-small",
+    "sample": "carta-2026-09-25T04-13-54-278Z.jpg",
+    "source": "real capture; one identity, one session",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            755.458740234375,
+            406.72314453125
+          ],
+          [
+            1107.300537109375,
+            217.3150634765625
+          ],
+          [
+            1348.422119140625,
+            665.21923828125
+          ],
+          [
+            996.5803833007812,
+            854.6273193359375
+          ]
+        ],
+        "score": 0.8860189914703369,
+        "margin": 0.885843703057617,
+        "accepted": true,
+        "top5": [
+          {
+            "index": 1320,
+            "label": "Blue-Eyes-White-Dragon-89631139",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "score": 0.8860189914703369
+          },
+          {
+            "index": 9719,
+            "label": "Red-Eyes-Black-Dragon-74677422",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "score": 0.00017528841271996498
+          },
+          {
+            "index": 1315,
+            "label": "Blue-Eyes-Toon-Dragon-53183600",
+            "card_id": "c039e56f-9a89-4f5a-a43f-e4109265978c",
+            "score": 0.0001074217798304744
+          },
+          {
+            "index": 1308,
+            "label": "Blue-Eyes-Alternative-White-Dragon-38517737",
+            "card_id": "edf6fefd-6856-4409-aa04-82e0b23c70df",
+            "score": 7.210196781670675e-05
+          },
+          {
+            "index": 641,
+            "label": "Armed-Dragon-LV10-59464593",
+            "card_id": "63477a95-ec3b-4c76-91bf-ed1d57e48a5f",
+            "score": 6.915658741490915e-05
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.912811279296875
+      },
+      {
+        "card_id": "d62e3b6d-7dc4-43dd-840b-1b10e586e44d",
+        "corners": [
+          [
+            1645.00732421875,
+            1209.16064453125
+          ],
+          [
+            814.9303588867188,
+            741.7699584960938
+          ],
+          [
+            1403.447509765625,
+            -303.42535400390625
+          ],
+          [
+            2233.5244140625,
+            163.96527099609375
+          ]
+        ],
+        "score": 0.002547219628468156,
+        "margin": 4.337262362241745e-05,
+        "accepted": false,
+        "top5": [
+          {
+            "index": 6127,
+            "label": "Into-the-Void-93946239",
+            "card_id": "d62e3b6d-7dc4-43dd-840b-1b10e586e44d",
+            "score": 0.002547219628468156
+          },
+          {
+            "index": 5012,
+            "label": "Gift-Card-39526584",
+            "card_id": "8687a087-2972-40f2-8b86-0aa44247bac6",
+            "score": 0.0025038470048457384
+          },
+          {
+            "index": 4418,
+            "label": "Flower-Gathering-78785392",
+            "card_id": "8a824b0d-f275-41fc-9e24-2694a432d550",
+            "score": 0.002123668324202299
+          },
+          {
+            "index": 10991,
+            "label": "Speedroid-Scratch-29114773",
+            "card_id": "86efda99-7632-43f7-9a68-412de37f72dd",
+            "score": 0.001347544020973146
+          },
+          {
+            "index": 9213,
+            "label": "Precious-Cards-from-Beyond-68304813",
+            "card_id": "6e915beb-531e-4ee5-a0c3-61b10f989b01",
+            "score": 0.0013004045467823744
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.2700560390949249
+      },
+      {
+        "card_id": "9ebded92-3106-4ba9-b783-15ef2664dbba",
+        "corners": [
+          [
+            184.9554443359375,
+            253.98483276367188
+          ],
+          [
+            511.51727294921875,
+            666.552490234375
+          ],
+          [
+            12.637603759765625,
+            1061.4332275390625
+          ],
+          [
+            -313.9241943359375,
+            648.8656005859375
+          ]
+        ],
+        "score": 0.005559293553233147,
+        "margin": 0.0038515059277415276,
+        "accepted": false,
+        "top5": [
+          {
+            "index": 8838,
+            "label": "Pendulum-Impenetrable-60434189",
+            "card_id": "9ebded92-3106-4ba9-b783-15ef2664dbba",
+            "score": 0.005559293553233147
+          },
+          {
+            "index": 9381,
+            "label": "Pulling-the-Rug-34717238",
+            "card_id": "25cc3554-6616-48f1-8696-5e9b1737f7d8",
+            "score": 0.0017077876254916191
+          },
+          {
+            "index": 168,
+            "label": "Afterglow-43575579",
+            "card_id": "d041bd8d-dccd-49e8-b651-01978db7c69b",
+            "score": 0.0016833307454362512
+          },
+          {
+            "index": 12299,
+            "label": "Train-Connection-60879050",
+            "card_id": "9f2bdbca-1255-40f6-a05e-507d83e51408",
+            "score": 0.001377435983158648
+          },
+          {
+            "index": 12623,
+            "label": "Ultra-Polymerization-76647978",
+            "card_id": "2940f8c1-6d66-4ad2-a999-ef7c0cd963c0",
+            "score": 0.0012983313063159585
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.2560124695301056
+      }
+    ],
+    "processing_ms": 1780.4,
+    "mode": "classifier",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "embeddings",
+    "sample": "synthetic-multiple",
+    "source": "synthetic; gallery images reused, not accuracy evidence",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "c0285d04-cadd-402d-a865-799a182d7510"
+    ],
+    "accepted_count": 3,
+    "correct_identity_instances": 3,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+        "corners": [
+          [
+            1117.9249267578125,
+            97.48687744140625
+          ],
+          [
+            1442.1239013671875,
+            121.111083984375
+          ],
+          [
+            1406.7701416015625,
+            606.2765502929688
+          ],
+          [
+            1082.5711669921875,
+            582.65234375
+          ]
+        ],
+        "score": 0.9836177229881287,
+        "margin": 0.760153517127037,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.9836177229881287
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.2234642058610916
+          },
+          {
+            "ref_id": "tdoane:card:38033121.jpg",
+            "card_id": "6cb08e9f-e85c-464b-b3ec-71fe7790ceb7",
+            "artwork_id": "e36e8a38-9b98-4c6a-82f7-1feb1418f0cc",
+            "image_sha256": "d483c7a53270e2e6fc2681013842c67e8c99dd319a8e3d53c8d0e1a835d71bea",
+            "score": 0.20921695232391357
+          },
+          {
+            "ref_id": "tdoane:card:89631139.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+            "image_sha256": "994f2a06f4d427014501ef40f6994e011280f31e683efd947f20672d1633b8c1",
+            "score": 0.18951910734176636
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.1615096628665924
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9600430727005005
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            71.01762390136719,
+            79.96080017089844
+          ],
+          [
+            383.5135498046875,
+            79.62460327148438
+          ],
+          [
+            384.04510498046875,
+            573.6910400390625
+          ],
+          [
+            71.54917907714844,
+            574.0272216796875
+          ]
+        ],
+        "score": 0.9656890630722046,
+        "margin": 0.735922321677208,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:89631139.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+            "image_sha256": "994f2a06f4d427014501ef40f6994e011280f31e683efd947f20672d1633b8c1",
+            "score": 0.9656890630722046
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.22976674139499664
+          },
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.2167055904865265
+          },
+          {
+            "ref_id": "tdoane:card:70781052.jpg",
+            "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+            "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+            "image_sha256": "3ba2438383a2946dd93b0b2bbf7d14597320db76b36cdb7406e3d0ce71968ffc",
+            "score": 0.18198037147521973
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.16882090270519257
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9359254240989685
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            582.058837890625,
+            239.28538513183594
+          ],
+          [
+            841.810791015625,
+            165.35116577148438
+          ],
+          [
+            971.5662841796875,
+            621.2191772460938
+          ],
+          [
+            711.8143310546875,
+            695.1534423828125
+          ]
+        ],
+        "score": 0.9799759387969971,
+        "margin": 0.7560266256332397,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:89631139.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+            "image_sha256": "994f2a06f4d427014501ef40f6994e011280f31e683efd947f20672d1633b8c1",
+            "score": 0.9799759387969971
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.22394931316375732
+          },
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.21395519375801086
+          },
+          {
+            "ref_id": "tdoane:card:70781052.jpg",
+            "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+            "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+            "image_sha256": "3ba2438383a2946dd93b0b2bbf7d14597320db76b36cdb7406e3d0ce71968ffc",
+            "score": 0.1940567046403885
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.1699618697166443
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9289264678955078
+      }
+    ],
+    "processing_ms": 1810.5,
+    "mode": "embedding",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "embeddings",
+    "sample": "synthetic-shadow-rotation",
+    "source": "synthetic geometry/illumination smoke test",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "c0285d04-cadd-402d-a865-799a182d7510"
+    ],
+    "accepted_count": 3,
+    "correct_identity_instances": 3,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+        "corners": [
+          [
+            481.19012451171875,
+            811.3563232421875
+          ],
+          [
+            159.95274353027344,
+            790.7357177734375
+          ],
+          [
+            192.21876525878906,
+            288.0817565917969
+          ],
+          [
+            513.4561157226562,
+            308.702392578125
+          ]
+        ],
+        "score": 0.9812755584716797,
+        "margin": 0.759199857711792,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.9812755584716797
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.2220757007598877
+          },
+          {
+            "ref_id": "tdoane:card:38033121.jpg",
+            "card_id": "6cb08e9f-e85c-464b-b3ec-71fe7790ceb7",
+            "artwork_id": "e36e8a38-9b98-4c6a-82f7-1feb1418f0cc",
+            "image_sha256": "d483c7a53270e2e6fc2681013842c67e8c99dd319a8e3d53c8d0e1a835d71bea",
+            "score": 0.2166076898574829
+          },
+          {
+            "ref_id": "tdoane:card:89631139.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+            "image_sha256": "994f2a06f4d427014501ef40f6994e011280f31e683efd947f20672d1633b8c1",
+            "score": 0.19285185635089874
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.15710848569869995
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9570397734642029
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            1531.5706787109375,
+            811.7052612304688
+          ],
+          [
+            1207.2340087890625,
+            813.06396484375
+          ],
+          [
+            1205.2127685546875,
+            330.57513427734375
+          ],
+          [
+            1529.5494384765625,
+            329.2164306640625
+          ]
+        ],
+        "score": 0.9654520750045776,
+        "margin": 0.7327694594860077,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:89631139.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+            "image_sha256": "994f2a06f4d427014501ef40f6994e011280f31e683efd947f20672d1633b8c1",
+            "score": 0.9654520750045776
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.23268261551856995
+          },
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.21644768118858337
+          },
+          {
+            "ref_id": "tdoane:card:70781052.jpg",
+            "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+            "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+            "image_sha256": "3ba2438383a2946dd93b0b2bbf7d14597320db76b36cdb7406e3d0ce71968ffc",
+            "score": 0.18896989524364471
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.17675451934337616
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.928012490272522
+      },
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            1020.33642578125,
+            665.9156494140625
+          ],
+          [
+            753.6793212890625,
+            741.986328125
+          ],
+          [
+            619.6783447265625,
+            272.26092529296875
+          ],
+          [
+            886.33544921875,
+            196.19024658203125
+          ]
+        ],
+        "score": 0.9735572934150696,
+        "margin": 0.7531467080116272,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:89631139.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+            "image_sha256": "994f2a06f4d427014501ef40f6994e011280f31e683efd947f20672d1633b8c1",
+            "score": 0.9735572934150696
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.22041058540344238
+          },
+          {
+            "ref_id": "tdoane:card:70781052.jpg",
+            "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+            "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+            "image_sha256": "3ba2438383a2946dd93b0b2bbf7d14597320db76b36cdb7406e3d0ce71968ffc",
+            "score": 0.2044326663017273
+          },
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.20261923968791962
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.17334800958633423
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.9080095291137695
+      }
+    ],
+    "processing_ms": 1793.3,
+    "mode": "embedding",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "embeddings",
+    "sample": "blank",
+    "source": "controlled negative",
+    "expected": [],
+    "accepted_count": 0,
+    "correct_identity_instances": 0,
+    "false_identity_instances": 0,
+    "detections": [],
+    "processing_ms": 280.5,
+    "mode": "embedding",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "embeddings",
+    "sample": "synthetic-outside-pilot",
+    "source": "synthetic; identity excluded from pilot, present in full catalog",
+    "expected": [],
+    "accepted_count": 0,
+    "correct_identity_instances": 0,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "7d60f28f-f6cd-4842-b874-d9d3eac261a9",
+        "corners": [
+          [
+            787.5673217773438,
+            556.8140869140625
+          ],
+          [
+            475.34228515625,
+            559.7845458984375
+          ],
+          [
+            471.21453857421875,
+            125.91404724121094
+          ],
+          [
+            783.4395751953125,
+            122.943603515625
+          ]
+        ],
+        "score": 0.14460238814353943,
+        "margin": 0.025476396083831787,
+        "accepted": false,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:55326323.jpg",
+            "card_id": "7d60f28f-f6cd-4842-b874-d9d3eac261a9",
+            "artwork_id": "514a1035-816c-484b-a27b-c2b71fb767e4",
+            "image_sha256": "a4511cafdcac419c4da76089e61c277685ba21b5cd4f498adcc7877ba6a5694d",
+            "score": 0.14460238814353943
+          },
+          {
+            "ref_id": "tdoane:card:55144522.jpg",
+            "card_id": "3dc62228-c78c-4cbb-9c5a-72962718d2e4",
+            "artwork_id": "d4e20eae-f313-4e08-a914-b57ffa09da98",
+            "image_sha256": "b39fad882cf7300c040dd999b459bb7e65143d2ac495da69c82db0ad31b44169",
+            "score": 0.11912599205970764
+          },
+          {
+            "ref_id": "tdoane:card:68170903.jpg",
+            "card_id": "0141ac6e-7579-4665-873f-d70012604e43",
+            "artwork_id": "c77a8ae1-80b2-4b18-a468-c4a1f964ca77",
+            "image_sha256": "41cef1ab9b0cc689bac4f3bb5b53308e9ecd8be44e5b6c4ba84223c59d0c36a5",
+            "score": 0.11162081360816956
+          },
+          {
+            "ref_id": "tdoane:card:12580477.jpg",
+            "card_id": "0aecee88-0143-4c57-9a78-ddaa97e9e378",
+            "artwork_id": "68b3a065-5210-4b1a-b29d-a269bba46c7d",
+            "image_sha256": "19ed8394270492932c878006427996d6e8effa234879f9828e143924b1941e48",
+            "score": 0.10500341653823853
+          },
+          {
+            "ref_id": "tdoane:card:70026064.jpg",
+            "card_id": "29afd3be-74ac-4272-81c6-67bdaeb223ab",
+            "artwork_id": "81c8cd6e-5127-4fbc-a22f-dd69ae93640c",
+            "image_sha256": "67d9a1ff88aa269466e9d3b58c53b7198acf6c90742b05d09b03aa4d25d0b97a",
+            "score": 0.09308318793773651
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9274205565452576
+      }
+    ],
+    "processing_ms": 875.3,
+    "mode": "embedding",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "embeddings",
+    "sample": "carta-2026-09-25T04-15-11-032Z.jpg",
+    "source": "real capture; one identity, one session",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            764.467041015625,
+            344.95184326171875
+          ],
+          [
+            1064.6630859375,
+            224.25173950195312
+          ],
+          [
+            1245.2952880859375,
+            673.5062255859375
+          ],
+          [
+            945.0993041992188,
+            794.206298828125
+          ]
+        ],
+        "score": 0.8964605331420898,
+        "margin": 0.6420387029647827,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:89631140.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+            "image_sha256": "8f619bd5b3e6f4654df3c989835a05da6169472d98edc760b7b65e633180a686",
+            "score": 0.8964605331420898
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.25442183017730713
+          },
+          {
+            "ref_id": "tdoane:card:70781052.jpg",
+            "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+            "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+            "image_sha256": "3ba2438383a2946dd93b0b2bbf7d14597320db76b36cdb7406e3d0ce71968ffc",
+            "score": 0.18390771746635437
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.15450505912303925
+          },
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.1361321359872818
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.9209291934967041
+      }
+    ],
+    "processing_ms": 1071.3,
+    "mode": "embedding",
+    "experimental_thresholds": true
+  },
+  {
+    "method": "embeddings",
+    "sample": "carta-2026-09-25T04-13-54-278Z.jpg",
+    "source": "real capture; one identity, one session",
+    "expected": [
+      "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+    ],
+    "accepted_count": 1,
+    "correct_identity_instances": 1,
+    "false_identity_instances": 0,
+    "detections": [
+      {
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "corners": [
+          [
+            755.458740234375,
+            406.72314453125
+          ],
+          [
+            1107.300537109375,
+            217.3150634765625
+          ],
+          [
+            1348.422119140625,
+            665.21923828125
+          ],
+          [
+            996.5803833007812,
+            854.6273193359375
+          ]
+        ],
+        "score": 0.9220261573791504,
+        "margin": 0.6408324837684631,
+        "accepted": true,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:89631140.jpg",
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+            "image_sha256": "8f619bd5b3e6f4654df3c989835a05da6169472d98edc760b7b65e633180a686",
+            "score": 0.9220261573791504
+          },
+          {
+            "ref_id": "tdoane:card:74677422.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "b286f447-3a23-49a0-8b63-281f05dbb948",
+            "image_sha256": "1a6144daaa73d9475a4f2537fa3f6cf6cbe7d3779b6e3e9079bb2e6e57e4f62a",
+            "score": 0.28119367361068726
+          },
+          {
+            "ref_id": "tdoane:card:70781052.jpg",
+            "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+            "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+            "image_sha256": "3ba2438383a2946dd93b0b2bbf7d14597320db76b36cdb7406e3d0ce71968ffc",
+            "score": 0.1749245971441269
+          },
+          {
+            "ref_id": "tdoane:card:83764719.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "f8f82801-d649-4892-877a-6c6805ceaa93",
+            "image_sha256": "b2136e0525d098327203cabb6587ef45ae56a2caaad5c5caaaf203ffb6873c37",
+            "score": 0.16181322932243347
+          },
+          {
+            "ref_id": "tdoane:card:36996508.jpg",
+            "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+            "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+            "image_sha256": "4d3a6da3f79d3c1a987e6d7b29a85e3bf49ac643448e2ab538848d516f96ee2e",
+            "score": 0.15200571715831757
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.912811279296875
+      },
+      {
+        "card_id": "828306a1-80fe-4110-acf3-4dc05fe0cbd8",
+        "corners": [
+          [
+            1403.447509765625,
+            -303.42535400390625
+          ],
+          [
+            2233.5244140625,
+            163.96527099609375
+          ],
+          [
+            1645.00732421875,
+            1209.16064453125
+          ],
+          [
+            814.9303588867188,
+            741.7699584960938
+          ]
+        ],
+        "score": 0.12882056832313538,
+        "margin": 0.05000431090593338,
+        "accepted": false,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:72181263.jpg",
+            "card_id": "828306a1-80fe-4110-acf3-4dc05fe0cbd8",
+            "artwork_id": "fd13d3e0-dd0b-471a-bff8-9219f97fcdea",
+            "image_sha256": "bd8d167926fe662ed4fce1b73a0d7fa0fe67a4b23b40f11f49bc3d0278cc96e8",
+            "score": 0.12882056832313538
+          },
+          {
+            "ref_id": "tdoane:card:41420027.jpg",
+            "card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
+            "artwork_id": "06ae8f45-07a7-4f51-86a2-66cfc7c818c3",
+            "image_sha256": "a73ce141349b32c842555db84009320af214d813023584a672eba8c10d097ece",
+            "score": 0.078816257417202
+          },
+          {
+            "ref_id": "tdoane:card:11302671.jpg",
+            "card_id": "6069aed5-9b25-4dad-bee9-2b0f6dd19c5b",
+            "artwork_id": "74ec771c-4311-4589-88a2-1a09d01d72ee",
+            "image_sha256": "21e355ebf8200f1f5ef35cea67e9a9bb07574fc6cc53bdbd778e6f373db4dfe9",
+            "score": 0.07804016768932343
+          },
+          {
+            "ref_id": "tdoane:card:34541863.jpg",
+            "card_id": "3c975631-13b7-4d65-8aad-650407ff7ba8",
+            "artwork_id": "b4000045-d9b2-47ef-98a6-568d91d663cc",
+            "image_sha256": "fa548e4c8dfab9af3580b0386ebf0805fb408988a5e1187ce5916f649d5e5a73",
+            "score": 0.06934498250484467
+          },
+          {
+            "ref_id": "tdoane:card:89943724.jpg",
+            "card_id": "bda59be9-3aaa-44e9-8aa6-11e06c1bfffa",
+            "artwork_id": "f1c2c34e-a9e4-4706-af11-6f425096df92",
+            "image_sha256": "2cca6208e183f0dea9a64e3aa52ba55de540285af25c5f283fe2aad4f60896c8",
+            "score": 0.06830069422721863
+          }
+        ],
+        "rotation": 0,
+        "detector_score": 0.2700560390949249
+      },
+      {
+        "card_id": "77bc0807-d7fc-461d-98dc-ea23a2acc6fa",
+        "corners": [
+          [
+            12.637603759765625,
+            1061.4332275390625
+          ],
+          [
+            -313.9241943359375,
+            648.8656005859375
+          ],
+          [
+            184.9554443359375,
+            253.98483276367188
+          ],
+          [
+            511.51727294921875,
+            666.552490234375
+          ]
+        ],
+        "score": 0.105793297290802,
+        "margin": 0.015593759715557098,
+        "accepted": false,
+        "top5": [
+          {
+            "ref_id": "tdoane:card:70095154.jpg",
+            "card_id": "77bc0807-d7fc-461d-98dc-ea23a2acc6fa",
+            "artwork_id": "b63f8659-92ae-44a9-834f-83d6e4210d6a",
+            "image_sha256": "dc25df3572af661e8f4f1383bfa83deea86ed694528f019dc4a7c93d20f4eeb8",
+            "score": 0.105793297290802
+          },
+          {
+            "ref_id": "tdoane:card:74677423.jpg",
+            "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+            "artwork_id": "8279a6c6-b56e-417f-bcf8-9ecefc28fb23",
+            "image_sha256": "b204c1a63516a13632071257d980113c0346da0070e581fccdcdfb6a4bebf0aa",
+            "score": 0.0901995375752449
+          },
+          {
+            "ref_id": "tdoane:card:83764718.jpg",
+            "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+            "artwork_id": "4ff901d5-cf0c-4349-b3ed-155eb0f544c4",
+            "image_sha256": "315ad77bab588e65e3b19b69e7bd0ce1bb6198433d092c489551a6bf400a6b7f",
+            "score": 0.068893201649189
+          },
+          {
+            "ref_id": "tdoane:card:72181263.jpg",
+            "card_id": "828306a1-80fe-4110-acf3-4dc05fe0cbd8",
+            "artwork_id": "fd13d3e0-dd0b-471a-bff8-9219f97fcdea",
+            "image_sha256": "bd8d167926fe662ed4fce1b73a0d7fa0fe67a4b23b40f11f49bc3d0278cc96e8",
+            "score": 0.06714041531085968
+          },
+          {
+            "ref_id": "tdoane:card:64163367.jpg",
+            "card_id": "f84bb12a-9add-4954-9a42-0fcff7b46325",
+            "artwork_id": "f75f2796-578a-4dec-91ed-80276e0db298",
+            "image_sha256": "cb8b0102a3242eb05a20a4afb533b5f507a8bd403c368f28beed821c6a106138",
+            "score": 0.06672478467226028
+          }
+        ],
+        "rotation": 180,
+        "detector_score": 0.2560124695301056
+      }
+    ],
+    "processing_ms": 3112.5,
+    "mode": "embedding",
+    "experimental_thresholds": true
+  }
+]

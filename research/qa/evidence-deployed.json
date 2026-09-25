@@ -1,0 +1,190 @@
+{
+  "8765": {
+    "camera": "http://192.168.1.18:8080",
+    "recognition": true,
+    "mode": "embedding",
+    "offline": false,
+    "experimental": true,
+    "ar": true,
+    "passcode_ocr": true,
+    "references": 63
+  },
+  "8767": {
+    "camera": "http://192.168.1.18:8080",
+    "recognition": true,
+    "mode": "embedding",
+    "offline": true,
+    "experimental": true,
+    "ar": true,
+    "passcode_ocr": true,
+    "references": 63
+  },
+  "analysis": {
+    "lock_wait": 0.0,
+    "capture": 0.4,
+    "recognition": 1518.4,
+    "postprocess": 145.8,
+    "total": 1664.6
+  },
+  "ocr_processing_ms": 513,
+  "items": [
+    {
+      "passcode": null,
+      "name_ocr": {
+        "text": "BLUE-EYES WHITE DRAGON",
+        "score": 0.9988,
+        "variant": "original",
+        "orientation": 0,
+        "matches": [
+          {
+            "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+            "names": [
+              {
+                "language": "en",
+                "name": "Blue-Eyes White Dragon"
+              }
+            ]
+          }
+        ],
+        "status": "matched",
+        "ambiguous": false,
+        "match_kind": "normalized",
+        "suggestions": [],
+        "raw_observations": [
+          {
+            "text": "BLUE-EYES WHITE DRAGON",
+            "score": 0.9988,
+            "variant": "original",
+            "orientation": 0
+          },
+          {
+            "text": "0052/30 01",
+            "score": 0.6998,
+            "variant": "original",
+            "orientation": 180
+          },
+          {
+            "text": "AT17/330 000E/10",
+            "score": 0.5737,
+            "variant": "tight_contrast",
+            "orientation": 180
+          }
+        ],
+        "registry_available": true,
+        "processing_ms": 95,
+        "visual_conflict": false,
+        "serial_conflict": false
+      },
+      "set_ocr": {
+        "status": "unreadable",
+        "code": null,
+        "matches": [],
+        "raw_observations": [
+          {
+            "text": "m",
+            "score": 0.62665,
+            "codes": [],
+            "orientation": 0,
+            "region": 0
+          },
+          {
+            "text": "",
+            "score": 0.0,
+            "codes": [],
+            "orientation": 0,
+            "region": 1
+          },
+          {
+            "text": "ATX/3000 DEE/2599",
+            "score": 0.77919,
+            "codes": [],
+            "orientation": 0,
+            "region": 2
+          },
+          {
+            "text": "",
+            "score": 0.0,
+            "codes": [],
+            "orientation": 180,
+            "region": 0
+          },
+          {
+            "text": "",
+            "score": 0.0,
+            "codes": [],
+            "orientation": 180,
+            "region": 1
+          },
+          {
+            "text": "BLS E-WH",
+            "score": 0.69684,
+            "codes": [],
+            "orientation": 180,
+            "region": 2
+          }
+        ]
+      },
+      "evidence": {
+        "status": "corroborated",
+        "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+        "sources": {
+          "image": [
+            "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+          ],
+          "name": [
+            "e0404755-1ade-4c7c-9a2a-b29b7755d860"
+          ]
+        },
+        "agreeing_sources": 2,
+        "consistent_frames": 1
+      },
+      "frame_quality": {
+        "sharpness": 526.65,
+        "bright_fraction": 0.0,
+        "score": 4.9342
+      },
+      "ocr_reused": false
+    },
+    {
+      "passcode": null,
+      "name_ocr": {
+        "status": "skipped",
+        "reason": "uncertain_geometry"
+      },
+      "set_ocr": {
+        "status": "skipped",
+        "reason": "uncertain_geometry"
+      },
+      "evidence": {
+        "status": "insufficient",
+        "card_id": null,
+        "sources": {},
+        "agreeing_sources": 0,
+        "consistent_frames": 0
+      },
+      "frame_quality": null,
+      "ocr_reused": false
+    },
+    {
+      "passcode": null,
+      "name_ocr": {
+        "status": "skipped",
+        "reason": "uncertain_geometry"
+      },
+      "set_ocr": {
+        "status": "skipped",
+        "reason": "uncertain_geometry"
+      },
+      "evidence": {
+        "status": "insufficient",
+        "card_id": null,
+        "sources": {},
+        "agreeing_sources": 0,
+        "consistent_frames": 0
+      },
+      "frame_quality": null,
+      "ocr_reused": false
+    }
+  ],
+  "phone_snapshot_error": "HTTP Error 502: Bad Gateway"
+}

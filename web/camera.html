@@ -1,0 +1,58 @@
+﻿<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yu-Gi-Oh! · Cámara</title>
+<style>
+  body { margin: 0; background: #10141d; color: #e9eef7; font: 16px system-ui; }
+  main { max-width: 1080px; margin: auto; padding: 28px; }
+  h1 { font-size: 26px; margin-bottom: 8px; }
+  p { color: #aebbd0; }
+  .screen { background: #070a10; min-height: 240px; display: grid; place-items: center; border-radius: 14px; overflow: hidden; }
+  canvas { display: block; max-width: 100%; max-height: 72vh; width: auto; height: auto; }
+  button { padding: 12px 18px; border-radius: 8px; border: 0; margin: 16px 10px 0 0; cursor: pointer; background: #8de5ca; color: #11281f; font-weight: 650; }
+  button:disabled { opacity: .45; cursor: default; }
+  #status { min-height: 24px; }
+  .views { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .views h2 { font-size: 18px; margin: 8px 0; }
+  .views .screen { min-height: 180px; }
+  .views canvas { max-height: 60vh; }
+  .views [hidden] { display: none; }
+  @media(max-width:760px) { .views { grid-template-columns: 1fr; } }
+  #passcodes { border-top: 1px solid #354158; margin-top: 25px; padding-top: 15px; }
+  #passcodeCards { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 16px; }
+  .passcode-card { background: #192335; border: 1px solid #40526b; border-radius: 12px; padding: 14px; }
+  .passcode-card h3 { margin: 0 0 8px; }
+  .passcode-card .rectified { height: 180px; width: auto; max-width: 100%; display: block; margin: 10px auto; }
+  .passcode-card .zoom { width: 100%; height: 85px; object-fit: contain; background: #090d14; }
+  .passcode-card .name-zoom { width: 100%; height: 75px; object-fit: contain; background: #090d14; }
+  .passcode-card code { font: bold 25px monospace; color: #8de5ca; }
+  .passcode-card p { overflow-wrap: anywhere; }
+  .passcode-card a { color: #8de5ca; }
+  #qualityCards { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 12px; }
+  .quality-card { background: #192335; padding: 12px; border-radius: 10px; }
+  .quality-card img { width: 46%; max-height: 220px; object-fit: contain; margin-right: 3%; }
+</style>
+<main>
+  <h1>Yu-Gi-Oh! · Cámara de la mesa</h1>
+  <p>Coloca el teléfono fijo y evita reflejos sobre las cartas. Este visor permite comprobar la imagen y guardar muestras.</p>
+  <div class="views">
+    <section><h2>Cámara en vivo</h2><div class="screen"><canvas id="frame" width="960" height="540" aria-label="Imagen del teléfono y cartas reconocidas"></canvas></div></section>
+    <section id="analysisView" hidden><h2>Último fotograma analizado</h2><div class="screen"><canvas id="analysisFrame" width="960" height="540" aria-label="Fotograma exacto del último reconocimiento"></canvas></div><p id="analysisAge"></p><p id="analysisNames"></p></section>
+  </div>
+  <p id="status" role="status">Conectando…</p>
+  <button id="pause">Pausar</button>
+  <button id="save" disabled>Guardar fotograma</button>
+  <label><input type="checkbox" id="recognize" disabled> Reconocer carta</label>
+  <label><input type="checkbox" id="ar" disabled> Mostrar sprites AR</label>
+  <p><a href="http://127.0.0.1:8768" style="color:#8de5ca">Revisar catálogo y piloto</a></p>
+  <p id="method"></p>
+  <p>Contorno verde: bordes ajustados. Contorno amarillo discontinuo: caja aproximada, sin recorte de texto. El ajuste de bordes es experimental.</p>
+  <p id="detection">Preparando cámara…</p>
+  <p id="source"></p>
+  <section id="quality"><h2>Reflejos y capturas por carta</h2><p>Compara la captura actual (izquierda) con una reciente con menos zonas blancas saturadas (derecha). Una zona blanca también puede ser parte del dibujo: el aviso es orientativo.</p><p id="qualityStatus">Esperando un análisis.</p><div id="qualityCards"></div></section>
+  <section id="passcodes"><h2>Lectura del nombre y del identificador</h2><p>El OCR lee el nombre y el serial por separado. Mostramos el texto observado, las coincidencias y los conflictos; las sugerencias no confirman la identidad.</p><p id="passcodeStatus" role="status">Preparando lectores de texto…</p><div id="passcodeCards"></div></section>
+</main>
+<script src="/camera.js"></script>
+</html>
+

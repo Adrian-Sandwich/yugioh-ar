@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "conditions": "5 warm samples on same read snapshot; active services, not hardware benchmark",
+  "equivalent_cases": 27,
+  "typed_ids_and_leading_zeros": true,
+  "measurements": [
+    {
+      "term": "89631139",
+      "old_median_ms": 254.33,
+      "new_median_ms": 118.363,
+      "statements_including_savepoint": 5,
+      "exact_mode_median_ms": 0.12
+    },
+    {
+      "term": "LOB-EN001",
+      "old_median_ms": 251.01,
+      "new_median_ms": 129.206,
+      "statements_including_savepoint": 5,
+      "exact_mode_median_ms": 0.196
+    },
+    {
+      "term": "Drag\u00f3n",
+      "old_median_ms": 247.415,
+      "new_median_ms": 127.023,
+      "statements_including_savepoint": 5,
+      "exact_mode_median_ms": null
+    },
+    {
+      "term": "no-such-card-xyz",
+      "old_median_ms": 313.219,
+      "new_median_ms": 152.322,
+      "statements_including_savepoint": 3,
+      "exact_mode_median_ms": null
+    }
+  ]
+}

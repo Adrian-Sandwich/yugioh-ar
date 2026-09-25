@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "concurrent_clients": 6,
+  "phone_requests": 1,
+  "checks": [
+    "original timestamp shared",
+    "expiry requests fresh frame",
+    "source change invalidates",
+    "failure does not serve stale image",
+    "recovery"
+  ]
+}

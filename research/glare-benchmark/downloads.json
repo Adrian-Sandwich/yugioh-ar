@@ -1,0 +1,31 @@
+{
+  "repositories": {
+    "DocSHRNet": "22e1116f55c6870c145a23461ea44389e78008e7",
+    "SHDocs": "5d4e26ba8cde9ab59d6bcf55c3d338c7c307e9c5",
+    "UnReflectAnything": "363ebb5c87d9f4f49b63f744fded8d3786a051b3"
+  },
+  "weights": [
+    {
+      "file": "docshrnet.pth",
+      "bytes": 416114178,
+      "sha256": "5f362b9c729922304ba890efa28fc070d6579c5d1b0fe3bcf2e88911ba5fa900",
+      "pickle_globals": []
+    },
+    {
+      "file": "mimo-shdocs.pkl",
+      "bytes": 64666777,
+      "sha256": "75681d113b67ddc5be3c09dfac0549303900e09d5ed09778ae2547f8919567b1",
+      "pickle_globals": []
+    },
+    {
+      "file": "unreflect-full.pt",
+      "bytes": 3441741454,
+      "sha256": "12c0cf4518a39325b7bfe2bed04a96395189f2643c2f90b7b79360a659dc739b",
+      "pickle_globals": [
+        "dotmap.DotMap"
+      ],
+      "remote_lfs_sha256": "12c0cf4518a39325b7bfe2bed04a96395189f2643c2f90b7b79360a659dc739b",
+      "matches_remote": true
+    }
+  ]
+}

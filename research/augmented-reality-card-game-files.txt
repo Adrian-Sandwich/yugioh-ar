@@ -1,0 +1,1023 @@
+﻿.gitignore
+Assets/Assets.meta
+Assets/Assets/Audio.meta
+Assets/Assets/Audio/Enemy.meta
+Assets/Assets/Audio/Enemy/Kumata.meta
+Assets/Assets/Audio/Enemy/Kumata/Kumata_Attack.wav
+Assets/Assets/Audio/Enemy/Kumata/Kumata_Attack.wav.meta
+Assets/Assets/Audio/Enemy/Kumata/Kumata_Death.wav
+Assets/Assets/Audio/Enemy/Kumata/Kumata_Death.wav.meta
+Assets/Assets/Audio/Enemy/Kumata/Kumata_Passive.wav
+Assets/Assets/Audio/Enemy/Kumata/Kumata_Passive.wav.meta
+Assets/Assets/Audio/Enemy/Skeleton.meta
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Attack.wav
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Attack.wav.meta
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Death.wav
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Death.wav.meta
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Hurt.wav
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Hurt.wav.meta
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Spawn.wav
+Assets/Assets/Audio/Enemy/Skeleton/Skeleton_Spawn.wav.meta
+Assets/Assets/Audio/Game.meta
+Assets/Assets/Audio/Game/BGM.meta
+Assets/Assets/Audio/Game/BGM/Anime_BGM.mp3
+Assets/Assets/Audio/Game/BGM/Anime_BGM.mp3.meta
+Assets/Assets/Audio/Game/BGM/Anime_Loser.mp3
+Assets/Assets/Audio/Game/BGM/Anime_Loser.mp3.meta
+Assets/Assets/Audio/Game/BGM/Anime_Winner.mp3
+Assets/Assets/Audio/Game/BGM/Anime_Winner.mp3.meta
+Assets/Assets/Audio/Game/Players.meta
+Assets/Assets/Audio/Game/Players/Arthur_Death.wav
+Assets/Assets/Audio/Game/Players/Arthur_Death.wav.meta
+Assets/Assets/Audio/Game/Players/Arthur_Hit.wav
+Assets/Assets/Audio/Game/Players/Arthur_Hit.wav.meta
+Assets/Assets/Audio/Game/Players/Arthur_knight.meta
+Assets/Assets/Audio/Game/Players/Arthur_knight/Arthur_Power-up.wav
+Assets/Assets/Audio/Game/Players/Arthur_knight/Arthur_Power-up.wav.meta
+Assets/Assets/Audio/Game/Players/Arthur_knight/Arthur_Sword.wav
+Assets/Assets/Audio/Game/Players/Arthur_knight/Arthur_Sword.wav.meta
+Assets/Assets/Audio/Game/Players/Arthur_mage.meta
+Assets/Assets/Audio/Game/Players/Arthur_mage/Arthur_Heal.wav
+Assets/Assets/Audio/Game/Players/Arthur_mage/Arthur_Heal.wav.meta
+Assets/Assets/Audio/Game/Players/Arthur_mage/Arthur_mage.wav
+Assets/Assets/Audio/Game/Players/Arthur_mage/Arthur_mage.wav.meta
+Assets/Assets/Audio/Game_Mixer.mixer
+Assets/Assets/Audio/Game_Mixer.mixer.meta
+Assets/Assets/Audio/MainMenu.meta
+Assets/Assets/Audio/MainMenu/MainMenu_Music.mp3
+Assets/Assets/Audio/MainMenu/MainMenu_Music.mp3.meta
+Assets/Assets/Audio/MainMenu_Mixer.mixer
+Assets/Assets/Audio/MainMenu_Mixer.mixer.meta
+Assets/Assets/Cards.meta
+Assets/Assets/Cards/EnemyCards.meta
+Assets/Assets/Cards/EnemyCards/Kumata.asset
+Assets/Assets/Cards/EnemyCards/Kumata.asset.meta
+Assets/Assets/Cards/EnemyCards/Skeleton.asset
+Assets/Assets/Cards/EnemyCards/Skeleton.asset.meta
+Assets/Assets/Cards/PlayerCards.meta
+Assets/Assets/Cards/PlayerCards/Arthur_knight.asset
+Assets/Assets/Cards/PlayerCards/Arthur_knight.asset.meta
+Assets/Assets/Cards/PlayerCards/Arthur_mage.asset
+Assets/Assets/Cards/PlayerCards/Arthur_mage.asset.meta
+Assets/Assets/Images.meta
+Assets/Assets/Images/Cardiff_University_Logo.png
+Assets/Assets/Images/Cardiff_University_Logo.png.meta
+Assets/Assets/Images/ChrysalisPantail-OW.png
+Assets/Assets/Images/ChrysalisPantail-OW.png.meta
+Assets/Assets/Images/Flag.png
+Assets/Assets/Images/Flag.png.meta
+Assets/Assets/Images/Gear.png
+Assets/Assets/Images/Gear.png.meta
+Assets/Assets/Images/QR_Card1.png
+Assets/Assets/Images/QR_Card1.png.meta
+Assets/Assets/Images/QR_Card2.png
+Assets/Assets/Images/QR_Card2.png.meta
+Assets/Assets/Images/QR_Card3.png
+Assets/Assets/Images/QR_Card3.png.meta
+Assets/Assets/Images/QR_Card4.png
+Assets/Assets/Images/QR_Card4.png.meta
+Assets/Assets/Images/QR_Card5.png
+Assets/Assets/Images/QR_Card5.png.meta
+Assets/Assets/Images/QR_Card6.png
+Assets/Assets/Images/QR_Card6.png.meta
+Assets/Assets/Images/Stopwatch.png
+Assets/Assets/Images/Stopwatch.png.meta
+Assets/Assets/Videos.meta
+Assets/AudioManager.cs.meta
+Assets/Editor.meta
+Assets/Editor/Migration.meta
+Assets/Editor/Migration/AddVuforiaEnginePackage.cs
+Assets/Editor/Migration/AddVuforiaEnginePackage.cs.meta
+Assets/Editor/Migration/EditorMigrationScripts.asmdef
+Assets/Editor/Migration/EditorMigrationScripts.asmdef.meta
+Assets/Editor/Vuforia.meta
+Assets/Editor/Vuforia/ImageTargetTextures.meta
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia.meta
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia/British_biometric_passport_scaled.jpg
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia/British_biometric_passport_scaled.jpg.meta
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia/ChrysalisPantail-OW_scaled.jpg
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia/ChrysalisPantail-OW_scaled.jpg.meta
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia/QR_Card1_Vuforia_scaled.jpg
+Assets/Editor/Vuforia/ImageTargetTextures/ARGameVuforia/QR_Card1_Vuforia_scaled.jpg.meta
+Assets/Fantasy Chess RPG Character - Arthur.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_damage.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_damage.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_askill_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_askill_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_attack_01_1.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_attack_01_1.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_attack_01_2.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_attack_01_2.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_pskill_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_pskill_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_pskill_03_1.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_pskill_03_1.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_pskill_03_2.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_arthur_pskill_03_2.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_02.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_02.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_03.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_03.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_04.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_04.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_05.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_askill_05.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_attack_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_attack_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_pskill_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/FX/FX_prefaps/fx_hr_kumata_pskill_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/animation.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/animation/fx_hr_arthur_askill_01.anim
+Assets/Fantasy Chess RPG Character - Arthur/FX/animation/fx_hr_arthur_askill_01.anim.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/animation/fx_hr_arthur_askill_01.controller
+Assets/Fantasy Chess RPG Character - Arthur/FX/animation/fx_hr_arthur_askill_01.controller.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_arthur_shield.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_arthur_shield.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_aura_16.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_aura_16.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_aura_circle_07b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_aura_circle_07b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_broken_decal.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_broken_decal.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_darknessflash.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_darknessflash.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_dust_sheet_01b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_dust_sheet_01b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_flare_02.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_flare_02.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_flare_sheet_01.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_flare_sheet_01.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_crack_03.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_crack_03.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_dust_03b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_dust_03b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_dust_04b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_dust_04b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_line.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ground_line.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_hit02_y.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_hit02_y.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_hit_28.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_hit_28.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_hit_28b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_hit_28b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_light_decal.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_light_decal.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_lightning_cartoon.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_lightning_cartoon.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_line_1.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_line_1.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ray_hit.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_ray_hit.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_spiral_05.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_spiral_05.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_trail_sheet_02b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_trail_sheet_02b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_tail_03.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_tail_03.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_tail_12b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_tail_12b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_trail_12b.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_trail_12b.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_trail_18.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_trail_18.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_trail_27_red.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapon_trail_27_red.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail24.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail24.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail26_sheet.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail26_sheet.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail28_sheet.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail28_sheet.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail_01_blue.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_g_weapontrail_01_blue.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_mask_01.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_mask_01.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_weapon_tail_10.mat
+Assets/Fantasy Chess RPG Character - Arthur/FX/material/fx_weapon_tail_10.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/AuraCircle01.fbx
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/AuraCircle01.fbx.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_arthur_crossray.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_arthur_crossray.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_arthur_sheild.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_arthur_sheild.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_cone_02.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_cone_02.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_cross_outside.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_cross_outside.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_sphere_half_0.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_sphere_half_0.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_tail_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_tail_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_trace.FBX
+Assets/Fantasy Chess RPG Character - Arthur/FX/mesh/fx_trace.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_arthur_shield.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_arthur_shield.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_aura_16.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_aura_16.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_darknessflash.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_darknessflash.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_dust_sheet_01b.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_dust_sheet_01b.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_flare_sheet_01.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_flare_sheet_01.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_ground_crack_03.tga
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_ground_crack_03.tga.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_hit02_y.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_hit02_y.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_hit_13.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_hit_13.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_hit_28b.tga
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_hit_28b.tga.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_light_decal.PNG
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_light_decal.PNG.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_lightning_cartoon.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_lightning_cartoon.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_line_1.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_line_1.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_ray_hit.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_ray_hit.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_spiral_05.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_spiral_05.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_trail_sheet_02b.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_trail_sheet_02b.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_tail_03.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_tail_03.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_tail_10.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_tail_10.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_tail_12.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_tail_12.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_trail_12.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_trail_12.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_trail_18.TGA
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_trail_18.TGA.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_trail_27_red.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapon_trail_27_red.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail24.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail24.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail26_sheet.tga
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail26_sheet.tga.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail28_sheet.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail28_sheet.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail_01_blue.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_g_weapontrail_01_blue.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_ground_dust_03.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_ground_dust_03.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_ground_dust_04.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_ground_dust_04.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_ground_line.png
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_ground_line.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_mask_01.tga
+Assets/Fantasy Chess RPG Character - Arthur/FX/texture/fx_mask_01.tga.meta
+Assets/Fantasy Chess RPG Character - Arthur/Image.meta
+Assets/Fantasy Chess RPG Character - Arthur/Image/ui_icon_hero_arthur.png
+Assets/Fantasy Chess RPG Character - Arthur/Image/ui_icon_hero_arthur.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/Image/ui_icon_hero_kumata.png
+Assets/Fantasy Chess RPG Character - Arthur/Image/ui_icon_hero_kumata.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/Scenes.meta
+Assets/Fantasy Chess RPG Character - Arthur/Scenes/arthur.unity
+Assets/Fantasy Chess RPG Character - Arthur/Scenes/arthur.unity.meta
+Assets/Fantasy Chess RPG Character - Arthur/Scenes/kumata.unity
+Assets/Fantasy Chess RPG Character - Arthur/Scenes/kumata.unity.meta
+Assets/Fantasy Chess RPG Character - Arthur/animator.meta
+Assets/Fantasy Chess RPG Character - Arthur/animator/arthur_knight.controller
+Assets/Fantasy Chess RPG Character - Arthur/animator/arthur_knight.controller.meta
+Assets/Fantasy Chess RPG Character - Arthur/animator/arthur_mage.controller
+Assets/Fantasy Chess RPG Character - Arthur/animator/arthur_mage.controller.meta
+Assets/Fantasy Chess RPG Character - Arthur/animator/kumata.controller
+Assets/Fantasy Chess RPG Character - Arthur/animator/kumata.controller.meta
+Assets/Fantasy Chess RPG Character - Arthur/materials.meta
+Assets/Fantasy Chess RPG Character - Arthur/materials/arthur_01.mat
+Assets/Fantasy Chess RPG Character - Arthur/materials/arthur_01.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/materials/kumata_01.mat
+Assets/Fantasy Chess RPG Character - Arthur/materials/kumata_01.mat.meta
+Assets/Fantasy Chess RPG Character - Arthur/models.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_active_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_active_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_attack_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_attack_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_dead_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_dead_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_hurt_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_hurt_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_idle_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_idle_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_passive_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_passive_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_walk_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/arthur_walk_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_active_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_active_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_attack_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_attack_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_dead_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_dead_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_idle_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_idle_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_passive_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_passive_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_walk_01.FBX
+Assets/Fantasy Chess RPG Character - Arthur/models/kumata_walk_01.FBX.meta
+Assets/Fantasy Chess RPG Character - Arthur/prefaps.meta
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/Directional light.prefab
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/Directional light.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/Main Camera.prefab
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/Main Camera.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/arthur_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/arthur_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/kumata_01.prefab
+Assets/Fantasy Chess RPG Character - Arthur/prefaps/kumata_01.prefab.meta
+Assets/Fantasy Chess RPG Character - Arthur/readme.txt
+Assets/Fantasy Chess RPG Character - Arthur/readme.txt.meta
+Assets/Fantasy Chess RPG Character - Arthur/textures.meta
+Assets/Fantasy Chess RPG Character - Arthur/textures/arthur_01.png
+Assets/Fantasy Chess RPG Character - Arthur/textures/arthur_01.png.meta
+Assets/Fantasy Chess RPG Character - Arthur/textures/kumata_01.png
+Assets/Fantasy Chess RPG Character - Arthur/textures/kumata_01.png.meta
+Assets/Fantasy Chess RPG Character - Kumata.meta
+Assets/Fantasy Chess RPG Character - Kumata/readme.txt
+Assets/Fantasy Chess RPG Character - Kumata/readme.txt.meta
+Assets/Joystick Pack.meta
+Assets/Joystick Pack/Documentaion.pdf
+Assets/Joystick Pack/Documentaion.pdf.meta
+Assets/Joystick Pack/Examples.meta
+Assets/Joystick Pack/Examples/Example Scene.unity
+Assets/Joystick Pack/Examples/Example Scene.unity.meta
+Assets/Joystick Pack/Examples/Ground.mat
+Assets/Joystick Pack/Examples/Ground.mat.meta
+Assets/Joystick Pack/Examples/JoystickPlayerExample.cs
+Assets/Joystick Pack/Examples/JoystickPlayerExample.cs.meta
+Assets/Joystick Pack/Examples/JoystickSetterExample.cs
+Assets/Joystick Pack/Examples/JoystickSetterExample.cs.meta
+Assets/Joystick Pack/Examples/Player.mat
+Assets/Joystick Pack/Examples/Player.mat.meta
+Assets/Joystick Pack/Prefabs.meta
+Assets/Joystick Pack/Prefabs/Dynamic Joystick.prefab
+Assets/Joystick Pack/Prefabs/Dynamic Joystick.prefab.meta
+Assets/Joystick Pack/Prefabs/Fixed Joystick.prefab
+Assets/Joystick Pack/Prefabs/Fixed Joystick.prefab.meta
+Assets/Joystick Pack/Prefabs/Floating Joystick.prefab
+Assets/Joystick Pack/Prefabs/Floating Joystick.prefab.meta
+Assets/Joystick Pack/Prefabs/Variable Joystick.prefab
+Assets/Joystick Pack/Prefabs/Variable Joystick.prefab.meta
+Assets/Joystick Pack/Scripts.meta
+Assets/Joystick Pack/Scripts/Base.meta
+Assets/Joystick Pack/Scripts/Base/Joystick.cs
+Assets/Joystick Pack/Scripts/Base/Joystick.cs.meta
+Assets/Joystick Pack/Scripts/Editor.meta
+Assets/Joystick Pack/Scripts/Editor/DynamicJoystickEditor.cs
+Assets/Joystick Pack/Scripts/Editor/DynamicJoystickEditor.cs.meta
+Assets/Joystick Pack/Scripts/Editor/FloatingJoystickEditor.cs
+Assets/Joystick Pack/Scripts/Editor/FloatingJoystickEditor.cs.meta
+Assets/Joystick Pack/Scripts/Editor/JoystickEditor.cs
+Assets/Joystick Pack/Scripts/Editor/JoystickEditor.cs.meta
+Assets/Joystick Pack/Scripts/Editor/VariableJoystickEditor.cs
+Assets/Joystick Pack/Scripts/Editor/VariableJoystickEditor.cs.meta
+Assets/Joystick Pack/Scripts/Joysticks.meta
+Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs
+Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs.meta
+Assets/Joystick Pack/Scripts/Joysticks/FixedJoystick.cs
+Assets/Joystick Pack/Scripts/Joysticks/FixedJoystick.cs.meta
+Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs
+Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs.meta
+Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs
+Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs.meta
+Assets/Joystick Pack/Sprites.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline.png
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline.png.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline_Arrows.png
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Outline_Arrows.png.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Plain.png
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Plain.png.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Plain_Arrows.png
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Plain_Arrows.png.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Ridged.png
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Ridged.png.meta
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Ridged_Arrows.png
+Assets/Joystick Pack/Sprites/All Axis Backgrounds/AllAxis_Ridged_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Handles.meta
+Assets/Joystick Pack/Sprites/Handles/Handle_Outline.png
+Assets/Joystick Pack/Sprites/Handles/Handle_Outline.png.meta
+Assets/Joystick Pack/Sprites/Handles/Handle_Outline_Arrows.png
+Assets/Joystick Pack/Sprites/Handles/Handle_Outline_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Handles/Handle_Plain.png
+Assets/Joystick Pack/Sprites/Handles/Handle_Plain.png.meta
+Assets/Joystick Pack/Sprites/Handles/Handle_Plain_Arrows.png
+Assets/Joystick Pack/Sprites/Handles/Handle_Plain_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Handles/Handle_Ridged.png
+Assets/Joystick Pack/Sprites/Handles/Handle_Ridged.png.meta
+Assets/Joystick Pack/Sprites/Handles/Handle_Ridged_Arrows.png
+Assets/Joystick Pack/Sprites/Handles/Handle_Ridged_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Outline.png
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Outline.png.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Outline_Arrows.png
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Outline_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Plain.png
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Plain.png.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Plain_Arrows.png
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Plain_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Ridged.png
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Ridged.png.meta
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Ridged_Arrows.png
+Assets/Joystick Pack/Sprites/Horizontal Backgrounds/Horizontal_Ridged_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Outline.png
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Outline.png.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Outline_Arrows.png
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Outline_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Plain.png
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Plain.png.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Plain_Arrows.png
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Plain_Arrows.png.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Ridged.png
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Ridged.png.meta
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Ridged_Arrows.png
+Assets/Joystick Pack/Sprites/Vertical Backgrounds/Vertical_Ridged_Arrows.png.meta
+Assets/Library/AnnotationManager
+Assets/Library/ArtifactDB
+Assets/Library/ArtifactDB-lock
+Assets/Library/Artifacts/01/018a238197b03197f6b2657ccaec8dee
+Assets/Library/Artifacts/01/01cb1d6a3bab8f241e506793a6d221f2
+Assets/Library/Artifacts/02/02f9a3910a02f449cf2477ec6d0ff0d1
+Assets/Library/Artifacts/03/03242774d8a66404b9d02f8d8e2f4ac2
+Assets/Library/Artifacts/06/0677b70514eb43243714d5719a1f1b3b
+Assets/Library/Artifacts/0b/0b0ee1bc9213bd00c8cc3987df8f2b27
+Assets/Library/Artifacts/0c/0c76c59bb5e964bd8ffe6e9eddcfc6df
+Assets/Library/Artifacts/0d/0da78c443868676bdcf1aaa3a1b04543
+Assets/Library/Artifacts/11/111196fd9fa579e161f90717573ed746
+Assets/Library/Artifacts/13/13e81378eb1d5d9583ffd61345533d16
+Assets/Library/Artifacts/18/180ab4e996764ecfee0831bf4ce0cffe
+Assets/Library/Artifacts/23/239fd7c7e39bc75d83f67a16eaa295a1
+Assets/Library/Artifacts/23/23d92dd0d942219e4aebce030a560d81
+Assets/Library/Artifacts/26/26f3bdc1dc9413770e218c4a261d42bc
+Assets/Library/Artifacts/27/27bce58a0ad69651fce3fd0b51ca7d4c
+Assets/Library/Artifacts/2a/2ab3a46d6aa958ae140f1dfae9df7576
+Assets/Library/Artifacts/2e/2eab08fe9ae42759ad99498a3db9edf1
+Assets/Library/Artifacts/2f/2ffeb1bc24e723ec1d1a0dc238f37adf
+Assets/Library/Artifacts/33/33630e5d10340ca730c0e37c88ce52ae
+Assets/Library/Artifacts/39/398b0f0e0a58bb20c64dddd14a3a8df8
+Assets/Library/Artifacts/39/39aef971c0c15fc4db7dc42667a808ea
+Assets/Library/Artifacts/3d/3dd4aa29904b1b81a889d9b382f0ab26
+Assets/Library/Artifacts/3f/3f0d3a870203c7d443ba06527241cb3e
+Assets/Library/Artifacts/40/4098f2aabd2300f67b5cad0284ef060e
+Assets/Library/Artifacts/42/42f1f53dfb161908335d7c4d6226612e
+Assets/Library/Artifacts/48/48d7731a5d7e647265d43d3eaa29cd26
+Assets/Library/Artifacts/4a/4a0c7e08e529ae5aeab21e99203dac9b
+Assets/Library/Artifacts/52/52072345f0a7843f730a4f103d269e4c
+Assets/Library/Artifacts/55/5548944e8228beae33e0d69ee68b83d7
+Assets/Library/Artifacts/5b/5b1981c223ffee1b2922bdfc491c854f
+Assets/Library/Artifacts/62/6224350b5c0004f76437410478d87946
+Assets/Library/Artifacts/62/62b9948051c146c697312fb35038d8d4
+Assets/Library/Artifacts/62/62fd9193a33fb7a0a0fc2753579e53de
+Assets/Library/Artifacts/67/6737d971c6c9129df70900c033f635c1
+Assets/Library/Artifacts/6b/6b788fad0877417afecc285d3fbc2d9e
+Assets/Library/Artifacts/70/70d4bdae17eb99f55da65e2bb97c3b75
+Assets/Library/Artifacts/70/70e3f9163645b1f4d28ae6553e465bef
+Assets/Library/Artifacts/73/73c112d01f128a199b5e88474fc29aac
+Assets/Library/Artifacts/76/767e6799bd1bf365191e724b4fca0b39
+Assets/Library/Artifacts/7a/7a0863afb06c7085bbd86d14d921cac3
+Assets/Library/Artifacts/7b/7b54ae5ae36cb6ee5953d14122613cea
+Assets/Library/Artifacts/7c/7c23293ec5f3bd85857ff53ba46908e2
+Assets/Library/Artifacts/7c/7c8251d9c1c648c7656e94efab01bc63
+Assets/Library/Artifacts/82/82b8ea3f4da1690cb92b04eb96d2a1ca
+Assets/Library/Artifacts/86/862370894e9f9390b3b6c2d4e1e32511
+Assets/Library/Artifacts/88/880f38e5a887b8f2edd1d3edf97cbd74
+Assets/Library/Artifacts/88/887e41deeed483fb437aefd60a95891e
+Assets/Library/Artifacts/88/88dbd5c0e0e21592a4678a8231fadec6
+Assets/Library/Artifacts/8a/8a08c766c149aa5e93ffc25894e2d697
+Assets/Library/Artifacts/8b/8bfc0eb088de8f0d1e6551347cbd6557
+Assets/Library/Artifacts/8c/8cd4e49ec5254b22176d1f4a0818ef37
+Assets/Library/Artifacts/90/9038646d79393efe4e5755ab0144e875
+Assets/Library/Artifacts/91/91c30c47e964950611b7de8bfac0cdf3
+Assets/Library/Artifacts/93/935dd5fbb7cfd450db4a1a33df76c08c
+Assets/Library/Artifacts/99/996984eebcc445aec9c57c57d0144c7b
+Assets/Library/Artifacts/9a/9a5b3ae9c933a2ca86660e57d5033ef2
+Assets/Library/Artifacts/a1/a1bdf01c5abb2a9276df9a80d42423b8
+Assets/Library/Artifacts/a3/a35e57ab85c284f62753ef911ebfb2ed
+Assets/Library/Artifacts/a5/a54f5601201c6f63d2e84656fe5a6696
+Assets/Library/Artifacts/a5/a5fa9ec21bfc5290354fb17eb023317b
+Assets/Library/Artifacts/a8/a84c63daf77599a8bee077e6189a09da
+Assets/Library/Artifacts/aa/aa33af7d63b6d853146bbb3703e8c384
+Assets/Library/Artifacts/ab/ab17ddff6dfed81ab8d18e86ef2554e8
+Assets/Library/Artifacts/b2/b2408096232d7b8a437b9e704a106d1f
+Assets/Library/Artifacts/b4/b4613648679d1cec7b899dbfd018cb18
+Assets/Library/Artifacts/ba/ba08c2e57138a4876785a772ed8de7fc
+Assets/Library/Artifacts/bb/bb8d7faec11deefde2d4cb9211b3d45e
+Assets/Library/Artifacts/bf/bff0ba9a254b3638954f5dc8a642e5e4
+Assets/Library/Artifacts/c3/c336c4ad649e21d40ebc1a66c09c2aad
+Assets/Library/Artifacts/d1/d16b9b693abb497a8ae4110a358e8b97
+Assets/Library/Artifacts/d4/d49b0fa8e1cd61927184718f1f0633a1
+Assets/Library/Artifacts/d7/d758c16c2bd5d81cfdc8a700abdf6c95
+Assets/Library/Artifacts/d8/d88befda8c0b2a1bed7ad12be7d195da
+Assets/Library/Artifacts/d9/d9673780b23644f76c6b1a97827fb989
+Assets/Library/Artifacts/d9/d96eb2ac23d258e4c1eb41473317630c
+Assets/Library/Artifacts/dc/dc8768b2a77ecdeb52e664b0a0d1f974
+Assets/Library/Artifacts/dd/dd4dac7b01747aeb9b768d0e01f50659
+Assets/Library/Artifacts/eb/ebe33e17404e3d212c3fb9bc01e2168a
+Assets/Library/Artifacts/f1/f1f30912bbc858692b1c3f245064dfe3
+Assets/Library/Artifacts/f5/f546ab036691d38515022e2e910f480d
+Assets/Library/Artifacts/fe/fec7d2d83a7d4323b8d7627a5400acaf
+Assets/Library/Bee/1900b0aE-inputdata.json
+Assets/Library/Bee/1900b0aE.dag
+Assets/Library/Bee/1900b0aE.dag.json
+Assets/Library/Bee/1900b0aE.dag.outputdata
+Assets/Library/Bee/1900b0aE.dag.payloads
+Assets/Library/Bee/1900b0aE.dag_derived
+Assets/Library/Bee/1900b0aE.dag_fsmtime
+Assets/Library/Bee/TundraBuildState.state
+Assets/Library/Bee/backend2.traceevents
+Assets/Library/Bee/bee_backend.info
+Assets/Library/Bee/buildprogram0.traceevents
+Assets/Library/Bee/fullprofile.json
+Assets/Library/Bee/tundra.digestcache
+Assets/Library/Bee/tundra.log.json
+Assets/Library/BuildPlayer.prefs
+Assets/Library/BuildSettings.asset
+Assets/Library/EditorOnlyScriptingSettings.json
+Assets/Library/EditorOnlyVirtualTextureState.json
+Assets/Library/EditorSnapSettings.asset
+Assets/Library/EditorUserBuildSettings.asset
+Assets/Library/InspectorExpandedItems.asset
+Assets/Library/LastSceneManagerSetup.txt
+Assets/Library/LibraryFormatVersion.txt
+Assets/Library/MonoManager.asset
+Assets/Library/PackageCache/com.unity.modules.ai@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.ai@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.ai@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.ai@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.ai@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.ai@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.androidjni@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.androidjni@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.androidjni@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.androidjni@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.animation@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.animation@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.animation@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.animation@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.animation@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.animation@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.assetbundle@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.assetbundle@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.assetbundle@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.assetbundle@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.audio@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.audio@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.audio@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.audio@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.audio@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.audio@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.cloth@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.cloth@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.cloth@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.cloth@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.cloth@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.cloth@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.director@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.director@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.director@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.director@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.imageconversion@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.imageconversion@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.imageconversion@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.imageconversion@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.imageconversion@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.imageconversion@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.imgui@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.imgui@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.imgui@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.imgui@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.imgui@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.imgui@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.jsonserialize@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.jsonserialize@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.jsonserialize@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.jsonserialize@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.particlesystem@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.particlesystem@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.particlesystem@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.particlesystem@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.particlesystem@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.particlesystem@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.physics2d@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.physics2d@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.physics2d@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.physics2d@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.physics2d@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.physics2d@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.physics@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.physics@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.physics@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.physics@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.physics@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.physics@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.screencapture@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.screencapture@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.screencapture@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.screencapture@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.screencapture@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.screencapture@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.subsystems@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.subsystems@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.subsystems@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.subsystems@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.terrain@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.terrain@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.terrain@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.terrain@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.terrainphysics@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.terrainphysics@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.terrainphysics@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.terrainphysics@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.tilemap@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.tilemap@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.tilemap@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.tilemap@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.ui@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.ui@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.ui@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.ui@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.ui@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.ui@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.uielements@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.uielements@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.uielements@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.uielements@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.umbra@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.umbra@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.umbra@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.umbra@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.umbra@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.umbra@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.unityanalytics@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.unityanalytics@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.unityanalytics@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.unityanalytics@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequest@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.unitywebrequest@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequest@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.unitywebrequest@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestassetbundle@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestassetbundle@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestassetbundle@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestassetbundle@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestaudio@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestaudio@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestaudio@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestaudio@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequesttexture@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.unitywebrequesttexture@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequesttexture@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.unitywebrequesttexture@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestwww@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestwww@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestwww@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.unitywebrequestwww@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.vehicles@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.vehicles@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.vehicles@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.vehicles@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.vehicles@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.vehicles@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.video@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.video@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.video@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.video@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.vr@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.vr@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.vr@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.vr@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.wind@1.0.0/.icon.png
+Assets/Library/PackageCache/com.unity.modules.wind@1.0.0/.icon.png.meta
+Assets/Library/PackageCache/com.unity.modules.wind@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.wind@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.wind@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.wind@1.0.0/package.json.meta
+Assets/Library/PackageCache/com.unity.modules.xr@1.0.0/package.ModuleCompilationTrigger
+Assets/Library/PackageCache/com.unity.modules.xr@1.0.0/package.ModuleCompilationTrigger.meta
+Assets/Library/PackageCache/com.unity.modules.xr@1.0.0/package.json
+Assets/Library/PackageCache/com.unity.modules.xr@1.0.0/package.json.meta
+Assets/Library/PackageManager/ProjectCache
+Assets/Library/PackageManager/ProjectCache.md5
+Assets/Library/SceneVisibilityState.asset
+Assets/Library/ScriptMapper
+Assets/Library/Search/propertyAliases.db
+Assets/Library/Search/propertyAliases.db.st
+Assets/Library/Search/propertyDatabase.db
+Assets/Library/Search/propertyDatabase.db.st
+Assets/Library/Search/transactions.db
+Assets/Library/ShaderCache.db
+Assets/Library/ShaderCache/EditorEncounteredVariants
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/057391106bf316b5e2b5bca863a583d2.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/0866acdfec1b5d2faee805fd046a049c.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/1f806dd1a99365dbb0ca94e60c50e718.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/1fce9901ea7c66f43f5d628fa95651a4.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/247c64b0738549a3505b31c8e5bd0fcd.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/24f7a58ddbe09374807190a98ea46a9b.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/2666da66f1f8dff2b43d021fe4d0a41c.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/2cbba7d834b1147bde31f252e797c6a6.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/3539f1eff348920a74a7c40021b07323.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/3f52fcdd45296e78fdbb7a869f8f3f3a.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/44f49ce9da61b9bf2bf3c96738342610.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/45a36155260a11da52f51f5ac1c8842c.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/464aae157254043147935440e927423d.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/4675e6edd7862c3bf2a8c9181ce99467.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/4dfcf5d21b5a9e03873d120dc2e02da9.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/52b9fc2cd43e8d450b80190299a587ba.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/554be0fdc30e79a1496d60c3ba198e77.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/5bebf0e071931218e53e94bdbf3e42d8.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/5e64da8695f8dc9ef8f3c285d156efe2.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/68cbd9bce855fbaeeb62e4cb279ffb6f.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/6d5d1eebb720f7fa09490a05d72c8da7.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/77c712d1d1b0e768951d8e95b57b93a1.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/87cff8a0f9e54fd84df26725e0f11911.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/94ebc028202466b05e4abbedb015dbac.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/98a081a24449ef24c5da4cc00aa2613b.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/b9084ba9a05cbdc783e77b74e75e7cb4.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/c1043c73bc588db8dcda1ca80fe580f6.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/c81a0ba65fcbb63abdce82fa31953be5.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/cd7fe2475f1203f412efa3b407b78975.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/ce69c2c9eaa843b8c530341c28e24d56.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/d8d3d48d150968124916edf6ee18f564.bin
+Assets/Library/ShaderCache/builtin/unity_builtin_extra0000/00/de3fb600eee4b485826f9c47c156e733.bin
+Assets/Library/SourceAssetDB
+Assets/Library/SourceAssetDB-lock
+Assets/Library/SpriteAtlasDatabase.asset
+Assets/Library/StateCache/LayerSettings/9e/9ecc5c3c162a7aba29bafa64c8b94b7c.json
+Assets/Library/StateCache/MainStageHierarchy/4d/4d2a36d9faf65734f0bbefb3ee623532.json
+Assets/Library/StateCache/SceneView/8c/8cd7c613bf844de3b80696e27a479d5e.json
+Assets/Library/Style.catalog
+Assets/Library/expandedItems
+Assets/Library/ilpp.pid
+Assets/Logs/AssetImportWorker0.log
+Assets/Logs/Packages-Update.log
+Assets/Logs/shadercompiler-AssetImportWorker0.log
+Assets/Logs/shadercompiler-UnityShaderCompiler.exe0.log
+Assets/Packages/manifest.json
+Assets/Packages/packages-lock.json
+Assets/Prefabs.meta
+Assets/Prefabs/AudioController.prefab
+Assets/Prefabs/AudioController.prefab.meta
+Assets/Prefabs/CanvasAssets.meta
+Assets/Prefabs/CanvasAssets/Canvas.prefab
+Assets/Prefabs/CanvasAssets/Canvas.prefab.meta
+Assets/Prefabs/CanvasAssets/TimerPanel.prefab
+Assets/Prefabs/CanvasAssets/TimerPanel.prefab.meta
+Assets/Prefabs/Cube.prefab
+Assets/Prefabs/Cube.prefab.meta
+Assets/Prefabs/Enemy.prefab
+Assets/Prefabs/Enemy.prefab.meta
+Assets/Prefabs/MageSpell.prefab
+Assets/Prefabs/MageSpell.prefab.meta
+Assets/Prefabs/Sphere.prefab
+Assets/Prefabs/Sphere.prefab.meta
+Assets/ProjectSettings/AudioManager.asset
+Assets/ProjectSettings/ClusterInputManager.asset
+Assets/ProjectSettings/DynamicsManager.asset
+Assets/ProjectSettings/EditorBuildSettings.asset
+Assets/ProjectSettings/EditorSettings.asset
+Assets/ProjectSettings/GraphicsSettings.asset
+Assets/ProjectSettings/InputManager.asset
+Assets/ProjectSettings/MemorySettings.asset
+Assets/ProjectSettings/NavMeshAreas.asset
+Assets/ProjectSettings/PackageManagerSettings.asset
+Assets/ProjectSettings/Physics2DSettings.asset
+Assets/ProjectSettings/PresetManager.asset
+Assets/ProjectSettings/ProjectSettings.asset
+Assets/ProjectSettings/ProjectVersion.txt
+Assets/ProjectSettings/QualitySettings.asset
+Assets/ProjectSettings/TagManager.asset
+Assets/ProjectSettings/TimeManager.asset
+Assets/ProjectSettings/UnityConnectSettings.asset
+Assets/ProjectSettings/VFXManager.asset
+Assets/ProjectSettings/VersionControlSettings.asset
+Assets/Resources.meta
+Assets/Resources/VuforiaConfiguration.asset
+Assets/Resources/VuforiaConfiguration.asset.meta
+Assets/Scenes.meta
+Assets/Scenes/Game.unity
+Assets/Scenes/Game.unity.meta
+Assets/Scenes/Game_Profiles.meta
+Assets/Scenes/Game_Profiles/GameObject Profile.asset
+Assets/Scenes/Game_Profiles/GameObject Profile.asset.meta
+Assets/Scenes/MainMenu.unity
+Assets/Scenes/MainMenu.unity.meta
+Assets/Scripts.meta
+Assets/Scripts/AudioManager.cs
+Assets/Scripts/BattleHUD.cs
+Assets/Scripts/BattleHUD.cs.meta
+Assets/Scripts/BattleManager.cs
+Assets/Scripts/BattleManager.cs.meta
+Assets/Scripts/Billboard.cs
+Assets/Scripts/Billboard.cs.meta
+Assets/Scripts/Controllers.meta
+Assets/Scripts/Controllers/BattleController.cs
+Assets/Scripts/Controllers/BattleController.cs.meta
+Assets/Scripts/Controllers/EnemyController.cs
+Assets/Scripts/Controllers/EnemyController.cs.meta
+Assets/Scripts/Controllers/PauseController.cs
+Assets/Scripts/Controllers/PauseController.cs.meta
+Assets/Scripts/Controllers/PlayerController.cs
+Assets/Scripts/Controllers/PlayerController.cs.meta
+Assets/Scripts/Enemy.meta
+Assets/Scripts/Enemy/Enemy.cs
+Assets/Scripts/Enemy/Enemy.cs.meta
+Assets/Scripts/Enemy/EnemyHUD.cs
+Assets/Scripts/Enemy/EnemyHUD.cs.meta
+Assets/Scripts/Enemy/Enemy_Run.cs
+Assets/Scripts/Enemy/Enemy_Run.cs.meta
+Assets/Scripts/Enemy/SkeletonWeapon.cs
+Assets/Scripts/Enemy/SkeletonWeapon.cs.meta
+Assets/Scripts/EnemyCard.cs
+Assets/Scripts/EnemyCard.cs.meta
+Assets/Scripts/EntityManager.cs
+Assets/Scripts/EntityManager.cs.meta
+Assets/Scripts/KumataWeapon.cs
+Assets/Scripts/KumataWeapon.cs.meta
+Assets/Scripts/Kumata_Run.cs
+Assets/Scripts/Kumata_Run.cs.meta
+Assets/Scripts/MainMenu.cs
+Assets/Scripts/MainMenu.cs.meta
+Assets/Scripts/MiscTemp.cs
+Assets/Scripts/MiscTemp.cs.meta
+Assets/Scripts/Player.meta
+Assets/Scripts/Player/Attack_knight.cs
+Assets/Scripts/Player/Attack_knight.cs.meta
+Assets/Scripts/Player/Attack_mage.cs
+Assets/Scripts/Player/Attack_mage.cs.meta
+Assets/Scripts/Player/CardDisplay.cs
+Assets/Scripts/Player/CardDisplay.cs.meta
+Assets/Scripts/Player/MageSpell.cs
+Assets/Scripts/Player/MageSpell.cs.meta
+Assets/Scripts/Player/PlayerCard.cs
+Assets/Scripts/Player/PlayerCard.cs.meta
+Assets/Scripts/Player/PlayerData.cs
+Assets/Scripts/Player/PlayerData.cs.meta
+Assets/Scripts/Player/PlayerStats.cs
+Assets/Scripts/Player/PlayerStats.cs.meta
+Assets/Scripts/Player/PlayerWeapon_mage.cs
+Assets/Scripts/Player/PlayerWeapon_mage.cs.meta
+Assets/Scripts/SceneLoader.cs
+Assets/Scripts/SceneLoader.cs.meta
+Assets/Scripts/SelectManager.cs
+Assets/Scripts/SelectManager.cs.meta
+Assets/Scripts/Sound.cs
+Assets/Scripts/Timer.cs
+Assets/Scripts/Timer.cs.meta
+Assets/Shaders.meta
+Assets/Shaders/OutlineShader.shader
+Assets/Shaders/OutlineShader.shader.meta
+Assets/SimpleSkeletonFree.meta
+Assets/SimpleSkeletonFree/DemoScene.unity
+Assets/SimpleSkeletonFree/DemoScene.unity.meta
+Assets/SimpleSkeletonFree/Textures.meta
+Assets/SimpleSkeletonFree/Textures/Shield.png
+Assets/SimpleSkeletonFree/Textures/Shield.png.meta
+Assets/SimpleSkeletonFree/Textures/Skull.png
+Assets/SimpleSkeletonFree/Textures/Skull.png.meta
+Assets/SimpleSkeletonFree/Textures/Sword.png
+Assets/SimpleSkeletonFree/Textures/Sword.png.meta
+Assets/SimpleSkeletonFree/animation.meta
+Assets/SimpleSkeletonFree/animation/Materials.meta
+Assets/SimpleSkeletonFree/animation/Materials/Material #20.mat
+Assets/SimpleSkeletonFree/animation/Materials/Material #20.mat.meta
+Assets/SimpleSkeletonFree/animation/Materials/Material #34.mat
+Assets/SimpleSkeletonFree/animation/Materials/Material #34.mat.meta
+Assets/SimpleSkeletonFree/animation/Materials/Material #35.mat
+Assets/SimpleSkeletonFree/animation/Materials/Material #35.mat.meta
+Assets/SimpleSkeletonFree/animation/SkeletonAC.controller
+Assets/SimpleSkeletonFree/animation/SkeletonAC.controller.meta
+Assets/SimpleSkeletonFree/animation/skeleton@Attack1h1.FBX
+Assets/SimpleSkeletonFree/animation/skeleton@Attack1h1.FBX.meta
+Assets/SimpleSkeletonFree/animation/skeleton@Fall1.FBX
+Assets/SimpleSkeletonFree/animation/skeleton@Fall1.FBX.meta
+Assets/SimpleSkeletonFree/animation/skeleton@Hit1.FBX
+Assets/SimpleSkeletonFree/animation/skeleton@Hit1.FBX.meta
+Assets/SimpleSkeletonFree/animation/skeleton@Idle1.FBX
+Assets/SimpleSkeletonFree/animation/skeleton@Idle1.FBX.meta
+Assets/SimpleSkeletonFree/animation/skeleton@Intro.FBX
+Assets/SimpleSkeletonFree/animation/skeleton@Intro.FBX.meta
+Assets/SimpleSkeletonFree/animation/skeleton@Walk 1.FBX
+Assets/SimpleSkeletonFree/animation/skeleton@Walk 1.FBX.meta
+Assets/SimpleSkeletonFree/material.meta
+Assets/SimpleSkeletonFree/material/Shield_MAT.mat
+Assets/SimpleSkeletonFree/material/Shield_MAT.mat.meta
+Assets/SimpleSkeletonFree/material/Sword_MAT.mat
+Assets/SimpleSkeletonFree/material/Sword_MAT.mat.meta
+Assets/SimpleSkeletonFree/material/skeleton_MAT.mat
+Assets/SimpleSkeletonFree/material/skeleton_MAT.mat.meta
+Assets/SimpleSkeletonFree/mesh.meta
+Assets/SimpleSkeletonFree/mesh/Materials.meta
+Assets/SimpleSkeletonFree/mesh/Materials/MODULAR_ARMOR_01.mat
+Assets/SimpleSkeletonFree/mesh/Materials/MODULAR_ARMOR_01.mat.meta
+Assets/SimpleSkeletonFree/mesh/Materials/Sword.mat
+Assets/SimpleSkeletonFree/mesh/Materials/Sword.mat.meta
+Assets/SimpleSkeletonFree/mesh/Materials/skull.mat
+Assets/SimpleSkeletonFree/mesh/Materials/skull.mat.meta
+Assets/SimpleSkeletonFree/mesh/Materials/weapon_axe_03_MAT.mat
+Assets/SimpleSkeletonFree/mesh/Materials/weapon_axe_03_MAT.mat.meta
+Assets/SimpleSkeletonFree/mesh/SHIELD.FBX
+Assets/SimpleSkeletonFree/mesh/SHIELD.FBX.meta
+Assets/SimpleSkeletonFree/mesh/SKELETON.FBX
+Assets/SimpleSkeletonFree/mesh/SKELETON.FBX.meta
+Assets/SimpleSkeletonFree/mesh/SWORD.FBX
+Assets/SimpleSkeletonFree/mesh/SWORD.FBX.meta
+Assets/SimpleSkeletonFree/prefab.meta
+Assets/SimpleSkeletonFree/prefab/Directional light.prefab
+Assets/SimpleSkeletonFree/prefab/Directional light.prefab.meta
+Assets/SimpleSkeletonFree/prefab/SKELETON.prefab
+Assets/SimpleSkeletonFree/prefab/SKELETON.prefab.meta
+Assets/Sound.cs.meta
+Assets/StreamingAssets.meta
+Assets/StreamingAssets/Vuforia.meta
+Assets/StreamingAssets/Vuforia/ARGameVuforia.dat
+Assets/StreamingAssets/Vuforia/ARGameVuforia.dat.meta
+Assets/StreamingAssets/Vuforia/ARGameVuforia.xml
+Assets/StreamingAssets/Vuforia/ARGameVuforia.xml.meta
+Assets/TextMesh Pro.meta
+Assets/TextMesh Pro/Documentation.meta
+Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf
+Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf.meta
+Assets/TextMesh Pro/Fonts.meta
+Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt
+Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt.meta
+Assets/TextMesh Pro/Fonts/LiberationSans.ttf
+Assets/TextMesh Pro/Fonts/LiberationSans.ttf.meta
+Assets/TextMesh Pro/Resources.meta
+Assets/TextMesh Pro/Resources/Fonts & Materials.meta
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Drop Shadow.mat
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Drop Shadow.mat.meta
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset.meta
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Outline.mat
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Outline.mat.meta
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset.meta
+Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt
+Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt.meta
+Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt
+Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt.meta
+Assets/TextMesh Pro/Resources/Shaders.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Custom-Atlas.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Custom-Atlas.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Mobile.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Mobile.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF Overlay.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF Overlay.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Masking.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Masking.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Overlay.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Overlay.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface-Mobile.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface-Mobile.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_SDF.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMP_Sprite.shader
+Assets/TextMesh Pro/Resources/Shaders/TMP_Sprite.shader.meta
+Assets/TextMesh Pro/Resources/Shaders/TMPro.cginc
+Assets/TextMesh Pro/Resources/Shaders/TMPro.cginc.meta
+Assets/TextMesh Pro/Resources/Shaders/TMPro_Properties.cginc
+Assets/TextMesh Pro/Resources/Shaders/TMPro_Properties.cginc.meta
+Assets/TextMesh Pro/Resources/Shaders/TMPro_Surface.cginc
+Assets/TextMesh Pro/Resources/Shaders/TMPro_Surface.cginc.meta
+Assets/TextMesh Pro/Resources/Sprite Assets.meta
+Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset
+Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset.meta
+Assets/TextMesh Pro/Resources/Style Sheets.meta
+Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset
+Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset.meta
+Assets/TextMesh Pro/Resources/TMP Settings.asset
+Assets/TextMesh Pro/Resources/TMP Settings.asset.meta
+Assets/TextMesh Pro/Sprites.meta
+Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt
+Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt.meta
+Assets/TextMesh Pro/Sprites/EmojiOne.json
+Assets/TextMesh Pro/Sprites/EmojiOne.json.meta
+Assets/TextMesh Pro/Sprites/EmojiOne.png
+Assets/TextMesh Pro/Sprites/EmojiOne.png.meta
+Assets/UserSettings/EditorUserSettings.asset
+Assets/UserSettings/Layouts/default-2022.dwlt
+Assets/UserSettings/Search.settings
+Augmented Reality Card Game.pdf
+LICENSE
+README.md
+UML Diagrams.pdf

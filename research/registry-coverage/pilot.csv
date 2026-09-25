@@ -1,0 +1,51 @@
+﻿card_id,pilot,card_type,neuron_cid,passcodes,artwork_records,names_en,printing_observations_en,distinct_set_codes_en,names_es,printing_observations_es,distinct_set_codes_es,names_de,printing_observations_de,distinct_set_codes_de,names_fr,printing_observations_fr,distinct_set_codes_fr,names_pt,printing_observations_pt,distinct_set_codes_pt,missing_name_languages,missing_printing_languages,review_reasons
+d916f281-175e-4190-9d32-e5a2402d86b1,1,spell,21385,80181649,2,"""A Case for K9"" | ""Case of K9""",6,2,"""Case of K9"" | ""Un Caso para K9""",4,1,"""Case of K9"" | „Ein Fall für K9“",4,1,"""Case of K9"" | ""Une Affaire pour K9""",4,1,"""Um Caso para K9""",4,1,,,
+f6f24692-b72d-4741-bb1e-84ca704d9ba9,1,monster,4455,11714098,1,"30,000-Year White Turtle",0,0,"30,000-Year White Turtle",0,0,"30,000-Year White Turtle",0,0,"30,000-Year White Turtle",0,0,,0,0,pt,en|es|de|fr|pt,missing_name|missing_printing
+9f6e74f0-7dbf-4b64-a3a7-2cb1b2cb9779,1,monster,13863,15308295,1,Abyss Actor - Comic Relief,2,2,Actor del Abismo - Alivio Cómico,2,2,Abgrundschauspieler - Befreiender Komiker,2,2,Acteur des Abysses - Soulagement Comique,2,2,Ator do Abismo - Alívio Cômico,2,2,,,
+24249e55-d007-4c60-83da-7f0dce64a108,1,monster,13137,44179224,1,Abyss Actor - Curtain Raiser,3,2,Actor del Abismo - Telonero,2,2,Abgrundschauspieler - Vorspieler,2,2,Acteur des Abysses - Prélude,2,2,Ator do Abismo - Erguedor de Cortinas,2,2,,,
+0bae3885-838e-4d5d-88ac-108218510d12,1,spell,4342,53129443,1,Dark Hole,55,41,Agujero Oscuro,34,32,Schwarzes Loch,36,33,Trou Noir,41,35,Buraco Negro,26,25,,,
+1c222ccc-1312-46e7-8aaa-a9c1012b48c8,1,monster,4645,40173854,1,Amphibious Bugroth,2,1,Amphibious Bugroth | Bugroth Anfibio,0,0,Amphibious Bugroth | Amphibischer Bugroth,0,0,Bugroth Amphibie,1,1,Bugroth Anfíbio,0,0,,es|de|pt,missing_printing
+6069aed5-9b25-4dad-bee9-2b0f6dd19c5b,1,monster,15099,11302671,1,Adamancipator Analyzer,3,3,Analizador Adamancipador,3,3,Steinbefreier Prüfer,3,3,Analyseur Inflexcipateur,3,3,Analista Adamancipador,3,3,,,
+3c975631-13b7-4d65-8aad-650407ff7ba8,1,spell,7128,34541863,1,"""A"" Cell Breeding Device",3,1,"Aparato Criador de Celdas ""A""",1,1,„A“-Zellen-Brutkasten,1,1,"Incubateur Cellule ""A""",2,1,,0,0,pt,pt,missing_name|missing_printing
+b1a6dc3c-f38f-40ea-8805-a079f468a121,1,token,,22493812,1,Army Ant Token,0,0,Army Ant Token,0,0,Army Ant Token,0,0,Army Ant Token,0,0,,0,0,pt,en|es|de|fr|pt,missing_name|missing_printing
+79c72129-1dd1-4eba-8e05-baebf3e8a26d,1,monster,9091,31175914,1,Attack Gainer,2,1,Ataque de Gainer,1,1,Angriffsgewinner,1,1,Absorbeur d'Attaque,1,1,,0,0,pt,pt,missing_name|missing_printing
+019abbdf-89d8-4110-83b5-e4f724b75355,1,monster,16225,45655875,1,Magikey Beast - Ansyalabolas,2,2,Bestia Magillave - Ansyalabolas,2,2,Magieschlüssel-Ungeheuer - Ansyalabolas,2,2,Bête de la Magiclé - Ansyalabolas,2,2,Besta Magichave - Ansyalabolas,2,2,,,
+29afd3be-74ac-4272-81c6-67bdaeb223ab,1,monster,12025,70026064,1,Bujin Hiruko,3,1,Bujin Hiruko,1,1,Bujin Hiruko,1,1,Bujin Hiruko,1,1,Bujin Hiruko,1,1,,,
+7de067ad-26b9-49c2-b713-5864233f7f7c,1,monster,11315,21970285,1,Dragon Horn Hunter,6,3,Cazadora de Cuernos de Dragón,3,2,Drachenhornjägerin,5,3,Chasseuse de Cornes de Dragon,5,3,Caçador de Chifre de Dragão,3,2,,,
+6cb08e9f-e85c-464b-b3ec-71fe7790ceb7,1,monster,4766,38033121|38033126,6,Dark Magician Girl,62,36,Chica Maga Oscura,39,31,Dunkles Magier-Mädchen,42,32,Magicienne des Ténèbres,43,32,Pequena Maga Negra,37,29,,,
+77bc0807-d7fc-461d-98dc-ea23a2acc6fa,1,monster,6390,70095154,2,Cyber Dragon,61,38,Ciber Dragón,35,29,Cyber Drache,40,32,Cyber Dragon,37,30,Dragão Cibernético,27,22,,,
+a0265517-063f-4ffa-8b4e-31acd1512992,1,monster,4028,70781052,4,Summoned Skull,39,23,Cráneo Convocado,16,14,Herbeigerufener Totenkopf,20,16,Crâne Invoqué,22,16,Caveira Invocada,12,11,,,
+828306a1-80fe-4110-acf3-4dc05fe0cbd8,1,monster,12228,72181263,1,D/D Orthros,2,1,D/D Orthros,1,1,D/D-Orthros,1,1,D/D Orthros,1,1,D/D Orthros,1,1,,,
+9a54a9b2-176f-4c12-9941-1b0dfd28ebad,1,monster,13036,01861629|01861630,2,Decode Talker,8,7,Decodificador Hablador,7,7,Dekodier-Sprecher,7,7,Décodeur Bavard,7,7,Decodificar Transmissor,7,7,,,
+e0404755-1ade-4c7c-9a2a-b29b7755d860,1,monster,4007,89631139,8,Blue-Eyes White Dragon,183,74,Dragón Blanco de Ojos Azules,113,51,Blauäugiger w. Drache,123,52,Dragon Blanc aux Yeux Bleus,121,53,Dragão Branco de Olhos Azuis,90,40,,,
+bc4ce584-7451-4d5b-8d25-2557632e4be5,1,monster,4088,74677422|74677427,6,Red-Eyes Black Dragon,57,43,Dragón Negro de Ojos Rojos,35,28,Rotäugiger schwarzer Drache,41,31,Dragon Noir aux Yeux Rouges,38,30,Dragão Negro de Olhos Vermelhos,30,24,,,
+61d244e6-8ced-4c36-a928-de1d3a0c5a63,1,monster,7734,44508094|44508095,2,Stardust Dragon,28,15,Dragón de Polvo de Estrellas,23,15,Sternenstaubdrache,25,16,Dragon Poussière d'Étoile,25,15,Dragão da Poeira Estelar,12,9,,,
+3aea8beb-b860-4b89-bb58-2b56ab9bfc32,1,monster,11213,16178681|16178683,3,Odd-Eyes Pendulum Dragon,15,9,Dragón de Péndulo de Ojos Anómalos,12,9,Buntäugiger Pendeldrache,13,9,Dragon Pendule aux Yeux Impairs,13,9,Dragão Pêndulo de Olhos Anômalos,11,9,,,
+7d60f28f-f6cd-4842-b874-d9d3eac261a9,1,token,12699,55326323,1,Crystron Token,1,1,Ficha Cristron,1,1,Kristron-Spielmarke,1,1,Jeton Crystron,1,1,Ficha de Cristron,1,1,,,
+9d90d3d4-a64b-4539-8c45-8f839b9be14e,1,token,12681,44052075,1,Ancient Gear Token,2,1,Ficha Mecanismo Antiguo,1,1,Antiker-Antrieb-Spielmarke,1,1,Jeton Rouages Ancients,1,1,Ficha de Mecanismo Antigo,1,1,,,
+717e3672-4d47-4810-8983-4d5083d91c74,1,token,14164,67284108,1,Black Sheep Token,1,1,Ficha Oveja Negra,1,1,Schwarzes-Schaf-Spielmark,1,1,Jeton Mouton Noir,1,1,Ficha de Ovelha Negra,1,1,,,
+0bfcc499-7a45-452e-ad36-d2e2026ad580,1,trap,4887,44095762,1,Mirror Force,54,34,Fuerza de Espejo,35,30,Spiegelkraft,38,31,Force de Miroir,39,32,Força do Espelho,27,23,,,
+809834c9-2742-4c11-9ce8-29926d1167f3,1,monster,15723,17241941,1,Gigathunder Giclops,1,1,Gíclope Gigatrueno,1,1,Gigadonner-Gigaklop,1,1,Giclops Gigatonnerre,1,1,Giclope Gigatrovão,1,1,,,
+e5a7a357-59bd-4020-8929-e568a54e0de6,1,monster,13361,77994337,1,Hallohallo,5,2,Hallohallo,3,2,Hallohallo,3,2,Hallohallo,3,2,Hallohallo,3,2,,,
+413c576f-7c45-4609-8ecc-0c44a2d812ff,1,monster,7300,38468214,1,Alien Hypno,3,1,Hipnotizador Alienígena,1,1,Außerirdischer Hypno,1,1,Alien Hypnotique,2,1,,0,0,pt,pt,missing_name|missing_printing
+bda59be9-3aaa-44e9-8aa6-11e06c1bfffa,1,monster,6653,89943723|89943724,2,Elemental HERO Neos,31,17,HÉROE Elemental Neos,17,12,Elementar-HELD Neos,20,14,"Néos, HÉROS Élémentaire",19,13,"Neos, o HERÓI do Elemento",10,8,,,
+f84bb12a-9add-4954-9a42-0fcff7b46325,1,spell,7315,64163367,1,"""A"" Cell Incubator",3,1,"Incubador de Celdas ""A""",1,1,„A“-Zellen-Inkubator,1,1,"Incubateur de Cellules ""A""",1,1,,0,0,pt,pt,missing_name|missing_printing
+f9416d3f-4611-45ff-b993-52b75d6861a7,1,trap,4861,41420027,1,Solemn Judgment,39,22,Juicio Solemne,20,16,Feierliches Urteil,29,19,Jugement Solennel,30,19,Julgamento Solene,13,10,,,
+3313ba06-0fbd-49cd-bc18-62c8d8890c86,1,monster,4064,40640057,3,Kuriboh,67,29,Kuriboh,41,21,Kuriboh,49,23,Kuriboh,50,23,Kuriboh,25,13,,,
+f8216e4e-f5d0-4629-bf34-66df82ae02ff,1,monster,6032,86988864,1,3-Hump Lacooda,3,2,Lacooda de 3 Jorobas,2,2,3-Höcker-Lacooda,2,2,Lacooda Tri-Bosse,2,2,Lacooda de 3 Corcovas,1,1,,,
+8dd1ac1f-3c0b-43d0-89d5-45a3a1af0665,1,monster,5139,83994646,1,4-Starred Ladybug of Doom,10,6,Ladybug de 4 Estrellas de la Perdición,4,4,4-sterniger Marienkäfer der Verdammung,7,5,Coccinelle des Damnés à 4 Étoiles,6,4,Ladybug de 4 Estrelas da Condenação,2,2,,,
+9cc5467f-4d56-4b05-87a2-ee2cfb746df0,1,monster,14485,43857222,1,Magicalibra,2,1,Magicalibra,1,1,Magiwaage,1,1,Magibalance,1,1,Magicalibra,1,1,,,
+c0285d04-cadd-402d-a865-799a182d7510,1,monster,4041,36996508|46986414|46986420|46986421,9,Dark Magician,172,68,Mago Oscuro,103,50,Dunkler Magier,114,50,Magicien Sombre,117,52,Mago Negro,80,39,,,
+aa209d8b-7dbc-4f3f-afcc-0179df3dde43,1,monster,7960,40155554,1,Ally Mind,6,3,Mente Aliada,3,2,Verbündete Intelligenz,3,2,Intelligence Artificielle des Alliés,3,2,Mente Aliada,2,1,,,
+08a59d85-df4c-4a8d-a9f6-b07dc21f58b0,1,spell,4842,83764718|83764719,2,Monster Reborn,67,38,Monstruo Renacido,37,28,Wiedergeburt,40,29,Monster Reborn,42,31,Reviver Monstro,33,24,,,
+c2e1b77c-8a38-4a26-8274-e8d6aea7e776,1,monster,9575,84013237|84013238,2,Number 39: Utopia,27,15,Número 39: Utopía,20,14,Nummer 39: Utopia,21,15,Numéro 39 : Utopie,20,14,Número 39: Utopia,11,9,,,
+3dc62228-c78c-4cbb-9c5a-72962718d2e4,1,spell,4844,55144522,1,Pot of Greed,33,20,Olla de la Codicia,18,15,Topf der Gier,18,15,Pot de Cupidité,18,15,Pote da Ganância,12,11,,,
+d9f2ad84-edbf-4d46-9427-f14dac5c85ab,1,monster,4446,23771716,1,7 Colored Fish,11,7,Pez de 7 Colores,5,5,Siebenfarbiger Fisch,7,6,Poisson aux 7 Couleurs,7,6,Peixe de 7 Cores,4,4,,,
+0aecee88-0143-4c57-9a78-ddaa97e9e378,1,spell,4343,12580477,1,Raigeki,33,22,Raigeki,19,17,Raigeki,21,18,Raigeki,22,18,Raigeki,15,14,,,
+b2891c71-fd19-49f3-9a09-d877451c3783,1,monster,18496,65037172,1,Cyberse Sage,2,1,Sabia Ciberso,2,1,Cyberse-Weise,2,1,Sage Cyberse,2,1,Sábia Ciberso,2,1,,,
+2b8d5dae-42d5-48ea-890c-eddc8b660552,1,monster,11629,37675907,1,Accel Synchron,5,3,Sincrón Acelerado,3,3,Schnellsynchron,3,3,Accel Synchronique,3,3,Acelerador Sincron,3,3,,,
+7a517868-2cab-4952-b91c-74f119f7a53d,1,monster,16227,03544583,1,Allvain the Essence of Vanity,2,2,Todovano la Esencia de Vanidad,2,2,Allvergebens die Essenz der Nichtigkeit,2,2,Allvain l'Essence de la Vanité,2,2,"Ovaidoso, a Essência da Vaidade",2,2,,,
+64373eb9-b0d1-4d8b-ac79-3eee973a1de7,1,trap,5114,53582587,1,Torrential Tribute,44,30,Tributo Torrencial,31,26,Reißender Tribut,34,27,Hommage Torrentiel,33,26,Tributo Torrencial,21,17,,,
+15ddae1e-29ae-4650-b752-fa8b50db9fd5,1,trap,5915,21597117,1,A Hero Emerges,13,8,Un Héroe Emerge,8,6,Die Geburt eines Helden,8,6,Un Héros Surgit,8,6,Um Herói Aparece,5,4,,,
+0141ac6e-7579-4665-873f-d70012604e43,1,trap,5332,68170903,1,A Feint Plan,3,3,Un plan de finta,0,0,Plan für eine Finte,0,0,A Feint Plan,0,0,,0,0,pt,es|de|fr|pt,missing_name|missing_printing
+3de14c1e-cf75-4084-8ee2-232b56473599,1,monster,12273,87979586,1,Angel Trumpeter,4,2,Ángel Trompetista,2,2,Engelstrompeter,2,2,Trompettiste d'Ange,2,2,Anjo Trompetista,2,2,,,

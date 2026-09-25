@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-09-25T18:46:37.421036+00:00",
+  "conditions": "7 warm-cache samples, active crawler/services; diagnostic only, no language comparison",
+  "search_endpoint_function": {
+    "89631139": {
+      "median_ms": 115.871,
+      "min_ms": 110.16,
+      "max_ms": 127.678,
+      "total": 1,
+      "page_items": 1,
+      "sql_statements": 4
+    },
+    "LOB-EN001": {
+      "median_ms": 122.072,
+      "min_ms": 117.716,
+      "max_ms": 133.703,
+      "total": 1,
+      "page_items": 1,
+      "sql_statements": 4
+    },
+    "Dragón": {
+      "median_ms": 130.462,
+      "min_ms": 121.235,
+      "max_ms": 148.902,
+      "total": 812,
+      "page_items": 30,
+      "sql_statements": 62
+    },
+    "no-such-card-xyz": {
+      "median_ms": 123.305,
+      "min_ms": 118.826,
+      "max_ms": 135.545,
+      "total": 0,
+      "page_items": 0,
+      "sql_statements": 2
+    }
+  },
+  "exact_passcode_ids_only": {
+    "median_ms": 0.01,
+    "min_ms": 0.01,
+    "max_ms": 0.016,
+    "matches": 1
+  },
+  "actual_ocr_lookup_with_names_and_connection": {
+    "median_ms": 0.661,
+    "min_ms": 0.649,
+    "max_ms": 0.793,
+    "matches": 1
+  },
+  "plans": {
+    "name_contains": [
+      {
+        "id": 2,
+        "parent": 0,
+        "notused": 214,
+        "detail": "SCAN names USING COVERING INDEX sqlite_autoindex_names_1"
+      }
+    ],
+    "passcode_exact": [
+      {
+        "id": 4,
+        "parent": 0,
+        "notused": 61,
+        "detail": "SEARCH identifiers USING INDEX identifiers_value (value=? AND kind=?)"
+      },
+      {
+        "id": 18,
+        "parent": 0,
+        "notused": 0,
+        "detail": "USE TEMP B-TREE FOR DISTINCT"
+      }
+    ],
+    "set_exact": [
+      {
+        "id": 4,
+        "parent": 0,
+        "notused": 61,
+        "detail": "SEARCH printings USING INDEX printings_code (set_code=?)"
+      },
+      {
+        "id": 17,
+        "parent": 0,
+        "notused": 0,
+        "detail": "USE TEMP B-TREE FOR DISTINCT"
+      }
+    ]
+  },
+  "warning": "ID-only lookup is not semantically equivalent to the general search endpoint."
+}

@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "first_capture_times": [
+    1790370951.9186532,
+    1790370951.9186532
+  ],
+  "http_statuses": [
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "max_concurrent_inference": 1,
+  "checks": [
+    "same analysis delivered to two tabs",
+    "capture age includes inference",
+    "pause is local",
+    "recognition toggle is local",
+    "owner close recovery",
+    "no busy responses",
+    "no JS errors"
+  ]
+}

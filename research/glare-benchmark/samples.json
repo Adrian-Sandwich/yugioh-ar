@@ -1,0 +1,270 @@
+{
+  "scene_sha256": "26e82588dbb70120cde18c786d76594084a5a58e2ed27658febaea838c20cff7",
+  "note": "Exploratory samples, not an independent statistical test set. No clean paired ground truth.",
+  "samples": [
+    {
+      "sample": "table-01",
+      "file": "inputs/table-01.png",
+      "corners": [
+        [
+          354.1062927246094,
+          50.654541015625
+        ],
+        [
+          656.575927734375,
+          202.26976013183594
+        ],
+        [
+          438.8268737792969,
+          636.6754150390625
+        ],
+        [
+          136.35720825195312,
+          485.0601806640625
+        ]
+      ],
+      "shape": [
+        486,
+        338,
+        3
+      ],
+      "expected_card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.8396075963973999,
+      "expected_name": "Dragón de Péndulo de Ojos Anómalos",
+      "expected_passcodes": [
+        "16178681",
+        "16178683"
+      ]
+    },
+    {
+      "sample": "table-02",
+      "file": "inputs/table-02.png",
+      "corners": [
+        [
+          368.6064147949219,
+          564.272216796875
+        ],
+        [
+          644.4033813476562,
+          670.337158203125
+        ],
+        [
+          490.6270446777344,
+          1070.1964111328125
+        ],
+        [
+          214.830078125,
+          964.1314697265625
+        ]
+      ],
+      "shape": [
+        428,
+        295,
+        3
+      ],
+      "expected_card_id": "c2e1b77c-8a38-4a26-8274-e8d6aea7e776",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.8973239660263062,
+      "expected_name": "Número 39: Utopía",
+      "expected_passcodes": [
+        "84013237",
+        "84013238"
+      ]
+    },
+    {
+      "sample": "table-03",
+      "file": "inputs/table-03.png",
+      "corners": [
+        [
+          727.3301391601562,
+          676.6085815429688
+        ],
+        [
+          1020.2236938476562,
+          694.7708740234375
+        ],
+        [
+          995.4668579101562,
+          1094.0106201171875
+        ],
+        [
+          702.5733032226562,
+          1075.848388671875
+        ]
+      ],
+      "shape": [
+        400,
+        293,
+        3
+      ],
+      "expected_card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.9445064067840576,
+      "expected_name": "Dragón Negro de Ojos Rojos",
+      "expected_passcodes": [
+        "74677422",
+        "74677427"
+      ]
+    },
+    {
+      "sample": "table-04",
+      "file": "inputs/table-04.png",
+      "corners": [
+        [
+          1152.6990966796875,
+          474.48095703125
+        ],
+        [
+          1039.35205078125,
+          750.5579223632812
+        ],
+        [
+          603.6014404296875,
+          571.6549072265625
+        ],
+        [
+          716.9484252929688,
+          295.57794189453125
+        ]
+      ],
+      "shape": [
+        471,
+        298,
+        3
+      ],
+      "expected_card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.904593288898468,
+      "expected_name": "Mago Oscuro",
+      "expected_passcodes": [
+        "36996508",
+        "46986414",
+        "46986420",
+        "46986421"
+      ]
+    },
+    {
+      "sample": "table-05",
+      "file": "inputs/table-05.png",
+      "corners": [
+        [
+          1401.18212890625,
+          113.04841613769531
+        ],
+        [
+          1368.5123291015625,
+          481.95379638671875
+        ],
+        [
+          975.510986328125,
+          447.150146484375
+        ],
+        [
+          1008.1807861328125,
+          78.24473571777344
+        ]
+      ],
+      "shape": [
+        395,
+        370,
+        3
+      ],
+      "expected_card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.8590070009231567,
+      "expected_name": "Dragón de Péndulo de Ojos Anómalos",
+      "expected_passcodes": [
+        "16178681",
+        "16178683"
+      ]
+    },
+    {
+      "sample": "table-06",
+      "file": "inputs/table-06.png",
+      "corners": [
+        [
+          1571.9366455078125,
+          872.3101196289062
+        ],
+        [
+          1331.8656005859375,
+          1018.9083251953125
+        ],
+        [
+          1099.3590087890625,
+          638.1526489257812
+        ],
+        [
+          1339.4300537109375,
+          491.554443359375
+        ]
+      ],
+      "shape": [
+        446,
+        281,
+        3
+      ],
+      "expected_card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.9170511960983276,
+      "expected_name": "Juicio Solemne",
+      "expected_passcodes": [
+        "41420027"
+      ]
+    },
+    {
+      "sample": "table-07",
+      "file": "inputs/table-07.png",
+      "corners": [
+        [
+          1880.8087158203125,
+          673.0946655273438
+        ],
+        [
+          1633.6427001953125,
+          818.6162109375
+        ],
+        [
+          1406.7696533203125,
+          433.27581787109375
+        ],
+        [
+          1653.9356689453125,
+          287.7543029785156
+        ]
+      ],
+      "shape": [
+        447,
+        287,
+        3
+      ],
+      "expected_card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "expected_passcode": null,
+      "label_source": "User scene description plus visual crop review; registry codes are expectations, not pixel transcriptions",
+      "detector_score": 0.936476469039917,
+      "expected_name": "Dragón Blanco de Ojos Azules",
+      "expected_passcodes": [
+        "89631139"
+      ]
+    },
+    {
+      "sample": "close-blue",
+      "file": "inputs/close-blue.png",
+      "shape": [
+        920,
+        630,
+        3
+      ],
+      "expected_card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+      "expected_passcode": "89631139",
+      "label_source": "previously reviewed close photograph; separate session"
+    }
+  ]
+}

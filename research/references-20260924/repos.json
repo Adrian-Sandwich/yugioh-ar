@@ -1,0 +1,33 @@
+[
+  {
+    "name": "draw",
+    "path": "repos\\draw",
+    "remote": "https://github.com/HichTala/draw.git",
+    "commit": "2a39e4f3b9407fbfd8053be28f31fee807ba81a3",
+    "commit_date": "2025-11-07",
+    "clean": true
+  },
+  {
+    "name": "draw2",
+    "path": "repos\\draw2",
+    "remote": "https://github.com/HichTala/draw2.git",
+    "commit": "43b0a1c5fe5a987bb98d64ce7635c5581b72c9fb",
+    "commit_date": "2026-09-13",
+    "clean": true
+  },
+  {
+    "name": "yugioh-one-shot-learning",
+    "path": "repos\\yugioh-one-shot-learning",
+    "remote": "https://github.com/vanstorm9/yugioh-one-shot-learning.git",
+    "commit": "59ad80ecaa481980bed66314a1a115354113c460",
+    "commit_date": "2021-10-05",
+    "clean": true
+  },
+  {
+    "name": "ygojson",
+    "path": "repos/ygojson",
+    "remote": "https://github.com/iconmaster5326/YGOJSON.git",
+    "commit": "fc001ff87ce55bf264659ef59185f9dbe294acfe",
+    "clean": true
+  }
+]

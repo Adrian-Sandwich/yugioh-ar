@@ -1,0 +1,34 @@
+{
+  "original": {
+    "table_top1_correct": 7,
+    "table_accepted_correct": 4,
+    "table_false_accepts": 0,
+    "table_ocr_matches": 0,
+    "close_ocr_matches": true,
+    "restore_median_ms": null
+  },
+  "clahe": {
+    "table_top1_correct": 7,
+    "table_accepted_correct": 4,
+    "table_false_accepts": 0,
+    "table_ocr_matches": 0,
+    "close_ocr_matches": true,
+    "restore_median_ms": null
+  },
+  "docshrnet": {
+    "table_top1_correct": 7,
+    "table_accepted_correct": 4,
+    "table_false_accepts": 0,
+    "table_ocr_matches": 0,
+    "close_ocr_matches": true,
+    "restore_median_ms": 17008.8
+  },
+  "mimo-shdocs": {
+    "table_top1_correct": 7,
+    "table_accepted_correct": 4,
+    "table_false_accepts": 0,
+    "table_ocr_matches": 0,
+    "close_ocr_matches": true,
+    "restore_median_ms": 27979.5
+  }
+}

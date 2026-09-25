@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "checks": [
+    "small-text OCR skipped with preview retained",
+    "large-text OCR executed",
+    "batch fairness with dropped jobs",
+    "worker shutdown",
+    "failed initialization rejects jobs",
+    "tracker accepts card_id without id",
+    "absent track loses confirmation",
+    "HTTP 500 recovery and lock release",
+    "busy request bounded and not analyzed",
+    "pipeline timings",
+    "capture time survives inference",
+    "invalid and expired capture times rejected"
+  ]
+}

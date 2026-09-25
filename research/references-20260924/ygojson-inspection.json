@@ -1,0 +1,122 @@
+{
+  "archive_url": "https://github.com/iconmaster5326/YGOJSON/releases/download/v1/aggregate.zip",
+  "archive_bytes": 35569075,
+  "sha256": "8313f46bef72150c99633f4dc70436bdb8ac70a3d6176a39d8134a49c35f3fea",
+  "repo_commit": "fc001ff87ce55bf264659ef59185f9dbe294acfe",
+  "dataset_metadata": {
+    "$schema": "https://raw.githubusercontent.com/iconmaster5326/YGOJSON/main/schema/v1/meta.json",
+    "version": 1,
+    "increment": 2339,
+    "lastYamlyugiRead": "2025-05-13T01:53:50.828316",
+    "lastYugipediaRead": "2026-04-07T02:49:27.387016",
+    "lastYGOProDeckRead": "2026-04-07T02:49:25.419059"
+  },
+  "cards": 14616,
+  "labels": 13659,
+  "matched": 13631,
+  "unmatched": {
+    "489": "Anti-GMX-Final-Experiment-1463589",
+    "1805": "Checkker-77435268",
+    "3998": "Evolved-Daneen-1595137",
+    "4166": "Fata-Dragna-41763141",
+    "4633": "GMX---COMPREX-75191028",
+    "4635": "GMX-55th-Experiment-Report-38984832",
+    "4639": "GMX-Lab-#5-74378580",
+    "4640": "GMX-Partner-Selandea-2618725",
+    "4642": "GMX-Suppression-Squad-39706423",
+    "4747": "Gaming-Gamer-GG-15778492",
+    "4915": "Genia-of-the-Ring-40041559",
+    "8576": "Officiating-Reverie-49828011",
+    "8577": "Officiator-of-Doom-Samuel-76213610",
+    "10105": "Rustin-Mammoth-3434362",
+    "10505": "Shade-the-Obscure-77157846",
+    "12730": "VIP-Whale-14556954"
+  },
+  "ambiguous": {
+    "844": {
+      "label": "Azamina-17749468",
+      "candidates": [
+        "4659025d-0a47-46bc-ab3c-027a0b41dae4",
+        "f1875505-14e6-4846-b305-5888f9c3f1fc"
+      ]
+    },
+    "3778": {
+      "label": "Elfnote-Regina-56651978",
+      "candidates": [
+        "9d1aae32-70db-40a8-91ae-c663fdf9dbc1",
+        "737dfa1e-91d2-48b2-b523-99662809d4a1"
+      ]
+    },
+    "3782": {
+      "label": "Elfnotes:-Aristeia-of-Trust-50590801",
+      "candidates": [
+        "1d7b7e44-e421-4f3c-bfb8-ed361f976d3c",
+        "02a38f7d-0c2c-417b-9935-6c179c19e49b"
+      ]
+    },
+    "4636": {
+      "label": "GMX-Applied-Experiment-#55-18795635",
+      "candidates": [
+        "05350190-5bd9-4c6d-bdc2-714faf8070ac",
+        "a7848d5d-6046-4732-a60e-3181bda3ff59"
+      ]
+    },
+    "5643": {
+      "label": "Hecahands-20415050",
+      "candidates": [
+        "f94da51d-20a1-42dc-a176-a703ab8dcde9",
+        "da1a11b1-e866-42c2-93ae-990b249b1592"
+      ]
+    },
+    "6332": {
+      "label": "K9-17-\"Ripper\"-27420823",
+      "candidates": [
+        "bacb727c-f82f-4c9e-8f33-6b283750c799",
+        "8196cbfd-220e-4f6d-bb84-73cae2c07402"
+      ]
+    },
+    "7274": {
+      "label": "Maliss-<C>-GWC-06-20726052",
+      "candidates": [
+        "dbf7a067-733d-442b-afde-e39f6b94f7d4",
+        "8900bac3-3ccb-4f33-a31f-71c51ef13eb6"
+      ]
+    },
+    "7279": {
+      "label": "Maliss-<P>-March-Hare-20938824",
+      "candidates": [
+        "a425a140-2c9c-4fc0-9605-5fdb32e66ba8",
+        "0e358b73-dff0-4181-8d24-d2261a04ed1e"
+      ]
+    },
+    "9783": {
+      "label": "Regenesis-31786838",
+      "candidates": [
+        "6c25efd8-f56d-4238-8e0d-d53821a5c833",
+        "ca41aafd-684b-4479-981e-06132ae3e2f3"
+      ]
+    },
+    "10112": {
+      "label": "Ryu-Ge-Realm---Wyrm-Winds-55154344",
+      "candidates": [
+        "42bba501-8915-464b-8eaa-6effbb83170c",
+        "cc08efa1-bf81-4c5e-aadb-6143dedea851"
+      ]
+    },
+    "10123": {
+      "label": "Ryzeal-Cross-6798031",
+      "candidates": [
+        "c025eab4-0cf8-4a32-bf0e-a7402499e6ea",
+        "5a57cb93-c032-4b5a-8179-7e3636e02a64"
+      ]
+    },
+    "10275": {
+      "label": "Sandwich-Day-83838727",
+      "candidates": [
+        "1e306301-1c77-4fc3-8da6-9ee730718838",
+        "64a980d5-6629-47ea-8d3b-12cee1c27fd0"
+      ]
+    }
+  },
+  "matched_with_spanish_name": 13470
+}

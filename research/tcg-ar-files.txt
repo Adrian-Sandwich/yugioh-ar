@@ -1,0 +1,276 @@
+﻿.gitattributes
+.gitignore
+CHANGELOG.md
+CITATION.cff
+LICENSE
+README.md
+assets/AI database/background/.gitkeep
+assets/AI database/detection/.gitkeep
+assets/AI database/identification/.gitkeep
+assets/AI database/orientation/.gitkeep
+assets/AI database/real/annotations/0.txt
+assets/AI database/real/annotations/1.txt
+assets/AI database/real/annotations/10.txt
+assets/AI database/real/annotations/11.txt
+assets/AI database/real/annotations/12.txt
+assets/AI database/real/annotations/13.txt
+assets/AI database/real/annotations/14.txt
+assets/AI database/real/annotations/15.txt
+assets/AI database/real/annotations/16.txt
+assets/AI database/real/annotations/17.txt
+assets/AI database/real/annotations/18.txt
+assets/AI database/real/annotations/19.txt
+assets/AI database/real/annotations/2.txt
+assets/AI database/real/annotations/20.txt
+assets/AI database/real/annotations/21.txt
+assets/AI database/real/annotations/22.txt
+assets/AI database/real/annotations/23.txt
+assets/AI database/real/annotations/24.txt
+assets/AI database/real/annotations/25.txt
+assets/AI database/real/annotations/26.txt
+assets/AI database/real/annotations/27.txt
+assets/AI database/real/annotations/28.txt
+assets/AI database/real/annotations/29.txt
+assets/AI database/real/annotations/3.txt
+assets/AI database/real/annotations/30.txt
+assets/AI database/real/annotations/31.txt
+assets/AI database/real/annotations/32.txt
+assets/AI database/real/annotations/33.txt
+assets/AI database/real/annotations/34.txt
+assets/AI database/real/annotations/35.txt
+assets/AI database/real/annotations/36.txt
+assets/AI database/real/annotations/37.txt
+assets/AI database/real/annotations/38.txt
+assets/AI database/real/annotations/39.txt
+assets/AI database/real/annotations/4.txt
+assets/AI database/real/annotations/40.txt
+assets/AI database/real/annotations/41.txt
+assets/AI database/real/annotations/42.txt
+assets/AI database/real/annotations/43.txt
+assets/AI database/real/annotations/44.txt
+assets/AI database/real/annotations/45.txt
+assets/AI database/real/annotations/46.txt
+assets/AI database/real/annotations/47.txt
+assets/AI database/real/annotations/48.txt
+assets/AI database/real/annotations/49.txt
+assets/AI database/real/annotations/5.txt
+assets/AI database/real/annotations/50.txt
+assets/AI database/real/annotations/6.txt
+assets/AI database/real/annotations/7.txt
+assets/AI database/real/annotations/8.txt
+assets/AI database/real/annotations/9.txt
+assets/AI database/real/annotations_identity/0.txt
+assets/AI database/real/annotations_identity/1.txt
+assets/AI database/real/annotations_identity/10.txt
+assets/AI database/real/annotations_identity/11.txt
+assets/AI database/real/annotations_identity/12.txt
+assets/AI database/real/annotations_identity/13.txt
+assets/AI database/real/annotations_identity/14.txt
+assets/AI database/real/annotations_identity/15.txt
+assets/AI database/real/annotations_identity/16.txt
+assets/AI database/real/annotations_identity/17.txt
+assets/AI database/real/annotations_identity/18.txt
+assets/AI database/real/annotations_identity/19.txt
+assets/AI database/real/annotations_identity/2.txt
+assets/AI database/real/annotations_identity/20.txt
+assets/AI database/real/annotations_identity/21.txt
+assets/AI database/real/annotations_identity/22.txt
+assets/AI database/real/annotations_identity/23.txt
+assets/AI database/real/annotations_identity/24.txt
+assets/AI database/real/annotations_identity/25.txt
+assets/AI database/real/annotations_identity/26.txt
+assets/AI database/real/annotations_identity/27.txt
+assets/AI database/real/annotations_identity/28.txt
+assets/AI database/real/annotations_identity/29.txt
+assets/AI database/real/annotations_identity/3.txt
+assets/AI database/real/annotations_identity/30.txt
+assets/AI database/real/annotations_identity/31.txt
+assets/AI database/real/annotations_identity/32.txt
+assets/AI database/real/annotations_identity/33.txt
+assets/AI database/real/annotations_identity/34.txt
+assets/AI database/real/annotations_identity/35.txt
+assets/AI database/real/annotations_identity/36.txt
+assets/AI database/real/annotations_identity/37.txt
+assets/AI database/real/annotations_identity/38.txt
+assets/AI database/real/annotations_identity/39.txt
+assets/AI database/real/annotations_identity/4.txt
+assets/AI database/real/annotations_identity/40.txt
+assets/AI database/real/annotations_identity/41.txt
+assets/AI database/real/annotations_identity/42.txt
+assets/AI database/real/annotations_identity/43.txt
+assets/AI database/real/annotations_identity/44.txt
+assets/AI database/real/annotations_identity/45.txt
+assets/AI database/real/annotations_identity/46.txt
+assets/AI database/real/annotations_identity/47.txt
+assets/AI database/real/annotations_identity/48.txt
+assets/AI database/real/annotations_identity/49.txt
+assets/AI database/real/annotations_identity/5.txt
+assets/AI database/real/annotations_identity/50.txt
+assets/AI database/real/annotations_identity/6.txt
+assets/AI database/real/annotations_identity/7.txt
+assets/AI database/real/annotations_identity/8.txt
+assets/AI database/real/annotations_identity/9.txt
+assets/AI database/real/annotations_yolo/0.txt
+assets/AI database/real/annotations_yolo/1.txt
+assets/AI database/real/annotations_yolo/10.txt
+assets/AI database/real/annotations_yolo/11.txt
+assets/AI database/real/annotations_yolo/12.txt
+assets/AI database/real/annotations_yolo/13.txt
+assets/AI database/real/annotations_yolo/14.txt
+assets/AI database/real/annotations_yolo/15.txt
+assets/AI database/real/annotations_yolo/16.txt
+assets/AI database/real/annotations_yolo/17.txt
+assets/AI database/real/annotations_yolo/18.txt
+assets/AI database/real/annotations_yolo/19.txt
+assets/AI database/real/annotations_yolo/2.txt
+assets/AI database/real/annotations_yolo/20.txt
+assets/AI database/real/annotations_yolo/21.txt
+assets/AI database/real/annotations_yolo/22.txt
+assets/AI database/real/annotations_yolo/23.txt
+assets/AI database/real/annotations_yolo/24.txt
+assets/AI database/real/annotations_yolo/25.txt
+assets/AI database/real/annotations_yolo/26.txt
+assets/AI database/real/annotations_yolo/27.txt
+assets/AI database/real/annotations_yolo/28.txt
+assets/AI database/real/annotations_yolo/29.txt
+assets/AI database/real/annotations_yolo/3.txt
+assets/AI database/real/annotations_yolo/30.txt
+assets/AI database/real/annotations_yolo/31.txt
+assets/AI database/real/annotations_yolo/32.txt
+assets/AI database/real/annotations_yolo/33.txt
+assets/AI database/real/annotations_yolo/34.txt
+assets/AI database/real/annotations_yolo/35.txt
+assets/AI database/real/annotations_yolo/36.txt
+assets/AI database/real/annotations_yolo/37.txt
+assets/AI database/real/annotations_yolo/38.txt
+assets/AI database/real/annotations_yolo/39.txt
+assets/AI database/real/annotations_yolo/4.txt
+assets/AI database/real/annotations_yolo/40.txt
+assets/AI database/real/annotations_yolo/41.txt
+assets/AI database/real/annotations_yolo/42.txt
+assets/AI database/real/annotations_yolo/43.txt
+assets/AI database/real/annotations_yolo/44.txt
+assets/AI database/real/annotations_yolo/45.txt
+assets/AI database/real/annotations_yolo/46.txt
+assets/AI database/real/annotations_yolo/47.txt
+assets/AI database/real/annotations_yolo/48.txt
+assets/AI database/real/annotations_yolo/49.txt
+assets/AI database/real/annotations_yolo/5.txt
+assets/AI database/real/annotations_yolo/50.txt
+assets/AI database/real/annotations_yolo/6.txt
+assets/AI database/real/annotations_yolo/7.txt
+assets/AI database/real/annotations_yolo/8.txt
+assets/AI database/real/annotations_yolo/9.txt
+assets/AI database/real/converter.py
+assets/AI models/Detection model/custom_oriented_rcnn_config.py
+assets/database/2D_animated_database/.gitkeep
+assets/database/2D_database/.gitkeep
+assets/database/SV_animated/.gitkeep
+assets/database/card_database/back1-1.jpg
+assets/database/no_pokemon.png
+assets/database/wrong_scan_cards.json
+assets/deck list/deck Dragon.txt
+assets/deck list/deck lugia.txt
+assets/deck list/elec.txt
+assets/deck list/full deck.txt
+assets/deck list/rocket.txt
+core/__init__.py
+core/config.py
+core/databases.py
+core/image_ops.py
+core/models/__init__.py
+core/models/detection.py
+core/models/identification.py
+core/models/orientation.py
+core/real_data.py
+core/shared_memory.py
+core/training_utils.py
+core/transforms.py
+docs/DATA.md
+docs/figures/dataset_examples.png
+docs/figures/pipeline.png
+docs/figures/qualitative.png
+docs/figures/supp_deck.png
+docs/figures/supp_side_panel.png
+docs/figures/tcg-ar_logo_dark.png
+docs/figures/tcg-ar_logo_light.png
+docs/figures/teaser.png
+evaluation/__init__.py
+evaluation/analyze_identification_errors.py
+evaluation/eval_detection.py
+evaluation/eval_identification.py
+evaluation/eval_orientation.py
+inference/__init__.py
+inference/annotate_identities.py
+inference/assets/AppIcon.png
+inference/assets/Broadcast.png
+inference/assets/Deck.png
+inference/assets/EnableDisable.png
+inference/assets/Exit.png
+inference/assets/Help.png
+inference/assets/Parameter.png
+inference/assets/Pokeball.png
+inference/assets/SidePanel.png
+inference/assets/energy_Colorless.png
+inference/assets/energy_Darkness.png
+inference/assets/energy_Dragon.png
+inference/assets/energy_Fairy.png
+inference/assets/energy_Fighting.png
+inference/assets/energy_Fire.png
+inference/assets/energy_Grass.png
+inference/assets/energy_Lightning.png
+inference/assets/energy_Metal.png
+inference/assets/energy_Psychic.png
+inference/assets/energy_Water.png
+inference/caster_module.py
+inference/generate_ui_assets.py
+inference/identification_pipe.py
+inference/io_module.py
+inference/main.py
+inference/registration_module.py
+inference/render_module.py
+inference/rendering_3d.py
+inference/style.py
+inference/user_interface.py
+installation/__init__.py
+installation/find_wrong_scans.py
+installation/install.py
+installer/README.md
+installer/TCG-AR.iss
+installer/assets/tcg-ar.ico
+installer/bootstrap.ps1
+installer/build.ps1
+installer/tailer.ps1
+installer/update_carddb.ps1
+pyproject.toml
+requirements.txt
+scripts/__init__.py
+scripts/clear_embedding_cache.py
+scripts/download_assets.py
+scripts/patch_mmlibs.py
+settings.example.yaml
+tests/__init__.py
+tests/bench_loader.py
+tests/broadcast_gui_smoke.py
+tests/caster_cache_check.py
+tests/caster_filter_check.py
+tests/deck_two_player_check.py
+tests/pipeline_bench.py
+tests/profile_trainstep.py
+tests/profile_triplet.py
+tests/render_cache_check.py
+tests/side_panel_nonpokemon_check.py
+tests/sprite_render_check.py
+tests/stream_selection_check.py
+tests/sv_sprite_check.py
+tests/test_card_db_equiv.py
+tests/test_caster.py
+tests/test_identify_equiv.py
+tests/test_logic.py
+tests/test_validate_equiv.py
+tests/throughput_bench.py
+training/__init__.py
+training/make_detection_configs.py
+training/train_detection.py
+training/train_identification.py
+training/train_orientation.py

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<title>Number Image Recognition</title>
+			<!-- link to main stylesheet -->
+			<link rel="stylesheet" type="text/css" href="/css/project.css">
+		</head>
+
+
+  <body>
+    <div id="bg">
+      <div id="outer">
+
+<!-- Header-->
+	<div id="header">
+
+	  <div id="logo">
+	    <h1> <a href="/number_recognition">Number Image Recognition</a> </h1>
+	  </div>
+
+<!-- NAV BAR -->
+	  <div id="nav">
+	    <ul>
+	      <li class="first active">
+		<a href="/projects">Projects</a>
+	      </li>
+              <li>
+		<a href="/teaching">Teaching</a>
+	      </li>
+	      <li>
+		<a href="/code">MAGNMS</a>
+	      </li>
+	      <li>
+		<a href="/research">Research</a>
+	      </li>
+	      <li>
+		<a href="/">Home</a>
+	      </li>
+	    </ul>
+	    <br class="clear" />
+	  </div>
+
+	</div>
+<!-- /header -->
+
+
+	<div id="main">
+
+<!-- Right hand side bar-->
+	  <div id="sidebar1">
+<table> <!-- id="t01">-->
+  <tr><td height="10"><a href="/number_recognition"               >Project Home  </a> </td></tr>
+  <tr><td height="10"><a href="/number_recognition/exploration"   >Exploration   </a> </td></tr>
+  <tr><td height="10"><a href="/number_recognition/sklearn_model" >Sklearn Model </a> </td></tr>
+  <tr><td height="10"><a href="/number_recognition/tensorflow_model" >TensorFlow Model </a> </td></tr>
+  <tr><td height="10"><a href="/number_recognition/final_model"   >Final Model </a> </td></tr>
+</table>
+<!--
+	    <ul>
+
+	      <li class="first active">
+		<a href="#">Back to Top</a>
+	      </li>
+              <li>
+		<a href="/teaching">Teaching</a>
+	      </li>
+	      <li>
+		<a href="/code">Code</a>
+	      </li>
+	      <li>
+		<a href="/research">Research</a>
+	      </li>
+	      <li>
+		<a href="/">Home</a>
+	      </li>
+	    </ul>
+-->
+	  </div>
+<!-- /side bar-->
+
+
+<!-- Center Column -->
+	  <div id="content">
+	    <div id="box1">
+
+              <div class="blurb">
+	      <h2>Building a model with Scikit-Learn</h2>
+	      <p>
+                Now we will construct the framework of our model, using
+                Scikit-Learn. This python package contains numerous 
+                machine learning models, and we will use the Multi Layered
+                Perceptron Classifier to construct our Neural Network. 
+                Since this is a pre-canned routine, it will make shaping
+                a model easier than having to do things by hand, as is the 
+                case with Tensorflow.
+              </p>
+
+              <p>
+                For each of the models we construct, we train with cross validation
+                on the same 80% of the data, and test on the same 20% of the data.
+                As we will see, the models all have high performance, so we chose this
+                split to leave a large chunk of data to test on. Indeed, some of the 
+                models demonstrated an accuracy of 90% when trained on less than 20% of
+                the data, which highlights the strengths of neural networks.
+              </p>
+
+
+
+              <h3>Blurred Pixel PCA Model</h3>
+
+              
+              <p>
+                We start by fitting a model to the PCA of the image itself, as seen in 
+                <a href="/number_recognition/exploration">exploration</a>.
+                We use 25 of the hundreds of features, capturing 85% of the information.
+                Furthermore, we use the sklearn GridsearchCV for the cross validation.
+                Since we will be combining models later, we do not need to spend much time 
+                training the model for high accuracy now.
+              </p>
+
+              <p>
+                Below, we show the results for our best NN classifier, in the form of a
+                confusion matrix. A confusion matrix is an ideal tool for visualizing
+                multi label classifications. The confusion matrix shows the true label on the y axis,
+                and the prediction on the x axis, with each bin as the count for our test
+                data set. If we created a perfect classifier, every prediction would 
+                match the true label, and the only values would lie across the diagonal.
+              </p>
+              
+              <p>
+                <img src="/number_recognition/images/sklearn_blur_3x3_cnf.jpg" width="50%">
+                <br>
+                Figure 1: Confusion matrix for predictions on the test data set, from a 
+                Neural Network. The model was fit on a PCA of the blurred images.
+              </p>
+
+              <p>
+                We see our very simple model performs very well. Most values lie on the 
+                diagonal, with low off diagonal values. We see some fives are classified
+                as threes, sevens as nines, and nines as fours. With a little knowledge
+                of the shapes of these numbers, these are quite reasonable mistakes for
+                our classifier to make, considering variations in handwriting. 
+                The overall accuracy of this model (correct labels / total) is 95%.
+              </p>
+
+              <h3>Row and Column Sum Model</h3>
+
+
+              <p>
+                Next we consider modeling the data in a completely separate way. After blurring,
+                we sum the pixels by rows and columns, and normalize these values from 0 to 1.
+                This gives a measure as to how the features are spread out in each dimension.
+                For something like a zero, we would expect relatively constant values in both 
+                directions, due to symmetry. A one however, would have relatively constant value
+                across rows, but a spike in the columns towards the image center.
+              </p>
+
+              <p>
+                To illustrate this, we plot these values averaged across our data set in the 
+                following two figures. The plots are busy, however we find it valuable to include
+                the shape of every label, for comparison.
+              </p>
+
+
+              <p>
+                <table width="80%" align="center">
+                  <tr>
+                    <td><img src="/number_recognition/images/blur_rows.jpg" width="100%"></td>
+                    <td><img src="/number_recognition/images/blur_columns.jpg" width="100%"></td>
+                  </tr>
+                </table>
+                Figure 2: Average of the normalized row and column sums, for each number. While
+                some patterns are distinct (rows for 1, rows for 7, columns for 0), many are
+                similar (columns for 5 and 6, rows for 3 and 5).
+              </p>
+
+
+              <p>
+                Now, let's fit a model to the rows and columns. We will start by fitting individual
+                models to each set. We use the same grid search for cross validation, on the same 
+                data splits. The results are shown in a confusion matrix in Figure 3.
+              </p>
+
+              <p>
+                <table width="80%" align="center">
+                  <tr>
+                    <td><img src="/number_recognition/images/sklearn_blur_3x3_row_cnf.jpg" width="100%"></td>
+                    <td><img src="/number_recognition/images/sklearn_blur_3x3_col_cnf.jpg" width="100%"></td>
+                  </tr>
+                </table>
+                Figure 3: Results from models fit the normalized row and column sums. We see 
+                considerable amounts of off diagonal elements, especially where the distributions
+                are similar for rows and columns. For the row model we see and accuracy of 82%,
+                for columns, 53%. Note the color bars are of different scale.
+              </p>
+
+              <p>
+                It's clear the predictive power of each of these is limited by themselves. Combining 
+                the data yields better results. We fit a model to both the row and column data,
+                and show the results in Figure 4.
+              </p>
+
+              <p>
+                <img src="/number_recognition/images/sklearn_blur_3x3_rowcol_cnf.jpg" width="50%">
+                <br>
+                Figure 4: Confusion matrix for predictions on the test data set, from a 
+                Neural Network trained on the normalized sum of rows and columns. 
+              </p>
+
+              <p>
+                This final row/column combination performs better than each individually. We see a
+                total accuracy of 90%. Not as strong as the image PCA, but still a good
+                performance given the simplicity of the model.
+              </p>
+
+              <h3>Combined Model</h3>
+
+              <p>
+                Both of these models show good performance. We thus run a further PCA on the 
+                row and column data, selecting only 13 components (96% of the explained variance).
+                This gives us a total of 38 features. We train on the same data as before, but instead
+                use a randomized parameters cross validation. Broadly speaking, randomized 
+                cross validation is superior to grid searching, as it does a better job probing
+                parameter space to find optimal hyperparameters. The result is our Scikit-learn
+                model, a neural network with 6 layers.
+              </p>
+
+              <p>
+                <img src="/number_recognition/images/sklearn_full_cnf.jpg" width="50%">
+                <br>
+                Figure 5: The final Scikit-Learn model confusion matrix. The model broadly performs
+                better than the pure img PCA model, but notably predicts more fours as nines.
+              </p>
+
+              <p>
+                We end up with a model that has 97% accuracy, the best yet. The only noteable issue
+                is that it seems to predict many fours to be nines, more than in the image PCA only
+                case. If we were building a more complex model we may strive to correct this, but 
+                we are doing this primarily as comparison between Sklearn and Tensorflow, so will
+                leave this issue for now.
+              </p>
+
+              <p>
+                We continue with model building in the next section,  
+                <a href="/number_recognition/tensorflow_model/">building a model with tensorflow</a>.
+              </p>
+
+</div><!-- /.blurb -->
+
+
+	    </div>
+	    <br class="clear" />
+	  </div>
+<!-- /Center Column -->
+
+  </body>
+</html>
