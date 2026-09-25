@@ -24,9 +24,15 @@ HTTP 404 se anota como `missing` y no se reintenta: YGOJSON conserva ids de
 imagen que la web ya no sirve. El número de archivos no equivale a identidades:
 una carta con varios artes tiene varias ilustraciones.
 
-Estado al cierre de la sesión: ver `downloads/ygoprodeck-art/audit.json`
-(la descarga completa tarda unos 45 minutos a 6 peticiones/s). Los archivos
-son 624×624 en la mayoría de cartas y 908×712 en Péndulo.
+Resultado (25/09/2026, 42 minutos a 6 peticiones/s): **14,249 ilustraciones
+descargadas y verificadas**, 765 con HTTP 404 en el servidor, 0 errores, 0
+corruptas; 14,087 de las 14,278 cartas con identificador YGOPRODeck tienen al
+menos un arte; 2.2 GB en `downloads/ygoprodeck-art/art/`. Los archivos son
+624×624 en la mayoría de cartas y 908×712 en Péndulo; unos pocos son PNG
+servidos con nombre `.jpg` y se guardan tal cual. El nombre de archivo es el de
+la imagen en la URL (único por URL): una primera versión usaba el
+`image_source_id` del registro, que es nulo en 651 ilustraciones, y colapsaba
+esas descargas en un solo archivo; se corrigió y se reintentó. Ver `audit.json`.
 
 ## Verificación geométrica de candidatas (`art_verify.py`)
 

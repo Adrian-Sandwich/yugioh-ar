@@ -67,7 +67,7 @@ def registry_items(state):
     for art_id, card_id, source_id, art_url, card_url in rows:
         item = state['items'].setdefault(art_id, {})
         item.update(card_id=card_id, image_source_id=str(source_id), url=art_url, card_url=card_url,
-                    path='art/' + (str(source_id) or art_id) + '.jpg', pilot=card_id in pilot)
+                    path='art/' + art_url.rsplit('/', 1)[-1], pilot=card_id in pilot)
         item.setdefault('status', 'pending')
     return sorted(state['items'].items(), key=lambda kv: (not kv[1]['pilot'], kv[0]))
 
@@ -90,8 +90,9 @@ def fetch(item, limiter):
             with urllib.request.urlopen(request, timeout=60) as response:
                 data = response.read()
                 content_type = response.headers.get('Content-Type', '')
-            if not data.startswith(b'\xff\xd8') or 'image' not in content_type:
-                raise ValueError('Not a JPEG image: ' + content_type)
+            # A few files are PNG served under a .jpg name; keep the bytes as served.
+            if not (data.startswith(b'\xff\xd8') or data.startswith(b'\x89PNG\r\n\x1a\n')) or 'image' not in content_type:
+                raise ValueError('Not a JPEG/PNG image: ' + content_type)
             dest.write_bytes(data)
             item.update(status='ok', bytes=len(data), sha256=hashlib.sha256(data).hexdigest(),
                         fetched_at=time.strftime('%Y-%m-%dT%H:%M:%S'), error=None)
