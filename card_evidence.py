@@ -35,6 +35,10 @@ def fuse(item):
         if reading.get('status') in ('matched','conflict'):
             ids={m['card_id'] for m in reading.get('matches',[])}
             if ids:sources[label]=ids
+    # Artwork verified by local features: visual evidence, independent of the
+    # embedding, restricted to the candidates it was asked about.
+    art=item.get('art_match',{})
+    if art.get('status')=='matched' and art.get('card_id'):sources['art']={art['card_id']}
     intersection=set.intersection(*sources.values()) if sources else set()
     state='conflict' if sources and not intersection else 'candidate' if len(intersection)==1 else 'insufficient'
     return {'status':state,'card_id':next(iter(intersection)) if len(intersection)==1 else None,
@@ -78,12 +82,14 @@ class EvidenceSession:
             item['evidence_track_id']=item['_track']
             if not item.get('ocr_reused'):
                 evidence=fuse(item);history=item['_history'];uid=evidence['card_id']
-                # Visual-only identity never gains OCR corroboration from repetition.
+                # Visual-only identity (embedding, artwork features) never gains
+                # confirmation from repetition; only text read from the card votes.
                 qualifies=uid is not None and evidence['status']!='conflict' and any(k!='image' for k in evidence['sources'])
-                if not qualifies or (history and history[-1][2]!=uid):history.clear()
-                if qualifies and captured>item.get('_previous_capture',-float('inf')) and not any(h==item_hash or t==captured for h,t,c in history):history.append((item_hash,captured,uid))
+                textual=qualifies and any(k in ('serial','name','set') for k in evidence['sources'])
+                if not textual or (history and history[-1][2]!=uid):history.clear()
+                if textual and captured>item.get('_previous_capture',-float('inf')) and not any(h==item_hash or t==captured for h,t,c in history):history.append((item_hash,captured,uid))
                 evidence['consistent_frames']=len(history)
-                if qualifies and len(history)>=2:evidence['status']='repeated'
+                if textual and len(history)>=2:evidence['status']='repeated'
                 elif qualifies and evidence['agreeing_sources']>=2:evidence['status']='corroborated'
                 item.update(evidence=evidence,evidence_captured_at=captured,ocr_reused=False,selection_reason='current_frame')
                 public={k:copy.deepcopy(v) for k,v in item.items() if not k.startswith('_')}

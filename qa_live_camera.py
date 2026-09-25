@@ -72,16 +72,18 @@ def main():
             FakePhone.offline=False
             page.wait_for_function("document.querySelector('#status').textContent.includes('Cámara en vivo')",timeout=5000)
             # A decoded analysis image must not commit after pause invalidates it.
+            # Only the analysis image (a data: URL) is delayed; intercepting
+            # createImageBitmap also caught the camera loop and could hang the wait.
             page.locator('#recognize').uncheck()
             page.evaluate('''async () => {
-              const original=createImageBitmap;
+              const original=window.fetch;
               window.delayedPaintRelease=null;
-              window.createImageBitmap=async (...args)=>{
-                const bitmap=await original(...args);
-                await new Promise(resolve=>window.delayedPaintRelease=resolve);
-                return bitmap;
+              window.fetch=async (...args)=>{
+                const response=await original(...args);
+                if(typeof args[0]==='string'&&args[0].startsWith('data:'))await new Promise(resolve=>window.delayedPaintRelease=resolve);
+                return response;
               };
-              window.restoreBitmap=()=>window.createImageBitmap=original;
+              window.restoreBitmap=()=>window.fetch=original;
               window.paintBefore=document.querySelector('#analysisNames').textContent;
               window.delayedPaint=paintAnalysis({...lastAnalysis,detections:[{name:'STALE RESPONSE'}]});
             }''')

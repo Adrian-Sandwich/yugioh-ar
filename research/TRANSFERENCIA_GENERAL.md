@@ -22,6 +22,7 @@ Ver también [EVIDENCIA_TEMPORAL.md](EVIDENCIA_TEMPORAL.md): selección reciente
 | Visor y AR (tarde) | Capa AR compuesta en el navegador; sprites ausentes y nombres fuera del piloto cacheados; JS del panel OCR dividido | `PIPELINE_ESTADO.md` |
 | Diagnóstico (tarde) | Stall log del 11:08 explicado: forward ONNX > 20 s bajo carga de CPU, no interbloqueo | `PIPELINE_ESTADO.md` |
 | Repositorio | Git inicializado en la raíz con `.gitignore` para datos, descargas, entornos y salidas pesadas | `.gitignore` |
+| Arte YGOPRODeck (tarde) | Arte recortado autoalojado para las ilustraciones del registro; verificación SIFT de candidatas como evidencia `art`; 10/10 verificadas, 0 erróneas en la escena real | `ARTE_YGOPRODECK.md`, `qa/art-verification/` |
 
 SQL: 27 comparaciones conservan resultados, orden de cartas y prioridad de
 nombres. Pasa de hasta 62 consultas a 3 lecturas + SAVEPOINT/RELEASE. En cinco
@@ -34,7 +35,8 @@ esquema ni se añadieron índices al registro que Neuron está escribiendo.
 ## Qué copiar y cómo arrancar
 
 Copiar el proyecto manteniendo rutas relativas: código raíz, `web`, `research`,
-`data`, `downloads`, `repos` y los archivos `requirements*.txt`. No copiar los
+`data`, `downloads` (incluido `downloads/ygoprodeck-art`, ~1.4 GB, o reanudar su
+descarga en destino), `repos` y los archivos `requirements*.txt`. No copiar los
 entornos `.venv*`, temporales ni procesos de `.runtime` como si fueran portables.
 
 La carpeta `transfer/20260925-194603` contiene **las bases y un manifiesto**, no

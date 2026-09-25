@@ -18,6 +18,36 @@ def step(session,items,t,h):
     session.associate(items,t)
     return session.finish(items,t,h)
 
+def verify_real():
+    """Real photograph against self-hosted YGOPRODeck art; skipped when not downloaded."""
+    import json
+    from art_verify import ArtVerifier,MANIFEST
+    from passcode_ocr import ROOT,rectify,lookup
+    if not MANIFEST.exists():
+        print('SKIP art verification: run research/download_ygoprodeck_art.py first');return
+    ref=json.loads((ROOT/'data/references/catalog.json').read_text(encoding='utf-8'))[0]
+    image=cv2.imread(str(ROOT/'data/references'/ref['source']))
+    rectified,_,_=rectify(image,ref['corners'])
+    pilot=json.loads((ROOT/'data/pilot/catalog.json').read_text(encoding='utf-8'))
+    by_name={e['name']:e['card_id'] for e in pilot}
+    blue=lookup('89631139')[0]['card_id'];others=[by_name['Mago Oscuro'],by_name['Dragón Negro de Ojos Rojos']]
+    verifier=ArtVerifier()
+    if blue not in verifier.arts:
+        print('SKIP art verification: pilot artwork not downloaded yet');return
+    result=verifier.verify(rectified,[others[0],blue,others[1]])
+    assert result['status']=='matched' and result['card_id']==blue,result
+    assert result['matches'][0]['inliers']>=MIN_INLIERS_SEEN,result
+    upside=verifier.verify(np.ascontiguousarray(np.rot90(rectified,2)),[blue,*others])
+    assert upside['status']=='matched' and upside['orientation']==180,upside
+    negative=verifier.verify(rectified,others)
+    assert negative['status']=='unverified' and negative['card_id'] is None,negative
+    assert verifier.verify(rectified,[])['status']=='skipped'
+    blank=np.full_like(rectified,150)
+    assert verifier.verify(blank,[blue])['status']=='unverified'
+    print('art verification on real photo:',{k:result[k] for k in ('status','processing_ms')},result['matches'][0])
+
+MIN_INLIERS_SEEN=60
+
 def main():
     session=EvidenceSession()
     a=step(session,[card()],0,'a')[0]
@@ -57,6 +87,19 @@ def main():
     result=session.finish([cached],.5,'b')[0]
     assert result['evidence']['consistent_frames']==1 and result['evidence_captured_at']==0
     assert session.cached(poor,2,'c') is None
+    # Artwork verification: corroborates the image, conflicts when it disagrees,
+    # and never earns 'repeated' by itself (visual-only, no text read).
+    sample=card();del sample['name_ocr'];sample['art_match']={'status':'matched','card_id':'a','matches':[{'card_id':'a'}]}
+    assert fuse(sample)['status']=='candidate' and fuse(sample)['agreeing_sources']==2
+    session=EvidenceSession()
+    first=copy.deepcopy(sample);assert step(session,[first],0,'a')[0]['evidence']['status']=='corroborated'
+    again=copy.deepcopy(sample);again['corners']=[[3,0],[103,0],[103,150],[3,150]]
+    assert step(session,[again],.5,'b')[0]['evidence']['status']=='corroborated','Visual-only evidence must not become repeated'
+    wrong=card();wrong['art_match']={'status':'matched','card_id':'b','matches':[{'card_id':'b'}]}
+    assert fuse(wrong)['status']=='conflict'
+    unverified=card();unverified['art_match']={'status':'unverified','card_id':None,'matches':[]}
+    assert 'art' not in fuse(unverified)['sources']
+    verify_real()
     image=np.random.default_rng(1).integers(0,255,(920,630,3),dtype=np.uint8)
     assert describe(image,600)[1]['score']>describe(cv2.GaussianBlur(image,(31,31),10),600)[1]['score']
     assert codes('LOB - EN001')==['LOB-EN001']

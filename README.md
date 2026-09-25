@@ -20,6 +20,7 @@ La raíz es un repositorio Git desde el 25/09/2026; `data/`, `downloads/`, `repo
 - [Registro multilingüe: nombres, passcodes, códigos de set y scraping de Neuron](research/REGISTRO_MULTILINGUE.md). Buscador: http://127.0.0.1:8769; SQLite y CSV en `data/registry/`.
 - [Estructura de la carta y zonas para reconocimiento](research/card-anatomy/ESTRUCTURA.md)
 - [Zoom al passcode: rectificación, OCR local y consulta del registro](research/OCR_PASSCODE.md)
+- [Arte recortado de YGOPRODeck y verificación geométrica de candidatas](research/ARTE_YGOPRODECK.md)
 - [Nuevas referencias: DRAW2, DRAW, one-shot learning y Roboflow](research/references-20260924/REVISION.md)
 - [Plan para otra computadora: vectores, rotaciones, sombras y entrenamiento](research/PLAN_VECTORES_E_INVARIANCIA.md)
 - [Fuentes de imágenes CardsOricaBR y metadatos históricos YCCLP](research/references-20260924/FUENTES_IMAGENES_ADICIONALES.md)

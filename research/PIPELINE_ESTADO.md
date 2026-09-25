@@ -242,3 +242,18 @@ Pasan `qa_pipeline_core`, `qa_passcode`, `qa_sprite_cache`, `qa_shared_snapshot`
 (Python 3.14.7, OpenCV 5.0.0, onnxruntime 1.30.0) mientras Neuron y los cuatro
 servicios seguían activos. Los servicios en ejecución usan el código anterior
 hasta reiniciarlos. No se midió latencia de extremo a extremo.
+
+### Arte de YGOPRODeck y verificación de candidatas (25/09/2026, tarde)
+
+`research/download_ygoprodeck_art.py` descarga y aloja el arte recortado de
+todas las ilustraciones del registro; `art_verify.py` comprueba con SIFT y
+homografía los candidatos del embedding dentro del trabajador de OCR y
+`card_evidence` lo fusiona como fuente `art`. `/analyze` envía ahora
+`candidate_ids` (top-3) al trabajador. Resultados y límites en
+[ARTE_YGOPRODECK.md](ARTE_YGOPRODECK.md). Coste en el hilo asíncrono:
+143–380 ms por carta con tres candidatas en esta PC cargada; `/analyze` no cambia.
+
+`qa_live_camera.py` interceptaba `createImageBitmap` para retrasar una pintura
+tardía; con la PC cargada el bucle de cámara llegaba antes y la espera quedaba
+colgada sin límite. Ahora sólo retrasa el `fetch` de la imagen de análisis
+(URL `data:`); el comportamiento probado del visor no cambió.

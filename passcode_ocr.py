@@ -142,9 +142,15 @@ class Consensus:
 
 class PasscodeWorker:
     """One active job and one replaceable pending job; no growing video queue."""
-    def __init__(self,reader_factory=NumberReader,min_digit_height=7):
+    def __init__(self,reader_factory=NumberReader,min_digit_height=7,verifier_factory=None):
         self.condition=threading.Condition();self.pending=None;self.result={'state':'loading','items':[]}
         self.closed=False;self.sequence=0;self.consensus=Consensus();self.reader_factory=reader_factory
+        # Artwork verification is optional evidence; a missing reference set
+        # must not make the text reader unavailable.
+        if verifier_factory is None:
+            from art_verify import ArtVerifier
+            verifier_factory=ArtVerifier
+        self.verifier_factory=verifier_factory if verifier_factory else None
         self.min_digit_height=min_digit_height;self.batch_offset=0;self.unavailable=False
         self.evidence=EvidenceSession()
         self.thread=threading.Thread(target=self.run,name='passcode-ocr',daemon=True);self.thread.start()
@@ -171,6 +177,10 @@ class PasscodeWorker:
                 self.unavailable=True;self.pending=None
                 self.result={'state':'unavailable','error':str(e),'items':[]}
             return
+        verifier=None
+        if self.verifier_factory:
+            try:verifier=self.verifier_factory()
+            except Exception:verifier=None
         with self.condition:self.result={'state':'ready','items':[]}
         while True:
             with self.condition:
@@ -240,6 +250,14 @@ class PasscodeWorker:
                             try:item['set_ocr']=reader.read_set(rectified)
                             except Exception as exc:item['set_ocr']={'status':'error','error':str(exc)}
                         else:item['set_ocr']={'status':'skipped','reason':'reader_unavailable'}
+                        # Independent check of the illustration against the candidates
+                        # proposed by the recognizer (accepted identity first).
+                        proposals=[c for c in [box.get('visual_card_id'),*(box.get('candidate_ids') or [])] if c]
+                        if verifier is None:item['art_match']={'status':'skipped','reason':'verifier_unavailable'}
+                        elif native_height<120:item['art_match']={'status':'skipped','reason':'small_card'}
+                        else:
+                            try:item['art_match']=verifier.verify(rectified,proposals)
+                            except Exception as exc:item['art_match']={'status':'error','error':str(exc)}
                         orientation=best['orientation'] if best else 0
                         # Title orientation may orient the preview only when its
                         # independent registry match is unambiguous and consistent.

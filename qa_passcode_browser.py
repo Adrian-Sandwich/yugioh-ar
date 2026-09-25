@@ -42,7 +42,8 @@ try:
         assert data['items'][0]['set_ocr']['status']=='matched'
         assert data['items'][0]['evidence']['status']=='corroborated'
         assert data['items'][0]['evidence']['consistent_frames']==1
-        assert set(data['items'][0]['evidence']['sources'])=={'image','name','serial','set'}
+        assert set(data['items'][0]['evidence']['sources'])=={'image','name','serial','set','art'},data['items'][0]['evidence']
+        assert data['items'][0]['art_match']['status']=='matched'
         assert not errors,errors
         browser.close()
     print('PASS: original photograph -> asynchronous OCR -> passcode + registry link + visible name and serial crops; camera continues; fixed image never confirms')

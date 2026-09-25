@@ -245,6 +245,11 @@ function passcodeCard(item){
     if(item.name_crop_alternative)card.append(alternateNode('Orientación dudosa: ver el extremo opuesto',item.name_crop_alternative,'Posible nombre con orientación opuesta','name-zoom'));
   }
   if(item.evidence)card.append(...evidenceNodes(item.evidence));
+  if(item.art_match&&item.art_match.status!=='skipped'){
+    const art=item.art_match,best=art.matches?.[0];
+    const artStates={matched:`Ilustración verificada por rasgos locales · ${best?.inliers??0} puntos coincidentes`,ambiguous:'Ilustración compatible con varias candidatas · sin verificar',unverified:'Ilustración sin verificación geométrica',error:'No se pudo verificar la ilustración'};
+    card.append(textNode('small',artStates[art.status]||'Ilustración: pendiente'));
+  }
   if(item.ocr_reused)card.append(textNode('p','Mostrando lectura de una captura reciente de mejor calidad; no suma una nueva confirmación.'));
   if(item.set_ocr)card.append(...setNodes(item.set_ocr));
   if(item.name_ocr)card.append(nameSection(item.name_ocr));

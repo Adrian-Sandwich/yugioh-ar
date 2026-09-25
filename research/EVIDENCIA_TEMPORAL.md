@@ -23,8 +23,11 @@ identidades ni los overlays del reconocedor visual automáticamente.
   compatible. Se comprueban hash de la carta rectificada y fecha, de modo que
   cambiar sólo el fondo no cuenta como leer la carta otra vez. Una discrepancia
   vacía los votos. Repetición no es una garantía estadística de exactitud.
-- Fusión: intersección de identidades propuestas por imagen, nombre, serial y
-  set. Las sugerencias aproximadas no votan. Fuentes discordantes producen
+- Fusión: intersección de identidades propuestas por imagen, nombre, serial,
+  set y, desde el 25/09 (tarde), arte verificado por rasgos locales
+  ([ARTE_YGOPRODECK.md](ARTE_YGOPRODECK.md)). Imagen y arte son dos métodos
+  visuales independientes: juntos corroboran, pero ninguno vota por repetición;
+  sólo el texto leído acumula capturas concordantes. Las sugerencias aproximadas no votan. Fuentes discordantes producen
   conflicto; varias fuentes compatibles producen corroboración. Sólo imagen no
   adquiere confirmación textual por repetirse. La fusión queda visible como
   evidencia, sin sobrescribir la identificación visual.

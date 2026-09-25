@@ -1,0 +1,715 @@
+{
+ "stats": {
+  "true_verified": 10,
+  "true_total": 10,
+  "wrong_verified": 0,
+  "ambiguous": 0,
+  "unverified_true": [],
+  "warm_ms": {
+   "min": 143,
+   "median": 277,
+   "max": 380
+  },
+  "rule": "inliers>=30, ratio>=.6, coverage>=.15, best>=2x second",
+  "limitations": "One annotated scene plus three single-card captures; loaded PC; embedding candidates only; no unknown-card negatives beyond wrong candidates."
+ },
+ "rows": [
+  {
+   "photo": "research/qa/corner-refinement/current.jpg",
+   "cand": 0,
+   "skipped": "Carta cortada por el borde de la imagen"
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 1,
+   "geometry": "frame_edge",
+   "native_height": 346,
+   "truth": "Dragón Blanco de Ojos Azules",
+   "top1": "Dragón Blanco de Ojos Azules",
+   "top1_score": 0.936,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Dragón Blanco de Ojos Azules",
+   "warm_ms": 296,
+   "candidates": [
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "305465ca-c543-45b8-9d94-fb807b8f100e",
+     "inliers": 99,
+     "ratio": 0.971,
+     "coverage": 0.36,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    },
+    {
+     "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+     "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Cráneo Convocado"
+    }
+   ]
+  },
+  {
+   "photo": "research/qa/corner-refinement/current.jpg",
+   "cand": 2,
+   "skipped": "Carta cortada por el borde de la imagen"
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 3,
+   "geometry": "contour_refined",
+   "native_height": 382,
+   "truth": "Dragón Blanco de Ojos Azules",
+   "top1": "Dragón Blanco de Ojos Azules",
+   "top1_score": 0.954,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Dragón Blanco de Ojos Azules",
+   "warm_ms": 277,
+   "candidates": [
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+     "inliers": 252,
+     "ratio": 0.973,
+     "coverage": 0.767,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    },
+    {
+     "card_id": "08a59d85-df4c-4a8d-a9f6-b07dc21f58b0",
+     "artwork_id": "4ff901d5-cf0c-4349-b3ed-155eb0f544c4",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Monstruo Renacido"
+    }
+   ]
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 4,
+   "geometry": "contour_refined",
+   "native_height": 418,
+   "truth": "Dragón de Péndulo de Ojos Anómalos",
+   "top1": "Dragón de Péndulo de Ojos Anómalos",
+   "top1_score": 0.628,
+   "accepted": false,
+   "art_status": "matched",
+   "art_card": "Dragón de Péndulo de Ojos Anómalos",
+   "warm_ms": 202,
+   "candidates": [
+    {
+     "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
+     "artwork_id": "28bd96ac-ffcf-4a4e-a144-d1141759e779",
+     "inliers": 65,
+     "ratio": 0.985,
+     "coverage": 0.337,
+     "orientation": 0,
+     "name": "Dragón de Péndulo de Ojos Anómalos"
+    },
+    {
+     "card_id": "bda59be9-3aaa-44e9-8aa6-11e06c1bfffa",
+     "artwork_id": "2441e071-fe7c-40ba-9f4b-fa84ae30a839",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "HÉROE Elemental Neos"
+    },
+    {
+     "card_id": "809834c9-2742-4c11-9ce8-29926d1167f3",
+     "artwork_id": "e76afea8-a81b-47ee-9720-f05dcfc12720",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Gíclope Gigatrueno"
+    }
+   ]
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 5,
+   "geometry": "contour_refined",
+   "native_height": 392,
+   "truth": "Mago Oscuro",
+   "top1": "Mago Oscuro",
+   "top1_score": 0.763,
+   "accepted": false,
+   "art_status": "matched",
+   "art_card": "Mago Oscuro",
+   "warm_ms": 380,
+   "candidates": [
+    {
+     "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+     "artwork_id": "eaa278cf-5e65-486e-b8cf-5d6110476356",
+     "inliers": 295,
+     "ratio": 0.99,
+     "coverage": 0.702,
+     "orientation": 0,
+     "name": "Mago Oscuro"
+    },
+    {
+     "card_id": "6cb08e9f-e85c-464b-b3ec-71fe7790ceb7",
+     "artwork_id": "af5b78f1-a3e4-469d-815c-2edfa9c96575",
+     "inliers": 34,
+     "ratio": 0.971,
+     "coverage": 0.059,
+     "orientation": 0,
+     "name": "Chica Maga Oscura"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "8279a6c6-b56e-417f-bcf8-9ecefc28fb23",
+     "inliers": 4,
+     "ratio": 0.444,
+     "coverage": 0.057,
+     "orientation": 180,
+     "name": "Dragón Negro de Ojos Rojos"
+    }
+   ]
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 6,
+   "geometry": "contour_refined",
+   "native_height": 387,
+   "truth": "Número 39: Utopía",
+   "top1": "Número 39: Utopía",
+   "top1_score": 0.944,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Número 39: Utopía",
+   "warm_ms": 163,
+   "candidates": [
+    {
+     "card_id": "c2e1b77c-8a38-4a26-8274-e8d6aea7e776",
+     "artwork_id": "47a75fd4-9901-474f-bfb3-c175ba8b93d0",
+     "inliers": 111,
+     "ratio": 0.965,
+     "coverage": 0.536,
+     "orientation": 0,
+     "name": "Número 39: Utopía"
+    },
+    {
+     "card_id": "15ddae1e-29ae-4650-b752-fa8b50db9fd5",
+     "artwork_id": "e18f98e7-ede0-4679-a5b5-bcf87acbac25",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Un Héroe Emerge"
+    },
+    {
+     "card_id": "1c222ccc-1312-46e7-8aaa-a9c1012b48c8",
+     "artwork_id": "362d6350-7e93-4965-975d-d1eeee907471",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Bugroth Anfibio"
+    }
+   ]
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 7,
+   "geometry": "contour_refined",
+   "native_height": 392,
+   "truth": "Dragón de Péndulo de Ojos Anómalos",
+   "top1": "Dragón de Péndulo de Ojos Anómalos",
+   "top1_score": 0.418,
+   "accepted": false,
+   "art_status": "matched",
+   "art_card": "Dragón de Péndulo de Ojos Anómalos",
+   "warm_ms": 154,
+   "candidates": [
+    {
+     "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
+     "artwork_id": "3acbc163-1f8b-4ebc-8b0d-9a7a204a856a",
+     "inliers": 120,
+     "ratio": 0.968,
+     "coverage": 0.294,
+     "orientation": 0,
+     "name": "Dragón de Péndulo de Ojos Anómalos"
+    },
+    {
+     "card_id": "2b8d5dae-42d5-48ea-890c-eddc8b660552",
+     "artwork_id": "b65d78e6-564e-4e6d-b54e-ffde52fc769a",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Sincrón Acelerado"
+    },
+    {
+     "card_id": "828306a1-80fe-4110-acf3-4dc05fe0cbd8",
+     "artwork_id": "fd13d3e0-dd0b-471a-bff8-9219f97fcdea",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "D/D Orthros"
+    }
+   ]
+  },
+  {
+   "photo": "current.jpg",
+   "cand": 8,
+   "geometry": "unresolved",
+   "native_height": 477,
+   "truth": "Juicio Solemne",
+   "top1": "Juicio Solemne",
+   "top1_score": 0.456,
+   "accepted": false,
+   "art_status": "matched",
+   "art_card": "Juicio Solemne",
+   "warm_ms": 143,
+   "candidates": [
+    {
+     "card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
+     "artwork_id": "06ae8f45-07a7-4f51-86a2-66cfc7c818c3",
+     "inliers": 46,
+     "ratio": 0.902,
+     "coverage": 0.408,
+     "orientation": 0,
+     "name": "Juicio Solemne"
+    },
+    {
+     "card_id": "019abbdf-89d8-4110-83b5-e4f724b75355",
+     "artwork_id": "b09308b5-fcab-41cd-8bc3-4ccb3e2f9808",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Bestia Magillave - Ansyalabolas"
+    },
+    {
+     "card_id": "3c975631-13b7-4d65-8aad-650407ff7ba8",
+     "artwork_id": "b4000045-d9b2-47ef-98a6-568d91d663cc",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Aparato Criador de Celdas \"A\""
+    }
+   ]
+  },
+  {
+   "photo": "carta-2026-09-25T04-13-54-278Z.jpg",
+   "cand": 0,
+   "geometry": "contour_refined",
+   "native_height": 472,
+   "truth": "Dragón Blanco de Ojos Azules",
+   "top1": "Dragón Blanco de Ojos Azules",
+   "top1_score": 0.919,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Dragón Blanco de Ojos Azules",
+   "warm_ms": 362,
+   "candidates": [
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+     "inliers": 294,
+     "ratio": 0.983,
+     "coverage": 0.764,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    },
+    {
+     "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+     "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Mago Oscuro"
+    }
+   ]
+  },
+  {
+   "photo": "data/captures/carta-2026-09-25T04-13-54-278Z.jpg",
+   "cand": 1,
+   "skipped": "Carta cortada por el borde de la imagen"
+  },
+  {
+   "photo": "data/captures/carta-2026-09-25T04-13-54-278Z.jpg",
+   "cand": 2,
+   "skipped": "Carta cortada por el borde de la imagen"
+  },
+  {
+   "photo": "carta-2026-09-25T04-15-11-032Z.jpg",
+   "cand": 0,
+   "geometry": "contour_refined",
+   "native_height": 417,
+   "truth": "Dragón Blanco de Ojos Azules",
+   "top1": "Dragón Blanco de Ojos Azules",
+   "top1_score": 0.928,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Dragón Blanco de Ojos Azules",
+   "warm_ms": 282,
+   "candidates": [
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+     "inliers": 202,
+     "ratio": 0.948,
+     "coverage": 0.742,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+     "artwork_id": "76b137d6-020d-4df3-a920-133c81e9ee8a",
+     "inliers": 4,
+     "ratio": 0.444,
+     "coverage": 0.155,
+     "orientation": 180,
+     "name": "Cráneo Convocado"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    }
+   ]
+  },
+  {
+   "photo": "carta-2026-09-25T04-15-19-512Z.jpg",
+   "cand": 0,
+   "geometry": "contour_refined",
+   "native_height": 702,
+   "truth": "Dragón Blanco de Ojos Azules",
+   "top1": "Dragón Blanco de Ojos Azules",
+   "top1_score": 0.914,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Dragón Blanco de Ojos Azules",
+   "warm_ms": 338,
+   "candidates": [
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+     "inliers": 275,
+     "ratio": 0.996,
+     "coverage": 0.742,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    },
+    {
+     "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+     "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Mago Oscuro"
+    }
+   ]
+  },
+  {
+   "photo": "research/glare-benchmark/table-original.jpg",
+   "cand": 0,
+   "skipped": "Carta cortada por el borde de la imagen"
+  },
+  {
+   "photo": "table-original.jpg",
+   "cand": 1,
+   "geometry": "contour_refined",
+   "native_height": 367,
+   "truth": null,
+   "top1": "Dragón Blanco de Ojos Azules",
+   "top1_score": 0.936,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Dragón Blanco de Ojos Azules",
+   "warm_ms": 322,
+   "candidates": [
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "3d219e93-a755-4a81-a21b-a64d75578a64",
+     "inliers": 241,
+     "ratio": 0.992,
+     "coverage": 0.734,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    },
+    {
+     "card_id": "a0265517-063f-4ffa-8b4e-31acd1512992",
+     "artwork_id": "273f734a-b86e-4f0c-bbb9-2bf778245232",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Cráneo Convocado"
+    }
+   ]
+  },
+  {
+   "photo": "table-original.jpg",
+   "cand": 2,
+   "geometry": "contour_refined",
+   "native_height": 392,
+   "truth": null,
+   "top1": "Juicio Solemne",
+   "top1_score": 0.888,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Juicio Solemne",
+   "warm_ms": 224,
+   "candidates": [
+    {
+     "card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
+     "artwork_id": "06ae8f45-07a7-4f51-86a2-66cfc7c818c3",
+     "inliers": 85,
+     "ratio": 0.955,
+     "coverage": 0.559,
+     "orientation": 0,
+     "name": "Juicio Solemne"
+    },
+    {
+     "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
+     "artwork_id": "0012fcd5-c216-4a74-85c6-8738ed2d5e6d",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Blanco de Ojos Azules"
+    },
+    {
+     "card_id": "0bae3885-838e-4d5d-88ac-108218510d12",
+     "artwork_id": "809e89d1-ff4c-4965-b15c-7e6561850001",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Agujero Oscuro"
+    }
+   ]
+  },
+  {
+   "photo": "table-original.jpg",
+   "cand": 3,
+   "geometry": "contour_refined",
+   "native_height": 381,
+   "truth": null,
+   "top1": "Mago Oscuro",
+   "top1_score": 0.742,
+   "accepted": false,
+   "art_status": "matched",
+   "art_card": "Mago Oscuro",
+   "warm_ms": 357,
+   "candidates": [
+    {
+     "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+     "artwork_id": "eaa278cf-5e65-486e-b8cf-5d6110476356",
+     "inliers": 219,
+     "ratio": 0.973,
+     "coverage": 0.692,
+     "orientation": 0,
+     "name": "Mago Oscuro"
+    },
+    {
+     "card_id": "6cb08e9f-e85c-464b-b3ec-71fe7790ceb7",
+     "artwork_id": "58517cd6-98ae-416b-b2d4-4e88f33ff96f",
+     "inliers": 34,
+     "ratio": 0.85,
+     "coverage": 0.027,
+     "orientation": 0,
+     "name": "Chica Maga Oscura"
+    },
+    {
+     "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+     "artwork_id": "4a83c1ae-5c8a-492a-a4ec-bff931209213",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Dragón Negro de Ojos Rojos"
+    }
+   ]
+  },
+  {
+   "photo": "table-original.jpg",
+   "cand": 4,
+   "geometry": "frame_edge",
+   "native_height": 428,
+   "truth": null,
+   "top1": "Número 39: Utopía",
+   "top1_score": 0.906,
+   "accepted": true,
+   "art_status": "matched",
+   "art_card": "Número 39: Utopía",
+   "warm_ms": 146,
+   "candidates": [
+    {
+     "card_id": "c2e1b77c-8a38-4a26-8274-e8d6aea7e776",
+     "artwork_id": "47a75fd4-9901-474f-bfb3-c175ba8b93d0",
+     "inliers": 58,
+     "ratio": 0.967,
+     "coverage": 0.459,
+     "orientation": 0,
+     "name": "Número 39: Utopía"
+    },
+    {
+     "card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
+     "artwork_id": "06ae8f45-07a7-4f51-86a2-66cfc7c818c3",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Juicio Solemne"
+    },
+    {
+     "card_id": "15ddae1e-29ae-4650-b752-fa8b50db9fd5",
+     "artwork_id": "e18f98e7-ede0-4679-a5b5-bcf87acbac25",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Un Héroe Emerge"
+    }
+   ]
+  },
+  {
+   "photo": "table-original.jpg",
+   "cand": 5,
+   "geometry": "unresolved",
+   "native_height": 395,
+   "truth": null,
+   "top1": "Dragón de Péndulo de Ojos Anómalos",
+   "top1_score": 0.586,
+   "accepted": false,
+   "art_status": "unverified",
+   "art_card": null,
+   "warm_ms": 168,
+   "candidates": [
+    {
+     "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
+     "artwork_id": "28bd96ac-ffcf-4a4e-a144-d1141759e779",
+     "inliers": 25,
+     "ratio": 1.0,
+     "coverage": 0.261,
+     "orientation": 0,
+     "name": "Dragón de Péndulo de Ojos Anómalos"
+    },
+    {
+     "card_id": "aa209d8b-7dbc-4f3f-afcc-0179df3dde43",
+     "artwork_id": "e5759ab7-a743-4d9f-b345-34dfa08129f3",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Mente Aliada"
+    },
+    {
+     "card_id": "809834c9-2742-4c11-9ce8-29926d1167f3",
+     "artwork_id": "e76afea8-a81b-47ee-9720-f05dcfc12720",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Gíclope Gigatrueno"
+    }
+   ]
+  },
+  {
+   "photo": "table-original.jpg",
+   "cand": 6,
+   "geometry": "contour_refined",
+   "native_height": 417,
+   "truth": null,
+   "top1": "Dragón de Péndulo de Ojos Anómalos",
+   "top1_score": 0.443,
+   "accepted": false,
+   "art_status": "matched",
+   "art_card": "Dragón de Péndulo de Ojos Anómalos",
+   "warm_ms": 248,
+   "candidates": [
+    {
+     "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
+     "artwork_id": "3acbc163-1f8b-4ebc-8b0d-9a7a204a856a",
+     "inliers": 57,
+     "ratio": 0.919,
+     "coverage": 0.252,
+     "orientation": 0,
+     "name": "Dragón de Péndulo de Ojos Anómalos"
+    },
+    {
+     "card_id": "2b8d5dae-42d5-48ea-890c-eddc8b660552",
+     "artwork_id": "b65d78e6-564e-4e6d-b54e-ffde52fc769a",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Sincrón Acelerado"
+    },
+    {
+     "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
+     "artwork_id": "1f427e37-7b2f-4637-a90c-0b0ea56b9162",
+     "inliers": 0,
+     "ratio": 0.0,
+     "coverage": 0.0,
+     "orientation": 0,
+     "name": "Mago Oscuro"
+    }
+   ]
+  }
+ ]
+}

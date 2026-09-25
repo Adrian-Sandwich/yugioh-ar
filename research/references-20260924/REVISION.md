@@ -129,6 +129,11 @@ Leídos por HTTP desde esta sesión; no se descargaron modelos ni datos nuevos.
 
 ### Qué conviene hacer con esto
 
+Estado tras la misma tarde: los puntos 1 y 2 están implementados y medidos en
+[ARTE_YGOPRODECK.md](../ARTE_YGOPRODECK.md); el punto 3 se consultó (versión
+147.08 del 25/09/2026 frente a lectura de YGOJSON del 07/04/2026) y queda como
+decisión pendiente; el punto 4 se aplicó en esta tabla.
+
 1. **Descargar el arte recortado de YGOPRODeck** para las ilustraciones del
    registro, respetando 20 peticiones/s y alojándolo en `downloads/` con
    manifiesto y hashes como CardsOricaBR. Da una referencia de arte por

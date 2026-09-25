@@ -170,6 +170,7 @@ class Handler(BaseHTTPRequestHandler):
                 for d in result.get('candidates',result['detections']):
                     visual=named.get(tuple(map(tuple,d['corners'])),{})
                     boxes.append({'corners':d['corners'],'visual_card_id':visual.get('card_id'),'name':visual.get('name'),
+                                  'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:3],
                                   'geometry_status':d.get('geometry_status'),'geometry_iou':d.get('geometry_iou')})
                 worker.submit(data,boxes,captured_at)
             if getattr(self.server,'tracker',None):
