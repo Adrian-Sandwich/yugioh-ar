@@ -22,6 +22,8 @@ Ver también [EVIDENCIA_TEMPORAL.md](EVIDENCIA_TEMPORAL.md): selección reciente
 | Visor y AR (tarde) | Capa AR compuesta en el navegador; sprites ausentes y nombres fuera del piloto cacheados; JS del panel OCR dividido | `PIPELINE_ESTADO.md` |
 | Diagnóstico (tarde) | Stall log del 11:08 explicado: forward ONNX > 20 s bajo carga de CPU, no interbloqueo | `PIPELINE_ESTADO.md` |
 | Repositorio | Git inicializado en la raíz con `.gitignore` para datos, descargas, entornos y salidas pesadas | `.gitignore` |
+| TCGplayer (tarde) | Muestra de 120 escaneos en venta con set code, rareza y edición; lectores locales 104/120 set, 114/120 serial | `TCGPLAYER_MUESTRA.md` |
+| Cola (tarde) | Experimentos diseñados y priorizados para la otra PC | `COLA_EXPERIMENTOS.md` |
 | Arte YGOPRODeck (tarde) | Arte recortado autoalojado para las ilustraciones del registro; verificación SIFT de candidatas como evidencia `art`; 10/10 verificadas, 0 erróneas en la escena real | `ARTE_YGOPRODECK.md`, `qa/art-verification/` |
 
 SQL: 27 comparaciones conservan resultados, orden de cartas y prioridad de

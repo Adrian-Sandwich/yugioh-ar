@@ -21,6 +21,8 @@ La raíz es un repositorio Git desde el 25/09/2026; `data/`, `downloads/`, `repo
 - [Estructura de la carta y zonas para reconocimiento](research/card-anatomy/ESTRUCTURA.md)
 - [Zoom al passcode: rectificación, OCR local y consulta del registro](research/OCR_PASSCODE.md)
 - [Arte recortado de YGOPRODeck y verificación geométrica de candidatas](research/ARTE_YGOPRODECK.md)
+- [Muestra acotada de escaneos de TCGplayer y lectura con los OCR locales](research/TCGPLAYER_MUESTRA.md)
+- [Cola de experimentos diseñados para la otra PC](research/COLA_EXPERIMENTOS.md)
 - [Nuevas referencias: DRAW2, DRAW, one-shot learning y Roboflow](research/references-20260924/REVISION.md)
 - [Plan para otra computadora: vectores, rotaciones, sombras y entrenamiento](research/PLAN_VECTORES_E_INVARIANCIA.md)
 - [Fuentes de imágenes CardsOricaBR y metadatos históricos YCCLP](research/references-20260924/FUENTES_IMAGENES_ADICIONALES.md)
