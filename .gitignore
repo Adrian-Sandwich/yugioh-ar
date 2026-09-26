@@ -16,3 +16,7 @@ research/yolo11_pose/runs/
 research/glare-benchmark/inputs/
 research/glare-benchmark/outputs/
 research/glare-benchmark/models/
+
+# Copias de bases de datos que dejan los scripts de auditoria/sincronizacion
+research/**/*.sqlite
+research/database-audit/sync-*/

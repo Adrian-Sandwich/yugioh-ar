@@ -70,7 +70,28 @@ borde blanco desplaza respecto a las regiones anatómicas fijas.
 3. **Precios y disponibilidad** no interesan al reconocimiento; se guardan
    sólo como contexto de la muestra.
 
-Pendiente: si se quiere una cobertura mayor (por set o por rareza), solicitar
-acceso a la API oficial o limitarse al sitemap con el retardo de robots, y
-documentar el permiso antes de escalar. No integrar estas imágenes en el
-piloto sin decidir su licencia.
+## Descarga completa (en curso desde el 25/09/2026 por la noche)
+
+Por decisión del usuario se lanzó la cobertura completa con las tres vías:
+
+1. **Búsqueda completa**: las 1,943 páginas de cartas sueltas en venta (46,633
+   productos), una petición cada 10 s (~5.4 h). Aporta los metadatos por producto.
+2. **Sitemap**: `sitemap/yugioh.0.xml` y `yugioh.1.xml` listan **47,824 ids de
+   producto** (todo Yu-Gi-Oh!, incluidos sellados y sin stock); sus escaneos se
+   descargan por id desde el CDN a 3 imágenes por segundo (~4.4 h, ~7 GB).
+   Los productos que no aparezcan en la búsqueda quedan sólo con su `slug`.
+3. **API oficial**: `developer.tcgplayer.com` redirige a `docs.tcgplayer.com`,
+   que sólo documenta la autorización de aplicaciones ya creadas; el artículo
+   de ayuda sobre acceso está detrás de un desafío de Cloudflare y no pudo
+   leerse desde aquí. Hasta donde se sabe, TCGplayer no acepta solicitudes
+   nuevas desde 2023; confirmarlo en el navegador antes de contar con esa vía.
+
+```powershell
+.\.venv-eval\Scripts\python.exe research/download_tcgplayer_sample.py --all --sitemap --image-rate 3
+```
+
+Reanudable; `STOP` en la carpeta pausa búsqueda e imágenes. Registro en
+`.runtime/tcgplayer-full.log`. Al terminar: `--audit`, actualizar aquí las
+cifras y repetir `tcgplayer_sample_check.py` sobre una muestra estratificada
+por rareza (leer los 47k escaneos costaría unas 13 h de OCR). No integrar
+estas imágenes en el piloto sin decidir su licencia.
