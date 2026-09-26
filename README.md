@@ -272,8 +272,9 @@ El directorio `research/` es el cuaderno del proyecto. Entradas principales:
   `data/` y `downloads/` están fuera de Git.
 - El código de referencia de terceros en `repos/` conserva sus licencias.
   Cualquier trabajo derivado debe acompañarlas.
-- La licencia de este código está pendiente de elegir. Hasta entonces, todos
-  los derechos reservados por sus autores.
+- El código de este repositorio se publica bajo la [licencia MIT](LICENSE).
+  La licencia cubre el código y la documentación, no las imágenes de cartas
+  ni los datos descargados de terceros.
 
 ## English summary
 
