@@ -18,8 +18,23 @@ OUT = ROOT / 'research/qa/tcgplayer-sample'
 
 
 def main():
+    import argparse, random
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--per-rarity', type=int, default=0, help='Stratified sample: at most N verified scans per rarity (0 = all with metadata)')
+    parser.add_argument('--seed', type=int, default=7)
+    args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     items = json.loads((BASE / 'manifest.json').read_text(encoding='utf-8'))['items']
+    items = {k: v for k, v in items.items() if v.get('status') == 'ok' and v.get('number')}
+    if args.per_rarity:
+        by_rarity = {}
+        for k, v in items.items():
+            by_rarity.setdefault(v.get('rarity'), []).append(k)
+        rng = random.Random(args.seed); chosen = []
+        for keys in by_rarity.values():
+            rng.shuffle(keys); chosen += keys[:args.per_rarity]
+        items = {k: items[k] for k in chosen}
+        print(f'stratified sample: {len(items)} scans over {len(by_rarity)} rarities', flush=True)
     db = sqlite3.connect(DB.as_uri() + '?mode=ro', uri=True, timeout=2)
     reader = NumberReader()
     rows = []; stats = {'scans': 0, 'set_code_read_exact': 0, 'set_code_in_registry': 0, 'name_matched_registry': 0, 'name_agrees_listing': 0,

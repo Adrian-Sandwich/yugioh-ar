@@ -1,0 +1,42 @@
+{
+ "products_total": 47824,
+ "with_metadata": 1892,
+ "number_in_registry": 1876,
+ "name_in_registry": 1599,
+ "both_agree": 1585,
+ "number_unknown": 16,
+ "name_unknown": 293,
+ "unknown_prefixes": {},
+ "known_prefix_missing_number": {
+  "BLGG": 4,
+  "MAMO": 2,
+  "ALIN": 2,
+  "LAVD": 2,
+  "26LP": 2,
+  "DUOV": 1,
+  "BPRO": 1,
+  "BLZD": 1,
+  "UP01": 1
+ },
+ "rarities": {
+  "Ultra Rare": 729,
+  "Common / Short Print": 352,
+  "Super Rare": 303,
+  "Secret Rare": 258,
+  "Rare": 80,
+  "Prismatic Secret Rare": 68,
+  "Starlight Rare": 56,
+  "Platinum Secret Rare": 13,
+  "Ultimate Rare": 10,
+  "Quarter Century Secret Rare": 9,
+  "Premium Gold Rare": 6,
+  "Duel Terminal Technology Ultra Rare": 3,
+  "Prismatic Collector's Rare": 3,
+  "Gold Secret Rare": 1,
+  "Prismatic Ultimate Rare": 1
+ },
+ "cards_with_scan": 1437,
+ "products_per_card_max": 16,
+ "unknown_examples": [],
+ "note": "Partial while the crawl runs; number match is exact on set_code (registry snapshot YGOJSON 2026-04-07 plus Neuron)."
+}
