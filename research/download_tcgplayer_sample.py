@@ -47,9 +47,14 @@ def request(url, data=None):
     return urllib.request.urlopen(urllib.request.Request(url, data=data, headers=headers), timeout=60)
 
 
-def search(page):
-    body = {'algorithm': 'sales_synonym_v2', 'from': page * PAGE, 'size': PAGE,
-            'filters': {'term': {'productLineName': ['yugioh'], 'productTypeName': ['Cards']}, 'range': {}, 'match': {}},
+def search(page, set_name=None, size=PAGE):
+    """One page of in-stock singles; the endpoint rejects offsets past 10,000, so
+    the full crawl partitions by set (618 sets, at most ~1,000 products each)."""
+    term = {'productLineName': ['yugioh'], 'productTypeName': ['Cards']}
+    if set_name is not None:
+        term['setName'] = [set_name]
+    body = {'algorithm': 'sales_synonym_v2', 'from': page * size, 'size': size,
+            'filters': {'term': term, 'range': {}, 'match': {}},
             'listingSearch': {'context': {'cart': {}}, 'filters': {'term': {'sellerStatus': 'Live', 'channelId': 0},
                               'range': {'quantity': {'gte': 1}}, 'exclude': {'channelExclusion': 0}}},
             'context': {'cart': {}, 'shippingCountry': 'US'}, 'settings': {'useFuzzySearch': True, 'didYouMean': {}}, 'sort': {}}
@@ -58,7 +63,7 @@ def search(page):
             with request(SEARCH, json.dumps(body).encode()) as response:
                 payload = json.load(response)
             result = payload['results'][0]
-            return result.get('totalResults'), result['results']
+            return result.get('totalResults'), result['results'], result.get('aggregations', {})
         except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError) as exc:
             print(f'search page {page} attempt {attempt + 1}: {exc}', flush=True)
             time.sleep(30 * (attempt + 1))
@@ -237,27 +242,58 @@ def main():
     pool = ImagePool(state, args.image_rate)
     started = time.monotonic(); last_save = time.monotonic()
     try:
-        if args.all or args.pages:
-            page = args.start
-            while True:
+        def merge(products):
+            with LOCK:
+                for product in products:
+                    item = record(product)
+                    current = state['items'].setdefault(str(item['product_id']), {})
+                    current.update({k: v for k, v in item.items() if k != 'status'})
+                    current.setdefault('status', 'pending')
+
+        def progress(label):
+            print(f'{label}; images done {pool.done}, {summary(state)}, {(time.monotonic() - started) / 60:.0f} min', flush=True)
+
+        if args.all:
+            # Partition by set: every set stays far below the 10,000-offset limit.
+            state.setdefault('partitions', {})
+            _, _, aggregations = search(0, size=1)
+            sets = sorted((a['value'], int(a['count'])) for a in aggregations.get('setName', []))
+            print(f'{len(sets)} sets to crawl', flush=True)
+            for set_name, count in sets:
                 if (OUT / 'STOP').exists():
                     print('STOP present; pausing crawl', flush=True); break
-                if not args.all and page >= args.start + args.pages:
-                    break
+                part = state['partitions'].setdefault(set_name, {'pages': 0, 'total': None, 'done': False})
+                if part['done']:
+                    continue
+                page = part['pages']
+                while True:
+                    if (OUT / 'STOP').exists():
+                        break
+                    total, products, _ = search(page, set_name)
+                    merge(products)
+                    part.update(pages=page + 1, total=total, fetched_at=time.strftime('%Y-%m-%dT%H:%M:%S'))
+                    if not products or (total is not None and (page + 1) * PAGE >= total):
+                        part['done'] = True
+                    save(state)
+                    progress(f'set {set_name!r} page {page}: {len(products)} products of {total}')
+                    if part['done']:
+                        break
+                    page += 1
+                    time.sleep(args.delay)
+                time.sleep(args.delay)
+        elif args.pages:
+            page = args.start
+            while page < args.start + args.pages:
+                if (OUT / 'STOP').exists():
+                    print('STOP present; pausing crawl', flush=True); break
                 if str(page) in state['pages']:
                     page += 1; continue
-                total, products = search(page)
+                total, products, _ = search(page)
                 state['pages'][str(page)] = {'fetched_at': time.strftime('%Y-%m-%dT%H:%M:%S'), 'total_results_at_fetch': total,
                                             'product_ids': [int(p['productId']) for p in products]}
-                with LOCK:
-                    for product in products:
-                        item = record(product)
-                        current = state['items'].setdefault(str(item['product_id']), {})
-                        current.update({k: v for k, v in item.items() if k not in ('status',)})
-                        current.setdefault('status', 'pending')
-                save(state)
-                print(f'page {page}: {len(products)} products, {total} in stock; images done {pool.done}, {summary(state)}, {(time.monotonic() - started) / 60:.0f} min', flush=True)
-                if not products or (total is not None and (page + 1) * PAGE >= total):
+                merge(products); save(state)
+                progress(f'page {page}: {len(products)} products, {total} in stock')
+                if not products:
                     break
                 page += 1
                 time.sleep(args.delay)
