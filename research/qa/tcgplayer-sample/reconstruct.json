@@ -1,0 +1,11 @@
+{
+ "products": 47824,
+ "set_matched": 44827,
+ "card_matched": 39490,
+ "number_from_search": 2376,
+ "set_unmatched": 2997,
+ "number_unknown": 7468,
+ "number_from_registry": 26878,
+ "number_ambiguous": 2794,
+ "note": "Slug + registry reconstruction; editions and prices are not recoverable offline; numbers marked registry are inferred, not read from TCGplayer."
+}
