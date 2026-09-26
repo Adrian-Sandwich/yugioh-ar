@@ -95,3 +95,42 @@ Reanudable; `STOP` en la carpeta pausa búsqueda e imágenes. Registro en
 cifras y repetir `tcgplayer_sample_check.py` sobre una muestra estratificada
 por rareza (leer los 47k escaneos costaría unas 13 h de OCR). No integrar
 estas imágenes en el piloto sin decidir su licencia.
+
+## Reinicio del 26/09 y reconstrucción sin repetir el rastreo
+
+La PC se reinició a las 10:47 del 26/09 con la descarga a medias. Los
+escaneos en disco sobrevivieron (29 truncados se borraron), pero el
+manifiesto quedó con 36 MB de ceros: se perdieron el progreso por set y los
+metadatos de unos 20,000 productos. Desde entonces el descargador escribe con
+`fsync`, conserva `manifest.bak` y puede reconstruir el estado desde disco
+(`--rebuild-from-disk`).
+
+Por decisión del usuario no se repitió el rastreo completo como vía principal.
+Reconstrucción sin red (`research/tcgplayer_reconstruct.py`):
+
+1. La URL de cada producto en el sitemap (`yugioh-<set>-<carta>[-<rareza>]`)
+   da set, nombre y a veces rareza; los 618 nombres de set de la búsqueda
+   permiten segmentar la URL.
+2. El registro resuelve el nombre a `card_id` y, con el producto YGOJSON del
+   set, el número de impresión; se prefieren códigos `-EN` o sin locale.
+3. `research/tcgplayer_scan_numbers.py` lee set code y passcode **en el propio
+   escaneo** de los productos sin número resuelto: 16,340 escaneos con cuatro
+   procesos en unos 100 minutos. La fusión (`--with-scans`) sólo acepta un
+   código leído si el registro lo conoce; las lecturas no verificadas quedan
+   como evidencia (`number_read_unverified`), fieles a la regla de no corregir.
+
+Resultado (`qa/tcgplayer-sample/reconstruct.json`, con el rastreo lento aún
+rellenando metadatos exactos de fondo):
+
+| | Productos |
+|---|---|
+| Total en el sitemap | 47,824 |
+| Escaneos válidos en disco | 46,058 (1,766 sin imagen en el CDN) |
+| Set identificado | 45,279 |
+| Carta identificada (nombre o passcode leído) | 43,148 |
+| Número de impresión resuelto | 36,440 (búsqueda 11,934 · registro 21,232 · escaneo 3,274) |
+| Código leído que contradice al registro | 250 (conservados como conflicto) |
+
+Lo que no se recupera sin la API: ediciones ofertadas y precios, irrelevantes
+para el reconocimiento. El rastreo por sets continúa en segundo plano y va
+sustituyendo las inferencias por metadatos exactos; `STOP` lo detiene.

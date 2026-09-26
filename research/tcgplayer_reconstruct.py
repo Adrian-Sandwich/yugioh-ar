@@ -119,6 +119,42 @@ def main():
         elif rec.get('number'):
             stats['number_from_search'] += 1
         rows[key] = rec
+    # Numbers and passcodes read from the scans themselves (tcgplayer_scan_numbers.py).
+    scans = BASE / 'scan-numbers.jsonl'
+    if '--with-scans' in sys.argv and scans.exists():
+        cards_by_passcode = collections.defaultdict(set)
+        for card, value in db.execute("SELECT card_id, value FROM identifiers WHERE kind='passcode'"):
+            cards_by_passcode[value].add(card)
+        for line in scans.read_text(encoding='utf-8').splitlines():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            rec = rows.get(str(row.get('product_id')))
+            if not rec or row.get('error'):
+                continue
+            code = row.get('set_code_read')
+            if code and not rec.get('number_source') == 'search':
+                candidates = rec.get('number_candidates') or []
+                if row.get('set_status') != 'matched':
+                    # The reader is literal: one confused glyph (GB1-001 for GBI-001, DL1S-EN010 for
+                    # DL15-EN010) yields a code the registry has never seen. Keep it as evidence only.
+                    rec['number_read_unverified'] = code; stats['scan_code_unverified'] += 1
+                elif not candidates or code in candidates:
+                    if rec.get('number') != code:
+                        stats['number_from_scan'] += 1
+                        if rec.get('number_source') == 'registry':
+                            stats['registry_number_corrected_by_scan'] += 1
+                    rec['number'] = code; rec['number_source'] = 'scan'; rec.pop('number_candidates', None)
+                else:
+                    rec['number_read_outside_candidates'] = code; stats['scan_disagrees_with_registry'] += 1
+            if row.get('passcode'):
+                rec['passcode_read'] = row['passcode']
+                ids = cards_by_passcode.get(row['passcode'], set())
+                if ids and not rec.get('card_ids'):
+                    rec['card_ids'] = sorted(ids); rec['card_source'] = 'passcode'; stats['card_from_passcode'] += 1
+        stats['numbers_resolved_total'] = sum(1 for r in rows.values() if r.get('number'))
+        stats['cards_resolved_total'] = sum(1 for r in rows.values() if r.get('card_ids'))
     summary = {'products': len(items), **stats, 'note': 'Slug + registry reconstruction; editions and prices are not recoverable offline; numbers marked registry are inferred, not read from TCGplayer.'}
     (BASE / 'reconstructed.json').write_text(json.dumps({'summary': summary, 'items': rows}, ensure_ascii=False, indent=1), encoding='utf-8')
     (OUT / 'reconstruct.json').write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding='utf-8')
