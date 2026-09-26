@@ -22,6 +22,7 @@ STOP file pauses everything. Scans belong to TCGplayer/Konami and stay local.
 import argparse
 import hashlib
 import json
+import os
 import re
 import threading
 import time
@@ -38,6 +39,8 @@ IMAGE = 'https://tcgplayer-cdn.tcgplayer.com/product/{id}_in_1000x1000.jpg'
 PAGE = 24
 AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) yugioh-ar-lab/0.1 (research sample; robots crawl-delay respected)'
 LOCK = threading.Lock()
+JPEG_SOI = bytes([255, 216])
+JPEG_EOI = bytes([255, 217])
 
 
 def request(url, data=None):
@@ -97,10 +100,48 @@ def sitemap_records():
 
 
 def save(state):
+    """Durable manifest: fsync the temp file before the atomic replace, and keep
+    the previous manifest as .bak. A crash on 2026-09-26 left a manifest whose
+    tail was zero-filled because the data never reached the disk."""
     with LOCK:
         temp = STATE.with_suffix('.tmp')
-        temp.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding='utf-8')
+        with temp.open('w', encoding='utf-8') as handle:
+            handle.write(json.dumps(state, ensure_ascii=False, indent=1))
+            handle.flush()
+            os.fsync(handle.fileno())
+        if STATE.exists():
+            STATE.replace(STATE.with_suffix('.bak'))
         temp.replace(STATE)
+
+
+def load_state():
+    """Current manifest, or the .bak when the current one is unreadable."""
+    for candidate in (STATE, STATE.with_suffix('.bak')):
+        if candidate.exists():
+            try:
+                return json.loads(candidate.read_text(encoding='utf-8'))
+            except (ValueError, UnicodeDecodeError) as exc:
+                print(f'{candidate.name} unreadable ({exc}); trying the backup', flush=True)
+    return None
+
+
+def rebuild_from_disk(state):
+    """Mark every valid scan already on disk as ok (hash recomputed); pending otherwise."""
+    marked = 0
+    for item in state['items'].values():
+        dest = OUT / item['path']
+        if item.get('status') == 'ok' and verified(item):
+            continue
+        if dest.exists():
+            data = dest.read_bytes()
+            if data.startswith(JPEG_SOI) and data.rstrip(bytes(1)).endswith(JPEG_EOI) and not data.endswith(bytes(16)):
+                item.update(status='ok', bytes=len(data), sha256=hashlib.sha256(data).hexdigest(), fetched_at=item.get('fetched_at') or 'rebuilt-from-disk', error=None)
+                marked += 1
+                continue
+            dest.unlink()
+        if item.get('status') not in ('missing',):
+            item['status'] = 'pending'
+    return marked
 
 
 def verified(item):
@@ -219,9 +260,10 @@ def main():
     parser.add_argument('--delay', type=float, default=10.0, help='Seconds between search requests (robots.txt Crawl-Delay)')
     parser.add_argument('--image-rate', type=float, default=1.0, help='CDN image requests per second')
     parser.add_argument('--audit', action='store_true')
+    parser.add_argument('--rebuild-from-disk', action='store_true', help='Trust valid scans already on disk (after a lost manifest)')
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
-    state = json.loads(STATE.read_text(encoding='utf-8')) if STATE.exists() else {
+    state = load_state() or {
         'source': 'https://www.tcgplayer.com/search/yugioh/product?productLineName=yugioh&view=grid',
         'endpoint': SEARCH, 'sitemaps': SITEMAPS, 'image_pattern': IMAGE, 'robots_crawl_delay_s': 10,
         'note': 'Research sample of product scans; scans belong to TCGplayer/Konami and are not redistributed.',
@@ -230,6 +272,8 @@ def main():
         item.pop('_taken', None)
     if args.audit:
         audit(state); return
+    if args.rebuild_from_disk:
+        print(f'rebuilt from disk: {rebuild_from_disk(state)} scans marked ok', flush=True); save(state)
     if args.sitemap:
         added = 0
         for pid, item in sitemap_records().items():
@@ -239,6 +283,8 @@ def main():
             else:
                 current.setdefault('url', item['url']); current.setdefault('slug', item['slug'])
         save(state); print(f'sitemap: {added} new products, {len(state["items"])} total', flush=True)
+        if args.rebuild_from_disk:
+            print(f'rebuilt from disk after sitemap: {rebuild_from_disk(state)} scans marked ok', flush=True); save(state)
     pool = ImagePool(state, args.image_rate)
     started = time.monotonic(); last_save = time.monotonic()
     try:
