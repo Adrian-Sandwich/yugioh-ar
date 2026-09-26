@@ -85,6 +85,45 @@ umbrales fijados sobre esos datos, no calibrados; SIFT sobre reflejos fuertes
 o fundas no medido. Cartas con varios artes se verifican contra todos; el
 `artwork_id` devuelto es evidencia del arte, no de la impresión ni del idioma.
 
+## Índice de embeddings con arte recortado (experimento)
+
+`research/embedding_art_experiment.py` → `qa/embedding-art/comparison.json`.
+Tres recuperaciones sobre las mismas fotos (dos escenas con las mismas siete
+cartas y tres capturas de una carta, 16 candidatas con verdad anotada y
+rectificables), cada una con consulta y referencia del mismo tipo, mismo
+encoder, misma regla de aceptación (similitud ≥ 0.80 y margen ≥ 0.07):
+
+| Variante | Referencias | Top-1 correcto | Aceptadas correctas | Aceptadas erróneas | Similitud media de la correcta | Margen medio |
+|---|---|---|---|---|---|---|
+| Carta completa (actual) | 63 del piloto (TDOANE) | 16/16 | 9 | 0 | 0.773 (mín. 0.418) | 0.571 |
+| Arte recortado, piloto | las mismas 63 ilustraciones | 16/16 | 9 | 0 | 0.687 (mín. 0.261) | 0.515 |
+| Arte recortado, catálogo | **14,249 artes / 14,087 cartas** | **16/16** | 11 | 0 | 0.721 (mín. 0.359) | 0.420 |
+
+Lectura:
+
+- Con este encoder (ViT de DRAW2, entrenado sobre cartas completas), consultar
+  sólo el arte **baja** la similitud de la identidad correcta en el piloto; no
+  sustituye al índice actual. La carta foil de Ojos Anómalos cae de 0.63 a 0.40.
+- El índice del catálogo completo funciona: la identidad correcta queda en el
+  puesto 1 entre 14,087 cartas en los 16 casos, con cero aceptaciones erróneas
+  y la regla sin tocar. Las dos aceptaciones extra vienen de un arte alternativo
+  del Mago Oscuro que la referencia del piloto no tenía (0.91 y 0.85).
+- Los márgenes se estrechan con 14k distractores (0.42 frente a 0.57), como
+  cabía esperar; la regla de aceptación deberá recalibrarse con negativos
+  reales antes de usar el catálogo completo para aceptar identidades.
+
+Diseño que habilita: **proponer a escala de catálogo y verificar por geometría**.
+El índice de arte propone las candidatas (salida "fuera del deck" que el plan
+pedía) y `art_verify.py` confirma con SIFT contra el arte exacto, sin bajar
+umbrales. Queda en `COLA_EXPERIMENTOS.md` medirlo con negativos y en la otra
+PC. Coste aquí: 14,249 embeddings en ~73 min con dos hilos y CPU compartida
+(cacheados en `data/pilot/art_index-*.npy`, 44 MB); la consulta a 14k vectores
+es un producto matricial despreciable frente al forward del encoder.
+
+Límites: mismas siete cartas físicas en las dos escenas; sin cartas ajenas al
+catálogo; la ventana de arte es una región anatómica fija que en Péndulo y en
+cartas con marcos distintos recorta parte del arte o incluye texto.
+
 ## Frescura de los datos
 
 `checkDBVer.php` devolvió la versión 147.08 del 25/09/2026, mientras la
