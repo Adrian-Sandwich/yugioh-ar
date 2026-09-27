@@ -132,3 +132,27 @@ de cartas nuevas ausentes en el registro (la más reciente de la API tiene fecha
 OCG 26/09/2026). No se ha añadido una ruta de actualización directa desde la
 API: mantendría procedencia distinta y la API no tiene español. Decidirlo
 cuando el crawl de Neuron termine.
+
+## Cartas completas para cartas sin imagen (27/09/2026)
+
+1,255 identidades del catálogo no tenían una imagen de carta enlazada de al
+menos 200 × 290 (`catalog.PILOT_REFS`), así que no podían entrar al piloto: 878
+sin ninguna imagen y 377 sólo con propuestas de CardsOricaBR o TDOANE. La tabla
+`artworks` del registro guarda también `card_url`, la carta completa de cada
+ilustración; el mismo descargador la baja con `--kind card`:
+
+```powershell
+.\.venv-eval\Scripts\python.exe research/download_ygoprodeck_art.py --kind card --only-missing
+.\.venv-eval\Scripts\python.exe research/download_ygoprodeck_art.py --kind card --audit
+.\.venv-eval\Scripts\python.exe sync_catalog.py
+```
+
+Sólo URLs de `images.ygoprodeck.com/images/cards/`: algunas `card_url` apuntan a
+Yugipedia y son arte oficial cuadrado, no la carta. Resultado: 1,157
+ilustraciones en 203 s a 6 peticiones/s, 0 errores (1,017 de 813 × 1185, el
+resto ~421 × 614) en `downloads/ygoprodeck-cards/`; `sync_catalog.py` añadió
+1,157 referencias `ygoprodeck:card:<arte>` enlazadas por el UUID de la
+ilustración, sin cambiar ninguna existente. Quedan 456 identidades sin imagen:
+194 fichas, 118 de tipo desconocido, 52 skills y 92 monstruos/mágicas/trampas,
+casi todas exclusivas de videojuego o anime. TCGplayer cubriría sólo 5 de esas
+92 y no se añadió, para no mezclar referencias con los escaneos de calibración.

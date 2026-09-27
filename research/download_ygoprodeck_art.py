@@ -1,13 +1,19 @@
-"""Download and self-host YGOPRODeck cropped artwork for every registry illustration.
+"""Download and self-host YGOPRODeck images for registry illustrations.
 
 YGOPRODeck asks not to hotlink images and blocks IPs above 20 requests/s; this
 runs far below that limit, keeps a resumable manifest with hashes, and never
 rewrites a file that already verified. Standard library only.
 
     .venv-eval/Scripts/python.exe research/download_ygoprodeck_art.py [--limit N] [--rate 6] [--audit]
+    .venv-eval/Scripts/python.exe research/download_ygoprodeck_art.py --kind card --only-missing
+
+--kind art (default): cropped artwork into downloads/ygoprodeck-art.
+--kind card: the whole card (`artworks.card_url`, 421x614) into
+downloads/ygoprodeck-cards; --only-missing limits it to cards without a catalog
+image the pilot can use (catalog.PILOT_REFS), e.g. recent sets.
 
 Priority: illustrations of pilot cards first, then the rest of the registry.
-Create downloads/ygoprodeck-art/STOP to pause; delete it to resume.
+Create <output>/STOP to pause; delete it to resume.
 """
 import argparse
 import concurrent.futures as cf
@@ -21,8 +27,12 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'downloads' / 'ygoprodeck-art'
+# kind -> (output folder, artworks column with the URL, subfolder, source prefix)
+KINDS = {'art': (ROOT / 'downloads' / 'ygoprodeck-art', 'art_url', 'art/', 'https://images.ygoprodeck.com/images/cards_cropped/'),
+         'card': (ROOT / 'downloads' / 'ygoprodeck-cards', 'card_url', 'cards/', 'https://images.ygoprodeck.com/images/cards/')}
+OUT = KINDS['art'][0]
 STATE = OUT / 'manifest.json'
+KIND = 'art'
 REGISTRY = ROOT / 'data' / 'registry' / 'registry.sqlite'
 AGENT = 'yugioh-ar-lab/0.1 (local research; images self-hosted, not hotlinked)'
 
@@ -51,23 +61,42 @@ def save(state):
 def load_state():
     if STATE.exists():
         return json.loads(STATE.read_text(encoding='utf-8'))
-    return {'source': 'https://images.ygoprodeck.com/images/cards_cropped/', 'terms': 'https://ygoprodeck.com/api-guide/',
-            'note': 'Cropped artwork keyed by registry artwork id; url comes from the artworks table (YGOJSON snapshot).',
+    what = 'Cropped artwork' if KIND == 'art' else 'Whole card image'
+    return {'source': KINDS[KIND][3], 'terms': 'https://ygoprodeck.com/api-guide/', 'kind': KIND,
+            'note': what + ' keyed by registry artwork id; url comes from the artworks table (YGOJSON snapshot).',
             'created_at': time.strftime('%Y-%m-%dT%H:%M:%S'), 'items': {}}
 
 
-def registry_items(state):
+def cards_without_pilot_image():
+    """Catalog identities with no reference export_pilot accepts."""
+    import sys
+    sys.path.insert(0, str(ROOT))
+    from catalog import EFFECTIVE, PILOT_REFS, connect
+    with connect() as conn:
+        return {r[0] for r in conn.execute('SELECT c.id FROM cards c WHERE NOT EXISTS (SELECT 1 FROM (' + EFFECTIVE + ') r WHERE r.effective_card_id=c.id AND ' + PILOT_REFS + ')')}
+
+
+def registry_items(state, only=None):
+    _, column, folder, _ = KINDS[KIND]
     db = sqlite3.connect(REGISTRY.as_uri() + '?mode=ro', uri=True, timeout=5)
     try:
-        rows = db.execute("SELECT id,card_id,image_source_id,art_url,card_url FROM artworks WHERE art_url IS NOT NULL AND art_url!='' ORDER BY id").fetchall()
+        rows = db.execute(f"SELECT id,card_id,image_source_id,art_url,card_url FROM artworks WHERE {column} IS NOT NULL AND {column}!='' ORDER BY id").fetchall()
     finally:
         db.close()
     pilot_path = ROOT / 'data' / 'pilot' / 'catalog.json'
     pilot = {e['card_id'] for e in json.loads(pilot_path.read_text(encoding='utf-8'))} if pilot_path.exists() else set()
     for art_id, card_id, source_id, art_url, card_url in rows:
+        # Items already in the manifest stay there (and stay verified) even if the card has an image now.
+        if only is not None and card_id not in only and art_id not in state['items']:
+            continue
+        url = art_url if KIND == 'art' else card_url
+        # Some card_url point to Yugipedia and are square official artwork, not a card
+        # image; keep to the source whose image guide this downloader follows.
+        if KIND == 'card' and not url.startswith(KINDS['card'][3]):
+            continue
         item = state['items'].setdefault(art_id, {})
-        item.update(card_id=card_id, image_source_id=str(source_id), url=art_url, card_url=card_url,
-                    path='art/' + art_url.rsplit('/', 1)[-1], pilot=card_id in pilot)
+        item.update(card_id=card_id, image_source_id=str(source_id), url=url, card_url=card_url,
+                    path=folder + url.rsplit('/', 1)[-1], pilot=card_id in pilot)
         item.setdefault('status', 'pending')
     return sorted(state['items'].items(), key=lambda kv: (not kv[1]['pilot'], kv[0]))
 
@@ -143,13 +172,17 @@ def main():
     parser.add_argument('--rate', type=float, default=6.0, help='Requests per second, shared by all threads (site limit is 20)')
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--audit', action='store_true', help='Verify hashes and image decoding, then exit')
+    parser.add_argument('--kind', choices=sorted(KINDS), default='art', help='art: cropped artwork; card: whole card image')
+    parser.add_argument('--only-missing', action='store_true', help='Only cards without a catalog image the pilot can use')
     args = parser.parse_args()
+    global OUT, STATE, KIND
+    KIND = args.kind; OUT = KINDS[KIND][0]; STATE = OUT / 'manifest.json'
     OUT.mkdir(parents=True, exist_ok=True)
     state = load_state()
     if args.audit:
         audit(state)
         return
-    items = registry_items(state)
+    items = registry_items(state, cards_without_pilot_image() if args.only_missing else None)
     todo = [item for _, item in items if not verified(item) and item.get('status') != 'missing']
     print(f'{len(items)} illustrations in registry; {len(todo)} to download ({sum(i["pilot"] for i in todo)} pilot first)', flush=True)
     if args.limit:
