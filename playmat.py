@@ -58,6 +58,17 @@ class Mat:
         self.to_mat = cv2.getPerspectiveTransform(corners, UNIT)
         self.to_image = cv2.getPerspectiveTransform(UNIT, corners)
 
+    @classmethod
+    def from_homography(cls, player, to_mat, layout, outline, margin=.08):
+        """Mat whose coordinates are already millimetres (printed template, playmat_print):
+        `to_mat` maps image pixels to template mm, `layout` holds zones in mm and
+        `outline` is the template's 4 corners in mm (for drawing)."""
+        mat = cls.__new__(cls)
+        mat.player = player; mat.margin = margin; mat.layout = layout; mat.size_mm = np.float32((1, 1))
+        mat.to_mat = np.float64(to_mat); mat.to_image = np.linalg.inv(mat.to_mat)
+        mat.corners = mat.image_points(outline)
+        return mat
+
     def mat_points(self, points):
         return cv2.perspectiveTransform(np.float32(points).reshape(-1, 1, 2), self.to_mat).reshape(-1, 2)
 

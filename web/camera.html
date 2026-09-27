@@ -76,11 +76,16 @@
     <h2>Duelo en la mesa</h2>
     <p>La cámara nunca invoca ni mueve cartas por su cuenta: cuando algo cambia en el tapete, aquí aparece una pregunta y tú confirmas qué pasó.</p>
     <div>
-      <select id="matMode"><option value="two">Dos tapetes frente a frente</option><option value="one">Un tapete</option></select>
-      <button id="calibrate">Calibrar tapetes</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
+      <select id="matMode"><option value="printed">Plantilla impresa (automática)</option><option value="two">Dos tapetes propios frente a frente (clics)</option><option value="one">Un tapete propio (clics)</option></select>
+      <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
       <label><input type="checkbox" id="showZones" checked> Mostrar zonas sobre el vídeo</label>
     </div>
     <p id="calibrationHelp"></p>
+    <p>Plantillas para imprimir (con marcadores; la cámara las encuentra sola aunque se mueva): jugador 1
+      <a href="/playmat/print/tapete-jugador1-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> ·
+      <a href="/playmat/print/tapete-jugador1-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a>; jugador 2
+      <a href="/playmat/print/tapete-jugador2-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> ·
+      <a href="/playmat/print/tapete-jugador2-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a>. Imprime al 100 % (sin ajustar a la página).</p>
     <div id="duelSetup">
       <input type="text" id="name0" value="Jugador 1" aria-label="Nombre del jugador 1"><input type="text" id="name1" value="Jugador 2" aria-label="Nombre del jugador 2">
       <select id="starting"><option value="0">Empieza el jugador 1</option><option value="1">Empieza el jugador 2</option></select>

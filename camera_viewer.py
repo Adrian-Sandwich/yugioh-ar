@@ -139,6 +139,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.analyze()
             elif route == '/analysis':
                 self.latest_analysis()
+            elif route.startswith('/playmat/print/'):
+                # Printable templates; generated on first request. Only known names are served.
+                name=route.rsplit('/',1)[-1]
+                allowed={f'tapete-jugador{p}{s}' for p in (1,2) for s in ('.png','-una-pieza.pdf','-hojas-carta.pdf')}
+                if name not in allowed: return self.reply(404,b'Not found','text/plain')
+                path=ROOT/'data/playmat/print'/name
+                if not path.exists():
+                    import subprocess,sys
+                    subprocess.run([sys.executable,str(ROOT/'playmat_print.py')],cwd=ROOT,check=True,capture_output=True)
+                self.reply(200,path.read_bytes(),'application/pdf' if name.endswith('.pdf') else 'image/png')
             elif route in ('/playmat','/duel'):
                 table=getattr(self.server,'table',None)
                 if table is None: return self.reply(404,b'Duel disabled (live camera only)','text/plain')
@@ -325,7 +335,13 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
             if table is not None:
                 # Only confirmed tracks reach the duel; provisional identities could be wrong.
                 # A duel bug must never stop recognition: log it and carry on.
-                try: table.feed([t for t in live.snapshot() if t.get('stable')])
+                try:
+                    if table.mode=='printed':
+                        # Printed mats: find their markers in this very frame (~7 ms at 1080p).
+                        import cv2,numpy as np
+                        grey=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_GRAYSCALE)
+                        if grey is not None: table.see_markers(grey,captured_at)
+                    table.feed([t for t in live.snapshot() if t.get('stable')])
                 except Exception: traceback.print_exc()
         for d in result['detections']:
             if d.get('sprite_ref') and getattr(server,'overlay',None) is not None:

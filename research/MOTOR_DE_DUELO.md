@@ -126,3 +126,25 @@ como identidad), así que "colocada boca abajo" la declara el jugador.
 
 Probado en Edge con un visor real y la escena de 9 cartas (calibración de un
 tapete, inicio, fases, LP, deshacer, 5 preguntas y una respuesta aplicada).
+
+## Plantilla impresa con marcadores (27/09/2026)
+
+Propuesta del usuario (como los demos de duelo en AR): en lugar de marcar
+esquinas, una plantilla predefinida que se imprime, con las zonas dibujadas
+para que el jugador sepa dónde va cada carta, e invariante al movimiento.
+`playmat_print.py` genera una por jugador (678 × 318 mm; PDF en una pieza o en
+6 hojas carta con solape, y PNG): esquinas en "L" y etiquetas por zona (CAMPO,
+M1-M5, CEMENTERIO, MAZO EXTRA, MT1-MT5, MAZO) y un marcador ArUco
+(DICT_4X4_50) en cada esquina, fuera de las zonas: ids 0-3 el jugador 1, 4-7
+el jugador 2. `detect_mats` encuentra los marcadores en cada análisis (7 ms a
+1080p) y ajusta la homografía con las cuatro esquinas de cada marcador en
+milímetros conocidos. Hacen falta al menos dos marcadores: con uno solo la
+extrapolación desplazó una carta una zona entera en la prueba. Mientras una
+mano tapa los marcadores se conserva la última posición buena 5 s.
+
+En el visor es el modo "Plantilla impresa (automática)" (sin clics; los
+enlaces a los PDF están en la sección del duelo). Los modos con clics quedan
+para tapetes propios sin marcadores. Pruebas: `qa_playmat_print.py` (56 casos
+de zona y orientación en perspectiva, dos marcadores bastan, uno no, cámara
+movida) y en Edge con un visor real: los dos tapetes impresos se ven sin
+clics y las tres cartas puestas generan exactamente sus tres preguntas.

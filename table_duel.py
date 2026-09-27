@@ -19,7 +19,10 @@ from playmat import Mat, ZoneTracker, tcg_layout
 
 ROOT = Path(__file__).resolve().parent
 FOLDER = ROOT / 'data/playmat'
-MODES = {'two': 'Dos tapetes frente a frente', 'one': 'Un tapete'}
+MODES = {'printed': 'Plantilla impresa (automática)', 'two': 'Dos tapetes frente a frente', 'one': 'Un tapete'}
+# Printed mats (playmat_print) are found on every analysis; while a hand covers
+# their markers the last good position is kept this long.
+MARKER_HOLD_S = 5.
 ZONE_NAMES = {'field': 'Zona de Campo', 'graveyard': 'Cementerio', 'extra_deck': 'Mazo Extra', 'deck': 'Mazo'}
 # Answers a player can give to each kind of discrepancy, per zone family.
 ACTIONS = {
@@ -62,6 +65,11 @@ class TableDuel:
     # --- calibration -----------------------------------------------------------
     def _set_mats(self, mode, mats, image_size):
         if mode not in MODES: raise ValueError(f'Modo desconocido: {mode!r}')
+        if mode == 'printed':
+            # No corners: the mats come from the markers of each analysed frame.
+            self.mode = mode; self.mats = []; self.image_size = image_size; self.found = {}
+            self.tracker = ZoneTracker([], stable=self.stable); self.observed.clear(); self.missing.clear()
+            return
         players = sorted(m['player'] for m in mats)
         if players != ([0, 1] if mode == 'two' else [0]):
             raise ValueError('Dos tapetes: un tapete por jugador (0 y 1). Un tapete: sólo el jugador 0.')
@@ -73,21 +81,33 @@ class TableDuel:
         with self.lock:
             self._set_mats(mode, mats, image_size)
             self.folder.mkdir(parents=True, exist_ok=True)
-            (self.folder / 'calibration.json').write_text(json.dumps({'mode': mode, 'image_size': image_size, 'layout': 'tcg-single',
-                'mats': [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}, indent=2), encoding='utf-8')
+            (self.folder / 'calibration.json').write_text(json.dumps({'mode': mode, 'image_size': image_size, 'layout': 'printed' if mode == 'printed' else 'tcg-single',
+                'mats': [] if mode == 'printed' else [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}, indent=2), encoding='utf-8')
             return self.overlay()
+
+    def see_markers(self, image, now=None):
+        """Printed mode: locate the mats in this frame; keep a mat MARKER_HOLD_S after its markers vanish."""
+        import time
+        from playmat_print import detect_mats
+        with self.lock:
+            if self.mode != 'printed': return
+            now = time.time() if now is None else now
+            for player, mat in detect_mats(image).items(): self.found[player] = (mat, now)
+            self.found = {p: (m, t) for p, (m, t) in self.found.items() if now - t <= MARKER_HOLD_S}
+            self.mats = [m for m, _ in sorted(self.found.values(), key=lambda v: v[0].player)]
+            self.tracker.mats = self.mats
 
     def overlay(self):
         """Zone outlines in image pixels, for drawing over the video."""
         with self.lock:
             zones = []
             for mat in self.mats:
-                for name, x0, y0, x1, y1 in tcg_layout():
+                for name, x0, y0, x1, y1 in mat.layout:
                     if name.startswith('extra_monster') and mat.player != 0: continue  # shared: drawn once
                     zones.append({'player': mat.player, 'zone': name, 'label': zone_label(name),
                                   'polygon': mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).round(1).tolist()})
             return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones,
-                    'mats': [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}
+                    'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in self.mats]}
 
     # --- camera ----------------------------------------------------------------
     def feed(self, tracks):
@@ -186,4 +206,4 @@ class TableDuel:
             players = [{k: ps[k] for k in ('name', 'lp', 'hand', 'deck', 'extra_deck')} | {'graveyard': len(ps['graveyard']), 'banished': len(ps['banished'])} for ps in st['players']]
             return {'started': st['started'], 'turn': st['turn'], 'current': st['current'], 'phase': st['phase'], 'battle_step': st['battle_step'],
                     'result': st['result'], 'players': players, 'board': board, 'questions': questions, 'pending_attack': st['pending_attack'],
-                    'calibrated': bool(self.mats), 'mode': self.mode, 'events': len(self.duel.log)}
+                    'calibrated': self.mode is not None, 'mode': self.mode, 'mats_seen': [m.player for m in self.mats], 'events': len(self.duel.log)}

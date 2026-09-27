@@ -33,6 +33,11 @@ DINOv2 sin ajustar queda muy por debajo (recall 71–76 % con 0 falsas frente a
   y etiquetadas a mano** (cuatro esquinas), no con capturas propias: cada amigo
   trae su mazo y tapete y la luz cambia mucho. Sin sesión propia de prueba, una
   parte de las fotos descargadas se reserva sólo para evaluar.
+  Primera fuente sin cuenta: Openverse (`research/download_openverse.py`), 438
+  imágenes con licencia CC encontradas, 177 descargadas con licencia y autor en
+  `downloads/internet-photos/openverse/manifest.json` (260 menores de 480 px).
+  Mezclan duelos, torneos, revistas y fan art: las que no tengan cartas quedan
+  como negativos. Roboflow Universe queda pendiente de la clave de API.
 - **Plan adicional:** generador sintético a escala (cartas del catálogo sobre
   fondos variados, perspectiva, luz, fundas, foil, manos) para complementar.
 - **Plan adicional:** FTS5 con trigramas para la búsqueda de texto del registro

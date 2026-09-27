@@ -108,7 +108,9 @@ function drawCards(context,cards,options={}){
     const approximate=card.geometry_status&&!['contour_refined','tracked'].includes(card.geometry_status);
     context.save();context.setLineDash(approximate?[12,8]:[]);
     context.beginPath();card.corners.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.strokeStyle=cut&&options.hints?'#ff8f8f':approximate?'#ffd166':'#80ffbc';context.lineWidth=5;context.stroke();context.restore();
-    const label=card.name||(cut&&options.hints?'Carta cortada por el borde: muévela dentro del cuadro':null);
+    // Spanish name plus the English one when it differs (most TCG copies are printed in English).
+    const en=card.card_id&&typeof sheets!=='undefined'?sheets.get(card.card_id)?.name_en:null;
+    const label=card.name?(en&&en!==card.name?`${card.name} · ${en}`:card.name):(cut&&options.hints?'Carta cortada por el borde: muévela dentro del cuadro':null);
     if(!label)continue;
     const x=Math.max(0,Math.min(...card.corners.map(p=>p[0]))),y=Math.max(32,Math.min(...card.corners.map(p=>p[1]))-10);
     context.font='bold 25px system-ui';context.fillStyle='#10141d';context.fillRect(x,y-29,context.measureText(label).width+16,36);context.fillStyle=cut&&!card.name?'#ff8f8f':'#80ffbc';context.fillText(label,x+8,y);
@@ -510,12 +512,24 @@ function drawTableOverlay(context){
 }
 
 function calibrationStep(){
-  if(!calibration){$d('#calibrationHelp').textContent=playmat?.mode?`Tapetes calibrados (${playmat.modes[playmat.mode]}). Si mueves la cámara, vuelve a calibrar.`:'Sin calibrar: marca las esquinas de los tapetes para que las cartas se asignen a zonas.';return;}
+  if(!calibration){
+    const seen=(playmat?.mats||[]).map(m=>`jugador ${m.player+1} (${m.markers} marcadores)`).join(', ');
+    $d('#calibrationHelp').textContent=playmat?.mode==='printed'?(seen?`Plantilla impresa: veo ${seen}. Puedes mover la cámara o el tapete.`:'Plantilla impresa: no veo ningún tapete. Deja a la vista al menos 2 de sus 4 marcadores.'):
+      playmat?.mode?`Tapetes calibrados (${playmat.modes[playmat.mode]}). Si mueves la cámara, vuelve a calibrar.`:'Sin tapete: elige un modo. La plantilla impresa no necesita calibración.';
+    return;}
   const player=calibration.mats.length,who=calibration.mode==='one'?'tu tapete':`el tapete del jugador ${player+1} (${$d('#name'+player).value})`;
   $d('#calibrationHelp').textContent=`Haz clic en ${who}, esquina ${calibration.points.length+1} de 4: ${CORNERS[calibration.points.length]}, como lo ve ese jugador sentado.`;
 }
 
-$d('#calibrate').onclick=()=>{calibration={mode:$d('#matMode').value,mats:[],points:[]};$d('#cancelCalibration').hidden=false;zonesVersion++;calibrationStep();frame.style.cursor='crosshair';};
+$d('#calibrate').onclick=async()=>{
+  if($d('#matMode').value==='printed'){
+    // Printed templates need no clicks: the markers are found on every analysis.
+    try{const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'printed',mats:[],image_size:[frame.width,frame.height]})});
+      const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo activar');playmat=data;zonesVersion++;duelMessage('Plantilla impresa activada: coloca los tapetes con sus marcadores a la vista.');}
+    catch(e){duelMessage(e.message,true);}
+    calibrationStep();return;
+  }
+  calibration={mode:$d('#matMode').value,mats:[],points:[]};$d('#cancelCalibration').hidden=false;zonesVersion++;calibrationStep();frame.style.cursor='crosshair';};
 $d('#cancelCalibration').onclick=()=>{calibration=null;$d('#cancelCalibration').hidden=true;frame.style.cursor='';zonesVersion++;calibrationStep();};
 frame.addEventListener('click',async event=>{
   if(!calibration)return;
@@ -619,7 +633,8 @@ async function refreshDuel(){
     const r=await fetch('/duel',{cache:'no-store'});
     if(r.status===404){$d('#duel').hidden=true;return;}   // demo with a saved capture: no duel
     $d('#duel').hidden=false;renderDuel(await r.json());
-    if(!playmat){const m=await fetch('/playmat');if(m.ok){playmat=await m.json();zonesVersion++;calibrationStep();}}
+    // Printed mats move with the camera: refresh their outline every poll (about once a second).
+    if((!playmat||playmat.mode==='printed')&&!calibration){const m=await fetch('/playmat');if(m.ok){const next=await m.json();if(JSON.stringify(next)!==JSON.stringify(playmat)){playmat=next;zonesVersion++;}calibrationStep();}}
   }catch(e){}
   finally{setTimeout(refreshDuel,800);}
 }
