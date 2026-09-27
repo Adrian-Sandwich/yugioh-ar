@@ -119,17 +119,24 @@ Reconstrucción sin red (`research/tcgplayer_reconstruct.py`):
    código leído si el registro lo conoce; las lecturas no verificadas quedan
    como evidencia (`number_read_unverified`), fieles a la regla de no corregir.
 
-Resultado (`qa/tcgplayer-sample/reconstruct.json`, con el rastreo lento aún
-rellenando metadatos exactos de fondo):
+Resultado final (`qa/tcgplayer-sample/reconstruct.json`, 27/09/2026, con el
+rastreo por sets completo: 613 de 613 sets, 46,325 productos con metadatos
+exactos de la búsqueda):
 
 | | Productos |
 |---|---|
 | Total en el sitemap | 47,824 |
 | Escaneos válidos en disco | 46,058 (1,766 sin imagen en el CDN) |
-| Set identificado | 45,279 |
-| Carta identificada (nombre o passcode leído) | 43,148 |
-| Número de impresión resuelto | 36,440 (búsqueda 11,934 · registro 21,232 · escaneo 3,274) |
-| Código leído que contradice al registro | 250 (conservados como conflicto) |
+| Set identificado | 47,737 |
+| Carta identificada (nombre o passcode leído) | 45,901 |
+| Número de impresión resuelto | 46,362 (búsqueda 46,208 · registro 115 · escaneo 39) |
+| Sin número | 47, más 17 ambiguos entre varias impresiones |
+| Código leído sin verificar (conservado como evidencia) | 12 |
+
+Antes de completar el rastreo, la reconstrucción sin red ya resolvía 36,440
+números (búsqueda 11,934 · registro 21,232 · escaneo 3,274) con 250 lecturas
+en conflicto con el registro: el rastreo sustituyó casi todas las inferencias
+por el dato exacto de TCGplayer.
 
 Lo que no se recupera sin la API: ediciones ofertadas y precios, irrelevantes
 para el reconocimiento. El rastreo por sets continúa en segundo plano y va
