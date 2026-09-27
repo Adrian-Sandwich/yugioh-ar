@@ -127,6 +127,18 @@ como identidad), así que "colocada boca abajo" la declara el jugador.
 Probado en Edge con un visor real y la escena de 9 cartas (calibración de un
 tapete, inicio, fases, LP, deshacer, 5 preguntas y una respuesta aplicada).
 
+## Vista de duelo separada (27/09/2026)
+
+El duelo tiene su propia página, `http://127.0.0.1:8765/duelo` (`web/duel.html`,
+`web/duel.js`): el vídeo en vivo con el tablero, las cartas (nombre en español
+e inglés) y los monstruos AR, y a un lado el tablero, el duelo y las preguntas.
+Sin el último fotograma analizado, OCR, reflejos ni textos de diagnóstico: eso
+queda en el visor de siempre (`/`), que ya no incluye el duelo y enlaza a la
+vista nueva. El dibujo de sprites (WebGL) se comparte en `web/ar.js`. La vista
+de duelo pide resultados a `/analysis` para que el servidor siga analizando
+aunque el visor de diagnóstico esté cerrado. Las Zonas de Monstruo Extra sólo
+ofrecen Invocación Especial.
+
 ## Tablero virtual sobre el vídeo (27/09/2026)
 
 Propuesta del usuario: un tablero siempre dibujado sobre el vídeo, sin tapete

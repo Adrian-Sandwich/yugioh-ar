@@ -29,22 +29,6 @@
   .passcode-card code { font: bold 25px monospace; color: #8de5ca; }
   .passcode-card p { overflow-wrap: anywhere; }
   .passcode-card a { color: #8de5ca; }
-  #duel { border-top: 1px solid #354158; margin-top: 25px; padding-top: 10px; }
-  #duel select, #duel input { padding: 9px; border-radius: 7px; border: 1px solid #40526b; background: #0c1320; color: #e9eef7; margin: 6px 6px 0 0; }
-  #duel input[type=number] { width: 90px; } #duel input[type=text] { width: 130px; }
-  #duel button { margin: 8px 8px 0 0; padding: 9px 14px; }
-  #duel .secondary { background: #2a3950; color: #e9eef7; }
-  #duelPlayers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-  .player { background: #192335; border: 1px solid #40526b; border-radius: 12px; padding: 12px; }
-  .player.current { border-color: #8de5ca; }
-  .player .lp { font: bold 30px system-ui; color: #8de5ca; }
-  .question { background: #2b2412; border: 1px solid #b8923a; border-radius: 12px; padding: 12px; margin-top: 10px; }
-  .question label { margin-right: 10px; }
-  #duelMessage { min-height: 22px; }
-  #duelMessage.error { color: #ff8f8f; }
-  #calibrationHelp { font-weight: 650; color: #ffd166; }
-  #virtualControls label { display: inline-block; margin: 6px 14px 0 0; }
-  #virtualControls input[type=range] { vertical-align: middle; width: 150px; }
   #tableCards { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 14px; }
   .sheet { background: #192335; border: 1px solid #40526b; border-radius: 12px; padding: 14px; }
   .sheet h3 { margin: 0 0 2px; font-size: 19px; } .sheet .en { margin: 0 0 8px; font-size: 13px; }
@@ -69,57 +53,16 @@
   <button id="save" disabled>Guardar fotograma</button>
   <label><input type="checkbox" id="recognize" disabled> Reconocer carta</label>
   <label><input type="checkbox" id="ar" disabled> Mostrar sprites AR</label>
-  <p><a href="http://127.0.0.1:8768" style="color:#8de5ca">Revisar catálogo y piloto</a></p>
+  <p><a href="/duelo" style="color:#8de5ca;font-weight:700">Abrir la vista de duelo</a> · <a href="http://127.0.0.1:8768" style="color:#8de5ca">Revisar catálogo y piloto</a></p>
   <p id="method"></p>
   <p>Contorno verde: bordes ajustados. Contorno amarillo discontinuo: caja aproximada, sin recorte de texto. El ajuste de bordes es experimental.</p>
   <p id="detection">Preparando cámara…</p>
   <p id="source"></p>
-  <section id="duel" hidden>
-    <h2>Duelo en la mesa</h2>
-    <p>La cámara nunca invoca ni mueve cartas por su cuenta: cuando algo cambia en el tapete, aquí aparece una pregunta y tú confirmas qué pasó.</p>
-    <div>
-      <select id="matMode"><option value="virtual-two">Tablero virtual · 2 jugadores</option><option value="virtual-one">Tablero virtual · 1 jugador</option><option value="printed">Plantilla impresa con marcadores (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics en esquinas)</option><option value="one">Un tapete propio (clics en esquinas)</option></select>
-      <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
-      <label><input type="checkbox" id="showZones" checked> Mostrar zonas sobre el vídeo</label>
-    </div>
-    <div id="virtualControls" hidden>
-      <p>Mueve los controles hasta que el tablero dibujado coincida con la mesa, y fíjalo. Cada jugador pone sus cartas dentro de los recuadros que ve en la pantalla.</p>
-      <label>Horizontal <input type="range" id="v-cx" min="0.1" max="0.9" step="0.005"></label>
-      <label>Vertical <input type="range" id="v-cy" min="0.1" max="0.9" step="0.005"></label>
-      <label>Tamaño <input type="range" id="v-width" min="0.2" max="1.4" step="0.005"></label>
-      <label>Inclinación <input type="range" id="v-tilt" min="0.3" max="1" step="0.005"></label>
-      <label>Profundidad <input type="range" id="v-depth" min="0.3" max="2" step="0.01"></label>
-      <label>Giro <input type="range" id="v-rotation" min="-45" max="45" step="0.5"></label>
-      <label id="v-gap-label">Separación <input type="range" id="v-gap" min="0" max="0.6" step="0.01"></label>
-      <button id="fixBoard">Fijar tablero</button>
-    </div>
-    <p id="calibrationHelp"></p>
-    <p>Plantillas para imprimir (con marcadores; la cámara las encuentra sola aunque se mueva): jugador 1
-      <a href="/playmat/print/tapete-jugador1-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> ·
-      <a href="/playmat/print/tapete-jugador1-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a>; jugador 2
-      <a href="/playmat/print/tapete-jugador2-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> ·
-      <a href="/playmat/print/tapete-jugador2-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a>. Imprime al 100 % (sin ajustar a la página).</p>
-    <div id="duelSetup">
-      <input type="text" id="name0" value="Jugador 1" aria-label="Nombre del jugador 1"><input type="text" id="name1" value="Jugador 2" aria-label="Nombre del jugador 2">
-      <select id="starting"><option value="0">Empieza el jugador 1</option><option value="1">Empieza el jugador 2</option></select>
-      <button id="startDuel">Empezar duelo</button>
-    </div>
-    <p id="duelPhase"></p>
-    <div id="duelPlayers"></div>
-    <div id="duelControls" hidden>
-      <button id="nextPhase">Siguiente fase</button><button id="endTurn">Terminar turno</button><button id="drawCard" class="secondary">Robar carta</button>
-      <select id="lpPlayer"><option value="0">Jugador 1</option><option value="1">Jugador 2</option></select><input type="number" id="lpDelta" value="-500" step="100" aria-label="Cambio de LP"><button id="applyLp" class="secondary">Cambiar LP</button>
-      <button id="undo" class="secondary">Deshacer</button><button id="resetDuel" class="secondary">Terminar y reiniciar</button>
-    </div>
-    <div id="battle" hidden><select id="attacker" aria-label="Monstruo atacante"></select><select id="target" aria-label="Objetivo del ataque"></select><button id="declareAttack">Declarar ataque</button><button id="resolveBattle" class="secondary">Resolver batalla</button></div>
-    <p id="duelMessage" role="status"></p>
-    <div id="duelQuestions"></div>
-    <div id="duelBoard"></div>
-  </section>
   <section id="table"><h2>Cartas en la mesa</h2><p id="tableStatus">Las fichas aparecen cuando una carta queda reconocida. Datos del registro local: tipo, ATK/DEF, efecto y legalidad.</p><div id="tableCards"></div></section>
   <section id="quality"><h2>Reflejos y capturas por carta</h2><p>Compara la captura actual (izquierda) con una reciente con menos zonas blancas saturadas (derecha). Una zona blanca también puede ser parte del dibujo: el aviso es orientativo.</p><p id="qualityStatus">Esperando un análisis.</p><div id="qualityCards"></div></section>
   <section id="passcodes"><h2>Lectura del nombre y del identificador</h2><p>El OCR lee el nombre y el serial por separado. Mostramos el texto observado, las coincidencias y los conflictos; las sugerencias no confirman la identidad.</p><p id="passcodeStatus" role="status">Preparando lectores de texto…</p><div id="passcodeCards"></div></section>
 </main>
+<script src="/ar.js"></script>
 <script src="/camera.js"></script>
 </html>
 

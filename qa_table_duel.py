@@ -70,6 +70,12 @@ def main():
         table.act({'type': 'send_to_graveyard', 'player': 0, 'copy_id': 1})
         view = table.view(); assert view['players'][0]['graveyard'] == 1 and not any(c['zone'] == 'monster:1' for c in view['board'])
         checks.append('card leaving the zone asks; graveyard answer applied')
+        # An Extra Monster Zone only offers Special Summon.
+        feed(table, [kuriboh, track(table, 0, 4, 'dm', *center('extra_monster:0'))])
+        q = [x for x in table.view()['questions'] if x['zone'] == 'extra_monster:0']
+        assert len(q) == 1 and [o['type'] for o in q[0]['options']] == ['special_summon'], q
+        feed(table, [kuriboh])
+        checks.append('Extra Monster Zone: Special Summon only')
         # A monster seen in a Spell & Trap Zone gets no answers, only a hint to check the mat.
         feed(table, [track(table, 0, 3, 'dm', *center('spell:2'))])
         q = [x for x in table.view()['questions'] if x['zone'] == 'spell:2']

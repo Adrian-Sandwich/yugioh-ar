@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yu-Gi-Oh! · Duelo</title>
+<style>
+  body { margin: 0; background: #0b0f17; color: #e9eef7; font: 15px system-ui; }
+  header { display: flex; align-items: center; gap: 16px; padding: 10px 18px; border-bottom: 1px solid #243047; }
+  header h1 { font-size: 20px; margin: 0; }
+  header a { color: #8de5ca; margin-left: auto; }
+  main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 16px; padding: 14px 18px; align-items: start; }
+  @media(max-width:1000px) { main { grid-template-columns: 1fr; } }
+  .screen { background: #05070c; border-radius: 12px; overflow: hidden; display: grid; place-items: center; min-height: 240px; }
+  canvas { display: block; max-width: 100%; max-height: 82vh; width: auto; height: auto; }
+  .bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 8px; color: #aebbd0; }
+  aside section { background: #121a28; border: 1px solid #2a3950; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+  aside h2 { font-size: 16px; margin: 0 0 8px; }
+  p { color: #aebbd0; margin: 6px 0; }
+  select, input { padding: 7px; border-radius: 7px; border: 1px solid #40526b; background: #0c1320; color: #e9eef7; margin: 4px 4px 0 0; }
+  input[type=number] { width: 80px; } input[type=text] { width: 110px; }
+  button { margin: 6px 6px 0 0; padding: 8px 12px; border-radius: 8px; border: 0; cursor: pointer; background: #8de5ca; color: #11281f; font-weight: 650; }
+  button:disabled { opacity: .45; cursor: default; }
+  .secondary { background: #2a3950; color: #e9eef7; }
+  #virtualControls label { display: block; margin: 4px 0; }
+  #virtualControls input[type=range] { width: 60%; vertical-align: middle; }
+  #calibrationHelp { font-weight: 650; color: #ffd166; }
+  #duelPlayers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .player { background: #192335; border: 1px solid #40526b; border-radius: 10px; padding: 8px; }
+  .player.current { border-color: #8de5ca; }
+  .player h3 { margin: 0; font-size: 15px; }
+  .player .lp { font: bold 26px system-ui; color: #8de5ca; }
+  .player p { font-size: 12px; }
+  .question { background: #2b2412; border: 1px solid #b8923a; border-radius: 10px; padding: 10px; margin-top: 8px; }
+  .question label { margin-right: 10px; }
+  #duelMessage { min-height: 20px; }
+  #duelMessage.error { color: #ff8f8f; }
+  #duelBoard p { font-size: 13px; margin: 3px 0; }
+  details summary { cursor: pointer; color: #aebbd0; }
+</style>
+<header>
+  <h1>Yu-Gi-Oh! · Duelo en la mesa</h1>
+  <span id="videoStatus">Conectando…</span>
+  <a href="/">Visor de diagnóstico</a>
+</header>
+<main>
+  <div>
+    <div class="screen"><canvas id="frame" width="960" height="540" aria-label="Mesa en vivo con el tablero y las cartas reconocidas"></canvas></div>
+    <div class="bar">
+      <label><input type="checkbox" id="showZones" checked> Mostrar tablero</label>
+      <label><input type="checkbox" id="ar" checked> Monstruos AR</label>
+      <span>La cámara nunca invoca ni mueve cartas por su cuenta: cuando algo cambia en el tablero, a la derecha aparece una pregunta.</span>
+    </div>
+  </div>
+  <aside id="duel">
+    <section>
+      <h2>Tablero</h2>
+      <select id="matMode"><option value="virtual-two">Tablero virtual · 2 jugadores</option><option value="virtual-one">Tablero virtual · 1 jugador</option><option value="printed">Plantilla impresa con marcadores (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics en esquinas)</option><option value="one">Un tapete propio (clics en esquinas)</option></select>
+      <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
+      <div id="virtualControls" hidden>
+        <p>Mueve los controles hasta que el tablero dibujado coincida con la mesa, y fíjalo.</p>
+        <label>Horizontal <input type="range" id="v-cx" min="0.1" max="0.9" step="0.005"></label>
+        <label>Vertical <input type="range" id="v-cy" min="0.1" max="0.9" step="0.005"></label>
+        <label>Tamaño <input type="range" id="v-width" min="0.2" max="1.4" step="0.005"></label>
+        <label>Inclinación <input type="range" id="v-tilt" min="0.3" max="1" step="0.005"></label>
+        <label>Profundidad <input type="range" id="v-depth" min="0.3" max="2" step="0.01"></label>
+        <label>Giro <input type="range" id="v-rotation" min="-45" max="45" step="0.5"></label>
+        <label id="v-gap-label">Separación <input type="range" id="v-gap" min="0" max="0.6" step="0.01"></label>
+        <button id="fixBoard">Fijar tablero</button>
+      </div>
+      <p id="calibrationHelp"></p>
+      <details><summary>Plantillas para imprimir</summary>
+        <p>Con marcadores: la cámara las encuentra sola aunque se mueva. Imprime al 100 %.</p>
+        <p>Jugador 1: <a href="/playmat/print/tapete-jugador1-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> · <a href="/playmat/print/tapete-jugador1-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a></p>
+        <p>Jugador 2: <a href="/playmat/print/tapete-jugador2-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> · <a href="/playmat/print/tapete-jugador2-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a></p>
+      </details>
+    </section>
+    <section>
+      <h2>Duelo</h2>
+      <div id="duelSetup">
+        <input type="text" id="name0" value="Jugador 1" aria-label="Nombre del jugador 1"><input type="text" id="name1" value="Jugador 2" aria-label="Nombre del jugador 2">
+        <select id="starting"><option value="0">Empieza el jugador 1</option><option value="1">Empieza el jugador 2</option></select>
+        <button id="startDuel">Empezar duelo</button>
+      </div>
+      <p id="duelPhase"></p>
+      <div id="duelPlayers"></div>
+      <div id="duelControls" hidden>
+        <button id="nextPhase">Siguiente fase</button><button id="endTurn">Terminar turno</button><button id="drawCard" class="secondary">Robar</button>
+        <div><select id="lpPlayer"><option value="0">Jugador 1</option><option value="1">Jugador 2</option></select><input type="number" id="lpDelta" value="-500" step="100" aria-label="Cambio de LP"><button id="applyLp" class="secondary">Cambiar LP</button></div>
+        <button id="undo" class="secondary">Deshacer</button><button id="resetDuel" class="secondary">Terminar y reiniciar</button>
+      </div>
+      <div id="battle" hidden><select id="attacker" aria-label="Monstruo atacante"></select><select id="target" aria-label="Objetivo del ataque"></select><button id="declareAttack">Declarar ataque</button><button id="resolveBattle" class="secondary">Resolver batalla</button></div>
+      <p id="duelMessage" role="status"></p>
+    </section>
+    <section><h2>Preguntas</h2><div id="duelQuestions"><p>Sin preguntas pendientes.</p></div></section>
+    <section><div id="duelBoard"><p>Nada en el campo todavía.</p></div></section>
+  </aside>
+</main>
+<script src="/ar.js"></script>
+<script src="/duel.js"></script>
+</html>

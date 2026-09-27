@@ -230,6 +230,9 @@ class TableDuel:
                 card_id = p.get('card_id') or self.cards.get(p.get('copy_id'))
                 facts = self.sheet(card_id) if self.sheet and card_id else None
                 hint = None
+                # Extra Monster Zones are reached only by Special Summon (Link, Fusion, Synchro, Xyz...).
+                if p['zone'].startswith('extra_monster:'):
+                    options = [o for o in options if o[0] == 'special_summon']
                 # The engine checks structure, not card types: a monster (other than a Pendulum
                 # Scale) in a Spell & Trap Zone, or a Spell/Trap in a Monster Zone, is almost
                 # always a stale calibration or a misplaced card, so no answer is offered.

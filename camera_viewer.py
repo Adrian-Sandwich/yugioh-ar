@@ -94,8 +94,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if route == "/":
                 self.reply(200, (ROOT / "web" / "camera.html").read_bytes(), "text/html; charset=utf-8")
-            elif route == '/camera.js':
-                self.reply(200,(ROOT/'web/camera.js').read_bytes(),'text/javascript; charset=utf-8')
+            elif route in ('/camera.js','/duel.js','/ar.js'):
+                self.reply(200,(ROOT/'web'/route[1:]).read_bytes(),'text/javascript; charset=utf-8')
+            elif route == '/duelo':
+                # Duel view: video, board and duel panel only; / stays the diagnostic viewer.
+                self.reply(200,(ROOT/'web/duel.html').read_bytes(),'text/html; charset=utf-8')
             elif route == '/pose-annotator':
                 self.reply(200,(ROOT/'web/pose_annotator.html').read_bytes(),'text/html; charset=utf-8')
             elif route == "/snapshot":
