@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "frames_received": 43,
+  "frames_received": 7,
   "reconnects_observed": 2,
   "checks": [
     "frames parsed across chunk boundaries",

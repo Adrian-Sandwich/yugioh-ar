@@ -1,4 +1,4 @@
-"""CPU research backend: DRAW2 OBB, classifier and pre-classifier embeddings.
+"""Research backend: DRAW2 OBB, classifier and pre-classifier embeddings (CPU, or CUDA via YUGIOH_ONNX_DEVICE).
 
 Uses the downloaded DRAW2 Small weights. Thresholds are experimental, not
 calibrated confidence. No training or model weight updates are performed.
@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import cv2
@@ -41,18 +42,56 @@ REUSE_MAX_AGE_S=8.
 REUSE_MIN_IOU=.75
 ART_PROMOTION_MAX_AGE_S=4.
 ART_PROMOTION_MIN_IOU=.5
+# Detector OBB against a tracked quadrilateral: an upright rectangle around a
+# card in mild perspective still overlaps it well above this.
+TRACKED_GEOMETRY_MIN_IOU=.75
+UNRESOLVED_RETRY_S=2.
+UNRESOLVED_MIN_IOU=.85
+# Separate from card_geometry.POOL, whose workers this thread waits on.
+EVIDENCE=ThreadPoolExecutor(max_workers=1,thread_name_prefix='evidence')
+
+
+# Execution device: 'cpu' (default) or 'cuda' (needs onnxruntime-gpu, see
+# requirements-gpu.txt). The int8 encoder only runs well on CPU; on CUDA the
+# default is the float model from research/dequantize_encoder.py, which has its
+# own index (embeddings-<variant>.npy) and must be calibrated separately.
+DEVICE=os.environ.get('YUGIOH_ONNX_DEVICE','cpu').lower()
+ENCODER_VARIANT=os.environ.get('YUGIOH_ENCODER') or ('int8' if DEVICE=='cpu' else 'fp16')
+
+
+def providers():
+    if DEVICE=='cpu': return ['CPUExecutionProvider']
+    if DEVICE!='cuda': raise ValueError(f'YUGIOH_ONNX_DEVICE={DEVICE!r}: use cpu or cuda')
+    if hasattr(ort,'preload_dlls'): ort.preload_dlls()  # CUDA/cuDNN from the nvidia-* wheels
+    # Heuristic cuDNN search: batch size changes with the number of cards and an
+    # exhaustive search per new shape stalls the first frames that see it.
+    return [('CUDAExecutionProvider',{'cudnn_conv_algo_search':'HEURISTIC'}),'CPUExecutionProvider']
 
 
 def session(path,threads=None):
     options=ort.SessionOptions()
     options.intra_op_num_threads=int(threads or os.environ.get('YUGIOH_ONNX_THREADS') or 4)
     options.inter_op_num_threads=1
-    return ort.InferenceSession(str(path),sess_options=options,providers=['CPUExecutionProvider'])
+    result=ort.InferenceSession(str(path),sess_options=options,providers=providers())
+    if DEVICE=='cuda' and 'CUDAExecutionProvider' not in result.get_providers():
+        print(f'WARNING: CUDA unavailable for {Path(path).name}; running on CPU',flush=True)
+    return result
 
 
-def tensor(image,size=224):
-    rgb=cv2.cvtColor(cv2.resize(image,(size,size)),cv2.COLOR_BGR2RGB)
-    return np.ascontiguousarray((rgb.astype(np.float32)/127.5-1).transpose(2,0,1)[None])
+def index_paths(variant=None):
+    """Pilot index files for an encoder variant; int8 keeps the historical names."""
+    variant=variant or ENCODER_VARIANT
+    stem='embeddings' if variant=='int8' else f'embeddings-{variant}'
+    return PILOT/f'{stem}.npy',PILOT/f'{stem}.json'
+
+
+IMAGENET_MEAN=np.float32([.485,.456,.406]);IMAGENET_STD=np.float32([.229,.224,.225])
+
+
+def tensor(image,size=224,normalization='draw2'):
+    rgb=cv2.cvtColor(cv2.resize(image,(size,size)),cv2.COLOR_BGR2RGB).astype(np.float32)
+    x=(rgb/255-IMAGENET_MEAN)/IMAGENET_STD if normalization=='imagenet' else rgb/127.5-1
+    return np.ascontiguousarray(x.transpose(2,0,1)[None])
 
 
 def quad_iou(a,b):
@@ -85,10 +124,26 @@ def with_features():
     return target
 
 
+def encoder_path(variant):
+    """int8/fp32/fp16: DRAW2 Small; any other name is a retrieval-only model in data/models (e.g. dinov2_vits14)."""
+    if variant=='int8': return with_features()
+    draw2=variant in ('fp32','fp16')
+    path=ROOT/(f'data/models/vit_small_features_{variant}.onnx' if draw2 else f'data/models/{variant}.onnx')
+    if not path.exists():
+        raise FileNotFoundError(f'{path} missing: run research/{"dequantize_encoder.py" if draw2 else "export_dinov2.py"}')
+    return path
+
+
 class Encoder:
-    def __init__(self):
-        self.model_path=with_features()
+    def __init__(self,variant=None):
+        self.variant=variant or ENCODER_VARIANT
+        self.model_path=encoder_path(self.variant)
         self.model=session(self.model_path)
+        manifest=self.model_path.with_suffix('.json')
+        self.normalization=json.loads(manifest.read_text()).get('preprocessing') if manifest.exists() else None
+        self.normalization='imagenet' if self.normalization=='imagenet' else 'draw2'
+        # Retrieval-only encoders have a single output and no classifier vocabulary.
+        self.retrieval_only=len(self.model.get_outputs())==1
         self.labels=json.loads((MODELS/'card_labels_yugiscan.json').read_text(encoding='utf-8'))
         self.mapping=json.loads((ROOT/'research/references-20260924/draw2-small-ygojson-map.json').read_text(encoding='utf-8'))
 
@@ -98,14 +153,15 @@ class Encoder:
     def predict_batch(self,images,*,classify=True):
         """One ONNX run for several crops; each result equals `predict` on that crop."""
         if not images: return []
-        blob=np.concatenate([tensor(image) for image in images],axis=0)
-        logits,features=self.model.run(None,{self.model.get_inputs()[0].name:blob})
+        blob=np.concatenate([tensor(image,normalization=self.normalization) for image in images],axis=0)
+        outputs=self.model.run(None,{self.model.get_inputs()[0].name:blob})
+        logits,features=(None,outputs[0]) if self.retrieval_only else outputs
         results=[]
         for row in range(len(images)):
             z=features[row].astype(np.float32);z/=max(np.linalg.norm(z),1e-12)
             # Retrieval uses only z. Do not softmax/sort/map the entire classifier
             # vocabulary when the caller will immediately discard that ranking.
-            if not classify:
+            if not classify or logits is None:
                 results.append(([],z));continue
             scores=np.exp(logits[row]-np.max(logits[row]));scores/=scores.sum()
             top=np.argsort(scores)[-5:][::-1]
@@ -165,9 +221,9 @@ def references_digest(catalog_path=PILOT/'catalog.json',enrolled_path=PILOT/'enr
     return digest.hexdigest()
 
 
-def build_index(catalog_path=PILOT/'catalog.json'):
+def build_index(catalog_path=PILOT/'catalog.json',encoder=None):
     entries=reference_entries(catalog_path)
-    encoder=Encoder();vectors=[];rows=[]
+    encoder=encoder or Encoder();vectors=[];rows=[]
     for i,entry in enumerate(entries):
         path=(Path(catalog_path).parent/entry['source']).resolve()
         image=cv2.imdecode(np.frombuffer(path.read_bytes(),np.uint8),cv2.IMREAD_COLOR)
@@ -176,25 +232,48 @@ def build_index(catalog_path=PILOT/'catalog.json'):
             'image_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'enrolled':bool(entry.get('enrolled'))})
         if (i+1)%10==0: print('INDEX',i+1,'/',len(entries),flush=True)
     out=Path(catalog_path).parent
-    np.save(out/'embeddings.npy',np.stack(vectors))
-    (out/'embeddings.json').write_text(json.dumps({'rows':rows,
+    vectors_path,metadata_path=index_paths(encoder.variant)
+    # Atomic replace: two viewers may rebuild after the same pilot change, and a
+    # reader must never load half a file. Vectors first, metadata (the digest) last.
+    suffix=f'.{os.getpid()}.tmp'
+    with open(out/(vectors_path.name+suffix),'wb') as f: np.save(f,np.stack(vectors))
+    os.replace(out/(vectors_path.name+suffix),out/vectors_path.name)
+    (out/(metadata_path.name+suffix)).write_text(json.dumps({'rows':rows,'encoder_variant':encoder.variant,
         'model_sha256':hashlib.sha256(encoder.model_path.read_bytes()).hexdigest(),
         'catalog_sha256':references_digest(catalog_path),
         'dimension':len(vectors[0]),'normalization':'L2','retrieval':'exact cosine','scope':'pilot plus enrolled photos; thresholds not calibrated'},indent=2))
+    os.replace(out/(metadata_path.name+suffix),out/metadata_path.name)
     print('INDEX DONE',len(rows),flush=True)
 
 
 class ResearchRecognizer:
-    def __init__(self,mode='embedding'):
+    def __init__(self,mode='embedding',rebuild=True):
         self.mode=mode;self.detector=Detector();self.encoder=Encoder()
-        if mode=='embedding':
-            self.vectors=np.load(PILOT/'embeddings.npy')
-            metadata=json.loads((PILOT/'embeddings.json').read_text())
-            if metadata['catalog_sha256']!=references_digest():
-                raise ValueError('Pilot changed; rebuild embeddings index')
-            if metadata['model_sha256']!=hashlib.sha256(self.encoder.model_path.read_bytes()).hexdigest():
-                raise ValueError('Encoder changed; rebuild embeddings index')
-            self.rows=metadata['rows']
+        self.model_sha=hashlib.sha256(self.encoder.model_path.read_bytes()).hexdigest()
+        if mode=='embedding': self.load_index(rebuild=rebuild)
+
+    def load_index(self,rebuild=True):
+        """Pilot index for this encoder; rebuilt when the pilot or the encoder changed.
+
+        Saving the pilot in the catalog rewrites catalog.json but not the index, so
+        a stale index is expected, not an error. `rebuild=False` keeps the old strict
+        behaviour for experiments that must not touch data/pilot.
+        """
+        vectors_path,metadata_path=index_paths(self.encoder.variant)
+        digest=references_digest()
+        def stale():
+            if not (vectors_path.exists() and metadata_path.exists()): return 'missing'
+            metadata=json.loads(metadata_path.read_text())
+            if metadata['catalog_sha256']!=digest: return 'pilot changed'
+            if metadata['model_sha256']!=self.model_sha: return 'encoder changed'
+            return None
+        reason=stale()
+        if reason:
+            if not rebuild: raise ValueError(f'{vectors_path.name}: {reason}; rebuild with YUGIOH_ENCODER={self.encoder.variant} python vision_onnx.py')
+            print(f'INDEX {self.encoder.variant}: {reason}; rebuilding',flush=True)
+            build_index(encoder=self.encoder)
+        metadata=json.loads(metadata_path.read_text())
+        self.vectors=np.load(vectors_path);self.rows=metadata['rows'];self.index_digest=metadata['catalog_sha256']
 
     def rank(self,z):
         """Top identities for one embedding: best reference per card_id, sorted."""
@@ -221,10 +300,29 @@ class ResearchRecognizer:
 
     def detect(self,image,reuse=()):
         started=time.perf_counter();result=[]
+        # Frame-wide edge evidence does not depend on the boxes: extract it while the detector runs.
+        evidence=EVIDENCE.submit(GeometryRefiner,image)
         boxes=self.detector.detect(image)
         geometry_started=time.perf_counter()
-        refiner=GeometryRefiner(image) if boxes else None
-        geometries=[refiner.refine(box['corners']) for box in boxes] if refiner else []
+        # A box over a fresh, stable track takes the tracker's corners: the tracker
+        # follows them at video rate (2-5 px) and refining a static card again cost
+        # 5-90 ms each on live frames. Status 'tracked' keeps OCR crops off; the track
+        # expires after REUSE_MAX_AGE_S and the card is then refined and encoded again.
+        tracked={}
+        for index,box in enumerate(boxes):
+            best=max(((quad_iou(box['corners'],t['corners']),t) for t in reuse if t.get('card_id')),key=lambda x:x[0],default=(0.,None))
+            if best[1] is not None and best[0]>=TRACKED_GEOMETRY_MIN_IOU: tracked[index]=best[1]
+        now=time.time();self.unresolved=[(q,t) for q,t in getattr(self,'unresolved',[]) if now-t<=UNRESOLVED_RETRY_S]
+        pending=[i for i in range(len(boxes)) if i not in tracked]
+        # Edge snapping just failed on (nearly) this box: skip only that fallback until the retry delay.
+        snap=[not any(quad_iou(boxes[i]['corners'],q)>=UNRESOLVED_MIN_IOU for q,_ in self.unresolved) for i in pending]
+        refiner=evidence.result()
+        refined=dict(zip(pending,refiner.refine_all([boxes[i]['corners'] for i in pending],snap=snap))) if pending else {}
+        for i,s in zip(pending,snap):
+            if s and refined[i]['geometry_status']=='unresolved': self.unresolved.append((np.float32(boxes[i]['corners']),now))
+        # Track corners are in card order (rotation applied); undo it so the common path below rolls them once.
+        geometries=[{'corners':np.roll(np.float32(tracked[i]['corners']),int(tracked[i].get('rotation',0))//90,axis=0).tolist(),
+                     'geometry_status':'tracked','geometry_source':'live_tracking'} if i in tracked else refined[i] for i in range(len(boxes))]
         geometry_ms=round((time.perf_counter()-geometry_started)*1000,1)
         minimum,margin_floor=ACCEPTANCE['embedding' if self.mode=='embedding' else 'classifier']
         points=[np.float32(g.get('corners',b['corners'])) for b,g in zip(boxes,geometries)]
@@ -292,15 +390,29 @@ class LiveRecognizer(ResearchRecognizer):
     """Explicit experimental opt-in for the viewer, retaining rejected candidates."""
     def __init__(self,mode='embedding'):
         super().__init__(mode)
+        self.load_references()
+        # Names of classifier identities outside the pilot. The catalog is read-only
+        # for this process, so entries stay valid until restart; the size bound only
+        # limits memory if the classifier drifts over its whole vocabulary.
+        self.outside_pilot={};self.outside_pilot_limit=2000
+
+    def pilot_signature(self):
+        return tuple(p.stat().st_mtime_ns if p.exists() else None for p in (PILOT/'catalog.json',PILOT/'enrolled.json'))
+
+    def load_references(self):
+        self.signature=self.pilot_signature()
         self.references=reference_entries()
         self.cards={};self.references_by_id={}
         for ref in self.references:
             self.cards.setdefault(ref['card_id'],ref)
             self.references_by_id.setdefault(ref['id'],ref)
-        # Names of classifier identities outside the pilot. The catalog is read-only
-        # for this process, so entries stay valid until restart; the size bound only
-        # limits memory if the classifier drifts over its whole vocabulary.
-        self.outside_pilot={};self.outside_pilot_limit=2000
+
+    def refresh_pilot(self):
+        """Pick up a pilot saved in the catalog (or new enrolled photos) without a restart."""
+        if self.pilot_signature()==self.signature: return False
+        if self.mode=='embedding': self.load_index()
+        self.load_references()
+        return True
 
     def outside_entry(self,card_id):
         # Classifier can recognize cards outside the pilot; resolve metadata once,
@@ -327,7 +439,9 @@ class LiveRecognizer(ResearchRecognizer):
     def analyze_jpeg(self,data,reuse=(),verified=()):
         image=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR)
         if image is None: raise ValueError('Invalid JPEG')
+        reloaded=self.refresh_pilot()
         result=self.detect(image,reuse=reuse)
+        result['pilot_reloaded']=reloaded
         result['candidates']=result['detections']
         result['art_promoted']=promote_by_art(result['candidates'],verified)
         result['detections']=[self.describe(c) for c in result['candidates'] if c['accepted']]

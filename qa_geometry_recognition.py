@@ -8,7 +8,8 @@ from passcode_ocr import ROOT
 
 class Unrefined:
     def __init__(self,image):pass
-    def refine(self,corners):return {'geometry_status':'unresolved'}
+    def refine(self,corners,snap=True):return {'geometry_status':'unresolved'}
+    def refine_all(self,boxes,snap=None):return [self.refine(b) for b in boxes]
 
 
 def main():

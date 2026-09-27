@@ -5,6 +5,9 @@ and from single-shot polling otherwise. Every frame advances the corner
 tracker (live_tracking.py); `/snapshot` carries the current tracks in an
 `X-Tracks` header so the browser draws names and sprites at video rate. The
 recognizer runs in a child process (inference_host.py) unless --no-isolate.
+With a stream, the server analyzes the newest frame as soon as the previous
+analysis ends (AnalysisLoop) and tabs long-poll /analysis; --no-server-loop
+returns to browser-paced POST /analyze.
 """
 
 import argparse
@@ -64,7 +67,7 @@ class Server(ThreadingHTTPServer):
     def __init__(self,*args,**kwargs):
         self.snapshots=SharedSnapshots()
         self.tracker=None;self.live_tracker=None;self.stream=None;self.overlay=None;self.passcode_worker=None
-        self.recognizer=None;self.fixture=None;self.mode='single-reference';self.last_tracked_at=0.
+        self.recognizer=None;self.fixture=None;self.mode='single-reference';self.last_tracked_at=0.;self.analysis_loop=None
         super().__init__(*args,**kwargs)
 
 
@@ -122,6 +125,7 @@ class Handler(BaseHTTPRequestHandler):
                     "identity_resolution":IDENTITIES.info(),
                     "live_tracking":getattr(self.server,'live_tracker',None) is not None,
                     "stream":stream.status() if stream else None,
+                    "server_loop":self.server.analysis_loop.status() if getattr(self.server,'analysis_loop',None) else None,
                     "inference":recognizer.status() if hasattr(recognizer,'status') else {'isolated':False},
                     "references":len(recognizer.references) if recognizer else 0}).encode(), "application/json")
             elif route == '/passcodes':
@@ -133,6 +137,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.reply(200,json.dumps(payload).encode(),'application/json')
             elif route == "/analyze":
                 self.analyze()
+            elif route == '/analysis':
+                self.latest_analysis()
             else:
                 self.reply(404, b"Not found", "text/plain")
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
@@ -180,98 +186,177 @@ class Handler(BaseHTTPRequestHandler):
             self.internal_error()
 
     def analyze(self,data=None,captured_at=None):
-        started=time.perf_counter()
-        received_at=time.time()
-        capture_basis='client_snapshot_timestamp' if captured_at is not None else 'server_receive_time'
-        if data is not None and captured_at is None: captured_at=received_at
         if self.server.recognizer is None:
             return self.reply(503,b'Recognition disabled','text/plain')
         # A short bounded wait lets multiple tabs take turns instead of one
         # polling tab repeatedly missing the small gap between other requests.
-        if not self.server.recognition_lock.acquire(timeout=2):
+        result=run_analysis(self.server,data,captured_at,lock_timeout=2)
+        if result is None:
             return self.reply(503,b'Recognition busy','text/plain')
-        acquired=time.perf_counter()
-        def report_stall():
-            import faulthandler
-            path=ROOT/'.runtime'/f'camera-{self.server.server_port}-stall.log'
-            path.parent.mkdir(exist_ok=True)
-            with path.open('w') as log:
-                faulthandler.dump_traceback(file=log,all_threads=True)
-        watchdog=threading.Timer(20,report_stall)
-        watchdog.daemon=True
-        watchdog.start()
-        try:
-            if data is None:
-                data,captured_at,capture_basis=self.get_snapshot_record()
-            inference_started=time.perf_counter()
-            recognizer=self.server.recognizer
-            live=getattr(self.server,'live_tracker',None)
-            worker=getattr(self.server,'passcode_worker',None)
-            if getattr(recognizer,'supports_context',False):
-                from vision_onnx import REUSE_MAX_AGE_S
-                reuse=live.reuse_candidates(captured_at,REUSE_MAX_AGE_S) if live else ()
-                verified=worker.verified() if worker and hasattr(worker,'verified') else ()
-                result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified)
-            else:
-                result=recognizer.analyze_jpeg(data)
-            result['detections']=[normalize_detection(d) for d in result['detections']]
-            if 'candidates' in result:result['candidates']=[normalize_detection(d) for d in result['candidates']]
-            result['identity_resolution']=IDENTITIES.info()
-            inference_finished=time.perf_counter()
-            if worker:
-                named={tuple(map(tuple,d['corners'])):d for d in result['detections']}
-                boxes=[]
-                for d in result.get('candidates',result['detections']):
-                    visual=named.get(tuple(map(tuple,d['corners'])),{})
-                    boxes.append({'corners':d['corners'],'visual_card_id':visual.get('card_id'),'name':visual.get('name'),
-                                  'source_visual_card_id':visual.get('source_card_id',visual.get('card_id')),
-                                  'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:3],
-                                  'geometry_status':d.get('geometry_status'),'geometry_iou':d.get('geometry_iou')})
-                worker.submit(data,boxes,captured_at)
-            if getattr(self.server,'tracker',None):
-                result['detections']=self.server.tracker.update(result['detections'])
-            if live is not None:
-                # Sprites and names follow these corners at video rate from here on.
-                live.sync(result['detections'],captured_at)
-                result['tracks']=track_payload(live.snapshot())
-            for d in result['detections']:
-                if d.get('sprite_ref') and getattr(self.server,'overlay',None) is not None:
-                    d['sprite_url']='/sprite/'+d['sprite_ref']
-            result['image']='data:image/jpeg;base64,'+base64.b64encode(data).decode('ascii')
-            result.update(captured_at=captured_at,capture_time_basis=capture_basis,
-                received_at=received_at,completed_at=time.time())
-            result['pipeline_ms']={
-                'lock_wait':round((acquired-started)*1000,1),
-                'capture':round((inference_started-acquired)*1000,1),
-                'recognition':round((inference_finished-inference_started)*1000,1),
-                'postprocess':round((time.perf_counter()-inference_finished)*1000,1),
-                'total':round((time.perf_counter()-started)*1000,1)}
-        finally:
-            watchdog.cancel()
-            # Socket writes must not hold the inference lock (slow/disconnected tab).
-            self.server.recognition_lock.release()
+        # Socket writes happen after run_analysis released the inference lock (slow/disconnected tab).
         self.reply(200,json.dumps(result).encode(),'application/json')
+
+    def latest_analysis(self):
+        """Long poll: the first server-loop analysis newer than `after`, or 204 after two seconds."""
+        loop=getattr(self.server,'analysis_loop',None)
+        if loop is None:
+            return self.reply(404,b'Server loop disabled','text/plain')
+        query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
+        try: after=int(query.get('after','-1'))
+        except ValueError: return self.reply(400,b'Invalid sequence','text/plain')
+        body=loop.wait_newer(after,timeout=2.)
+        if body is None: return self.reply(204,b'','application/json')
+        self.reply(200,body,'application/json')
 
     def get_snapshot(self):
         return self.get_snapshot_record()[0]
 
     def get_snapshot_record(self):
-        """(jpeg, captured_at, basis): fixture, MJPEG stream, or single-shot polling."""
-        server=self.server
-        fixture=getattr(server,'fixture',None)
-        stream=getattr(server,'stream',None)
-        if fixture is None and stream is not None:
-            try:
-                data,captured=stream.latest()
-                return data,captured,'stream_frame_receipt'
-            except OSError:
-                pass  # Stale or disconnected stream: poll a single frame instead.
-        data,captured=server.snapshots.get((server.camera,str(fixture)),
-            lambda:fixture.read_bytes() if fixture else snapshot(server.camera))
+        return snapshot_record(self.server)
+
+
+def snapshot_record(server):
+    """(jpeg, captured_at, basis): fixture, MJPEG stream, or single-shot polling."""
+    fixture=getattr(server,'fixture',None)
+    stream=getattr(server,'stream',None)
+    if fixture is None and stream is not None:
+        try:
+            data,captured=stream.latest()
+            return data,captured,'stream_frame_receipt'
+        except OSError:
+            pass  # Stale or disconnected stream: poll a single frame instead.
+    data,captured=server.snapshots.get((server.camera,str(fixture)),
+        lambda:fixture.read_bytes() if fixture else snapshot(server.camera))
+    live=getattr(server,'live_tracker',None)
+    if live is not None and captured>server.last_tracked_at:
+        server.last_tracked_at=captured;live.update(data,captured)
+    return data,captured,'server_snapshot_request'
+
+
+def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
+    """One recognizer pass plus OCR submission and tracking; None if the lock was busy.
+
+    Shared by POST /analyze (a browser-chosen frame) and the server loop
+    (the newest stream frame).
+    """
+    started=time.perf_counter()
+    received_at=time.time()
+    capture_basis='client_snapshot_timestamp' if captured_at is not None else 'server_receive_time'
+    if data is not None and captured_at is None: captured_at=received_at
+    if not server.recognition_lock.acquire(timeout=lock_timeout):
+        return None
+    acquired=time.perf_counter()
+    def report_stall():
+        import faulthandler
+        path=ROOT/'.runtime'/f'camera-{server.server_port}-stall.log'
+        path.parent.mkdir(exist_ok=True)
+        with path.open('w') as log:
+            faulthandler.dump_traceback(file=log,all_threads=True)
+    watchdog=threading.Timer(20,report_stall)
+    watchdog.daemon=True
+    watchdog.start()
+    try:
+        if data is None:
+            data,captured_at,capture_basis=snapshot_record(server)
+        inference_started=time.perf_counter()
+        recognizer=server.recognizer
         live=getattr(server,'live_tracker',None)
-        if live is not None and captured>server.last_tracked_at:
-            server.last_tracked_at=captured;live.update(data,captured)
-        return data,captured,'server_snapshot_request'
+        worker=getattr(server,'passcode_worker',None)
+        if getattr(recognizer,'supports_context',False):
+            from vision_onnx import REUSE_MAX_AGE_S
+            reuse=live.reuse_candidates(captured_at,REUSE_MAX_AGE_S) if live else ()
+            verified=worker.verified() if worker and hasattr(worker,'verified') else ()
+            result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified)
+        else:
+            result=recognizer.analyze_jpeg(data)
+        result['detections']=[normalize_detection(d) for d in result['detections']]
+        if 'candidates' in result:result['candidates']=[normalize_detection(d) for d in result['candidates']]
+        result['identity_resolution']=IDENTITIES.info()
+        inference_finished=time.perf_counter()
+        if worker:
+            named={tuple(map(tuple,d['corners'])):d for d in result['detections']}
+            boxes=[]
+            for d in result.get('candidates',result['detections']):
+                visual=named.get(tuple(map(tuple,d['corners'])),{})
+                boxes.append({'corners':d['corners'],'visual_card_id':visual.get('card_id'),'name':visual.get('name'),
+                              'source_visual_card_id':visual.get('source_card_id',visual.get('card_id')),
+                              'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:3],
+                              'geometry_status':d.get('geometry_status'),'geometry_iou':d.get('geometry_iou')})
+            worker.submit(data,boxes,captured_at)
+        if getattr(server,'tracker',None):
+            result['detections']=server.tracker.update(result['detections'])
+        if live is not None:
+            # Sprites and names follow these corners at video rate from here on.
+            live.sync(result['detections'],captured_at)
+            result['tracks']=track_payload(live.snapshot())
+        for d in result['detections']:
+            if d.get('sprite_ref') and getattr(server,'overlay',None) is not None:
+                d['sprite_url']='/sprite/'+d['sprite_ref']
+        result['image']='data:image/jpeg;base64,'+base64.b64encode(data).decode('ascii')
+        result.update(captured_at=captured_at,capture_time_basis=capture_basis,
+            received_at=received_at,completed_at=time.time())
+        result['pipeline_ms']={
+            'lock_wait':round((acquired-started)*1000,1),
+            'capture':round((inference_started-acquired)*1000,1),
+            'recognition':round((inference_finished-inference_started)*1000,1),
+            'postprocess':round((time.perf_counter()-inference_finished)*1000,1),
+            'total':round((time.perf_counter()-started)*1000,1)}
+        return result
+    finally:
+        watchdog.cancel()
+        server.recognition_lock.release()
+
+
+class AnalysisLoop:
+    """Analyze the newest stream frame as soon as the previous analysis ends.
+
+    The browser no longer paces recognition: every tab long-polls
+    /analysis?after=<seq> and receives the same result. The loop idles while no
+    tab has asked for an analysis in the last `idle_after` seconds, so an
+    unwatched viewer does not keep the GPU busy.
+    """
+    def __init__(self,server,idle_after=5.):
+        self.server=server;self.idle_after=idle_after
+        self.condition=threading.Condition();self.sequence=0;self.body=None
+        self.last_client=0.;self.last_captured=0.;self.errors=0;self.closed=False
+        self.thread=threading.Thread(target=self.run,name='analysis-loop',daemon=True);self.thread.start()
+
+    def wait_newer(self,after,timeout):
+        with self.condition:
+            self.last_client=time.monotonic();self.condition.notify_all()
+            ready=lambda:self.body is not None and self.sequence>after
+            if not self.condition.wait_for(lambda:ready() or self.closed,timeout):return None
+            return self.body if ready() else None
+
+    def run(self):
+        while not self.closed:
+            with self.condition:
+                if time.monotonic()-self.last_client>self.idle_after:
+                    self.condition.wait(.5);continue
+            try:
+                data,captured_at,basis=snapshot_record(self.server)
+                if captured_at<=self.last_captured:
+                    time.sleep(.005);continue  # same frame as the last analysis
+                self.last_captured=captured_at
+                result=run_analysis(self.server,data,captured_at)
+                result['capture_time_basis']=basis
+                self.errors=0
+            except Exception as exc:
+                # A camera or inference failure is reported to the tabs, then retried.
+                self.errors+=1;traceback.print_exc()
+                result={'error':str(exc) or type(exc).__name__,'detections':[],'captured_at':time.time()}
+                time.sleep(min(2.,.2*self.errors))
+            with self.condition:
+                self.sequence+=1;result['sequence']=self.sequence
+                self.body=json.dumps(result).encode()
+                self.condition.notify_all()
+
+    def status(self):
+        return {'sequence':self.sequence,'watching':time.monotonic()-self.last_client<=self.idle_after,'errors':self.errors}
+
+    def close(self):
+        with self.condition:
+            self.closed=True;self.condition.notify_all()
 
 
 def main():
@@ -288,6 +373,7 @@ def main():
     parser.add_argument('--no-stream',action='store_true',help='Poll /shot.jpg instead of reading the MJPEG /video stream')
     parser.add_argument('--no-isolate',action='store_true',help='Run the ONNX recognizer inside this process instead of a restartable child')
     parser.add_argument('--no-tracking',action='store_true',help='Disable corner tracking between analyses')
+    parser.add_argument('--no-server-loop',action='store_true',help='Let the browser pace recognition with POST /analyze instead of the server analyzing the newest stream frame')
     args = parser.parse_args()
     if args.check:
         for i in range(3):
@@ -331,12 +417,16 @@ def main():
         from camera_source import MjpegSource
         live=server.live_tracker
         server.stream=MjpegSource(args.camera,on_frame=(lambda frame,captured:live.update(frame,captured)) if live else None)
+    # Only with a live stream: a fixture has a single frame and polling cameras keep the browser-paced path.
+    if recognizer and server.stream and not args.no_server_loop:
+        server.analysis_loop=AnalysisLoop(server)
     print(f"Visor: http://127.0.0.1:{args.port} | Camara: {args.camera}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        if server.analysis_loop: server.analysis_loop.close()
         if server.stream: server.stream.close()
         if server.passcode_worker: server.passcode_worker.close()
         if hasattr(recognizer,'close'): recognizer.close()

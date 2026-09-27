@@ -19,6 +19,14 @@ Revisión del 27/09/2026: la columna "Estado en esta PC" incorpora lo hecho el
 | 7 | Restauración de reflejos en GPU | `research/glare-benchmark/` | Sin mejora de identidad en CPU. El problema del foil se resolvió por otra vía (todos los artes en el piloto, aceptación por arte, regla 0.50/0.25): prioridad baja | Ver `glare-benchmark/TRANSFERENCIA.md` | Mantener fuera del vídeo o no |
 | 8 | Ajuste contrastivo del encoder con foil y fotos inscritas | pendiente de escribir | Positivos disponibles: escaneos por rareza (46k), fotos inscritas (`enroll_reference.py`); negativos: escaneos fuera del piloto | Recall por rareza con `calibrate_acceptance.py` antes y después; deriva int8 del encoder exportado | Sustituir el encoder DRAW2 |
 
+**27/09/2026 en la PC con GPU:** la calibración de los experimentos 1 y 8 ya
+corre en GPU (23 ms por escaneo; `calibrate_acceptance.py --same-scans` repite
+exactamente los mismos escaneos para comparar encoders). El encoder fp16
+descuantizado da los mismos números que el int8 con la regla 0.50/0.25.
+DINOv2 sin ajustar queda muy por debajo (recall 71–76 % con 0 falsas frente a
+97 %): el experimento 8 debe partir de DRAW2. Detalle en
+[TIEMPO_REAL.md](TIEMPO_REAL.md#27092026-gpu-bucle-en-el-servidor-y-geometría-en-vivo).
+
 Orden sugerido: 1 y 2 (cambian qué referencias usa el reconocedor), luego 3 y
 4 (calibración), después 5 (necesita capturas anotadas) y 8 (necesita GPU y
 las capturas). El experimento 1 debe repetirse con las mismas capturas de aquí

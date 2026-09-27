@@ -56,6 +56,25 @@ def main():
     assert len(reused)==1 and reused[0]['card_id']=='reused-id' and reused[0]['accepted'] and reused[0]['track_id']==7
     assert result['reused_cards']==1 and result['encoded_cards']==len(boxes)-1
     assert all(n<=len(boxes)-1 for n in calls),calls
+    # The reused box takes the tracker's corners, unrefined and without OCR crops.
+    assert reused[0]['geometry_status']=='tracked' and np.allclose(reused[0]['corners'],tracks[0]['corners']),reused[0]
+    # Upside-down card: track corners are already in card order and must not be rolled twice.
+    upside=[{**tracks[0],'rotation':180,'corners':np.roll(boxes[0]['corners'],-2,axis=0).tolist()}]
+    flipped=[d for d in model.detect(image,reuse=upside)['detections'] if d.get('identity_source')=='track']
+    assert len(flipped)==1 and np.allclose(flipped[0]['corners'],upside[0]['corners']),flipped
+    # Edge snapping that just failed on a box is skipped there until UNRESOLVED_RETRY_S.
+    import card_geometry
+    snaps=[];refine=card_geometry.GeometryRefiner.refine
+    def spy(self,corners,snap=True):
+        out=refine(self,corners,snap=snap);snaps.append((snap,out['geometry_status']));return out
+    card_geometry.GeometryRefiner.refine=spy
+    try:
+        model.unresolved=[];model.detect(image);first=list(snaps);snaps.clear();model.detect(image);second=list(snaps)
+    finally:
+        card_geometry.GeometryRefiner.refine=refine
+    failed=sum(s=='unresolved' for _,s in first)
+    assert all(snap for snap,_ in first) and sum(not snap for snap,_ in second)==failed,(first,second)
+    model.unresolved=[]
     # No overlap: the track is ignored.
     far=[{**tracks[0],'corners':[[0,0],[10,0],[10,14],[0,14]]}]
     assert model.detect(image,reuse=far)['reused_cards']==0
@@ -81,7 +100,8 @@ def main():
             'orientations_skipped':skipped,'max_batch_score_drift':round(max(deltas),4) if deltas else None,
             'batched_ms':round(batched_ms),'plain_ms':round(plain_ms),
             'note':'Timings observed once on a loaded PC; not a benchmark. Batched int8 scores drift from single-image scores by at most max_batch_score_drift on this scene.',
-            'checks':['same identities as two-orientation path','orientation skip bounded','track reuse without encode','no reuse without overlap',
+            'checks':['same identities as two-orientation path','orientation skip bounded','track reuse without encode','reused box keeps tracked corners',
+                      'no double rotation of tracked corners','failed edge snapping not retried at once','no reuse without overlap',
                       'art promotion requires identity, overlap and freshness','promotion keeps score','empty index rejects','quad IoU']}
     (ROOT/'research/qa/vision-pipeline.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report),flush=True)

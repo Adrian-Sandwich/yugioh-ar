@@ -1,9 +1,9 @@
 [
   {
     "source": "research/qa/corner-refinement/current.jpg",
-    "before_ms": 9737.6,
-    "after_ms": 10317.1,
-    "geometry_ms": 943.8,
+    "before_ms": 675.1,
+    "after_ms": 138.4,
+    "geometry_ms": 92.1,
     "candidates": [
       {
         "candidate": 0,
@@ -11,14 +11,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
-          "score": 0.9484120011329651,
-          "margin": 0.6554890275001526,
+          "score": 0.9477943181991577,
+          "margin": 0.6061878800392151,
           "accepted": true
         },
         "after": {
           "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
-          "score": 0.9484120011329651,
-          "margin": 0.6554890275001526,
+          "score": 0.9477943181991577,
+          "margin": 0.6061878800392151,
           "accepted": true
         }
       },
@@ -28,14 +28,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9357855319976807,
-          "margin": 0.723231703042984,
+          "score": 0.9443084597587585,
+          "margin": 0.6737510561943054,
           "accepted": true
         },
         "after": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9357855319976807,
-          "margin": 0.723231703042984,
+          "score": 0.9443084597587585,
+          "margin": 0.6737510561943054,
           "accepted": true
         }
       },
@@ -45,15 +45,15 @@
         "same_top_identity": true,
         "before": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.7195205688476562,
-          "margin": 0.5590447783470154,
-          "accepted": false
+          "score": 0.8214187622070312,
+          "margin": 0.5110214352607727,
+          "accepted": true
         },
         "after": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.7195205688476562,
-          "margin": 0.5590447783470154,
-          "accepted": false
+          "score": 0.8214187622070312,
+          "margin": 0.5110214352607727,
+          "accepted": true
         }
       },
       {
@@ -62,31 +62,31 @@
         "same_top_identity": true,
         "before": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9359050989151001,
-          "margin": 0.7129531502723694,
+          "score": 0.9358571767807007,
+          "margin": 0.5999230742454529,
           "accepted": true
         },
         "after": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9544615745544434,
-          "margin": 0.7082616537809372,
+          "score": 0.959708571434021,
+          "margin": 0.6045450866222382,
           "accepted": true
         }
       },
       {
         "candidate": 4,
-        "geometry": "contour_refined",
+        "geometry": "unresolved",
         "same_top_identity": true,
         "before": {
           "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
-          "score": 0.1174970492720604,
-          "margin": 0.011547654867172241,
+          "score": 0.12948289513587952,
+          "margin": 0.004432380199432373,
           "accepted": false
         },
         "after": {
           "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
-          "score": 0.6283177137374878,
-          "margin": 0.4941274970769882,
+          "score": 0.12948289513587952,
+          "margin": 0.004432380199432373,
           "accepted": false
         }
       },
@@ -96,15 +96,15 @@
         "same_top_identity": true,
         "before": {
           "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
-          "score": 0.7683252096176147,
-          "margin": 0.5467762798070908,
-          "accepted": false
+          "score": 0.9264979362487793,
+          "margin": 0.6492721736431122,
+          "accepted": true
         },
         "after": {
           "card_id": "c0285d04-cadd-402d-a865-799a182d7510",
-          "score": 0.7627211809158325,
-          "margin": 0.5300165712833405,
-          "accepted": false
+          "score": 0.9557425379753113,
+          "margin": 0.6519325971603394,
+          "accepted": true
         }
       },
       {
@@ -113,14 +113,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "c2e1b77c-8a38-4a26-8274-e8d6aea7e776",
-          "score": 0.9266997575759888,
-          "margin": 0.815387561917305,
+          "score": 0.9355272650718689,
+          "margin": 0.8233466595411301,
           "accepted": true
         },
         "after": {
           "card_id": "c2e1b77c-8a38-4a26-8274-e8d6aea7e776",
-          "score": 0.9438046216964722,
-          "margin": 0.820982813835144,
+          "score": 0.9470815658569336,
+          "margin": 0.8365354388952255,
           "accepted": true
         }
       },
@@ -130,15 +130,15 @@
         "same_top_identity": true,
         "before": {
           "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
-          "score": 0.4225725531578064,
-          "margin": 0.31353840976953506,
-          "accepted": false
+          "score": 0.649928092956543,
+          "margin": 0.5180266201496124,
+          "accepted": true
         },
         "after": {
           "card_id": "3aea8beb-b860-4b89-bb58-2b56ab9bfc32",
-          "score": 0.4176575541496277,
-          "margin": 0.25986818969249725,
-          "accepted": false
+          "score": 0.7432564496994019,
+          "margin": 0.622101902961731,
+          "accepted": true
         }
       },
       {
@@ -147,14 +147,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
-          "score": 0.45570874214172363,
-          "margin": 0.30896539986133575,
+          "score": 0.4558452367782593,
+          "margin": 0.27391210198402405,
           "accepted": false
         },
         "after": {
           "card_id": "f9416d3f-4611-45ff-b993-52b75d6861a7",
-          "score": 0.45570874214172363,
-          "margin": 0.30896539986133575,
+          "score": 0.4558452367782593,
+          "margin": 0.27391210198402405,
           "accepted": false
         }
       }
@@ -162,9 +162,9 @@
   },
   {
     "source": "data/captures/carta-2026-09-25T04-13-54-278Z.jpg",
-    "before_ms": 3564.3,
-    "after_ms": 3904.1,
-    "geometry_ms": 389.7,
+    "before_ms": 24.5,
+    "after_ms": 101.2,
+    "geometry_ms": 68.1,
     "candidates": [
       {
         "candidate": 0,
@@ -172,14 +172,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9220261573791504,
-          "margin": 0.6408324837684631,
+          "score": 0.9285035729408264,
+          "margin": 0.5520873069763184,
           "accepted": true
         },
         "after": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9193640947341919,
-          "margin": 0.6008588671684265,
+          "score": 0.9254232048988342,
+          "margin": 0.5404053926467896,
           "accepted": true
         }
       },
@@ -189,14 +189,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "828306a1-80fe-4110-acf3-4dc05fe0cbd8",
-          "score": 0.12882056832313538,
-          "margin": 0.05000431090593338,
+          "score": 0.12833450734615326,
+          "margin": 0.0268237441778183,
           "accepted": false
         },
         "after": {
           "card_id": "828306a1-80fe-4110-acf3-4dc05fe0cbd8",
-          "score": 0.12882056832313538,
-          "margin": 0.05000431090593338,
+          "score": 0.12833450734615326,
+          "margin": 0.0268237441778183,
           "accepted": false
         }
       },
@@ -205,15 +205,15 @@
         "geometry": "frame_edge",
         "same_top_identity": true,
         "before": {
-          "card_id": "77bc0807-d7fc-461d-98dc-ea23a2acc6fa",
-          "score": 0.105793297290802,
-          "margin": 0.015593759715557098,
+          "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+          "score": 0.09844470024108887,
+          "margin": 0.00036488473415374756,
           "accepted": false
         },
         "after": {
-          "card_id": "77bc0807-d7fc-461d-98dc-ea23a2acc6fa",
-          "score": 0.105793297290802,
-          "margin": 0.015593759715557098,
+          "card_id": "bc4ce584-7451-4d5b-8d25-2557632e4be5",
+          "score": 0.09844470024108887,
+          "margin": 0.00036488473415374756,
           "accepted": false
         }
       }
@@ -221,9 +221,9 @@
   },
   {
     "source": "data/captures/carta-2026-09-25T04-15-19-512Z.jpg",
-    "before_ms": 1337.1,
-    "after_ms": 1717.1,
-    "geometry_ms": 337.1,
+    "before_ms": 36.7,
+    "after_ms": 98.7,
+    "geometry_ms": 74.4,
     "candidates": [
       {
         "candidate": 0,
@@ -231,14 +231,14 @@
         "same_top_identity": true,
         "before": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.899603545665741,
-          "margin": 0.6227436065673828,
+          "score": 0.9122320413589478,
+          "margin": 0.5432330965995789,
           "accepted": true
         },
         "after": {
           "card_id": "e0404755-1ade-4c7c-9a2a-b29b7755d860",
-          "score": 0.9139186143875122,
-          "margin": 0.6169222295284271,
+          "score": 0.9194529056549072,
+          "margin": 0.5441022515296936,
           "accepted": true
         }
       }

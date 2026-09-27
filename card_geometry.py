@@ -3,9 +3,16 @@
 Contours are proposals, not a learned corner detector. Missing/occluded edges
 must remain unresolved; never manufacture a precise OCR crop from the OBB.
 """
+import os
+from concurrent.futures import ThreadPoolExecutor
+from itertools import product
+
 import cv2
 import numpy as np
-from itertools import product
+
+# OpenCV releases the GIL, so the frame-wide extractions (contours, line
+# segments) run side by side in threads; per-card refinement stays serial.
+POOL=ThreadPoolExecutor(max_workers=int(os.environ.get('YUGIOH_GEOMETRY_THREADS') or 4),thread_name_prefix='geometry')
 
 
 def visible_quads(image):
@@ -239,12 +246,24 @@ def refine_corners(corners,proposals):
 class GeometryRefiner:
     """Extract evidence once per frame, share it across all detected cards."""
     def __init__(self,image,snap_edges=True):
+        # Always the whole frame. Extracting only around the boxes to refine was 3x
+        # faster (33 vs 100 ms) but not equivalent: contours depend on what surrounds
+        # a card, and LSD's validation threshold depends on the image size. On live
+        # frames 2-9 of 50 boxes changed status or moved corners by up to 94 px (27/09/2026).
         self.shape=image.shape
-        self.quads=visible_quads(image)
-        self.lines=visible_lines(image)
+        quads=POOL.submit(visible_quads,image);lines=POOL.submit(visible_lines,image)
         self.channels=edge_channels(image) if snap_edges else None
+        self.quads=quads.result();self.lines=lines.result()
 
-    def refine(self,corners):
+    def refine_all(self,boxes,snap=None):
+        """`refine` for every box, in order (`snap`: per-box flags, default all True).
+        Serial on purpose: snapped_segments is mostly Python holding the GIL, and on
+        live phone frames with 12 boxes a thread pool took 258-321 ms against
+        227-282 ms serially (27/09/2026)."""
+        return [self.refine(box,snap=True if snap is None else snap[i]) for i,box in enumerate(boxes)]
+
+    def refine(self,corners,snap=True):
+        """`snap=False` skips the costly edge-snapping fallback (the caller knows it just failed here)."""
         p=np.float32(corners);h,w=self.shape[:2]
         if p.shape!=(4,2) or not np.isfinite(p).all() or not cv2.isContourConvex(p):
             return {'geometry_status':'invalid'}
@@ -258,7 +277,7 @@ class GeometryRefiner:
             return {'geometry_status':'frame_edge'}
         result=refine_corners(p,self.quads+line_quads(p,self.lines,self.shape))
         if result:result['geometry_source']='contours_lines'
-        elif self.channels is not None:
+        elif self.channels is not None and snap:
             # Only for boxes the contour and line detectors could not resolve.
             snapped=snapped_segments(self.channels,p)
             if len(snapped):

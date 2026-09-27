@@ -292,14 +292,34 @@ def main():
     parser.add_argument('--seed', type=int, default=20260926)
     parser.add_argument('--measure', type=int, default=20, help='scans used to measure the per-scan time before sizing the negative sample')
     parser.add_argument('--from-records', action='store_true', help='re-evaluate the rules from acceptance-records.json without encoding again')
+    parser.add_argument('--output', type=Path, default=OUT, help='output folder (another encoder variant must not overwrite the int8 calibration)')
+    parser.add_argument('--same-scans', type=Path, help='acceptance-records.json of an earlier run: encode exactly its positives and negatives (paired comparison between encoders)')
     args = parser.parse_args()
-    OUT.mkdir(parents=True, exist_ok=True)
+    out = args.output if args.output.is_absolute() else ROOT / args.output
+    out.mkdir(parents=True, exist_ok=True)
     started = time.perf_counter()
     model = ResearchRecognizer('embedding')
     model_sha = hashlib.sha256(model.encoder.model_path.read_bytes()).hexdigest()
     raw_ids = {r['card_id'] for r in model.rows}; pilot_ids = {canonical(c) for c in raw_ids}
-    records_path = OUT / 'acceptance-records.json'
-    if args.from_records and records_path.exists():
+    records_path = out / 'acceptance-records.json'
+    if args.same_scans:
+        saved = json.loads(args.same_scans.read_text(encoding='utf-8'))
+        positives_all, negatives_all, counts = saved['positives_all'], saved['negatives_all'], saved['counts']
+        by_id = {e['product_id']: e for e in positives_all + negatives_all}
+        positives = [by_id[r['product_id']] for r in saved['positive_rows']]
+        negatives = [by_id[r['product_id']] for r in saved['negative_rows']]
+        measure = positives[:args.measure]
+        measured_rows, measured_s = run_group(model, measure, 'positive', log_every=10 ** 9)
+        per_scan = measured_s / max(len(measure), 1)
+        rest_rows, rest_s = run_group(model, positives[args.measure:], 'positive')
+        positive_rows = measured_rows + rest_rows; positives_s = measured_s + rest_s
+        negative_rows, negatives_s = run_group(model, negatives, 'negative')
+        photo_started = time.perf_counter(); photo_report = photos(model); photos_s = time.perf_counter() - photo_started
+        print(f'same scans as {args.same_scans}: {len(positive_rows)} positives, {len(negative_rows)} negatives', flush=True)
+        records_path.write_text(json.dumps({'positives_all': positives_all, 'negatives_all': negatives_all, 'counts': counts, 'positive_rows': positive_rows,
+                                            'negative_rows': negative_rows, 'photo_report': photo_report,
+                                            'timing': {'per_scan_s_measured': per_scan, 'positives_s': positives_s, 'negatives_s': negatives_s, 'photos_s': photos_s}}, ensure_ascii=False), encoding='utf-8')
+    elif args.from_records and records_path.exists():
         saved = json.loads(records_path.read_text(encoding='utf-8'))
         positives_all, negatives_all, counts = saved['positives_all'], saved['negatives_all'], saved['counts']
         positive_rows, negative_rows, photo_report = saved['positive_rows'], saved['negative_rows'], saved['photo_report']
@@ -351,7 +371,9 @@ def main():
                        distinct_identities=len({r['card_id'] for r in rows}),
                        wrong_top1=[{'product_id': r['product_id'], 'truth': r['card_id'], 'top1': r['top1'], 'similarity': r['similarity'], 'margin': r['margin'], 'rarity': r['rarity']} for r in rows if not r['correct']])
         return out
+    import vision_onnx
     report = {'date': time.strftime('%Y-%m-%d %H:%M'), 'seed': args.seed, 'model_sha256': model_sha, 'budget_minutes': args.budget_minutes,
+              'encoder_variant': model.encoder.variant, 'device': vision_onnx.DEVICE, 'same_scans': str(args.same_scans) if args.same_scans else None,
               'index': {'rows': len(model.rows), 'identities': len(pilot_ids), 'raw_identities': len(raw_ids), 'canonical_changes_pilot': len(raw_ids) - len(pilot_ids),
                         'note': 'margin computed between canonical card_ids; production groups by raw card_id (identical here since no pilot alias exists)'},
               'selection': {'min_width': args.min_width, 'counts': counts, 'positives_available': len(positives_all), 'positives_run': len(pos), 'negatives_available': len(negatives_all), 'negatives_run': len(neg),
@@ -366,8 +388,8 @@ def main():
                           'Negatives are stratified by rarity, not proportional to the market; rarity is unknown for a large share of products.',
                           'The pilot index has 50 identities; with a larger index the margins shrink and this calibration must be repeated.'],
               'records': positive_rows + negative_rows}
-    (OUT / 'acceptance.json').write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
-    (OUT / 'acceptance.md').write_text(markdown(report), encoding='utf-8')
+    (out / 'acceptance.json').write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
+    (out / 'acceptance.md').write_text(markdown(report), encoding='utf-8')
     print('RULES', json.dumps({k: (None if v is None else {kk: v[kk] for kk in ('similarity', 'margin', 'false_accept_rate', 'recall')}) for k, v in rules.items()}, indent=1))
     print(f'DONE total {(time.perf_counter() - started) / 60:.1f} min', flush=True)
 

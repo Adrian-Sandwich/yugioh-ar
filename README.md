@@ -10,13 +10,14 @@ on ordinary hardware, with nothing sent to the cloud.
 
 ![Live viewer with ten real cards on the table, all recognized and tracked between analyses, with AR sprites: two foil Odd-Eyes Pendulum Dragon, Dark Magician, three Blue-Eyes White Dragon, Red-Eyes B. Dragon, Number 39: Utopia, Solemn Judgment and Vanity's Emptiness](docs/img/mesa-cuatro-cartas.png)
 
-**Status, September 26, 2026:** working prototype. It recognizes several
+**Status, September 27, 2026:** working prototype. It recognizes several
 cards at once in saved captures and in live video from a phone. Sprites now
 follow each card at video rate between analyses, identities confirmed on the
 illustration are accepted even on foil cards, and the recognizer runs in a
 child process that restarts itself. A structural duel engine exists but is
-not wired to the camera yet. There are still no 3D models, and each full
-analysis takes 1 to 4 seconds on CPU. The honest details are in
+not wired to the camera yet. There are still no 3D models. A full analysis
+takes about 0.2 s live with an NVIDIA GPU (RTX 4070) and 1 to 4 seconds on a
+laptop CPU. The honest details are in
 [What works today and what does not](#what-works-today-and-what-does-not).
 
 This project needs help. Photos of real cards, tests on other cameras and
@@ -92,9 +93,11 @@ Works, verified with reproducible tests in this repository:
 
 Does not work yet, or has not been measured:
 
-- **Speed.** A full analysis takes 1 to 4 seconds on CPU; tracking hides it
-  between analyses, but the first identification of a new card still waits
-  that long. End-to-end latency with the real phone is not measured.
+- **Speed.** With an RTX 4070 a live analysis of 12 cards takes about 0.2 s
+  (p50; detector and encoder on the GPU, card geometry still on the CPU); on
+  a laptop CPU, 1 to 4 seconds. Tracking hides it between analyses, but the
+  first identification of a new card still waits that long. Details in
+  `research/TIEMPO_REAL.md`.
 - **General accuracy.** The tests use few real cards. There are no accuracy
   figures over a broad set, nor across the five languages, nor with sleeves,
   glare or different rarities. The tracker was tested on synthetic frames only.

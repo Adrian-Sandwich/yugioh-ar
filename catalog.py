@@ -86,6 +86,14 @@ def card_detail(conn, card_id):
     return result
 
 
+PILOT_REFS="r.kind='card' AND r.effective_status IN ('linked','approved') AND r.width>=200 AND r.height>=290"
+
+
+def pilot_eligible(conn,card_id):
+    """True if the card has a reference export_pilot accepts (the catalog UI disables the rest)."""
+    return conn.execute('SELECT 1 FROM ('+EFFECTIVE+') r WHERE r.effective_card_id=? AND '+PILOT_REFS+' LIMIT 1',(card_id,)).fetchone() is not None
+
+
 def export_pilot(ids=None,max_artworks=None):
     """Only source-linked or human-approved references; never filename suggestions.
 
@@ -97,8 +105,7 @@ def export_pilot(ids=None,max_artworks=None):
     with connect() as conn:
         available = [dict(r) for r in conn.execute('''SELECT c.id,c.name_en,c.name_es,c.category,r.ref_id,r.path,r.source_id,r.effective_artwork_id
             FROM (''' + EFFECTIVE + ''') r CROSS JOIN cards c
-            WHERE c.id=r.effective_card_id AND r.kind='card' AND r.effective_status IN ('linked','approved')
-            AND r.width>=200 AND r.height>=290 ORDER BY r.width DESC,r.ref_id''')]
+            WHERE c.id=r.effective_card_id AND ''' + PILOT_REFS + ''' ORDER BY r.width DESC,r.ref_id''')]
         grouped = {}
         for ref in available:
             grouped.setdefault(ref['id'], []).append(ref)
@@ -121,8 +128,13 @@ def export_pilot(ids=None,max_artworks=None):
                     if bucket and len(ids)<50:
                         ids.append(bucket.pop(0))
         ids = list(dict.fromkeys(ids))
-        if not 1 <= len(ids) <= 50 or any(i not in grouped for i in ids):
-            raise ValueError('Selecciona entre 1 y 50 identidades con referencias enlazadas')
+        if not 1 <= len(ids) <= 50:
+            raise ValueError(f'Selecciona entre 1 y 50 cartas (hay {len(ids)}).')
+        missing = [i for i in ids if i not in grouped]
+        if missing:
+            # Name the offending cards: a generic message hid which pick blocked the whole save.
+            names = [(lambda r: (r['name_es'] or r['name_en']) if r else i)(conn.execute('SELECT name_en,name_es FROM cards WHERE id=?', (i,)).fetchone()) for i in missing]
+            raise ValueError('No se guardó. Estas cartas no tienen una imagen enlazada de al menos 200 × 290 y no pueden entrar al piloto: ' + ', '.join(names))
         catalog, cards = [], []
         for key in ids:
             card = grouped[key][0]

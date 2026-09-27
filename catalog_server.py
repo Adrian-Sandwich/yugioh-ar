@@ -10,7 +10,7 @@ from urllib.parse import parse_qs, urlsplit
 import cv2
 import numpy as np
 
-from catalog import ROOT, DATA, DB, EFFECTIVE, connect, normalized, asset_path, init_reviews, review_reference, card_detail, export_pilot
+from catalog import ROOT, DATA, DB, EFFECTIVE, connect, normalized, asset_path, init_reviews, review_reference, card_detail, export_pilot, pilot_eligible
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -39,6 +39,10 @@ class Handler(BaseHTTPRequestHandler):
                 result['pilot']=json.loads((ROOT/'data/pilot/selection.json').read_text(encoding='utf-8'))
                 with connect() as conn:
                     result['reviews']=dict(conn.execute('SELECT action,count(*) FROM review.decisions GROUP BY action'))
+                    # summary.json is only rewritten by sync_catalog.py; the counts shown come from the live database.
+                    result['cards']=conn.execute('SELECT count(*) FROM cards').fetchone()[0]
+                    result['references']=conn.execute('SELECT count(*) FROM refs').fetchone()[0]
+                    result['statuses']=dict(conn.execute('SELECT effective_status,count(*) FROM ('+EFFECTIVE+') GROUP BY 1'))
                 return self.reply(200,result)
             with connect() as conn:
                 if route.path=='/api/cards':
@@ -51,9 +55,10 @@ class Handler(BaseHTTPRequestHandler):
                     for row in rows:
                         refs=conn.execute('SELECT ref_id,effective_status FROM ('+EFFECTIVE+") WHERE effective_card_id=? AND kind='card' AND effective_status!='rejected' ORDER BY CASE effective_status WHEN 'approved' THEN 0 WHEN 'linked' THEN 1 ELSE 2 END LIMIT 1",(row['id'],)).fetchone()
                         row['cover']=refs['ref_id'] if refs else None
+                        row['pilot_eligible']=pilot_eligible(conn,row['id'])
                     return self.reply(200,{'items':rows,'total':total,'page':page})
                 if route.path=='/api/card':
-                    return self.reply(200,card_detail(conn,q['id']))
+                    return self.reply(200,{**card_detail(conn,q['id']),'pilot_eligible':pilot_eligible(conn,q['id'])})
                 if route.path=='/api/pending':
                     page=max(0,int(q.get('page',0)))
                     where=" WHERE effective_status IN ('proposed','unresolved') AND kind='card'"

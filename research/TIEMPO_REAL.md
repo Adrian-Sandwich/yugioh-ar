@@ -54,3 +54,28 @@ defecto stream, seguimiento y proceso aislado; `--no-stream`, `--no-tracking`,
   identidades en la escena; con umbrales calibrados hay que volver a mirarla.
 
 Regla de aceptación: ver [CALIBRACION_ESCANEOS.md](CALIBRACION_ESCANEOS.md).
+
+## 27/09/2026: GPU, bucle en el servidor y geometría en vivo
+
+Computadora con GPU: i9-14900F (32 hilos), RTX 4070 12 GB, controlador 617.14
+(CUDA 13.4), Python 3.14.7. Escena de prueba `qa/corner-refinement/current.jpg`
+(9 cajas, 8 aceptadas) salvo donde dice "en vivo": teléfono real por stream,
+1080p, 10–12 cartas. p50 de 15–30 repeticiones con dos de calentamiento.
+
+| Pieza | Cambio | Medición | Prueba |
+|---|---|---|---|
+| Encoder en GPU | `research/dequantize_encoder.py` convierte el int8 dinámico (MatMulInteger/ConvInteger, que CUDA ejecuta en CPU) a fp32/fp16 con los **mismos pesos** descuantizados; no hay fp32 publicado de este modelo compacto (el `vit_fp32` de HuggingFace es el ViT principal de 13,820 etiquetas). `YUGIOH_ONNX_DEVICE=cuda` elige CUDA con CPU de respaldo; `YUGIOH_ENCODER` = int8/fp32/fp16 (por defecto int8 en CPU, fp16 en CUDA); un índice por variante (`embeddings-<variante>.npy`) | Análisis completo 1,361 → **145 ms**; encoder de 9 cartas 615 → 15 ms; detector 72 → 12 ms. Deriva lote/imagen 0.0117 → 0.0001 | `qa_vision_pipeline.py`, `qa_inference_host.py` con `.venv-gpu` |
+| Misma calidad | Calibración pareada: los **mismos** 446 positivos y 1,336 negativos (`calibrate_acceptance.py --same-scans`) | Regla 0.50/0.25: int8 y fp16 dan 0/1,336 falsas y 431/446 (96.6 %); fotos reales 15/16 aceptadas en ambos; 23 ms por escaneo frente a 1,230 | `qa/calibration-fp16/`, `qa/calibration-fp32/` |
+| Encoder genérico | DINOv2 ViT-S/14 y ViT-B/14 (`research/export_dinov2.py`) por el mismo arnés | Recall con 0 falsas 75.6 % y 71.1 % (DRAW2: 97.1 %); 3/16 fotos; 91–96 % de los negativos con similitud ≥ 0.5: ordena bien pero no separa cartas ajenas. **Se queda DRAW2** y el experimento 8 debe ajustar DRAW2 | `qa/calibration-dinov2_vit*/` |
+| Evidencia de geometría | Contornos y segmentos en hilos y en paralelo con el detector (no dependen de las cajas) | CPU 4 hilos: 1,361 → 1,183 ms | `qa_card_geometry.py` |
+| Refinado por caja | Se probó en paralelo por hilos y se **revirtió**: `snapped_segments` es Python con el GIL | En vivo con 12 cajas: 258–321 ms en hilos frente a 227–282 en serie | — |
+| Esquinas del seguimiento | Una caja sobre una pista fresca y estable (IoU ≥ 0.75) toma las esquinas del seguidor (`geometry_status='tracked'`, sin recortes de OCR); la pista caduca a los `REUSE_MAX_AGE_S` y la carta vuelve a refinarse y codificarse. El `snapped_segments` que acaba de fallar en una caja no se reintenta durante 2 s | **En vivo: 430 → 196 ms p50 (p95 591 → 261), 2.4 → 3.8 análisis/s**; 11 de 12 cajas seguidas | `qa_vision_pipeline.py` (esquinas, doble rotación, reintento) |
+| Evidencia por zonas | Contornos/LSD sólo alrededor de las cajas pendientes: **descartado** | 3× más rápido (33 vs 100 ms), pero 2–9 de 50 cajas cambiaron estado o movieron esquinas hasta 94 px: los contornos dependen del entorno y el umbral de LSD del tamaño de imagen | — |
+| Bucle en el servidor | `AnalysisLoop` analiza el fotograma más nuevo del stream en cuanto termina el anterior; las pestañas hacen long poll a `/analysis?after=N` (204 a los 2 s). Sólo corre mientras alguna pestaña pidió resultados en los últimos 5 s. `--no-server-loop` vuelve a `POST /analyze` | Sin turnos entre pestañas ni envío de JPEG desde el navegador | `qa_server_loop.py` |
+| Stream | `read(65536)` bloqueaba hasta juntar 64 KB: la cola de cada fotograma esperaba bytes del siguiente. Ahora `read1` | Parser verificado contra 597 fotogramas reales (10 s): todos coinciden con su `Content-Length` y decodifican. El teléfono entrega 60 fps a 1080p (11.5 MB/s); conviene configurarlo a 30 | `qa_camera_source.py` |
+| Piloto en caliente | Guardar el piloto reescribía `catalog.json` y dejaba el índice viejo: los visores seguían con las cartas anteriores y al reiniciar fallaban. Ahora el reconocedor detecta el cambio, reconstruye su índice (escritura atómica) y lo recarga sin reiniciar | Reconstrucción: ~2 s en GPU, ~6 s int8 en este CPU | visor en vivo |
+
+GPU en vivo al 7 %: detector y encoder ya no limitan. Lo que queda es la
+geometría (~136 ms p50 en vivo aunque casi todo esté seguido, por la evidencia
+de fotograma completo). La salida es YOLO11-pose en GPU (experimento 5), que
+necesita las capturas anotadas del protocolo.

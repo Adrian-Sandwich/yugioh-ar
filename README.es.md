@@ -10,13 +10,14 @@ en AR** que funcione en vivo, con hardware normal y sin depender de la nube.
 
 ![Visor en vivo con diez cartas reales sobre la mesa, todas reconocidas y seguidas entre análisis, con sprites AR: dos Dragón de Péndulo de Ojos Anómalos foil, Mago Oscuro, tres Dragón Blanco de Ojos Azules, Dragón Negro de Ojos Rojos, Número 39: Utopía, Juicio Solemne y Todovano la Esencia de Vanidad](docs/img/mesa-cuatro-cartas.png)
 
-**Estado, 26 de septiembre de 2026:** prototipo funcional. Reconoce varias
+**Estado, 27 de septiembre de 2026:** prototipo funcional. Reconoce varias
 cartas a la vez en capturas y en vídeo desde un teléfono. Los sprites siguen
 a cada carta a la velocidad del vídeo entre análisis, las identidades
 confirmadas por la ilustración se aceptan aunque la carta sea foil, y el
 reconocedor corre en un proceso aparte que se reinicia solo. Existe un motor
 de duelo estructural, todavía sin conectar a la cámara. Siguen sin haber
-modelos 3D, y cada análisis completo tarda entre 1 y 4 segundos en CPU. Los
+modelos 3D. Un análisis completo tarda unos 0.2 s en vivo con una GPU NVIDIA
+(RTX 4070) y entre 1 y 4 segundos en el CPU de una laptop. Los
 detalles honestos están en [Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
 
 Este proyecto necesita ayuda. Fotos de cartas reales, pruebas en otras cámaras
@@ -95,10 +96,11 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
 
 No funciona todavía, o no está medido:
 
-- **Velocidad.** Un análisis completo tarda entre 1 y 4 segundos en CPU; el
-  seguimiento lo disimula entre análisis, pero la primera identificación de
-  una carta nueva sigue esperando ese tiempo. La latencia de extremo a extremo
-  con el teléfono real no está medida.
+- **Velocidad.** Con una RTX 4070 un análisis en vivo de 12 cartas tarda unos
+  0.2 s (p50; detector y encoder en la GPU, la geometría de las cartas sigue en
+  CPU); en el CPU de una laptop, entre 1 y 4 segundos. El seguimiento lo
+  disimula entre análisis, pero la primera identificación de una carta nueva
+  sigue esperando ese tiempo. Detalle en `research/TIEMPO_REAL.md`.
 - **Precisión general.** Las pruebas usan pocas cartas reales. No hay cifras
   de acierto sobre un conjunto amplio, ni en los cinco idiomas, ni con fundas,
   brillos o rarezas distintas. El seguidor sólo se probó con fotogramas

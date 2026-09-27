@@ -1,0 +1,20 @@
+# GPU variant of the viewer environment (.venv-gpu): same as requirements-research.txt
+# but with onnxruntime-gpu (CUDA 13 + cuDNN 9 from the nvidia-* wheels) instead of onnxruntime.
+# The two onnxruntime packages cannot share an environment.
+#   .venv-gpu/Scripts/python.exe -m pip install -r requirements-gpu.txt -r requirements-ocr.txt
+#   .venv-gpu/Scripts/python.exe -m pip install --no-deps rapidocr==3.9.2
+# Run with YUGIOH_ONNX_DEVICE=cuda (see vision_onnx.py).
+flatbuffers==25.12.19
+greenlet==3.5.6
+ml_dtypes==0.6.0
+numpy==2.5.3
+onnx==1.23.0
+onnxruntime-gpu[cuda,cudnn]==1.30.0
+opencv-python-headless==5.0.0.93
+packaging==26.3
+playwright==1.63.0
+protobuf==7.36.2
+pyee==13.0.1
+typing_extensions==4.16.0
+beautifulsoup4==4.15.0
+soupsieve==2.10

@@ -71,7 +71,9 @@ class MjpegSource:
     def read_stream(self,response):
         buffer=bytearray()
         while not self.stop.is_set():
-            chunk=response.read(65536)
+            # read1: whatever has arrived. read(n) blocks until n bytes, so the tail
+            # of each frame waited for the next frame's bytes (up to one frame late).
+            chunk=response.read1(65536)
             if not chunk:raise OSError('MJPEG stream closed')
             buffer+=chunk
             while True:

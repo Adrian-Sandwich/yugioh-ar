@@ -18,8 +18,28 @@ Dos opciones que se pueden combinar:
 
 ```powershell
 nvidia-smi                       # anotar la versión de CUDA que soporta el controlador
-powershell -NoProfile -ExecutionPolicy Bypass -File .\setup_gpu.ps1 -RestoreDatabases -TorchIndexUrl https://download.pytorch.org/whl/cu128
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup_gpu.ps1 -RestoreDatabases
 ```
+
+**Hecho el 27/09/2026** (i9-14900F, RTX 4070, controlador 617.14, Python
+3.14.7). Lo que falló la primera vez y ya corrige el script:
+
+- El índice `cu128` no tiene torch 2.14.0 para Python 3.14; pip instaló la
+  versión de CPU desde PyPI sin avisar. El índice por defecto es ahora `cu132`
+  (también sirven `cu126` y `cu130`) y el script se detiene si PyTorch no ve la GPU.
+- Con `$ErrorActionPreference='Stop'`, los avisos que pip o Playwright escriben
+  en stderr detenían el script en Windows PowerShell.
+- Los `.venv*` copiados de la laptop apuntan a su Python; el script los aparta
+  como `<nombre>.old` y los crea de nuevo.
+- Crea también `.venv-gpu` (`requirements-gpu.txt`, onnxruntime-gpu con CUDA 13)
+  y el encoder fp16. Con eso, `.\start_lab.ps1 -Live -Gpu` corre detector y
+  encoder en la GPU; medición y calidad en [TIEMPO_REAL.md](../research/TIEMPO_REAL.md#27092026-gpu-bucle-en-el-servidor-y-geometría-en-vivo).
+- `-RestoreDatabases` en esta PC: se comprobó antes que las bases de `data/`
+  tenían las mismas filas que el respaldo y ambas pasaban `quick_check`.
+
+El controlador de NVIDIA de Steam/GeForce no se instaló con el ejecutable
+descargado (salía sin descomprimir, código 8): se extrajo con 7-Zip a otra
+unidad y se ejecutó `setup.exe -s -noreboot`.
 
 `-RestoreDatabases` copia las tres bases limpias de `transfer/<fecha>/` encima
 de `data/` antes de arrancar nada (son las copias hechas con la API de backup;

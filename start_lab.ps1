@@ -1,9 +1,16 @@
-param([switch]$Live)
+param([switch]$Live, [switch]$Gpu)
 $projectRoot = $PSScriptRoot
 $runtimeDir = Join-Path $projectRoot '.runtime'
 New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
-$pythonPath = Join-Path $projectRoot '.venv-eval/Scripts/python.exe'
-if (-not (Test-Path -LiteralPath $pythonPath)) { throw 'Falta .venv-eval. Consulta research/ENTREGA_PILOTO.md para instalarlo.' }
+if ($Gpu) {
+    # Detector y encoder en CUDA (encoder fp16 descuantizado, ver research/dequantize_encoder.py).
+    $pythonPath = Join-Path $projectRoot '.venv-gpu/Scripts/python.exe'
+    if (-not (Test-Path -LiteralPath $pythonPath)) { throw 'Falta .venv-gpu. Instalar con requirements-gpu.txt (ver docs/ARRANQUE_GPU.md).' }
+    $env:YUGIOH_ONNX_DEVICE = 'cuda'
+} else {
+    $pythonPath = Join-Path $projectRoot '.venv-eval/Scripts/python.exe'
+    if (-not (Test-Path -LiteralPath $pythonPath)) { throw 'Falta .venv-eval. Consulta research/ENTREGA_PILOTO.md para instalarlo.' }
+}
 function Start-LabService($name, $port, $arguments) {
     $client = New-Object System.Net.Sockets.TcpClient
     try { $client.Connect('127.0.0.1', $port); Write-Host "Puerto $port ya ocupado; no se inicia otra instancia de $name."; return }

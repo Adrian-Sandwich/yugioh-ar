@@ -102,7 +102,8 @@ function drawCards(context,cards,options={}){
   for(const card of cards||[]){
     if(!card.corners?.length)continue;
     const cut=card.geometry_status==='frame_edge';
-    const approximate=card.geometry_status&&card.geometry_status!=='contour_refined';
+    // 'tracked': corners followed by the tracker from an earlier refined analysis.
+    const approximate=card.geometry_status&&!['contour_refined','tracked'].includes(card.geometry_status);
     context.save();context.setLineDash(approximate?[12,8]:[]);
     context.beginPath();card.corners.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.strokeStyle=cut&&options.hints?'#ff8f8f':approximate?'#ffd166':'#80ffbc';context.lineWidth=5;context.stroke();context.restore();
     const label=card.name||(cut&&options.hints?'Carta cortada por el borde: muévela dentro del cuadro':null);
@@ -244,10 +245,27 @@ async function requestRecognition(token){
     await acceptAnalysis(data,token,actualSourceAt);
 }
 
+// Server loop: the server analyzes the newest stream frame on its own; every tab
+// long-polls for the next result, so no tab sends frames or takes turns.
+let serverLoop=false,analysisSequence=-1;
+async function followServerLoop(token){
+  const response=await fetch('/analysis?after='+analysisSequence,{cache:'no-store',signal:AbortSignal.timeout(10000)});
+  if(response.status===204)return 0;
+  if(!response.ok)throw Error('Falló el análisis; la cámara sigue en vivo.');
+  const data=await response.json();
+  if(Number.isFinite(data.sequence))analysisSequence=data.sequence;
+  if(paused||!recognize.checked||token!==generation)return 0;
+  if(data.error){detection.textContent=`El análisis falló (${data.error}); el servidor reintenta. La cámara sigue en vivo.`;return 500;}
+  const sourceAt=performance.now()-Math.max(0,Date.now()-data.captured_at*1000);
+  await acceptAnalysis(data,token,sourceAt);
+  return 0;
+}
+
 async function refreshRecognition(){
   let delay=200;const token=generation;
   try{
     if(!configured||paused||!recognize.checked)return;
+    if(serverLoop){delay=await followServerLoop(token);return;}
     if(sharedAnalysis){
       await navigator.locks.request('yugioh-recognition-v1',{ifAvailable:true},async lock=>{
         if(lock)delay=await requestRecognition(token)||200;
@@ -261,10 +279,11 @@ async function refreshRecognition(){
 }
 
 fetch('/config').then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{
-  offline=!!c.offline;
+  offline=!!c.offline;serverLoop=!!c.server_loop;
   document.querySelector('#source').textContent=offline?'Prueba con una captura guardada · no es vídeo en vivo':`Cámara: ${c.camera}`;
   document.querySelector('#method').textContent=`${c.mode}${c.experimental?' · método experimental; umbrales todavía sin calibrar':''}. La cámara sigue en vivo.${c.live_tracking?' Las cartas confirmadas se siguen entre análisis.':''}${c.stream?(c.stream.connected?' Vídeo por stream MJPEG.':' Stream MJPEG no disponible; sondeo de fotogramas.'):''}${c.inference?.isolated?' Inferencia en un proceso aparte con reinicio automático.':''} El resultado detallado conserva la imagen exacta analizada; las marcas antiguas sólo se retiran del vídeo en vivo.`;
-  if(sharedAnalysis)document.querySelector('#method').textContent+=' Análisis compartido entre pestañas de este navegador.';
+  if(serverLoop)document.querySelector('#method').textContent+=' El servidor analiza el fotograma más reciente en cuanto termina el anterior.';
+  else if(sharedAnalysis)document.querySelector('#method').textContent+=' Análisis compartido entre pestañas de este navegador.';
   ar.disabled=!c.ar;ar.checked=!!c.ar;recognize.disabled=!c.recognition;recognize.checked=!!c.recognition;
   detection.textContent=c.recognition?`${c.references} referencias cargadas.`:'Reconocimiento desactivado en el servidor.';configured=true;
 }).catch(()=>{detection.textContent='No se pudo cargar la configuración. Recarga la página para activar el reconocimiento.';});
@@ -334,7 +353,7 @@ function nameSection(title){
 function passcodeCard(item){
   const card=document.createElement('article');card.className='passcode-card';
   card.append(textNode('h3',item.visual_name||`Carta detectada ${item.track_id}`));
-  card.append(textNode('p',item.geometry_status==='contour_refined'?'Geometría ajustada a bordes visibles · ajuste experimental':'Geometría sin resolver · recortes desactivados'));
+  card.append(textNode('p',item.geometry_status==='contour_refined'?'Geometría ajustada a bordes visibles · ajuste experimental':item.geometry_status==='tracked'?'Geometría del seguimiento · se leerá al volver a ajustarla':'Geometría sin resolver · recortes desactivados'));
   if(item.rectified)card.append(imageNode(item.rectified,'Carta rectificada; regiones de nombre y serial marcadas','rectified'));
   if(item.name_crop){
     card.append(textNode('p','Nombre · recorte de la imagen'),imageNode(item.name_crop,'Franja del nombre ampliada','name-zoom'));
