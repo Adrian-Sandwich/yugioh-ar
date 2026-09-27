@@ -26,7 +26,7 @@ sólo se movía al terminar un análisis.
 | Piloto | Todas las ilustraciones por identidad (`catalog.export_pilot(max_artworks=None)`): 63 → 88 referencias; Ojos Anómalos 3 artes, Mago Oscuro 9 | | índice reconstruido |
 | Aceptación por arte | `promote_by_art`: un candidato rechazado con el mismo `card_id` que la ilustración verificada (SIFT ≥ 30 inliers, margen 2×) en una caja solapada (IoU ≥ 0.5) y reciente (≤ 4 s) se acepta como `art_verified`; el score no cambia | Con los datos de la escena habría aceptado las 5 cajas rechazadas | ídem (`promote_by_art`) |
 | Reutilización | Una pista estable y verificada hace ≤ 8 s que solapa ≥ 0.75 con la caja nueva conserva su identidad sin codificar; pasado ese plazo se reidentifica para detectar sustituciones | 9 cartas: 1 reutilizada = 1 codificación menos | ídem |
-| Seguimiento (`live_tracking.py`) | Lucas-Kanade piramidal sobre 35 puntos interiores por carta + homografía RANSAC; historial de fotogramas para colocar un análisis tardío y reproducir el flujo hasta el presente | 4 ms por fotograma a 640 px; error ≤ 0.9 px en 28 fotogramas sintéticos | `qa_live_tracking.py` |
+| Seguimiento (`live_tracking.py`) | Lucas-Kanade piramidal sobre 35 puntos interiores por carta + homografía RANSAC; historial de fotogramas para colocar un análisis tardío y reproducir el flujo hasta el presente. Una sola llamada de flujo para todas las cartas; salto adaptativo de fotogramas si el seguidor va atrasado (`max_load` 0.5) | Sintético 720p, una carta: 6 ms y ≤ 2 px. Sonda de diez cartas a 1080p: 45 ms por fotograma (14 ms son decodificar el JPEG, 7 el flujo, 6 las homografías), error medio 3 px y máximo 5 px en 40 fotogramas. En vivo con el teléfono a ~20 fps el seguidor procesa uno de cada dos fotogramas cuando hay muchas cartas | `qa_live_tracking.py` |
 | Fuente MJPEG (`camera_source.py`) | Hilo lector de `/video` de IP Webcam; `/snapshot` sirve el último fotograma y cae a `shot.jpg` si el stream lleva 2 s sin fotogramas | 54 fotogramas, reconexión automática | `qa_camera_source.py` |
 | Cabecera `X-Tracks` | `/snapshot` lleva las pistas del fotograma exacto; el navegador dibuja nombres y sprites por fotograma | sondeo del navegador a 66 ms en lugar de 200 | ídem, `qa_live_camera.py` |
 | Sprites en el navegador | `/sprite/<ref>` sirve el lienzo PNG; WebGL con coordenadas proyectivas (pesos por intersección de diagonales) lo deforma sobre las esquinas. `/analyze` ya no codifica la capa PNG de fotograma completo | | `qa_live_camera.py`, `qa_sprite_cache.py` |
@@ -41,7 +41,11 @@ defecto stream, seguimiento y proceso aislado; `--no-stream`, `--no-tracking`,
 ## Lo que sigue sin medir
 
 - Latencia de extremo a extremo con el teléfono real y el stream MJPEG: los
-  66 ms de sondeo son el ritmo del navegador, no la edad del fotograma.
+  66 ms de sondeo son el ritmo del navegador, no la edad del fotograma. En la
+  primera prueba en vivo (27/09) el stream entregó ~20 fps con 44 ms de edad
+  del último fotograma; el seguidor con diez cartas iba a 100 ms por fotograma
+  antes de agrupar las llamadas de flujo, y el parser MJPEG cortaba fotogramas
+  en la miniatura EXIF. Ambas cosas se corrigieron ese día con sus pruebas.
 - Seguimiento con cartas reales, manos, reflejos y cámara en movimiento: la
   prueba es sintética.
 - El efecto de la promoción por arte sobre falsas aceptaciones: hoy no hay

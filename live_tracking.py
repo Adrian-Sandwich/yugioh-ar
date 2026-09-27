@@ -19,6 +19,13 @@ import numpy as np
 GRID=(5,7)
 LK=dict(winSize=(21,21),maxLevel=3,criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,20,.03))
 IDENTITY_FIELDS=('card_id','name','sprite_ref','score','margin','rotation','top5','ref_id','artwork_id','id','acceptance','source_card_id')
+# Live measurement 27/09/2026: ten cards on a 1080p phone stream cost ~100 ms per
+# frame when each card ran its own Lucas-Kanade calls (pyramids rebuilt per
+# card). Now all cards share one forward and one backward call (~7 ms for 350
+# points), JPEG decoding is the floor (~14 ms at 1080p), and frames are skipped
+# while the tracker is behind so it never takes more than about half of the
+# reader thread. Lighter parameters (15 px window, 2 levels, 4x6 grid) saved
+# only 5 ms and doubled the corner error on the ten-card probe; not worth it.
 
 
 def grid_points(corners):
@@ -36,22 +43,44 @@ def quad_iou(a,b):
 
 
 class LiveTracker:
-    def __init__(self,width=640,history=45,min_inliers=8,max_silent_s=2.5):
-        self.lock=threading.Lock();self.width=width;self.min_inliers=min_inliers;self.max_silent_s=max_silent_s
+    def __init__(self,width=640,history=45,min_inliers=8,max_silent_s=2.5,max_load=.5):
+        self.lock=threading.Lock();self.width=width;self.min_inliers=min_inliers;self.max_silent_s=max_silent_s;self.max_load=max_load
         self.frames=deque(maxlen=history)  # (captured_at, grey, scale)
-        self.tracks={};self.next_id=1;self.frame_count=0;self.last_update_ms=0.
+        self.tracks={};self.next_id=1;self.frame_count=0;self.skipped=0;self.last_update_ms=0.;self.next_allowed=0.
 
     # --- frames ---------------------------------------------------------------
     def decode(self,jpeg):
-        image=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_GRAYSCALE)
-        if image is None:return None,1.
-        scale=min(1.,self.width/image.shape[1])
-        small=cv2.resize(image,None,fx=scale,fy=scale,interpolation=cv2.INTER_AREA) if scale<1 else image
-        return small,scale
+        # Phone frames are 1080p or more: let the JPEG decoder produce a half or
+        # quarter size image directly instead of decoding full size and resizing.
+        header=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_REDUCED_GRAYSCALE_2)
+        if header is None:return None,1.
+        image=header;factor=2.
+        if image.shape[1]>=2*self.width:
+            quarter=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_REDUCED_GRAYSCALE_4)
+            if quarter is not None:image=quarter;factor=4.
+        if image.shape[1]*factor<self.width:
+            # Small frames (tests, thumbnails): full decode keeps enough detail.
+            full=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_GRAYSCALE)
+            if full is None:return None,1.
+            image=full;factor=1.
+        original_w=image.shape[1]*factor;original_h=image.shape[0]*factor
+        s=min(1.,self.width/original_w)  # small-image pixels per original pixel
+        target=(round(original_w*s),round(original_h*s))
+        small=cv2.resize(image,target,interpolation=cv2.INTER_AREA) if target!=(image.shape[1],image.shape[0]) else image
+        return small,small.shape[1]/original_w
 
     def update(self,jpeg,captured_at):
-        """Advance every track to this frame. Returns the number of live tracks."""
+        """Advance every track to this frame. Returns the number of live tracks.
+
+        Skips frames while the previous update is still "paying for itself":
+        after an update of t seconds the next frame is accepted only when its
+        capture time is t/max_load later, so tracking never monopolises the
+        stream reader thread. Capture time, not wall clock: tests replay
+        recorded frames faster than real time.
+        """
         started=time.perf_counter()
+        if self.tracks and captured_at<self.next_allowed:
+            self.skipped+=1;return len(self.tracks)
         grey,scale=self.decode(jpeg)
         if grey is None:return len(self.tracks)
         with self.lock:
@@ -59,22 +88,31 @@ class LiveTracker:
             previous=self.frames[-1] if self.frames else None
             self.frames.append((captured_at,grey,scale));self.frame_count+=1
             if previous is not None:self._flow(previous[1],grey,captured_at,scale)
-            self.last_update_ms=round((time.perf_counter()-started)*1000,1)
+            elapsed=time.perf_counter()-started
+            self.last_update_ms=round(elapsed*1000,1);self.next_allowed=captured_at+elapsed/self.max_load
             return len(self.tracks)
 
     def _flow(self,prev_grey,grey,captured_at,scale):
-        dead=[]
-        for key,track in self.tracks.items():
-            points=(np.float32(track['corners'])*scale)
-            seeds=grid_points(points).reshape(-1,1,2).astype(np.float32)
-            moved,status,_=cv2.calcOpticalFlowPyrLK(prev_grey,grey,seeds,None,**LK)
-            back,status_back,_=cv2.calcOpticalFlowPyrLK(grey,prev_grey,moved,None,**LK)
-            ok=(status.ravel()==1)&(status_back.ravel()==1)&(np.linalg.norm((back-seeds).reshape(-1,2),axis=1)<1.5)
+        if not self.tracks:return
+        # One forward and one backward Lucas-Kanade call for every card at once:
+        # the pyramids are built once per frame instead of once per card.
+        keys=list(self.tracks);seeds=[];spans=[]
+        for key in keys:
+            pts=grid_points(np.float32(self.tracks[key]['corners'])*scale)
+            spans.append((len(seeds),len(seeds)+len(pts)));seeds.extend(pts)
+        seeds=np.float32(seeds).reshape(-1,1,2)
+        moved,status,_=cv2.calcOpticalFlowPyrLK(prev_grey,grey,seeds,None,**LK)
+        back,status_back,_=cv2.calcOpticalFlowPyrLK(grey,prev_grey,moved,None,**LK)
+        ok_all=(status.ravel()==1)&(status_back.ravel()==1)&(np.linalg.norm((back-seeds).reshape(-1,2),axis=1)<1.5)
+        h,w=grey.shape[:2];dead=[]
+        for key,(a,b) in zip(keys,spans):
+            track=self.tracks[key];ok=ok_all[a:b]
             if ok.sum()<self.min_inliers:dead.append(key);continue
-            matrix,mask=cv2.findHomography(seeds[ok].reshape(-1,2),moved[ok].reshape(-1,2),cv2.RANSAC,2.5)
+            src=seeds[a:b][ok].reshape(-1,2);dst=moved[a:b][ok].reshape(-1,2)
+            matrix,mask=cv2.findHomography(src,dst,cv2.RANSAC,2.5)
             if matrix is None or mask is None or int(mask.sum())<self.min_inliers:dead.append(key);continue
+            points=np.float32(track['corners'])*scale
             corners=cv2.perspectiveTransform(points.reshape(-1,1,2),matrix).reshape(-1,2)
-            h,w=grey.shape[:2]
             if not np.isfinite(corners).all() or not cv2.isContourConvex(np.float32(corners)) or cv2.contourArea(np.float32(corners))<200:dead.append(key);continue
             if (corners[:,0]<-w*.1).any() or (corners[:,0]>w*1.1).any() or (corners[:,1]<-h*.1).any() or (corners[:,1]>h*1.1).any():dead.append(key);continue
             track.update(corners=(corners/scale).tolist(),tracked_at=captured_at,inliers=int(mask.sum()),frames=track['frames']+1)
