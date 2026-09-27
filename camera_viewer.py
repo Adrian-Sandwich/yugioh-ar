@@ -67,7 +67,7 @@ class Server(ThreadingHTTPServer):
     def __init__(self,*args,**kwargs):
         self.snapshots=SharedSnapshots()
         self.tracker=None;self.live_tracker=None;self.stream=None;self.overlay=None;self.passcode_worker=None
-        self.recognizer=None;self.fixture=None;self.mode='single-reference';self.last_tracked_at=0.;self.analysis_loop=None
+        self.recognizer=None;self.fixture=None;self.mode='single-reference';self.last_tracked_at=0.;self.analysis_loop=None;self.table=None
         super().__init__(*args,**kwargs)
 
 
@@ -139,6 +139,11 @@ class Handler(BaseHTTPRequestHandler):
                 self.analyze()
             elif route == '/analysis':
                 self.latest_analysis()
+            elif route in ('/playmat','/duel'):
+                table=getattr(self.server,'table',None)
+                if table is None: return self.reply(404,b'Duel disabled (live camera only)','text/plain')
+                body=table.overlay() if route=='/playmat' else table.view()
+                self.reply(200,json.dumps(body,ensure_ascii=False).encode(),'application/json; charset=utf-8')
             elif route == '/card-info':
                 from card_info import card_sheet
                 query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
@@ -163,7 +168,10 @@ class Handler(BaseHTTPRequestHandler):
         super().log_message(fmt, *args)
 
     def do_POST(self):
-        if urlsplit(self.path).path!='/analyze':
+        route=urlsplit(self.path).path
+        if route in ('/playmat','/duel'):
+            return self.table_post(route)
+        if route!='/analyze':
             return self.reply(404,b'Not found','text/plain')
         try:
             if self.headers.get('Content-Type','').split(';')[0]!='image/jpeg':
@@ -201,6 +209,24 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(503,b'Recognition busy','text/plain')
         # Socket writes happen after run_analysis released the inference lock (slow/disconnected tab).
         self.reply(200,json.dumps(result).encode(),'application/json')
+
+    def table_post(self,route):
+        """Calibration (/playmat) or a player's decision (/duel); errors come back as 400 with the reason."""
+        from duel_engine import DuelError
+        table=getattr(self.server,'table',None)
+        try:
+            if table is None: return self.reply(404,b'Duel disabled (live camera only)','text/plain')
+            length=int(self.headers.get('Content-Length','0'))
+            if not 0<length<=65536: return self.reply(413,b'Invalid body size','text/plain')
+            payload=json.loads(self.rfile.read(length))
+            if route=='/playmat': body=table.calibrate(payload['mode'],payload['mats'],payload.get('image_size'))
+            else: body={'result':table.act(payload),'duel':table.view()}
+            self.reply(200,json.dumps(body,ensure_ascii=False).encode(),'application/json; charset=utf-8')
+        except (DuelError,ValueError,KeyError,TypeError) as exc:
+            try: self.reply(400,json.dumps({'error':str(exc)},ensure_ascii=False).encode(),'application/json; charset=utf-8')
+            except (BrokenPipeError,ConnectionResetError,ConnectionAbortedError): pass
+        except (BrokenPipeError,ConnectionResetError,ConnectionAbortedError): pass
+        except Exception: self.internal_error()
 
     def latest_analysis(self):
         """Long poll: the first server-loop analysis newer than `after`, or 204 after two seconds."""
@@ -295,6 +321,12 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
             # Sprites and names follow these corners at video rate from here on.
             live.sync(result['detections'],captured_at)
             result['tracks']=track_payload(live.snapshot())
+            table=getattr(server,'table',None)
+            if table is not None:
+                # Only confirmed tracks reach the duel; provisional identities could be wrong.
+                # A duel bug must never stop recognition: log it and carry on.
+                try: table.feed([t for t in live.snapshot() if t.get('stable')])
+                except Exception: traceback.print_exc()
         for d in result['detections']:
             if d.get('sprite_ref') and getattr(server,'overlay',None) is not None:
                 d['sprite_url']='/sprite/'+d['sprite_ref']
@@ -429,6 +461,11 @@ def main():
     # Only with a live stream: a fixture has a single frame and polling cameras keep the browser-paced path.
     if recognizer and server.stream and not args.no_server_loop:
         server.analysis_loop=AnalysisLoop(server)
+    # Duel on the playmat: live camera with tracking only (a fixture never changes).
+    if recognizer and server.fixture is None and server.live_tracker is not None:
+        from table_duel import TableDuel
+        from card_info import card_sheet
+        server.table=TableDuel(sheet=card_sheet)
     print(f"Visor: http://127.0.0.1:{args.port} | Camara: {args.camera}", flush=True)
     try:
         server.serve_forever()

@@ -100,4 +100,29 @@ se mide en milímetros del tapete (60 × 35 cm): vertical = ataque, horizontal =
 defensa; boca abajo lo decide quien vio el reverso. `ZoneTracker` sólo reporta
 una zona tras tres lecturas coincidentes y nunca emite eventos: sus
 observaciones van a `observe`. Configuración elegida: dos tapetes frente a
-frente. Falta conectarlo al visor (clics de calibración, panel del duelo).
+frente, y también un modo de un solo tapete.
+
+## Duelo en el visor (27/09/2026)
+
+`table_duel.py` (prueba `qa_table_duel.py`) une el visor en vivo, el tapete y
+el motor. En la cámara (sección "Duelo en la mesa"): se elige el modo, se
+pulsa "Calibrar tapetes" y se hace clic en las cuatro esquinas de cada tapete
+tal como las ve su jugador; la calibración queda en `data/playmat/` y la
+cuadrícula de zonas se dibuja sobre el vídeo. Tras cada análisis sólo las
+pistas confirmadas pasan por `ZoneTracker`, y al motor sólo llegan los
+cambios (a 3.8 análisis/s repetir observaciones idénticas llenaría el registro).
+Cada discrepancia se muestra como pregunta con sus respuestas: carta nueva en
+zona de monstruo (Invocación Normal/Especial, colocada; tributos a elegir si el
+nivel es 5+), en magia/trampa (activada, colocada), carta que desaparece
+(cementerio, destierro, mano) y posición distinta (cambio de posición,
+volteo). Al responder, la carta entra con nombre, ATK, DEF y nivel de
+`card_info`. Un monstruo que no es Péndulo en una zona de magia/trampa, o una
+magia/trampa en zona de monstruo, no ofrece respuestas: casi siempre es una
+calibración desfasada o una carta mal puesta. Controles: empezar, siguiente
+fase, terminar turno, robar, LP, ataque y resolución de batalla, deshacer y
+reiniciar. El registro del duelo se guarda tras cada evento y se recupera al
+reiniciar el visor. La cara boca abajo todavía no se detecta (falta el reverso
+como identidad), así que "colocada boca abajo" la declara el jugador.
+
+Probado en Edge con un visor real y la escena de 9 cartas (calibración de un
+tapete, inicio, fases, LP, deshacer, 5 preguntas y una respuesta aplicada).

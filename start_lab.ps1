@@ -18,7 +18,8 @@ function Start-LabService($name, $port, $arguments) {
     try { $client.Connect('127.0.0.1', $port); Write-Host "Puerto $port ya ocupado; no se inicia otra instancia de $name."; return }
     catch { }
     finally { $client.Dispose() }
-    $process = Start-Process -FilePath $pythonPath -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runtimeDir "$name.log") -RedirectStandardError (Join-Path $runtimeDir "$name.error.log")
+    # supervise.py restarts the service if it dies and turns on faulthandler (see its docstring).
+    $process = Start-Process -FilePath $pythonPath -ArgumentList (@('supervise.py', $name, '--') + $arguments) -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runtimeDir "$name.log") -RedirectStandardError (Join-Path $runtimeDir "$name.error.log")
     Write-Host "$name iniciado (PID $($process.Id)). http://127.0.0.1:$port"
 }
 Start-LabService 'catalog' 8768 @('catalog_server.py', '--port', '8768')

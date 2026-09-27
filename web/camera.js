@@ -31,6 +31,8 @@ let passcodeMinCapturedAt=0;
 // Declared here because clearRecognition() resets it.
 let qualityTracks=[],qualityNextId=1;
 const qualityWindow=10000;
+// Duel on the playmat: zone outlines from /playmat, calibration clicks in progress.
+let playmat=null,calibration=null,zonesVersion=0,renderedZones=-1;
 
 // Sprites are warped in the browser: a WebGL textured quad with perspective-correct
 // texture coordinates, so nothing but corners and a sprite id travel per frame.
@@ -151,7 +153,7 @@ function draw(){
   const tracks=recognize.checked&&liveTracks.length?liveTracks:null;
   // Camera delivery is ~5 fps. Repainting the same full-resolution bitmap at
   // display refresh rate wastes CPU; still redraw when an overlay expires.
-  if(!paused&&currentBitmap&&(renderedFrame!==frameNumber||renderedResult!==visibleResult||renderedAR!==ar.checked||renderedTracks!==tracks)){
+  if(!paused&&currentBitmap&&(renderedFrame!==frameNumber||renderedResult!==visibleResult||renderedAR!==ar.checked||renderedTracks!==tracks||renderedZones!==zonesVersion)){
     if(frame.width!==currentBitmap.width||frame.height!==currentBitmap.height){frame.width=currentBitmap.width;frame.height=currentBitmap.height;}
     ctx.drawImage(currentBitmap,0,0);
     if(tracks){
@@ -163,8 +165,9 @@ function draw(){
       drawCards(ctx,result.detections);
       ctx.restore();
     }
+    drawTableOverlay(ctx);
     frame.dataset.frameNumber=String(frameNumber);frame.dataset.tracks=String(tracks?tracks.length:0);
-    renderedFrame=frameNumber;renderedResult=visibleResult;renderedAR=ar.checked;renderedTracks=tracks;
+    renderedFrame=frameNumber;renderedResult=visibleResult;renderedAR=ar.checked;renderedTracks=tracks;renderedZones=zonesVersion;
   }
   if(lastAnalysis&&!analysisView.hidden){
     const caption=`Fotograma solicitado hace ${Math.floor((performance.now()-lastAnalysisAt)/1000)} s · análisis ${Math.round(lastAnalysis.processing_ms)} ms · imagen de referencia, no vídeo en vivo`;
@@ -477,3 +480,147 @@ async function paintQuality(data,sourceAt,token){
   }
   document.querySelector('#qualityStatus').textContent=`${next.length} contornos detectados; ${(data.detections||[]).length} identificaciones aceptadas. Comparación del último análisis; no es vídeo en vivo. Una captura menos saturada no garantiza mejor reconocimiento.`;
 }
+
+// ---- Duelo en la mesa: calibración del tapete y panel ------------------------------------
+const $d=s=>document.querySelector(s);
+const CORNERS=['arriba a la izquierda (lado del rival)','arriba a la derecha (lado del rival)','abajo a la derecha (su lado)','abajo a la izquierda (su lado)'];
+const PHASES={draw:'Fase de Robo',standby:'Fase de Espera',main1:'Fase Principal 1',battle:'Fase de Batalla',main2:'Fase Principal 2',end:'Fase Final'};
+const POSITIONS={attack:'ataque',defense:'defensa',facedown_defense:'defensa boca abajo',faceup:'boca arriba',facedown:'boca abajo'};
+let duelView=null;
+
+function drawTableOverlay(context){
+  if(playmat&&$d('#showZones')?.checked&&!calibration){
+    context.save();context.lineWidth=2;context.font='14px system-ui';
+    for(const z of playmat.zones||[]){
+      context.strokeStyle=z.player===0?'rgba(141,229,202,.55)':'rgba(255,209,102,.55)';
+      context.beginPath();z.polygon.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.stroke();
+      const [cx,cy]=z.polygon.reduce(([a,b],[x,y])=>[a+x/4,b+y/4],[0,0]);
+      context.fillStyle='rgba(233,238,247,.75)';context.fillText(z.zone.replace('monster:','M').replace('extra_monster:','EM').replace('spell:','MT'),cx-10,cy);
+    }
+    context.restore();
+  }
+  if(calibration){
+    context.save();context.font='bold 22px system-ui';
+    calibration.mats.flat().concat(calibration.points).forEach(([x,y],i)=>{
+      context.fillStyle='#ffd166';context.beginPath();context.arc(x,y,9,0,Math.PI*2);context.fill();
+      context.fillStyle='#10141d';context.fillText(String(i%4+1),x-6,y+7);
+    });
+    context.restore();
+  }
+}
+
+function calibrationStep(){
+  if(!calibration){$d('#calibrationHelp').textContent=playmat?.mode?`Tapetes calibrados (${playmat.modes[playmat.mode]}). Si mueves la cámara, vuelve a calibrar.`:'Sin calibrar: marca las esquinas de los tapetes para que las cartas se asignen a zonas.';return;}
+  const player=calibration.mats.length,who=calibration.mode==='one'?'tu tapete':`el tapete del jugador ${player+1} (${$d('#name'+player).value})`;
+  $d('#calibrationHelp').textContent=`Haz clic en ${who}, esquina ${calibration.points.length+1} de 4: ${CORNERS[calibration.points.length]}, como lo ve ese jugador sentado.`;
+}
+
+$d('#calibrate').onclick=()=>{calibration={mode:$d('#matMode').value,mats:[],points:[]};$d('#cancelCalibration').hidden=false;zonesVersion++;calibrationStep();frame.style.cursor='crosshair';};
+$d('#cancelCalibration').onclick=()=>{calibration=null;$d('#cancelCalibration').hidden=true;frame.style.cursor='';zonesVersion++;calibrationStep();};
+frame.addEventListener('click',async event=>{
+  if(!calibration)return;
+  const rect=frame.getBoundingClientRect();
+  calibration.points.push([(event.clientX-rect.left)*frame.width/rect.width,(event.clientY-rect.top)*frame.height/rect.height]);zonesVersion++;
+  if(calibration.points.length===4){calibration.mats.push(calibration.points);calibration.points=[];}
+  if(calibration.mats.length<(calibration.mode==='one'?1:2)){calibrationStep();return;}
+  try{
+    const body={mode:calibration.mode,image_size:[frame.width,frame.height],mats:calibration.mats.map((corners,player)=>({player,corners}))};
+    const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo guardar la calibración');
+    playmat=data;duelMessage('Calibración guardada.');
+  }catch(e){duelMessage(e.message,true);}
+  calibration=null;$d('#cancelCalibration').hidden=true;frame.style.cursor='';zonesVersion++;calibrationStep();
+});
+$d('#showZones').onchange=()=>{zonesVersion++;};
+
+function duelMessage(text,error=false){const m=$d('#duelMessage');m.textContent=text;m.className=error?'error':'';}
+async function duelAct(event){
+  try{
+    const r=await fetch('/duel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(event)});
+    const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo registrar');
+    duelMessage('');renderDuel(data.duel);
+  }catch(e){duelMessage(e.message,true);}
+}
+
+function questionNode(q){
+  const box=document.createElement('div');box.className='question';
+  const who=duelView?.players?.[q.player]?.name||`Jugador ${q.player+1}`,card=q.card_name||'una carta sin identificar';
+  const text={unexplained:`Apareció ${card} en la ${q.zone_label} de ${who}. ¿Qué pasó?`,
+    missing:`La carta de la ${q.zone_label} de ${who} ya no está. ¿A dónde fue?`,
+    moved:`${card} aparece en la ${q.zone_label} de ${who}, pero estaba en otra zona.`,
+    different_copy:`En la ${q.zone_label} de ${who} hay otra carta distinta de la registrada.`,
+    conflict:`${card} en la ${q.zone_label} de ${who}: la cámara ve ${POSITIONS[q.position]||q.position}, el duelo tiene ${POSITIONS[q.expected_position]||q.expected_position}.`}[q.kind]||`${q.zone_label}: ${q.kind}`;
+  box.append(textNode('p',text));
+  if(q.hint)box.append(textNode('p',q.hint));
+  // Level 5+ Normal Summons need tributes: the player's own monsters on the field.
+  const own=(duelView?.board||[]).filter(c=>c.player===q.player&&c.zone.includes('monster')&&c.copy_id!==q.copy_id);
+  const tributes=[];
+  if(q.kind==='unexplained'&&(q.level||0)>=5&&own.length){
+    box.append(textNode('p',`Nivel ${q.level}: marca los monstruos sacrificados si fue Invocación Normal o colocación.`));
+    for(const c of own){const l=document.createElement('label'),i=document.createElement('input');i.type='checkbox';i.onchange=()=>i.checked?tributes.push(c.copy_id):tributes.splice(tributes.indexOf(c.copy_id),1);l.append(i,document.createTextNode(` ${c.name||'carta'} (${c.zone_label})`));box.append(l);}
+  }
+  for(const o of q.options){
+    const b=document.createElement('button');b.textContent=o.label;
+    b.onclick=()=>{
+      const e={type:o.type,player:q.player};
+      if(q.kind==='missing')e.copy_id=q.expected_copy;
+      else if(o.type==='change_position'){e.copy_id=q.copy_id;e.position=q.position;}
+      else if(o.type==='flip')e.copy_id=q.copy_id;
+      else{e.zone=q.zone;e.copy_id=q.copy_id;if(q.card_id)e.card_id=q.card_id;}
+      if(['normal_summon','set_monster'].includes(o.type))e.tributes=[...tributes];
+      if(o.type==='special_summon'&&['attack','defense'].includes(q.position))e.position=q.position;
+      duelAct(e);
+    };
+    box.append(b);
+  }
+  return box;
+}
+
+function renderDuel(view){
+  duelView=view;
+  $d('#duelSetup').hidden=view.started&&!view.result;$d('#duelControls').hidden=!view.started||!!view.result;
+  $d('#duelPhase').textContent=!view.started?'Duelo sin empezar.':view.result?`Duelo terminado: gana ${view.players[view.result.winner]?.name??'—'} (${view.result.reason}).`:
+    `Turno ${view.turn} · ${view.players[view.current]?.name} · ${PHASES[view.phase]||view.phase}${view.battle_step?` (${view.battle_step})`:''} · ${view.events} eventos registrados`;
+  $d('#duelPlayers').replaceChildren(...(view.players||[]).map((p,i)=>{
+    const box=document.createElement('div');box.className='player'+(i===view.current?' current':'');
+    box.append(textNode('h3',p.name),textNode('div',`${p.lp} LP`),textNode('p',`Mano ${p.hand} · Mazo ${p.deck} · Mazo Extra ${p.extra_deck} · Cementerio ${p.graveyard} · Desterradas ${p.banished}`));
+    box.children[1].className='lp';return box;}));
+  // Rebuilt only when the questions change: the panel refreshes every 800 ms and would
+  // otherwise clear tribute checkboxes while the player is ticking them.
+  const questionsKey=JSON.stringify([view.questions,(view.board||[]).map(c=>c.copy_id)]);
+  if(questionsKey!==renderDuel.questionsKey){renderDuel.questionsKey=questionsKey;$d('#duelQuestions').replaceChildren(...(view.questions||[]).map(questionNode));}
+  const board=view.board||[];
+  $d('#duelBoard').replaceChildren(...(board.length?[textNode('h3','En el campo')]:[]),...board.map(c=>textNode('p',`${view.players[c.player]?.name} · ${c.zone_label}: ${c.name||'carta boca abajo'} · ${POSITIONS[c.position]||c.position}${c.atk!=null?` · ATK ${c.atk}${c.def!=null?` / DEF ${c.def}`:''}`:''}`)));
+  ['#lpPlayer'].forEach(s=>[...$d(s).options].forEach((o,i)=>o.textContent=view.players?.[i]?.name||o.textContent));
+  // Battle Phase: the current player's face-up Attack Position monsters against the opponent's monsters or directly.
+  const inBattle=view.started&&!view.result&&view.phase==='battle';$d('#battle').hidden=!inBattle;
+  if(inBattle){
+    const keep=(sel,items)=>{const old=$d(sel).value;$d(sel).replaceChildren(...items.map(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;return o;}));if([...$d(sel).options].some(o=>o.value===old))$d(sel).value=old;};
+    keep('#attacker',board.filter(c=>c.player===view.current&&c.zone.includes('monster')&&c.position==='attack').map(c=>[String(c.copy_id),`${c.name||'monstruo'} (ATK ${c.atk??'?'})`]));
+    keep('#target',[['','Ataque directo'],...board.filter(c=>c.player!==view.current&&c.zone.includes('monster')).map(c=>[String(c.copy_id),`${c.name||'boca abajo'} · ${POSITIONS[c.position]||c.position}`])]);
+    $d('#resolveBattle').disabled=!view.pending_attack;
+  }
+}
+// copy_id comes from the recognizer's track ids (integers); option values are text.
+const copyValue=v=>v===''?null:(Number.isNaN(Number(v))?v:Number(v));
+$d('#declareAttack').onclick=()=>duelAct({type:'declare_attack',player:duelView?.current??0,attacker:copyValue($d('#attacker').value),target:copyValue($d('#target').value)});
+$d('#resolveBattle').onclick=()=>duelAct({type:'resolve_battle'});
+
+$d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value)});
+$d('#nextPhase').onclick=()=>duelAct({type:'next_phase'});
+$d('#endTurn').onclick=()=>duelAct({type:'end_turn'});
+$d('#drawCard').onclick=()=>duelAct({type:'draw',player:duelView?.current??0});
+$d('#applyLp').onclick=()=>duelAct({type:'change_lp',player:Number($d('#lpPlayer').value),delta:Number($d('#lpDelta').value),reason:'manual'});
+$d('#undo').onclick=()=>duelAct({type:'undo'});
+$d('#resetDuel').onclick=()=>{if(confirm('¿Terminar este duelo y empezar otro? Se borra el registro del duelo actual.'))duelAct({type:'reset'});};
+
+async function refreshDuel(){
+  try{
+    const r=await fetch('/duel',{cache:'no-store'});
+    if(r.status===404){$d('#duel').hidden=true;return;}   // demo with a saved capture: no duel
+    $d('#duel').hidden=false;renderDuel(await r.json());
+    if(!playmat){const m=await fetch('/playmat');if(m.ok){playmat=await m.json();zonesVersion++;calibrationStep();}}
+  }catch(e){}
+  finally{setTimeout(refreshDuel,800);}
+}
+refreshDuel();
