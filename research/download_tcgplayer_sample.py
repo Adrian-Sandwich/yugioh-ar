@@ -99,19 +99,38 @@ def sitemap_records():
     return items
 
 
+def _replace_with_retries(source, target, attempts=20, delay=0.5):
+    """os.replace fails on Windows while another process holds the target open
+    (a reader of manifest.json: reconstruct, calibration, an editor). Retry
+    instead of crashing the crawl; report whether it succeeded."""
+    for attempt in range(attempts):
+        try:
+            source.replace(target); return True
+        except PermissionError:
+            if attempt == attempts - 1:
+                return False
+            time.sleep(delay)
+    return False
+
+
 def save(state):
     """Durable manifest: fsync the temp file before the atomic replace, and keep
     the previous manifest as .bak. A crash on 2026-09-26 left a manifest whose
-    tail was zero-filled because the data never reached the disk."""
+    tail was zero-filled because the data never reached the disk. The same
+    evening the crawl died twice with PermissionError because another process
+    was reading the manifest during the rotation; the rotation now retries and,
+    if the backup still cannot be rotated, keeps the current manifest instead
+    of losing the process."""
     with LOCK:
         temp = STATE.with_suffix('.tmp')
         with temp.open('w', encoding='utf-8') as handle:
             handle.write(json.dumps(state, ensure_ascii=False, indent=1))
             handle.flush()
             os.fsync(handle.fileno())
-        if STATE.exists():
-            STATE.replace(STATE.with_suffix('.bak'))
-        temp.replace(STATE)
+        if STATE.exists() and not _replace_with_retries(STATE, STATE.with_suffix('.bak')):
+            print('manifest.bak busy; keeping the previous backup', flush=True)
+        if not _replace_with_retries(temp, STATE):
+            print('manifest.json busy; new state kept in manifest.tmp until the next save', flush=True)
 
 
 def load_state():

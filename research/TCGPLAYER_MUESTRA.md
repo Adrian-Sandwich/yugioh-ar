@@ -134,3 +134,13 @@ rellenando metadatos exactos de fondo):
 Lo que no se recupera sin la API: ediciones ofertadas y precios, irrelevantes
 para el reconocimiento. El rastreo por sets continúa en segundo plano y va
 sustituyendo las inferencias por metadatos exactos; `STOP` lo detiene.
+
+**Muertes silenciosas del rastreo (26/09, 16:29 y 19:24).** El error estaba
+en `tcgplayer-full*.error.log`: `PermissionError` al rotar `manifest.json` a
+`manifest.bak`, porque en Windows `os.replace` falla mientras otro proceso
+tiene el archivo abierto para lectura (la reconstrucción y la calibración lo
+leen). Desde entonces `save()` reintenta la rotación hasta diez segundos y,
+si sigue ocupado, conserva la copia anterior y sigue; la partición por sets
+hace que relanzar con `--all --image-rate 3` retome donde iba. Los escaneos
+sirvieron además para calibrar la regla de aceptación del reconocedor y las
+regiones del set code: [CALIBRACION_ESCANEOS.md](CALIBRACION_ESCANEOS.md).

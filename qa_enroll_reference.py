@@ -8,6 +8,7 @@ import vision_onnx
 ROOT=Path(__file__).resolve().parent
 
 def main():
+    (ROOT/'.runtime').mkdir(exist_ok=True)
     work=Path(tempfile.mkdtemp(prefix='enroll-',dir=ROOT/'.runtime'))
     try:
         captures=work/'captures';captures.mkdir();pilot=work/'pilot';pilot.mkdir()

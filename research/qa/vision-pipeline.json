@@ -4,8 +4,8 @@
   "cards": 9,
   "orientations_skipped": 1,
   "max_batch_score_drift": 0.0117,
-  "batched_ms": 6400,
-  "plain_ms": 7993,
+  "batched_ms": 7370,
+  "plain_ms": 8456,
   "note": "Timings observed once on a loaded PC; not a benchmark. Batched int8 scores drift from single-image scores by at most max_batch_score_drift on this scene.",
   "checks": [
     "same identities as two-orientation path",

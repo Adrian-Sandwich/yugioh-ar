@@ -1,0 +1,3198 @@
+{
+ "date": "2026-09-27 00:03",
+ "seed": 20260926,
+ "rows": 16340,
+ "part_a": {
+  "exact_truth": {
+   "all": {
+    "n": 3286,
+    "status:unreadable": 1329,
+    "status:matched": 1599,
+    "read": 1957,
+    "correct": 1590,
+    "status:not_in_registry": 358,
+    "wrong": 367,
+    "accuracy_of_reads": 0.8125,
+    "coverage": 0.4839
+   },
+   "rarity:Common / Short Print": {
+    "n": 1028,
+    "status:unreadable": 336,
+    "status:not_in_registry": 107,
+    "read": 692,
+    "wrong": 111,
+    "status:matched": 585,
+    "correct": 581,
+    "accuracy_of_reads": 0.8396,
+    "coverage": 0.5652
+   },
+   "rarity:Mosaic Rare": {
+    "n": 4,
+    "status:unreadable": 4,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Platinum Secret Rare": {
+    "n": 12,
+    "status:unreadable": 10,
+    "status:matched": 1,
+    "read": 2,
+    "correct": 1,
+    "status:not_in_registry": 1,
+    "wrong": 1,
+    "accuracy_of_reads": 0.5,
+    "coverage": 0.0833
+   },
+   "rarity:Prismatic Collector's Rare": {
+    "n": 161,
+    "status:unreadable": 126,
+    "status:matched": 30,
+    "read": 35,
+    "correct": 30,
+    "status:not_in_registry": 5,
+    "wrong": 5,
+    "accuracy_of_reads": 0.8571,
+    "coverage": 0.1863
+   },
+   "rarity:Prismatic Secret Rare": {
+    "n": 144,
+    "status:matched": 84,
+    "read": 101,
+    "correct": 83,
+    "status:unreadable": 43,
+    "status:not_in_registry": 17,
+    "wrong": 18,
+    "accuracy_of_reads": 0.8218,
+    "coverage": 0.5764
+   },
+   "rarity:Prismatic Ultimate Rare": {
+    "n": 162,
+    "status:unreadable": 96,
+    "status:not_in_registry": 17,
+    "read": 66,
+    "wrong": 18,
+    "status:matched": 49,
+    "correct": 48,
+    "accuracy_of_reads": 0.7273,
+    "coverage": 0.2963
+   },
+   "rarity:Promo": {
+    "n": 2,
+    "status:unreadable": 2,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Quarter Century Secret Rare": {
+    "n": 43,
+    "status:unreadable": 34,
+    "status:matched": 8,
+    "read": 9,
+    "correct": 8,
+    "status:not_in_registry": 1,
+    "wrong": 1,
+    "accuracy_of_reads": 0.8889,
+    "coverage": 0.186
+   },
+   "rarity:Rare": {
+    "n": 172,
+    "status:unreadable": 18,
+    "status:not_in_registry": 21,
+    "read": 154,
+    "wrong": 21,
+    "status:matched": 133,
+    "correct": 133,
+    "accuracy_of_reads": 0.8636,
+    "coverage": 0.7733
+   },
+   "rarity:Secret Rare": {
+    "n": 148,
+    "status:unreadable": 25,
+    "status:not_in_registry": 12,
+    "read": 123,
+    "wrong": 12,
+    "status:matched": 111,
+    "correct": 111,
+    "accuracy_of_reads": 0.9024,
+    "coverage": 0.75
+   },
+   "rarity:Shatterfoil Rare": {
+    "n": 225,
+    "status:matched": 31,
+    "read": 59,
+    "correct": 29,
+    "status:unreadable": 166,
+    "status:not_in_registry": 28,
+    "wrong": 30,
+    "accuracy_of_reads": 0.4915,
+    "coverage": 0.1289
+   },
+   "rarity:Starfoil Rare": {
+    "n": 161,
+    "status:matched": 76,
+    "read": 114,
+    "correct": 76,
+    "status:not_in_registry": 38,
+    "wrong": 38,
+    "status:unreadable": 47,
+    "accuracy_of_reads": 0.6667,
+    "coverage": 0.472
+   },
+   "rarity:Starlight Rare": {
+    "n": 57,
+    "status:unreadable": 49,
+    "status:matched": 7,
+    "read": 8,
+    "correct": 7,
+    "status:not_in_registry": 1,
+    "wrong": 1,
+    "accuracy_of_reads": 0.875,
+    "coverage": 0.1228
+   },
+   "rarity:Super Rare": {
+    "n": 382,
+    "status:unreadable": 170,
+    "status:not_in_registry": 28,
+    "read": 212,
+    "wrong": 28,
+    "status:matched": 184,
+    "correct": 184,
+    "accuracy_of_reads": 0.8679,
+    "coverage": 0.4817
+   },
+   "rarity:Ultimate Rare": {
+    "n": 24,
+    "status:unreadable": 23,
+    "status:matched": 1,
+    "read": 1,
+    "correct": 1,
+    "accuracy_of_reads": 1.0,
+    "coverage": 0.0417
+   },
+   "rarity:Ultra Rare": {
+    "n": 561,
+    "status:unreadable": 180,
+    "status:matched": 299,
+    "read": 381,
+    "correct": 298,
+    "status:not_in_registry": 82,
+    "wrong": 83,
+    "accuracy_of_reads": 0.7822,
+    "coverage": 0.5312
+   },
+   "width:200px": {
+    "n": 326,
+    "status:unreadable": 314,
+    "status:not_in_registry": 6,
+    "read": 12,
+    "wrong": 6,
+    "status:matched": 6,
+    "correct": 6,
+    "accuracy_of_reads": 0.5,
+    "coverage": 0.0184
+   },
+   "width:300px": {
+    "n": 402,
+    "status:matched": 86,
+    "read": 149,
+    "correct": 85,
+    "status:unreadable": 253,
+    "status:not_in_registry": 63,
+    "wrong": 64,
+    "accuracy_of_reads": 0.5705,
+    "coverage": 0.2114
+   },
+   "width:400px": {
+    "n": 900,
+    "status:matched": 633,
+    "read": 725,
+    "correct": 630,
+    "status:not_in_registry": 92,
+    "wrong": 95,
+    "status:unreadable": 175,
+    "accuracy_of_reads": 0.869,
+    "coverage": 0.7
+   },
+   "width:500px": {
+    "n": 1085,
+    "status:unreadable": 400,
+    "status:matched": 539,
+    "read": 685,
+    "correct": 538,
+    "status:not_in_registry": 146,
+    "wrong": 147,
+    "accuracy_of_reads": 0.7854,
+    "coverage": 0.4959
+   },
+   "width:600px": {
+    "n": 571,
+    "status:matched": 334,
+    "read": 384,
+    "correct": 330,
+    "status:unreadable": 187,
+    "status:not_in_registry": 50,
+    "wrong": 54,
+    "accuracy_of_reads": 0.8594,
+    "coverage": 0.5779
+   },
+   "width:700px": {
+    "n": 2,
+    "status:not_in_registry": 1,
+    "read": 2,
+    "wrong": 1,
+    "status:matched": 1,
+    "correct": 1,
+    "accuracy_of_reads": 0.5,
+    "coverage": 0.5
+   }
+  },
+  "registry_truth": {
+   "all": {
+    "n": 36,
+    "status:unreadable": 36,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Common / Short Print": {
+    "n": 3,
+    "status:unreadable": 3,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Duel Terminal Normal Parallel Rare": {
+    "n": 1,
+    "status:unreadable": 1,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Gold Rare": {
+    "n": 1,
+    "status:unreadable": 1,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Platinum Secret Rare": {
+    "n": 4,
+    "status:unreadable": 4,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Quarter Century Secret Rare": {
+    "n": 3,
+    "status:unreadable": 3,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Secret Rare": {
+    "n": 1,
+    "status:unreadable": 1,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Super Rare": {
+    "n": 3,
+    "status:unreadable": 3,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Ultimate Rare": {
+    "n": 2,
+    "status:unreadable": 2,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:Ultra Rare": {
+    "n": 2,
+    "status:unreadable": 2,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "rarity:unknown": {
+    "n": 16,
+    "status:unreadable": 16,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "width:200px": {
+    "n": 18,
+    "status:unreadable": 18,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "width:300px": {
+    "n": 3,
+    "status:unreadable": 3,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "width:400px": {
+    "n": 3,
+    "status:unreadable": 3,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "width:500px": {
+    "n": 8,
+    "status:unreadable": 8,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "width:600px": {
+    "n": 1,
+    "status:unreadable": 1,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   },
+   "width:700px": {
+    "n": 3,
+    "status:unreadable": 3,
+    "accuracy_of_reads": null,
+    "coverage": 0.0
+   }
+  },
+  "confusions_exact_truth": [
+   {
+    "read": "F",
+    "truth": "E",
+    "count": 429
+   },
+   {
+    "read": "S",
+    "truth": "5",
+    "count": 228
+   },
+   {
+    "read": "O",
+    "truth": "0",
+    "count": 126
+   },
+   {
+    "read": "I",
+    "truth": "1",
+    "count": 63
+   },
+   {
+    "read": "P",
+    "truth": "E",
+    "count": 57
+   },
+   {
+    "read": "1",
+    "truth": "P",
+    "count": 36
+   },
+   {
+    "read": "0",
+    "truth": "6",
+    "count": 15
+   },
+   {
+    "read": "I",
+    "truth": "P",
+    "count": 12
+   },
+   {
+    "read": "R",
+    "truth": "B",
+    "count": 12
+   },
+   {
+    "read": "1",
+    "truth": "4",
+    "count": 12
+   },
+   {
+    "read": "1",
+    "truth": "L",
+    "count": 12
+   },
+   {
+    "read": "T",
+    "truth": "P",
+    "count": 12
+   },
+   {
+    "read": "B",
+    "truth": "E",
+    "count": 12
+   },
+   {
+    "read": "Q",
+    "truth": "0",
+    "count": 9
+   },
+   {
+    "read": "L",
+    "truth": "1",
+    "count": 9
+   },
+   {
+    "read": "T",
+    "truth": "E",
+    "count": 9
+   },
+   {
+    "read": "8",
+    "truth": "B",
+    "count": 6
+   },
+   {
+    "read": "1",
+    "truth": "T",
+    "count": 6
+   },
+   {
+    "read": "T",
+    "truth": "1",
+    "count": 6
+   },
+   {
+    "read": "R",
+    "truth": "K",
+    "count": 6
+   },
+   {
+    "read": "1",
+    "truth": "A",
+    "count": 6
+   },
+   {
+    "read": "R",
+    "truth": "E",
+    "count": 6
+   },
+   {
+    "read": "N",
+    "truth": "M",
+    "count": 6
+   },
+   {
+    "read": "F",
+    "truth": "T",
+    "count": 3
+   },
+   {
+    "read": "I",
+    "truth": "T",
+    "count": 3
+   },
+   {
+    "read": "L",
+    "truth": "3",
+    "count": 3
+   },
+   {
+    "read": "J",
+    "truth": "3",
+    "count": 3
+   },
+   {
+    "read": "D",
+    "truth": "0",
+    "count": 3
+   },
+   {
+    "read": "0",
+    "truth": "9",
+    "count": 3
+   },
+   {
+    "read": "I",
+    "truth": "L",
+    "count": 3
+   }
+  ],
+  "wrong_examples": [
+   {
+    "product_id": 69658,
+    "read": "BPO1-EN007",
+    "truth": "BP01-EN007",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69700,
+    "read": "BIOI-EN049",
+    "truth": "BP01-EN049",
+    "rarity": "Starfoil Rare",
+    "width": 340
+   },
+   {
+    "product_id": 69699,
+    "read": "BPO1-FN048",
+    "truth": "BP01-EN048",
+    "rarity": "Starfoil Rare",
+    "width": 462
+   },
+   {
+    "product_id": 69730,
+    "read": "B101-EN079",
+    "truth": "BP01-EN079",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69735,
+    "read": "B101-EN084",
+    "truth": "BP01-EN084",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69747,
+    "read": "BP01-EN09",
+    "truth": "BP01-EN096",
+    "rarity": "Starfoil Rare",
+    "width": 738
+   },
+   {
+    "product_id": 69752,
+    "read": "BPO1-EN101",
+    "truth": "BP01-EN101",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69749,
+    "read": "B101-FN098",
+    "truth": "BP01-EN098",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69763,
+    "read": "BPO1-EN112",
+    "truth": "BP01-EN112",
+    "rarity": "Starfoil Rare",
+    "width": 472
+   },
+   {
+    "product_id": 69750,
+    "read": "BPO1-EN099",
+    "truth": "BP01-EN099",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69767,
+    "read": "BPOI-EN116",
+    "truth": "BP01-EN116",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69762,
+    "read": "BPO1-EN111",
+    "truth": "BP01-EN111",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69769,
+    "read": "BPQ1-EN118",
+    "truth": "BP01-EN118",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69777,
+    "read": "BPOI-EN126",
+    "truth": "BP01-EN126",
+    "rarity": "Starfoil Rare",
+    "width": 342
+   },
+   {
+    "product_id": 69790,
+    "read": "8P01-EN139",
+    "truth": "BP01-EN139",
+    "rarity": "Starfoil Rare",
+    "width": 344
+   },
+   {
+    "product_id": 69797,
+    "read": "BPO1-EN146",
+    "truth": "BP01-EN146",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69808,
+    "read": "BPO1-EN157",
+    "truth": "BP01-EN157",
+    "rarity": "Starfoil Rare",
+    "width": 350
+   },
+   {
+    "product_id": 69796,
+    "read": "BPO1-EN145",
+    "truth": "BP01-EN145",
+    "rarity": "Starfoil Rare",
+    "width": 344
+   },
+   {
+    "product_id": 69804,
+    "read": "BPO1-EN153",
+    "truth": "BP01-EN153",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69820,
+    "read": "BPO1-EN169",
+    "truth": "BP01-EN169",
+    "rarity": "Starfoil Rare",
+    "width": 307
+   },
+   {
+    "product_id": 69815,
+    "read": "RPO1-FN164",
+    "truth": "BP01-EN164",
+    "rarity": "Starfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 69816,
+    "read": "BPO1-EN165",
+    "truth": "BP01-EN165",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69846,
+    "read": "BPOL-EN195",
+    "truth": "BP01-EN195",
+    "rarity": "Starfoil Rare",
+    "width": 307
+   },
+   {
+    "product_id": 69832,
+    "read": "BPOI-EN181",
+    "truth": "BP01-EN181",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69843,
+    "read": "RP01-EN192",
+    "truth": "BP01-EN192",
+    "rarity": "Starfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 69840,
+    "read": "RP01-EN189",
+    "truth": "BP01-EN189",
+    "rarity": "Starfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 69856,
+    "read": "BPO1-EN205",
+    "truth": "BP01-EN205",
+    "rarity": "Starfoil Rare",
+    "width": 307
+   },
+   {
+    "product_id": 69865,
+    "read": "BPOI-EN214",
+    "truth": "BP01-EN214",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69849,
+    "read": "BPO1-EN198",
+    "truth": "BP01-EN198",
+    "rarity": "Starfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 69862,
+    "read": "BPO1-EN211",
+    "truth": "BP01-EN211",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69857,
+    "read": "BPO1-EN206",
+    "truth": "BP01-EN206",
+    "rarity": "Starfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 69866,
+    "read": "BPOI-EN215",
+    "truth": "BP01-EN215",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 69863,
+    "read": "801-EN212",
+    "truth": "BP01-EN212",
+    "rarity": "Starfoil Rare",
+    "width": 300
+   },
+   {
+    "product_id": 69869,
+    "read": "BPOI-EN218",
+    "truth": "BP01-EN218",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 79475,
+    "read": "AP04-TN020",
+    "truth": "AP04-EN020",
+    "rarity": "Common / Short Print",
+    "width": 306
+   },
+   {
+    "product_id": 81863,
+    "read": "BAT-EN003",
+    "truth": "BATT-EN003",
+    "rarity": "Starfoil Rare",
+    "width": 339
+   },
+   {
+    "product_id": 81865,
+    "read": "BATF-EN005",
+    "truth": "BATT-EN005",
+    "rarity": "Starfoil Rare",
+    "width": 400
+   },
+   {
+    "product_id": 81867,
+    "read": "BATI-EN006",
+    "truth": "BATT-EN006",
+    "rarity": "Starfoil Rare",
+    "width": 402
+   },
+   {
+    "product_id": 81876,
+    "read": "BAT-EN014",
+    "truth": "BATT-EN014",
+    "rarity": "Starfoil Rare",
+    "width": 585
+   },
+   {
+    "product_id": 91697,
+    "read": "P03-EN001",
+    "truth": "BP03-EN001",
+    "rarity": "Shatterfoil Rare",
+    "width": 305
+   },
+   {
+    "product_id": 91723,
+    "read": "BPO3-FN012",
+    "truth": "BP03-EN012",
+    "rarity": "Shatterfoil Rare",
+    "width": 308
+   },
+   {
+    "product_id": 91717,
+    "read": "RP03-EN002",
+    "truth": "BP03-EN002",
+    "rarity": "Shatterfoil Rare",
+    "width": 308
+   },
+   {
+    "product_id": 91891,
+    "read": "BPQL-EN009",
+    "truth": "BP03-EN009",
+    "rarity": "Shatterfoil Rare",
+    "width": 308
+   },
+   {
+    "product_id": 91849,
+    "read": "P03-EN094",
+    "truth": "BP03-EN094",
+    "rarity": "Rare",
+    "width": 307
+   },
+   {
+    "product_id": 91722,
+    "read": "P03-EN007",
+    "truth": "BP03-EN007",
+    "rarity": "Shatterfoil Rare",
+    "width": 305
+   },
+   {
+    "product_id": 91888,
+    "read": "P03-EN006",
+    "truth": "BP03-EN006",
+    "rarity": "Shatterfoil Rare",
+    "width": 307
+   },
+   {
+    "product_id": 91919,
+    "read": "03-EN028",
+    "truth": "BP03-EN028",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91908,
+    "read": "BPO3-EN022",
+    "truth": "BP03-EN022",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91924,
+    "read": "BPOJ-EN032",
+    "truth": "BP03-EN032",
+    "rarity": "Shatterfoil Rare",
+    "width": 308
+   },
+   {
+    "product_id": 91903,
+    "read": "BPO3-EN019",
+    "truth": "BP03-EN019",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91931,
+    "read": "P03-EN037",
+    "truth": "BP03-EN037",
+    "rarity": "Shatterfoil Rare",
+    "width": 307
+   },
+   {
+    "product_id": 91922,
+    "read": "BPD3-EN030",
+    "truth": "BP03-EN030",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91917,
+    "read": "BPO3-EN027",
+    "truth": "BP03-EN027",
+    "rarity": "Shatterfoil Rare",
+    "width": 310
+   },
+   {
+    "product_id": 91955,
+    "read": "P03-EN053",
+    "truth": "BP03-EN053",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91969,
+    "read": "BP03-FN063",
+    "truth": "BP03-EN063",
+    "rarity": "Shatterfoil Rare",
+    "width": 308
+   },
+   {
+    "product_id": 91973,
+    "read": "BPO3-EN119",
+    "truth": "BP03-EN119",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91983,
+    "read": "BPO3-EN121",
+    "truth": "BP03-EN121",
+    "rarity": "Shatterfoil Rare",
+    "width": 310
+   },
+   {
+    "product_id": 91992,
+    "read": "BP03-FN125",
+    "truth": "BP03-EN125",
+    "rarity": "Shatterfoil Rare",
+    "width": 309
+   },
+   {
+    "product_id": 91982,
+    "read": "BPO3-EN070",
+    "truth": "BP03-EN070",
+    "rarity": "Shatterfoil Rare",
+    "width": 310
+   },
+   {
+    "product_id": 92001,
+    "read": "BPO3-EN080",
+    "truth": "BP03-EN080",
+    "rarity": "Shatterfoil Rare",
+    "width": 308
+   }
+  ]
+ },
+ "part_b": {
+  "sample": 400,
+  "pool": 9276,
+  "min_width": 400,
+  "minutes": 35.44612142333329,
+  "results": {
+   "baseline": {
+    "regions": [
+     [
+      0.52,
+      0.714,
+      0.96,
+      0.752
+     ],
+     [
+      0.52,
+      0.742,
+      0.96,
+      0.785
+     ],
+     [
+      0.52,
+      0.91,
+      0.96,
+      0.949
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 151,
+      "correct": 211,
+      "wrong": 36,
+      "ambiguous": 2,
+      "accuracy": 0.5275,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 15,
+        "n": 26,
+        "unreadable": 7,
+        "wrong": 4
+       },
+       "Common / Short Print": {
+        "unreadable": 4,
+        "n": 29,
+        "correct": 20,
+        "wrong": 5
+       },
+       "Ghost Rare": {
+        "correct": 4,
+        "n": 6,
+        "ambiguous": 2
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 8
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 1,
+        "n": 28,
+        "unreadable": 23,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 22,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 2
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 13,
+        "n": 28,
+        "correct": 9,
+        "wrong": 6
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 2,
+        "wrong": 2
+       },
+       "Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 4
+       },
+       "Secret Rare": {
+        "wrong": 3,
+        "n": 28,
+        "unreadable": 6,
+        "correct": 19
+       },
+       "Shatterfoil Rare": {
+        "correct": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 4
+       },
+       "Starlight Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 6
+       },
+       "Super Rare": {
+        "correct": 26,
+        "n": 28,
+        "unreadable": 2
+       },
+       "Ultimate Rare": {
+        "unreadable": 8,
+        "n": 28,
+        "correct": 18,
+        "wrong": 2
+       },
+       "Ultra Rare": {
+        "correct": 19,
+        "n": 28,
+        "wrong": 3,
+        "unreadable": 6
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 156,
+      "correct": 211,
+      "wrong": 32,
+      "ambiguous": 1,
+      "accuracy": 0.5275,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 15,
+        "n": 26,
+        "unreadable": 7,
+        "wrong": 4
+       },
+       "Common / Short Print": {
+        "unreadable": 4,
+        "n": 29,
+        "correct": 20,
+        "wrong": 5
+       },
+       "Ghost Rare": {
+        "correct": 5,
+        "n": 6,
+        "ambiguous": 1
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 8
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 1,
+        "n": 28,
+        "unreadable": 23,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 22,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 2
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 15,
+        "n": 28,
+        "correct": 8,
+        "wrong": 5
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 25,
+        "n": 28,
+        "correct": 2,
+        "wrong": 1
+       },
+       "Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 4
+       },
+       "Secret Rare": {
+        "wrong": 3,
+        "n": 28,
+        "unreadable": 6,
+        "correct": 19
+       },
+       "Shatterfoil Rare": {
+        "correct": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 4
+       },
+       "Starlight Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 6
+       },
+       "Super Rare": {
+        "correct": 26,
+        "n": 28,
+        "unreadable": 2
+       },
+       "Ultimate Rare": {
+        "unreadable": 8,
+        "n": 28,
+        "correct": 18,
+        "wrong": 2
+       },
+       "Ultra Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 8,
+        "wrong": 1
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 172,
+      "correct": 203,
+      "ambiguous": 1,
+      "wrong": 24,
+      "accuracy": 0.5075,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 15,
+        "n": 26,
+        "unreadable": 7,
+        "wrong": 4
+       },
+       "Common / Short Print": {
+        "unreadable": 4,
+        "n": 29,
+        "correct": 20,
+        "wrong": 5
+       },
+       "Ghost Rare": {
+        "correct": 5,
+        "n": 6,
+        "ambiguous": 1
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 8
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 22,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 2
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 6,
+        "wrong": 2
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 25,
+        "n": 28,
+        "correct": 2,
+        "wrong": 1
+       },
+       "Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 4
+       },
+       "Secret Rare": {
+        "unreadable": 9,
+        "n": 28,
+        "correct": 18,
+        "wrong": 1
+       },
+       "Shatterfoil Rare": {
+        "correct": 1,
+        "n": 2,
+        "unreadable": 1
+       },
+       "Starfoil Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 7,
+        "wrong": 3
+       },
+       "Starlight Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 6
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 10,
+        "n": 28,
+        "correct": 16,
+        "wrong": 2
+       },
+       "Ultra Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 9
+       }
+      }
+     }
+    }
+   },
+   "shift_-0.030": {
+    "regions": [
+     [
+      0.52,
+      0.6839999999999999,
+      0.96,
+      0.722
+     ],
+     [
+      0.52,
+      0.712,
+      0.96,
+      0.755
+     ],
+     [
+      0.52,
+      0.88,
+      0.96,
+      0.9189999999999999
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 155,
+      "correct": 207,
+      "wrong": 38,
+      "accuracy": 0.5175,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 17,
+        "n": 26,
+        "unreadable": 6,
+        "wrong": 3
+       },
+       "Common / Short Print": {
+        "unreadable": 7,
+        "n": 29,
+        "correct": 17,
+        "wrong": 5
+       },
+       "Ghost Rare": {
+        "correct": 5,
+        "n": 6,
+        "wrong": 1
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 6,
+        "wrong": 1
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 20,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 4
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 16,
+        "n": 28,
+        "correct": 7,
+        "wrong": 5
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "correct": 1,
+        "wrong": 1
+       },
+       "Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 4
+       },
+       "Secret Rare": {
+        "wrong": 4,
+        "n": 28,
+        "correct": 19,
+        "unreadable": 5
+       },
+       "Shatterfoil Rare": {
+        "correct": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 6,
+        "n": 28,
+        "correct": 18,
+        "unreadable": 4
+       },
+       "Starlight Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 6,
+        "wrong": 1
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 2,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 6,
+        "n": 28,
+        "correct": 22
+       },
+       "Ultra Rare": {
+        "correct": 19,
+        "n": 28,
+        "wrong": 2,
+        "unreadable": 7
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 162,
+      "correct": 206,
+      "wrong": 32,
+      "accuracy": 0.515,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 17,
+        "n": 26,
+        "unreadable": 6,
+        "wrong": 3
+       },
+       "Common / Short Print": {
+        "unreadable": 7,
+        "n": 29,
+        "correct": 17,
+        "wrong": 5
+       },
+       "Ghost Rare": {
+        "correct": 5,
+        "n": 6,
+        "wrong": 1
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "correct": 5
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 20,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 4
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 18,
+        "n": 28,
+        "correct": 7,
+        "wrong": 3
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 4
+       },
+       "Secret Rare": {
+        "wrong": 3,
+        "n": 28,
+        "correct": 19,
+        "unreadable": 6
+       },
+       "Shatterfoil Rare": {
+        "correct": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 6,
+        "n": 28,
+        "correct": 18,
+        "unreadable": 4
+       },
+       "Starlight Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 6,
+        "wrong": 1
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 2,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 6,
+        "n": 28,
+        "correct": 22
+       },
+       "Ultra Rare": {
+        "correct": 19,
+        "n": 28,
+        "wrong": 1,
+        "unreadable": 8
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 182,
+      "correct": 195,
+      "wrong": 23,
+      "accuracy": 0.4875,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 17,
+        "n": 26,
+        "unreadable": 8,
+        "wrong": 1
+       },
+       "Common / Short Print": {
+        "unreadable": 9,
+        "n": 29,
+        "correct": 17,
+        "wrong": 3
+       },
+       "Ghost Rare": {
+        "correct": 5,
+        "n": 6,
+        "wrong": 1
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "correct": 5
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 20,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 4
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 4,
+        "wrong": 2
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 4
+       },
+       "Secret Rare": {
+        "unreadable": 9,
+        "n": 28,
+        "correct": 17,
+        "wrong": 2
+       },
+       "Shatterfoil Rare": {
+        "correct": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 5,
+        "n": 28,
+        "correct": 12,
+        "unreadable": 11
+       },
+       "Starlight Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 6
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 2,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 6,
+        "n": 28,
+        "correct": 22
+       },
+       "Ultra Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 9
+       }
+      }
+     }
+    }
+   },
+   "shift_-0.015": {
+    "regions": [
+     [
+      0.52,
+      0.699,
+      0.96,
+      0.737
+     ],
+     [
+      0.52,
+      0.727,
+      0.96,
+      0.77
+     ],
+     [
+      0.52,
+      0.895,
+      0.96,
+      0.9339999999999999
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 181,
+      "correct": 155,
+      "wrong": 32,
+      "ambiguous": 32,
+      "accuracy": 0.3875,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 9,
+        "n": 26,
+        "correct": 10,
+        "ambiguous": 3,
+        "wrong": 4
+       },
+       "Common / Short Print": {
+        "unreadable": 8,
+        "n": 29,
+        "correct": 15,
+        "ambiguous": 3,
+        "wrong": 3
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "correct": 4,
+        "wrong": 1
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 2,
+        "n": 28,
+        "unreadable": 21,
+        "correct": 5
+       },
+       "Prismatic Secret Rare": {
+        "correct": 15,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 1,
+        "ambiguous": 6
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 19,
+        "n": 28,
+        "correct": 5,
+        "wrong": 3,
+        "ambiguous": 1
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "correct": 13,
+        "n": 28,
+        "unreadable": 9,
+        "ambiguous": 3,
+        "wrong": 3
+       },
+       "Secret Rare": {
+        "correct": 10,
+        "n": 28,
+        "unreadable": 8,
+        "ambiguous": 6,
+        "wrong": 4
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 7,
+        "n": 28,
+        "correct": 10,
+        "unreadable": 7,
+        "ambiguous": 4
+       },
+       "Starlight Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 7
+       },
+       "Super Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 5,
+        "ambiguous": 2,
+        "wrong": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 7,
+        "n": 28,
+        "correct": 20,
+        "ambiguous": 1
+       },
+       "Ultra Rare": {
+        "correct": 16,
+        "n": 28,
+        "wrong": 1,
+        "unreadable": 8,
+        "ambiguous": 3
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 192,
+      "correct": 159,
+      "wrong": 30,
+      "ambiguous": 19,
+      "accuracy": 0.3975,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 11,
+        "n": 26,
+        "correct": 11,
+        "ambiguous": 2,
+        "wrong": 2
+       },
+       "Common / Short Print": {
+        "unreadable": 9,
+        "n": 29,
+        "correct": 15,
+        "ambiguous": 2,
+        "wrong": 3
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 1,
+        "n": 28,
+        "unreadable": 22,
+        "correct": 5
+       },
+       "Prismatic Secret Rare": {
+        "correct": 15,
+        "n": 28,
+        "unreadable": 7,
+        "wrong": 1,
+        "ambiguous": 5
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 4,
+        "wrong": 3
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "correct": 14,
+        "n": 28,
+        "unreadable": 9,
+        "ambiguous": 2,
+        "wrong": 3
+       },
+       "Secret Rare": {
+        "correct": 12,
+        "n": 28,
+        "unreadable": 8,
+        "wrong": 5,
+        "ambiguous": 3
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 7,
+        "n": 28,
+        "correct": 10,
+        "unreadable": 8,
+        "ambiguous": 3
+       },
+       "Starlight Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 7
+       },
+       "Super Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 7,
+        "n": 28,
+        "correct": 20,
+        "wrong": 1
+       },
+       "Ultra Rare": {
+        "correct": 16,
+        "n": 28,
+        "wrong": 1,
+        "unreadable": 9,
+        "ambiguous": 2
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 223,
+      "correct": 154,
+      "wrong": 16,
+      "ambiguous": 7,
+      "accuracy": 0.385,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 13,
+        "n": 26,
+        "correct": 11,
+        "wrong": 1,
+        "ambiguous": 1
+       },
+       "Common / Short Print": {
+        "unreadable": 13,
+        "n": 29,
+        "correct": 15,
+        "wrong": 1
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 1,
+        "n": 28,
+        "unreadable": 23,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 8,
+        "ambiguous": 1
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "correct": 14,
+        "n": 28,
+        "unreadable": 10,
+        "wrong": 3,
+        "ambiguous": 1
+       },
+       "Secret Rare": {
+        "correct": 12,
+        "n": 28,
+        "unreadable": 12,
+        "wrong": 2,
+        "ambiguous": 2
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 4,
+        "n": 28,
+        "correct": 9,
+        "unreadable": 13,
+        "ambiguous": 2
+       },
+       "Starlight Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 6
+       },
+       "Super Rare": {
+        "correct": 19,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 10,
+        "n": 28,
+        "correct": 18
+       },
+       "Ultra Rare": {
+        "correct": 15,
+        "n": 28,
+        "unreadable": 12,
+        "wrong": 1
+       }
+      }
+     }
+    }
+   },
+   "shift_+0.015": {
+    "regions": [
+     [
+      0.52,
+      0.729,
+      0.96,
+      0.767
+     ],
+     [
+      0.52,
+      0.757,
+      0.96,
+      0.8
+     ],
+     [
+      0.52,
+      0.925,
+      0.96,
+      0.964
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 316,
+      "correct": 61,
+      "wrong": 23,
+      "accuracy": 0.1525,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 24,
+        "n": 26,
+        "correct": 1,
+        "wrong": 1
+       },
+       "Common / Short Print": {
+        "unreadable": 21,
+        "n": 29,
+        "wrong": 2,
+        "correct": 6
+       },
+       "Ghost Rare": {
+        "unreadable": 3,
+        "n": 6,
+        "correct": 3
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "wrong": 1,
+        "correct": 1
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Prismatic Secret Rare": {
+        "correct": 9,
+        "n": 28,
+        "unreadable": 18,
+        "wrong": 1
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Rare": {
+        "correct": 8,
+        "n": 28,
+        "wrong": 2,
+        "unreadable": 18
+       },
+       "Secret Rare": {
+        "unreadable": 19,
+        "n": 28,
+        "correct": 6,
+        "wrong": 3
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 25,
+        "n": 28,
+        "wrong": 2,
+        "correct": 1
+       },
+       "Starlight Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "wrong": 2
+       },
+       "Super Rare": {
+        "unreadable": 18,
+        "n": 28,
+        "correct": 7,
+        "wrong": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 12,
+        "n": 28,
+        "correct": 15,
+        "wrong": 1
+       },
+       "Ultra Rare": {
+        "correct": 4,
+        "n": 28,
+        "unreadable": 20,
+        "wrong": 4
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 331,
+      "correct": 57,
+      "wrong": 12,
+      "accuracy": 0.1425,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 25,
+        "n": 26,
+        "correct": 1
+       },
+       "Common / Short Print": {
+        "unreadable": 22,
+        "n": 29,
+        "wrong": 1,
+        "correct": 6
+       },
+       "Ghost Rare": {
+        "unreadable": 3,
+        "n": 6,
+        "correct": 3
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "wrong": 1,
+        "correct": 1
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Prismatic Secret Rare": {
+        "correct": 7,
+        "n": 28,
+        "unreadable": 21
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Rare": {
+        "correct": 7,
+        "n": 28,
+        "wrong": 1,
+        "unreadable": 20
+       },
+       "Secret Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 6,
+        "wrong": 2
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 25,
+        "n": 28,
+        "wrong": 2,
+        "correct": 1
+       },
+       "Starlight Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Super Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 7,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 13,
+        "n": 28,
+        "correct": 15
+       },
+       "Ultra Rare": {
+        "correct": 3,
+        "n": 28,
+        "unreadable": 23,
+        "wrong": 2
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 342,
+      "correct": 51,
+      "wrong": 7,
+      "accuracy": 0.1275,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 25,
+        "n": 26,
+        "correct": 1
+       },
+       "Common / Short Print": {
+        "unreadable": 23,
+        "n": 29,
+        "correct": 6
+       },
+       "Ghost Rare": {
+        "unreadable": 3,
+        "n": 6,
+        "correct": 3
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Prismatic Secret Rare": {
+        "correct": 6,
+        "n": 28,
+        "unreadable": 22
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Rare": {
+        "correct": 7,
+        "n": 28,
+        "unreadable": 21
+       },
+       "Secret Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 5,
+        "wrong": 2
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Starlight Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Super Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 6,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 14,
+        "n": 28,
+        "correct": 14
+       },
+       "Ultra Rare": {
+        "correct": 3,
+        "n": 28,
+        "unreadable": 24,
+        "wrong": 1
+       }
+      }
+     }
+    }
+   },
+   "shift_+0.030": {
+    "regions": [
+     [
+      0.52,
+      0.744,
+      0.96,
+      0.782
+     ],
+     [
+      0.52,
+      0.772,
+      0.96,
+      0.8150000000000001
+     ],
+     [
+      0.52,
+      0.9400000000000001,
+      0.96,
+      0.979
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 397,
+      "correct": 3,
+      "accuracy": 0.0075,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 26,
+        "n": 26
+       },
+       "Common / Short Print": {
+        "unreadable": 29,
+        "n": 29
+       },
+       "Ghost Rare": {
+        "unreadable": 4,
+        "n": 6,
+        "correct": 2
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Starlight Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Super Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Ultimate Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Ultra Rare": {
+        "unreadable": 28,
+        "n": 28
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 397,
+      "correct": 3,
+      "accuracy": 0.0075,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 26,
+        "n": 26
+       },
+       "Common / Short Print": {
+        "unreadable": 29,
+        "n": 29
+       },
+       "Ghost Rare": {
+        "unreadable": 4,
+        "n": 6,
+        "correct": 2
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Starlight Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Super Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Ultimate Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Ultra Rare": {
+        "unreadable": 28,
+        "n": 28
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 398,
+      "correct": 2,
+      "accuracy": 0.005,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 26,
+        "n": 26
+       },
+       "Common / Short Print": {
+        "unreadable": 29,
+        "n": 29
+       },
+       "Ghost Rare": {
+        "unreadable": 4,
+        "n": 6,
+        "correct": 2
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Secret Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Starlight Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Super Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Ultimate Rare": {
+        "unreadable": 28,
+        "n": 28
+       },
+       "Ultra Rare": {
+        "unreadable": 28,
+        "n": 28
+       }
+      }
+     }
+    }
+   },
+   "wider_5pct": {
+    "regions": [
+     [
+      0.47000000000000003,
+      0.714,
+      1.0,
+      0.752
+     ],
+     [
+      0.47000000000000003,
+      0.742,
+      1.0,
+      0.785
+     ],
+     [
+      0.47000000000000003,
+      0.91,
+      1.0,
+      0.949
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 165,
+      "correct": 196,
+      "wrong": 37,
+      "ambiguous": 2,
+      "accuracy": 0.49,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 9,
+        "n": 26,
+        "correct": 15,
+        "wrong": 2
+       },
+       "Common / Short Print": {
+        "unreadable": 5,
+        "n": 29,
+        "correct": 20,
+        "wrong": 4
+       },
+       "Ghost Rare": {
+        "correct": 4,
+        "n": 6,
+        "ambiguous": 2
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 20,
+        "n": 28,
+        "correct": 7,
+        "wrong": 1
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 1,
+        "n": 28,
+        "unreadable": 22,
+        "correct": 5
+       },
+       "Prismatic Secret Rare": {
+        "correct": 21,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 3
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 17,
+        "n": 28,
+        "correct": 5,
+        "wrong": 6
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "correct": 2
+       },
+       "Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 7,
+        "wrong": 3
+       },
+       "Secret Rare": {
+        "wrong": 3,
+        "n": 28,
+        "unreadable": 7,
+        "correct": 18
+       },
+       "Shatterfoil Rare": {
+        "correct": 1,
+        "n": 2,
+        "wrong": 1
+       },
+       "Starfoil Rare": {
+        "correct": 15,
+        "n": 28,
+        "wrong": 7,
+        "unreadable": 6
+       },
+       "Starlight Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "correct": 5
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 2,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 10,
+        "n": 28,
+        "correct": 17,
+        "wrong": 1
+       },
+       "Ultra Rare": {
+        "correct": 18,
+        "n": 28,
+        "wrong": 4,
+        "unreadable": 6
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 177,
+      "correct": 192,
+      "wrong": 30,
+      "ambiguous": 1,
+      "accuracy": 0.48,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 9,
+        "n": 26,
+        "correct": 15,
+        "wrong": 2
+       },
+       "Common / Short Print": {
+        "unreadable": 5,
+        "n": 29,
+        "correct": 20,
+        "wrong": 4
+       },
+       "Ghost Rare": {
+        "correct": 5,
+        "n": 6,
+        "ambiguous": 1
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 21,
+        "n": 28,
+        "correct": 6,
+        "wrong": 1
+       },
+       "Prismatic Collector's Rare": {
+        "wrong": 1,
+        "n": 28,
+        "unreadable": 23,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 21,
+        "n": 28,
+        "unreadable": 4,
+        "wrong": 3
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 19,
+        "n": 28,
+        "correct": 4,
+        "wrong": 5
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "correct": 2
+       },
+       "Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 7,
+        "wrong": 3
+       },
+       "Secret Rare": {
+        "unreadable": 8,
+        "n": 28,
+        "correct": 18,
+        "wrong": 2
+       },
+       "Shatterfoil Rare": {
+        "correct": 1,
+        "n": 2,
+        "unreadable": 1
+       },
+       "Starfoil Rare": {
+        "correct": 15,
+        "n": 28,
+        "wrong": 6,
+        "unreadable": 7
+       },
+       "Starlight Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "correct": 5
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 2,
+        "wrong": 1
+       },
+       "Ultimate Rare": {
+        "unreadable": 12,
+        "n": 28,
+        "correct": 15,
+        "wrong": 1
+       },
+       "Ultra Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 9,
+        "wrong": 1
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 195,
+      "correct": 188,
+      "wrong": 17,
+      "accuracy": 0.47,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "unreadable": 10,
+        "n": 26,
+        "correct": 15,
+        "wrong": 1
+       },
+       "Common / Short Print": {
+        "unreadable": 6,
+        "n": 29,
+        "correct": 20,
+        "wrong": 3
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 5,
+        "wrong": 1
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Secret Rare": {
+        "correct": 21,
+        "n": 28,
+        "unreadable": 6,
+        "wrong": 1
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 22,
+        "n": 28,
+        "correct": 4,
+        "wrong": 2
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "correct": 2
+       },
+       "Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 8,
+        "wrong": 2
+       },
+       "Secret Rare": {
+        "unreadable": 11,
+        "n": 28,
+        "correct": 17
+       },
+       "Shatterfoil Rare": {
+        "correct": 1,
+        "n": 2,
+        "unreadable": 1
+       },
+       "Starfoil Rare": {
+        "correct": 12,
+        "n": 28,
+        "unreadable": 11,
+        "wrong": 5
+       },
+       "Starlight Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "correct": 5
+       },
+       "Super Rare": {
+        "correct": 25,
+        "n": 28,
+        "unreadable": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 12,
+        "n": 28,
+        "correct": 15,
+        "wrong": 1
+       },
+       "Ultra Rare": {
+        "correct": 18,
+        "n": 28,
+        "unreadable": 9,
+        "wrong": 1
+       }
+      }
+     }
+    }
+   },
+   "taller_1pct": {
+    "regions": [
+     [
+      0.52,
+      0.704,
+      0.96,
+      0.762
+     ],
+     [
+      0.52,
+      0.732,
+      0.96,
+      0.795
+     ],
+     [
+      0.52,
+      0.9,
+      0.96,
+      0.959
+     ]
+    ],
+    "thresholds": {
+     "0.8": {
+      "n": 400,
+      "unreadable": 208,
+      "correct": 142,
+      "wrong": 47,
+      "ambiguous": 3,
+      "accuracy": 0.355,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 14,
+        "n": 26,
+        "unreadable": 9,
+        "wrong": 3
+       },
+       "Common / Short Print": {
+        "unreadable": 13,
+        "n": 29,
+        "correct": 12,
+        "wrong": 4
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "wrong": 1,
+        "correct": 3
+       },
+       "Prismatic Secret Rare": {
+        "wrong": 4,
+        "n": 28,
+        "correct": 17,
+        "unreadable": 7
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 23,
+        "n": 28,
+        "wrong": 5
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "unreadable": 10,
+        "n": 28,
+        "correct": 12,
+        "wrong": 4,
+        "ambiguous": 2
+       },
+       "Secret Rare": {
+        "correct": 13,
+        "n": 28,
+        "unreadable": 11,
+        "wrong": 4
+       },
+       "Shatterfoil Rare": {
+        "correct": 1,
+        "n": 2,
+        "unreadable": 1
+       },
+       "Starfoil Rare": {
+        "wrong": 15,
+        "n": 28,
+        "unreadable": 6,
+        "correct": 7
+       },
+       "Starlight Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Super Rare": {
+        "correct": 20,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 13,
+        "n": 28,
+        "correct": 13,
+        "wrong": 1,
+        "ambiguous": 1
+       },
+       "Ultra Rare": {
+        "correct": 15,
+        "n": 28,
+        "wrong": 3,
+        "unreadable": 10
+       }
+      }
+     },
+     "0.85": {
+      "n": 400,
+      "unreadable": 222,
+      "correct": 138,
+      "wrong": 38,
+      "ambiguous": 2,
+      "accuracy": 0.345,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 14,
+        "n": 26,
+        "unreadable": 9,
+        "wrong": 3
+       },
+       "Common / Short Print": {
+        "unreadable": 13,
+        "n": 29,
+        "correct": 12,
+        "wrong": 4
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 25,
+        "n": 28,
+        "correct": 3
+       },
+       "Prismatic Secret Rare": {
+        "wrong": 3,
+        "n": 28,
+        "correct": 17,
+        "unreadable": 8
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "wrong": 2
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "unreadable": 11,
+        "n": 28,
+        "correct": 12,
+        "wrong": 4,
+        "ambiguous": 1
+       },
+       "Secret Rare": {
+        "correct": 13,
+        "n": 28,
+        "unreadable": 13,
+        "wrong": 2
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "wrong": 13,
+        "n": 28,
+        "unreadable": 10,
+        "correct": 5
+       },
+       "Starlight Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Super Rare": {
+        "correct": 20,
+        "n": 28,
+        "unreadable": 5,
+        "wrong": 3
+       },
+       "Ultimate Rare": {
+        "unreadable": 14,
+        "n": 28,
+        "correct": 12,
+        "wrong": 1,
+        "ambiguous": 1
+       },
+       "Ultra Rare": {
+        "correct": 15,
+        "n": 28,
+        "wrong": 3,
+        "unreadable": 10
+       }
+      }
+     },
+     "0.9": {
+      "n": 400,
+      "unreadable": 246,
+      "correct": 125,
+      "wrong": 28,
+      "ambiguous": 1,
+      "accuracy": 0.3125,
+      "by_rarity": {
+       "10000 Secret Rare": {
+        "unreadable": 1,
+        "n": 1
+       },
+       "Collector's Rare": {
+        "correct": 14,
+        "n": 26,
+        "unreadable": 9,
+        "wrong": 3
+       },
+       "Common / Short Print": {
+        "unreadable": 15,
+        "n": 29,
+        "correct": 10,
+        "wrong": 4
+       },
+       "Ghost Rare": {
+        "correct": 6,
+        "n": 6
+       },
+       "Platinum Secret Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Prismatic Collector's Rare": {
+        "unreadable": 26,
+        "n": 28,
+        "correct": 2
+       },
+       "Prismatic Secret Rare": {
+        "wrong": 1,
+        "n": 28,
+        "correct": 15,
+        "unreadable": 12
+       },
+       "Prismatic Ultimate Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "wrong": 1
+       },
+       "Quarter Century Secret Rare": {
+        "unreadable": 27,
+        "n": 28,
+        "correct": 1
+       },
+       "Rare": {
+        "unreadable": 13,
+        "n": 28,
+        "correct": 11,
+        "wrong": 3,
+        "ambiguous": 1
+       },
+       "Secret Rare": {
+        "unreadable": 15,
+        "n": 28,
+        "correct": 11,
+        "wrong": 2
+       },
+       "Shatterfoil Rare": {
+        "unreadable": 2,
+        "n": 2
+       },
+       "Starfoil Rare": {
+        "unreadable": 14,
+        "n": 28,
+        "wrong": 10,
+        "correct": 4
+       },
+       "Starlight Rare": {
+        "unreadable": 24,
+        "n": 28,
+        "correct": 4
+       },
+       "Super Rare": {
+        "correct": 16,
+        "n": 28,
+        "unreadable": 10,
+        "wrong": 2
+       },
+       "Ultimate Rare": {
+        "unreadable": 15,
+        "n": 28,
+        "correct": 12,
+        "wrong": 1
+       },
+       "Ultra Rare": {
+        "correct": 15,
+        "n": 28,
+        "unreadable": 12,
+        "wrong": 1
+       }
+      }
+     }
+    }
+   }
+  },
+  "size": [
+   630,
+   920
+  ]
+ },
+ "conclusion": "la mejor variante es baseline con umbral 0.85 (0.527 frente a 0.527 de la configuración actual); la ganancia es menor de 2 puntos: no se justifica cambiar SET_REGIONS"
+}

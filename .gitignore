@@ -20,3 +20,6 @@ research/glare-benchmark/models/
 # Copias de bases de datos que dejan los scripts de auditoria/sincronizacion
 research/**/*.sqlite
 research/database-audit/sync-*/
+
+# Registros codificados de la calibración (6 MB, regenerables con calibrate_acceptance.py)
+research/qa/calibration/acceptance-records.json

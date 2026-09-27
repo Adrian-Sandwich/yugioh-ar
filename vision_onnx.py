@@ -27,8 +27,12 @@ ROOT=Path(__file__).resolve().parent
 MODELS=ROOT/'downloads/reference-assets/draw2/onnx'
 PILOT=ROOT/'data/pilot'
 # Acceptance rules per mode: (minimum top-1 score, minimum margin to the best
-# different identity). Experimental; see research/CALIBRACION_ESCANEOS.md.
-ACCEPTANCE={'embedding':(.80,.07),'classifier':(.50,.15)}
+# different identity). Embedding rule calibrated on 26/09/2026 against 1,336
+# TCGplayer scans of cards outside the pilot (0 false accepts down to 0.48/0.24)
+# and 446 scans of pilot cards (97.1% recall vs 91.0% with the old 0.80/0.07);
+# set a little above that frontier because scans are flatter than table photos.
+# See research/CALIBRACION_ESCANEOS.md.
+ACCEPTANCE={'embedding':(.50,.25),'classifier':(.50,.15)}
 ORIENTATION_SKIP_SCORE=.90
 # A track keeps its identity without re-encoding while it is this fresh and
 # still overlaps the new box; afterwards the card is identified again so a
