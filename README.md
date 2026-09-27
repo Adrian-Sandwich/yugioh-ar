@@ -8,7 +8,7 @@ Spanish, German, French and Portuguese), tracks them across frames and draws
 the monster over the video. The goal is an **AR duel engine** that runs live,
 on ordinary hardware, with nothing sent to the cloud.
 
-![Four real cards on a table recognized by the viewer: Dark Magician, Red-Eyes Black Dragon and Blue-Eyes White Dragon identified with AR sprites](docs/img/mesa-cuatro-cartas.png)
+![Live viewer with ten real cards on the table, all recognized and tracked between analyses, with AR sprites: two foil Odd-Eyes Pendulum Dragon, Dark Magician, three Blue-Eyes White Dragon, Red-Eyes B. Dragon, Number 39: Utopia, Solemn Judgment and Vanity's Emptiness](docs/img/mesa-cuatro-cartas.png)
 
 **Status, September 26, 2026:** working prototype. It recognizes several
 cards at once in saved captures and in live video from a phone. Sprites now
@@ -202,8 +202,8 @@ calibration against TCGplayer scans and continuous integration
 
 | | |
 |---|---|
-| ![Blue-Eyes White Dragon sprite drawn over the physical card in a real photo](docs/img/sprite-ar-captura.png) | ![Catalog gallery with the card name in five languages and its artworks](docs/img/galeria-catalogo.png) |
-| AR sprite over a real capture, with the card rotated. | Catalog gallery: names in five languages and artwork references pending review. |
+| ![Blue-Eyes White Dragon sprite drawn over the physical card in a real photo; two objects cut by the frame edge are flagged in red](docs/img/sprite-ar-captura.png) | ![Catalog card page with the name in five languages and its artworks from three sources](docs/img/galeria-catalogo.png) |
+| AR sprite over a real capture, tracked between analyses. Objects cut by the frame edge get a red hint instead of a guess. | Catalog page of Odd-Eyes Pendulum Dragon: names in five languages, three artworks and scans pending review. |
 
 ![AR layer composited over the original frame: Blue-Eyes White Dragon with its sprite aligned to the card](docs/img/ar-blue-eyes.jpg)
 

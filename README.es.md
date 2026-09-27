@@ -8,7 +8,7 @@ idiomas (inglés, español, alemán, francés y portugués), las sigue entre
 fotogramas y dibuja el monstruo sobre el vídeo. La meta es un **motor de duelo
 en AR** que funcione en vivo, con hardware normal y sin depender de la nube.
 
-![Cuatro cartas reales sobre la mesa reconocidas por el visor: Mago Oscuro, Dragón Negro de Ojos Rojos y Dragón Blanco de Ojos Azules identificados con sprites AR](docs/img/mesa-cuatro-cartas.png)
+![Visor en vivo con diez cartas reales sobre la mesa, todas reconocidas y seguidas entre análisis, con sprites AR: dos Dragón de Péndulo de Ojos Anómalos foil, Mago Oscuro, tres Dragón Blanco de Ojos Azules, Dragón Negro de Ojos Rojos, Número 39: Utopía, Juicio Solemne y Todovano la Esencia de Vanidad](docs/img/mesa-cuatro-cartas.png)
 
 **Estado, 26 de septiembre de 2026:** prototipo funcional. Reconoce varias
 cartas a la vez en capturas y en vídeo desde un teléfono. Los sprites siguen
@@ -209,8 +209,8 @@ umbrales contra escaneos de TCGplayer e integración continua
 
 | | |
 |---|---|
-| ![Sprite del Dragón Blanco de Ojos Azules dibujado sobre la carta física en una foto real](docs/img/sprite-ar-captura.png) | ![Galería del catálogo con el nombre de la carta en cinco idiomas y sus artes](docs/img/galeria-catalogo.png) |
-| Sprite AR sobre una captura real, con la carta girada. | Galería del catálogo: nombres en cinco idiomas y referencias de arte por revisar. |
+| ![Sprite del Dragón Blanco de Ojos Azules dibujado sobre la carta física en una foto real; dos objetos cortados por el borde del cuadro marcados en rojo](docs/img/sprite-ar-captura.png) | ![Ficha del catálogo con el nombre de la carta en cinco idiomas y sus artes de tres fuentes](docs/img/galeria-catalogo.png) |
+| Sprite AR sobre una captura real, seguido entre análisis. Los objetos cortados por el borde reciben un aviso en rojo en lugar de una identidad adivinada. | Ficha de Dragón de Péndulo de Ojos Anómalos: nombres en cinco idiomas, tres artes y escaneos pendientes de revisión. |
 
 ![Capa AR compuesta sobre el fotograma original: Blue-Eyes White Dragon con su sprite alineado a la carta](docs/img/ar-blue-eyes.jpg)
 
