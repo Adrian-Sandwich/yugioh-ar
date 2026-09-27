@@ -112,20 +112,24 @@ El reintento CID 15519/PT se recuperó al volver a entrar en la cola pendiente.
 
 ## Pendientes que requieren datos, otra PC o acceso externo
 
+Revisado el 27/09/2026: las filas marcadas "hecho" se cerraron el 26/09
+([TIEMPO_REAL.md](TIEMPO_REAL.md)); las demás siguen vigentes con su criterio.
+
 | Prioridad | Trabajo | Criterio para considerarlo terminado |
 |---|---|---|
-| P0 | Capturas reales en sesiones separadas: ángulos, distancias, fondos, idiomas, fundas, brillos y negativos | Todas las instancias anotadas; train/val/test sin fuga de sesión |
-| P0 | Entrenar y comparar YOLO11n/s con datos reales | Error de esquina, orientación, falsas detecciones, recortes válidos y latencia medidos |
+| P0 | Capturas reales en sesiones separadas: ángulos, distancias, fondos, idiomas, fundas, brillos y negativos. Protocolo en [PROTOCOLO_CAPTURAS.md](PROTOCOLO_CAPTURAS.md); conversión al detector con `yolo11_pose/from_captures.py` | Todas las instancias anotadas; train/val/test sin fuga de sesión |
+| P0 | Entrenar y comparar YOLO11n/s con datos reales | Error de esquina, orientación, falsas detecciones, recortes válidos y latencia medidos, **frente a OBB + refinamiento + seguimiento** |
 | P0 | Anotar oclusiones y visibilidad; comparar pose/segmentación | Distinguir esquina observada de inferida; no usar confianza estándar como visibilidad |
 | P1 | PCA y atención adicional | Ablación con mismos datos/configuración frente a C2PSA nativo; conservar sólo mejora medida |
-| P1 | Seguimiento óptico y movimiento de cámara | Clips con cruces, sustitución en el mismo sitio, dos copias iguales; sin transferir identidad/votos |
-| P1 | Elegir mejores capturas y evitar identificaciones redundantes | Menos inferencias manteniendo detección de cartas nuevas y cambios de identidad |
-| P1 | Validar nombres y set code fisicos y selección de ROI por texto | Datos legibles en EN/ES/DE/FR/PT; evidencia separada de la identidad visual |
-| P1 | Aislar ONNX en proceso recuperable | Prueba de bloqueo real, reinicio controlado y memoria/latencia medidos; el watchdog actual sólo registra stacks |
+| P1 | Seguimiento óptico y movimiento de cámara. **Parcial:** `live_tracking.py` sigue esquinas con LK + homografía (4 ms/fotograma, sintético) | Clips reales con cruces, sustitución en el mismo sitio, dos copias iguales y cámara en movimiento; sin transferir identidad/votos |
+| P1 | Elegir mejores capturas y evitar identificaciones redundantes. **Hecho** en parte: pistas frescas (≤ 8 s) conservan identidad sin codificar; selección por calidad en `card_evidence` | Medir cuántas inferencias ahorra en clips reales sin perder cambios de identidad |
+| P1 | Validar nombres y set code físicos y selección de ROI por texto. **Parcial:** regiones del set code calibradas en 3,286 escaneos (sin cambio) | Datos legibles en EN/ES/DE/FR/PT en fotos; evidencia separada de la identidad visual |
+| P1 | ~~Aislar ONNX en proceso recuperable~~ **Hecho:** `inference_host.py`, reinicio ante cuelgue probado | — |
 | P2 | FTS5/trigramas y revisión de cachés | Primero copia de SQLite, misma semántica de acentos/subcadenas y frescura durante escritura |
-| P2 | Restauración de reflejos en GPU | Mejorar identidad/OCR, no sólo apariencia; seguir `glare-benchmark/TRANSFERENCIA.md` |
+| P2 | Restauración de reflejos en GPU. Prioridad baja: el foil se resolvió con artes completos, aceptación por arte y regla 0.50/0.25 | Mejorar identidad/OCR, no sólo apariencia; seguir `glare-benchmark/TRANSFERENCIA.md` |
 | P2 | UnReflectAnything | Acceso autorizado al encoder DINO faltante; todavía sin resultados locales |
-| P2 | AR con warp limitado a ROI, batching y exportación ONNX de pose | Igualdad visual o tolerancia documentada y mejora p50/p95 real |
+| P2 | ~~AR con warp limitado a ROI, batching y exportación ONNX de pose~~ **Obsoleto:** el warp se hace en el navegador (WebGL) y el encoder ya va por lotes; queda sólo la exportación ONNX de pose cuando exista el modelo | — |
+| P2 | Ajuste contrastivo del encoder con escaneos por rareza y fotos inscritas (cola, experimento 8) | Recall por rareza con `calibrate_acceptance.py` antes y después; deriva int8 medida |
 | P3 | Nuevos vectores, lector especializado de dígitos, Go/Julia y AR 3D | Etapas futuras; no iniciadas por preparar YOLO11 |
 
 El refinamiento actual sólo resolvió 4/9 candidatas de una captura. Sus filtros

@@ -88,7 +88,13 @@ de la misma sesión; no contar fotogramas vecinos como ejemplos independientes.
 ## Anotación
 
 Página de capturas: http://127.0.0.1:8768/capture (la sirve
-`catalog_server.py`; arranca con `start_lab.ps1`). Por cada carta de la foto:
+`catalog_server.py`; arranca con `start_lab.ps1`). **Marcar todas las cartas
+completas de cada foto**, no sólo las interesantes: el detector se entrena con
+estas mismas fotos y una carta sin marcar cuenta como falso negativo. Las
+sesiones en que se cumplió eso se declaran al convertir para YOLO11
+(`research/yolo11_pose/from_captures.py --exhaustive-sessions ...`). Los
+negativos (fotos sin cartas) se anotan con el anotador de pose
+(http://127.0.0.1:8767/pose-annotator), no aquí. Por cada carta de la foto:
 
 1. Marcar las cuatro esquinas **empezando por la superior izquierda de la
    carta** (no de la imagen) y siguiendo el borde. Ese orden es el que el

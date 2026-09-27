@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "checks": [
+    "only certified sessions converted",
+    "validation mapped to val",
+    "one scene per image with all its cards",
+    "unknown identity kept as card",
+    "import_annotations accepts the output",
+    "YOLO pose label format",
+    "non-empty output refused"
+  ]
+}

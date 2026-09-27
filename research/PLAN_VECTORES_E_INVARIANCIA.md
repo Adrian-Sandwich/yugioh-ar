@@ -12,6 +12,28 @@ Actualización del 25/09/2026: se implementaron catálogo unificado, revisión d
 
 Estado: plan para ejecutar en otra computadora. No se entrenaron ni exportaron modelos nuevos en este paso. Hardware destino aún desconocido; registrar GPU, VRAM, RAM, sistema y cámara antes de fijar batch size o tiempos. El procesamiento final puede volver a la PC actual tras medir su rendimiento.
 
+## Estado al 27/09/2026: qué de este plan ya está hecho y qué cambió
+
+Revisión contra el código y las bases después del trabajo del 26/09
+([TIEMPO_REAL.md](TIEMPO_REAL.md), [CALIBRACION_ESCANEOS.md](CALIBRACION_ESCANEOS.md)).
+Las secciones siguientes conservan el plan original; esta tabla manda cuando
+se contradigan.
+
+| Sección | Decía | Estado real |
+|---|---|---|
+| 3 | "No contamos con las imágenes de referencia del catálogo moderno" | Hay 14,249 artes de YGOPRODeck, 14,935 renders TDOANE, 17,818 escaneos CardsOricaBR (propuestas sin revisar) y 46,058 escaneos TCGplayer con impresión exacta. La caché de Neuron son HTML y JSON, **sin imágenes**: la galería por idioma de la sección 13 sigue sin existir. |
+| 5 | Línea base E0 a E2 pendiente | Hecha en CPU sobre la escena real: detector OBB + refinamiento, tres identificadores, verificación SIFT (`qa/art-verification`). |
+| 8 | "Empezar con búsqueda exacta para ~14,000 referencias" | El índice de 14,249 artes existe (`data/pilot/art_index-*.npy`, 73 min en CPU). Faltan por resolver 28 etiquetas de DRAW2 sin identidad (13,631 mapeadas de 13,659). |
+| 8 | INT8 y regenerar índice | Medido: el int8 actual deriva hasta 0.012 entre lote y una imagen; cualquier encoder exportado debe medir esa deriva antes de fijar umbrales. |
+| 9 | "Mezclar imagen canónica y foto real como positivos" | Las fotos reales entran como referencias con `enroll_reference.py` (partición `train` solamente); son los positivos fotográficos de este apartado. |
+| 10 | "Umbrales calibrados en validación con desconocidos" | Hecho: 0.50 / 0.25 con 1,336 negativos y 446 positivos. **`research/calibrate_acceptance.py` es el arnés de aceptación**: todo encoder nuevo se evalúa con él y con los mismos escaneos. La aceptación por arte verificado ya está en el visor. |
+| 11 | "≥5 actualizaciones/s y ≥25 FPS" | Métrica sustituida: con seguimiento entre análisis lo que se mide es tiempo hasta la primera identidad de una carta nueva, edad del overlay, cambios falsos de identidad por pista y latencia p50/p95 del análisis. |
+| 12 | Contrato del visor | Ya incluye `acceptance` (score o art_verified), `identity_source` (embedding o track), `reuse_iou` y pistas por fotograma (`X-Tracks`). Un encoder nuevo debe conservar `Encoder.predict_batch` y `ResearchRecognizer.rank`. |
+| 13 | "Auditar la cobertura real de YGOJSON" | Hecho el 26/09: 120,271 pares carta-idioma; sin nombre 419 (es), 401 (de), 382 (fr), 2,270 (pt); sólo 104 pares tienen impresión declarada sin nombre. |
+| 14 | Pares de la misma identidad con acabados distintos | Existen como escaneos (no fotos de mesa) por rareza; el recall por rareza está en `qa/calibration/acceptance.md`. Las impresiones de TCGplayer están ahora también en el registro (fuente `tcgplayer:`). |
+| 14 | CardsOricaBR "descargar y auditar" | Descargada (17,909 archivos). Las 17,818 referencias siguen como propuestas sin aprobar en la galería. |
+| 6 | Detector de esquinas | Datos reales: seguir [PROTOCOLO_CAPTURAS.md](PROTOCOLO_CAPTURAS.md) y convertir con `yolo11_pose/from_captures.py`; el anotador de pose sigue siendo la vía para negativos. |
+
 ## 1. Qué significa vectorizar aquí
 
 Convertir cada recorte de carta en un **embedding visual** que conserve identidad y reduzca sensibilidad a condiciones de captura. Aplanar píxeles en un vector no proporciona esa robustez. DRAW2 ya contiene una red que produce representaciones internas, pero sus ONNX descargados son clasificadores: no asumir que sus salidas son embeddings apropiados para búsqueda.
@@ -149,7 +171,7 @@ Asociar objetos por geometría y movimiento; acumular evidencia en varias observ
 
 Medir recall/precisión de detección y error de esquinas; top-1/top-5 de identidad; precisión entre resultados aceptados y fracción rechazada; falsos positivos en desconocidos; resultados por giro, sombra, funda y tamaño; latencia p50/p95 y cambios falsos de identidad por track. Medir rendimiento de extremo a extremo incluyendo captura, no solo inferencia.
 
-Objetivos iniciales propuestos para el piloto: ≥95% de identidad correcta en cartas claramente visibles; ≤1% de falsas aceptaciones sobre al menos 300 observaciones desconocidas suficientemente independientes; ≥5 actualizaciones/s de reconocimiento y ≥25 FPS del visor con procesamiento desacoplado. Reportar intervalos de incertidumbre, especialmente si hay pocos errores. Son metas a validar, no resultados ni umbrales universales. No retocar el modelo después de mirar la prueba final sin crear una nueva prueba reservada.
+Objetivos iniciales propuestos para el piloto: ≥95% de identidad correcta en cartas claramente visibles; ≤1% de falsas aceptaciones sobre al menos 300 observaciones desconocidas suficientemente independientes. Los objetivos de frecuencia originales (≥5 actualizaciones/s de reconocimiento y ≥25 FPS) quedan sustituidos desde el 26/09/2026: con seguimiento de esquinas entre análisis, medir tiempo hasta la primera identidad de una carta nueva (objetivo a ratificar: < 2 s en CPU con reutilización activa), edad del overlay respecto al fotograma y cambios falsos de identidad por pista. Reportar intervalos de incertidumbre, especialmente si hay pocos errores. Son metas a validar, no resultados ni umbrales universales. No retocar el modelo después de mirar la prueba final sin crear una nueva prueba reservada.
 
 ## 12. Entregables y retorno a la PC
 

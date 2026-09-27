@@ -38,6 +38,23 @@ ORDER BY p.release_date DESC,p.set_code;
 
 ## Fuentes incorporadas
 
+**27/09/2026: TCGplayer.** `research/import_tcgplayer_printings.py` añadió
+42,062 observaciones de impresión con fuente `tcgplayer:reconstructed-20260927`:
+código de set exacto de la búsqueda de TCGplayer, rareza del producto, URL del
+escaneo en el CDN y, en `evidence_json`, el producto, la ruta local del
+escaneo y cómo se emparejó la identidad (por nombre, `reconstructed.json`).
+Se importaron sólo productos con una única identidad reconstruida y número
+exacto (42,062 de 47,824; 3,448 con códigos fuera del formato `SET-LL000`,
+2,103 con identidad ambigua). Aportó 42 códigos de set nuevos y rareza para
+todas las filas; de las 1,138 lecturas OCR que el lote marcó "sin coincidencia
+en el registro" sólo 4 se resuelven con ellos, confirmando que esas lecturas
+eran errores de glifo y no huecos del registro. Su valor principal es enlazar
+cada impresión con una foto real de esa rareza. Respaldo previo con la API de
+backup en
+`research/database-audit/registry-before-tcgplayer-20260927-091658.sqlite`
+(fuera de Git). Reversión: borrar las filas de `printings` y `sources` con ese
+identificador.
+
 1. **[YGOJSON](https://github.com/iconmaster5326/YGOJSON)**: distribución individual completa, 14,616 registros de carta y 3,306 productos/conjuntos. El ZIP pasó validación CRC de todos sus archivos. Sus metadatos indican últimas lecturas de Yugipedia/YGOPRODeck del 7 de abril de 2026 y de YamlYugi de mayo de 2025; descargarlo hoy no vuelve actuales esos datos. Los sets virtuales se conservan como productos, pero no se inventan impresiones físicas para ellos.
 2. **Juego local TDOANE**: nombres de cuatro idiomas enlazados por el catálogo existente y 8,350 observaciones de `pack.db`; 17 filas quedaron sin asociación segura. Su historial es parcial, no exhaustivo. Las fechas ambiguas y los códigos antiguos sin idioma conservan su valor original sin inferir datos.
 3. **[Neuron](https://www.db.yugioh-card.com/yugiohdb/card_search.action)**: scraping directo de su índice público completo en cinco idiomas (678 páginas). Incluye nombres, textos e identificador CID. Descarga adicional de fichas individuales para código de set, rareza y fecha. Cada respuesta HTML se guarda junto al JSON interpretado, SHA-256, URL y fecha de descarga. El idioma y la paginación se verifican antes de aceptar una página.

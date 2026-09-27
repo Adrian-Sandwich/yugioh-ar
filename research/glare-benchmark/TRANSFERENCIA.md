@@ -126,7 +126,13 @@ se enlazan localmente; no se envían a un servicio externo.
   Los resultados actuales corresponden a `reflect`; no atribuirlos a una réplica
   exacta del script upstream. No se ejecutó la variante upstream aquí.
 - La clasificación mantiene las orientaciones 0/180, similitud >=0.80 y margen
-  >=0.07 del piloto. No se bajaron umbrales para mejorar el conteo.
+  >=0.07 del piloto de entonces. No se bajaron umbrales para mejorar el conteo.
+  **Desde el 26/09/2026 la regla de producción es similitud ≥ 0.50 y margen
+  ≥ 0.25** (`vision_onnx.ACCEPTANCE`, calibrada en
+  [CALIBRACION_ESCANEOS.md](../CALIBRACION_ESCANEOS.md)) y el piloto tiene 88
+  referencias en lugar de 63: repetir esta evaluación hoy da otro conteo de
+  aceptaciones por esas dos razones, no por la restauración. Para comparar
+  con los resultados guardados hay que fijar la regla antigua en el script.
 - CLAHE se aplica a luminancia Lab (clip 2.0, grilla 8×8). El OCR mantiene sus
   variantes originales, incluida su propia normalización de contraste.
 - Los recortes vienen de cajas orientadas; no son anotaciones de esquinas

@@ -25,6 +25,23 @@ Experimento preparado el 25/09/2026. **No es el detector del visor.**
 
 ## Preparar datos reales
 
+Dos vías, y las dos acaban en `import_annotations.py`:
+
+1. **Página de capturas** (http://127.0.0.1:8768/capture), la que sigue el
+   [protocolo de capturas](../PROTOCOLO_CAPTURAS.md): guarda una anotación por
+   carta en `data/pilot/captures/annotations.jsonl`. Como no tiene casilla de
+   "marqué todas las cartas", las sesiones exhaustivas se declaran al convertir:
+
+   ```powershell
+   .\.venv-eval\Scripts\python.exe research/yolo11_pose/from_captures.py data/pilot/captures data/pose/from-captures-v1 --exhaustive-sessions <sesion1> <sesion2>
+   ```
+
+   Sólo sirve si en esas sesiones se marcó **cada carta completa de cada
+   foto**; una carta sin marcar se convierte en falso negativo. Prueba:
+   `qa_pose_from_captures.py`.
+2. **Anotador de pose** (abajo), necesario para negativos (fotos sin cartas),
+   que la página de capturas no admite.
+
 Abrir http://127.0.0.1:8767/pose-annotator o la misma ruta en el puerto 8765.
 Seleccionar una foto, indicar sesión y partición, marcar TODAS las cartas
 completas y confirmar revisión. Exportar JSON junto a la foto original.
