@@ -1,8 +1,9 @@
 # Integración continua
 
 `.github/workflows/ci.yml` corre en cada push a `main` y en cada pull request,
-en Ubuntu con Python 3.14 y sólo tres paquetes (numpy, opencv-python-headless,
-onnxruntime, con los mismos pins que `requirements-research.txt`).
+en Ubuntu con Python 3.14 y cuatro paquetes (numpy, opencv-python-headless,
+onnxruntime y Pillow, con los mismos pins que `requirements-research.txt` y
+`requirements-ocr.txt`).
 
 ## Qué corre
 

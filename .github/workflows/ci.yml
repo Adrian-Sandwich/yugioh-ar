@@ -22,7 +22,7 @@ jobs:
       - name: Dependencias mínimas de las pruebas sin datos
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy==2.5.3 opencv-python-headless==5.0.0.93 onnxruntime==1.30.0
+          python -m pip install numpy==2.5.3 opencv-python-headless==5.0.0.93 onnxruntime==1.30.0 Pillow==12.3.0
       - name: Compilación de todos los módulos
         run: python -m compileall -q .
       - name: Pruebas que corren sin datos ni modelos
