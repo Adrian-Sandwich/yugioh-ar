@@ -3,6 +3,7 @@ import difflib,sqlite3,time,unicodedata
 from pathlib import Path
 import cv2
 import numpy as np
+from identity_resolution import IDENTITIES,canonical
 
 DB=Path(__file__).resolve().parent/'data/registry/registry.sqlite'
 LANGUAGES=('en','es','de','fr','pt')
@@ -24,7 +25,7 @@ def groups(rows):
         item=result.setdefault(uid,{'card_id':uid,'names':[]})
         value={'language':language,'name':name}
         if value not in item['names']:item['names'].append(value)
-    return list(result.values())
+    return IDENTITIES.merge(list(result.values()))
 
 
 class NameRegistry:
@@ -122,10 +123,11 @@ class TitleReader:
 
 def mark_conflicts(reading,visual_id,serial_matches,serial_qualified=False):
     """Conflicts are explicit; name OCR never mutates the visual/serial identity."""
-    ids={m['card_id'] for m in reading.get('matches',[])}
+    ids={canonical(m['card_id']) for m in reading.get('matches',[])}
+    visual_id=canonical(visual_id)
     qualified=reading.get('status')=='matched'
     visual_conflict=bool(qualified and visual_id and visual_id not in ids)
-    serial_ids={m['card_id'] for m in serial_matches}
+    serial_ids={canonical(m['card_id']) for m in serial_matches}
     serial_conflict=bool(qualified and serial_qualified and serial_ids and not ids&serial_ids)
     reading.update(visual_conflict=visual_conflict,serial_conflict=serial_conflict)
     if visual_conflict or serial_conflict:reading['status']='conflict'

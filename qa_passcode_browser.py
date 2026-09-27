@@ -21,6 +21,7 @@ try:
         browser=p.chromium.launch(executable_path='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless=True)
         page=browser.new_page(viewport={'width':1400,'height':1100});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(f'http://127.0.0.1:{server.server_port}')
+        page.wait_for_function("document.querySelector('#downloadWatch').textContent.startsWith('Neuron:')",timeout=10000)
         page.wait_for_function("document.querySelector('#passcodeCards code')?.textContent==='89631139'",timeout=20000)
         assert page.locator('.passcode-card .zoom').is_visible()
         assert page.locator('.passcode-card .name-zoom').first.is_visible()
@@ -35,6 +36,9 @@ try:
         page.locator('#passcodes').scroll_into_view_if_needed()
         page.screenshot(path=str(ROOT/'research/qa/passcode/browser.png'))
         data=json.load(urlopen(f'http://127.0.0.1:{server.server_port}/passcodes'))
+        config=json.load(urlopen(f'http://127.0.0.1:{server.server_port}/config'))
+        assert data['identity_resolution']['version']==config['identity_resolution']['version']
+        assert data['identity_resolution']['aliases']==12
         assert data['items'][0]['consistent_frames']==1,'A fixed photograph must not count as distinct captures'
         assert data['items'][0]['name_crop'].startswith('data:image/png;base64,')
         assert data['items'][0]['name_ocr']['status']=='matched'

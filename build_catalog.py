@@ -8,6 +8,10 @@ from catalog import ROOT, DATA, DB, LANGS, normalized, init_reviews, export_pilo
 
 
 def main():
+    if DB.exists():
+        # Preserve accumulated references and every duplicate image association.
+        from sync_catalog import main as sync_existing
+        return sync_existing()
     init_reviews()
     from ygo_source import records
     cards = list(records('cards'))

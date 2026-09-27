@@ -1,0 +1,48 @@
+{
+  "8765": {
+    "version": "20260926-054217-349436",
+    "aliases": 9,
+    "error": null,
+    "data_source": "live_registry"
+  },
+  "8767": {
+    "version": "20260926-054217-349436",
+    "aliases": 9,
+    "error": null,
+    "data_source": "live_registry"
+  },
+  "download": {
+    "observed_at": "2026-09-26T06:03:47.046700+00:00",
+    "cached_detail_files": 62944,
+    "total_discovered": 67552,
+    "remaining_files": 4608,
+    "percent": 93.18,
+    "current_run_completed": 37578,
+    "current_run_scheduled": 42193,
+    "reported_state": "running",
+    "progress_age_seconds": 4,
+    "current_run_errors": [
+      {
+        "task": [
+          "card",
+          "en",
+          8932
+        ],
+        "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+      },
+      {
+        "task": [
+          "card",
+          "es",
+          8932
+        ],
+        "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+      }
+    ],
+    "retry_pt_15519_cached": true,
+    "retry_pt_15519_imported": true,
+    "note": "File count, not full content audit. Reported running state alone does not prove a live process.",
+    "watch_checked_at": "2026-09-26T06:03:47.050576+00:00",
+    "watch_state": "downloading"
+  }
+}

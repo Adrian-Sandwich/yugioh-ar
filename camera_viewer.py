@@ -13,6 +13,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import ProxyHandler, Request, build_opener
 from shared_snapshot import SharedSnapshots
+from identity_resolution import IDENTITIES,normalize_detection
 
 ROOT = Path(__file__).resolve().parent
 
@@ -84,10 +85,15 @@ class Handler(BaseHTTPRequestHandler):
                     "experimental":getattr(self.server,'mode','') in ('draw2','embedding'),
                     "ar":getattr(self.server,'overlay',None) is not None,
                     "passcode_ocr":getattr(self.server,'passcode_worker',None) is not None,
+                    "identity_resolution":IDENTITIES.info(),
                     "references":len(self.server.recognizer.references) if self.server.recognizer else 0}).encode(), "application/json")
             elif route == '/passcodes':
                 worker=getattr(self.server,'passcode_worker',None)
                 self.reply(200,json.dumps(worker.snapshot() if worker else {'state':'disabled','items':[]}).encode(),'application/json')
+            elif route == '/download-status':
+                path=ROOT/'.runtime/download-watch.json'
+                payload=json.loads(path.read_text(encoding='utf-8')) if path.exists() else {'watch_state':'not_started'}
+                self.reply(200,json.dumps(payload).encode(),'application/json')
             elif route == "/analyze":
                 self.analyze()
             else:
@@ -162,6 +168,9 @@ class Handler(BaseHTTPRequestHandler):
                 data,captured_at=self.get_snapshot_record();capture_basis='server_snapshot_request'
             inference_started=time.perf_counter()
             result=self.server.recognizer.analyze_jpeg(data)
+            result['detections']=[normalize_detection(d) for d in result['detections']]
+            if 'candidates' in result:result['candidates']=[normalize_detection(d) for d in result['candidates']]
+            result['identity_resolution']=IDENTITIES.info()
             inference_finished=time.perf_counter()
             worker=getattr(self.server,'passcode_worker',None)
             if worker:
@@ -170,6 +179,7 @@ class Handler(BaseHTTPRequestHandler):
                 for d in result.get('candidates',result['detections']):
                     visual=named.get(tuple(map(tuple,d['corners'])),{})
                     boxes.append({'corners':d['corners'],'visual_card_id':visual.get('card_id'),'name':visual.get('name'),
+                                  'source_visual_card_id':visual.get('source_card_id',visual.get('card_id')),
                                   'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:3],
                                   'geometry_status':d.get('geometry_status'),'geometry_iou':d.get('geometry_iou')})
                 worker.submit(data,boxes,captured_at)

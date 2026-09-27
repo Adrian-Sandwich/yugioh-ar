@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-09-26T18:06:13.823891+00:00",
+  "cached_detail_files": 67552,
+  "total_discovered": 67552,
+  "remaining_files": 0,
+  "percent": 100.0,
+  "current_run_completed": 2,
+  "current_run_scheduled": 2,
+  "reported_state": "complete",
+  "progress_age_seconds": 40312,
+  "current_run_errors": [],
+  "retry_pt_15519_cached": true,
+  "retry_pt_15519_imported": true,
+  "note": "File count, not full content audit. Reported running state alone does not prove a live process.",
+  "watch_checked_at": "2026-09-26T18:06:13.824224+00:00",
+  "watch_state": "complete_pending_content_audit",
+  "cached_not_imported": [],
+  "expected_missing_files": [],
+  "expected_not_imported": []
+}

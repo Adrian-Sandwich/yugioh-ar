@@ -108,10 +108,18 @@ def import_game(db):
             lang={'EN':'en','SP':'es','DE':'de','FR':'fr','PT':'pt'}.get(m.group(1)) if m else None
             iso=date if re.fullmatch(r'\d{4}-\d{2}-\d{2}',date or '') else None
             printing(db,sid,str(game_id),card,language=lang,code=code,rarity=rarity,date=iso,evidence={'pack_name':pack,'raw_date':date,'language_evidence':'code' if lang else 'unknown'})
+def resolved_neuron_matches(db,cid):
+    from identity_resolution import canonical
+    ids={canonical(r[0]) for r in db.execute('SELECT id FROM cards WHERE neuron_cid=?',(cid,))}
+    # Never redirect to an identity absent from this database (e.g. test DB).
+    if any(not db.execute('SELECT 1 FROM cards WHERE id=?',(uid,)).fetchone() for uid in ids):
+        return db.execute('SELECT id FROM cards WHERE neuron_cid=?',(cid,)).fetchall()
+    return [(uid,) for uid in sorted(ids)]
+
 def import_neuron(db,path):
     item=json.loads(path.read_text(encoding='utf-8')); sid='neuron:'+path.stem
     source(db,sid,item['url'],path,{'fetched_at':item['fetched_at'],'html_sha256':item['html_sha256'],'parser_version':item['parser_version']})
-    matches=db.execute('SELECT id FROM cards WHERE neuron_cid=?',(item['cid'],)).fetchall()
+    matches=resolved_neuron_matches(db,item['cid'])
     if len(matches)>1:
         db.execute('INSERT INTO issues VALUES (?,?,?,?)',('ambiguous_neuron_cid',sid,str(item['cid']),json.dumps([r[0] for r in matches])))
         return
@@ -126,7 +134,7 @@ def import_neuron_index(db,path):
     item=json.loads(path.read_text(encoding='utf-8')); sid='neuron:'+path.stem
     source(db,sid,item['url'],path,{'fetched_at':item['fetched_at'],'html_sha256':item['html_sha256'],'parser_version':item['parser_version']})
     for c in item['cards']:
-        matches=db.execute('SELECT id FROM cards WHERE neuron_cid=?',(c['cid'],)).fetchall()
+        matches=resolved_neuron_matches(db,c['cid'])
         if len(matches)>1:
             db.execute('INSERT INTO issues VALUES (?,?,?,?)',('ambiguous_neuron_cid',sid,str(c['cid']),json.dumps([r[0] for r in matches])))
             continue

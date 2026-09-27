@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "all_original_observations_preserved": true,
+  "statuses": {
+    "already_present_clean": 3,
+    "game_identity_only": 7,
+    "printing_recovered": 10,
+    "replayed_with_alias": 90
+  },
+  "additions": {
+    "names": 90,
+    "identifiers": 107,
+    "printings": 101
+  },
+  "foreign_keys": "ok",
+  "quick_check": "ok"
+}

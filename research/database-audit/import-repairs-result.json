@@ -1,0 +1,11 @@
+{
+  "statuses": {
+    "already_present_clean": 3,
+    "game_identity_only": 7,
+    "printing_recovered": 10
+  },
+  "neuron_issues_resolved": 90,
+  "cached_sources_replayed": 80,
+  "backup": "C:\\Users\\Adrian\\src\\yugioh\\research\\database-audit\\registry-before-repairs-20260926-070128-765643.sqlite",
+  "images": "unchanged"
+}

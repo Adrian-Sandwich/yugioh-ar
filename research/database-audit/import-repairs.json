@@ -1,0 +1,279 @@
+[
+  {
+    "kind": "invalid_passcode",
+    "source": "ygojson-individual-20260925",
+    "record_key": "cards/3cd674e7-2084-4303-8e8c-5c3e71c77b04.json",
+    "detail": "39399168<!--This was found out by videogame password machines, where you put in a card number to get a card.-->",
+    "status": "already_present_clean",
+    "card_id": "3cd674e7-2084-4303-8e8c-5c3e71c77b04",
+    "clean_value": "39399168"
+  },
+  {
+    "kind": "invalid_passcode",
+    "source": "ygojson-individual-20260925",
+    "record_key": "cards/4223345b-3c0b-4f5e-84f5-4473f34baf0e.json",
+    "detail": "74733322<!-- do not change, TCG prints are using Theorealize's -->",
+    "status": "already_present_clean",
+    "card_id": "4223345b-3c0b-4f5e-84f5-4473f34baf0e",
+    "clean_value": "74733322"
+  },
+  {
+    "kind": "invalid_passcode",
+    "source": "ygojson-individual-20260925",
+    "record_key": "cards/c7b3d7c6-d39f-41d4-a756-412ebaec103f.json",
+    "detail": "48739627<!-- do not change, TCG prints are using Acropolis's -->",
+    "status": "already_present_clean",
+    "card_id": "c7b3d7c6-d39f-41d4-a756-412ebaec103f",
+    "clean_value": "48739627"
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "11050416",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      11050416,
+      18027139
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "11050417",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      11050417,
+      18027139
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "11050418",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      11050418,
+      18027139
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "11050419",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      11050419,
+      18027139
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "17228909",
+    "detail": "SR04-ENTKN",
+    "status": "printing_recovered",
+    "card_id": "d70c79c1-0f31-426c-87e3-31416d84ec45",
+    "game_name": "Jurraegg Token",
+    "alias_chain": [
+      17228909
+    ],
+    "set_candidates": [
+      "d70c79c1-0f31-426c-87e3-31416d84ec45"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "18027139",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      18027139
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "18027140",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      18027139,
+      18027140
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "18027141",
+    "detail": "YS16-ENT01",
+    "status": "game_identity_only",
+    "card_id": "57b17579-8b73-405d-b03c-ac1062ffd91d",
+    "game_name": "Hippo Token",
+    "alias_chain": [
+      18027139,
+      18027141
+    ],
+    "set_candidates": []
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "44910027",
+    "detail": "WCS-002",
+    "status": "printing_recovered",
+    "card_id": "b1bf59ca-c4fc-4abd-abb4-57507044e7a8",
+    "game_name": null,
+    "alias_chain": [
+      44910027
+    ],
+    "set_candidates": [
+      "b1bf59ca-c4fc-4abd-abb4-57507044e7a8"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "52550973",
+    "detail": "AST-060",
+    "status": "printing_recovered",
+    "card_id": "34163832-1842-4192-807e-3495105a3536",
+    "game_name": "Pharaoh's Servant",
+    "alias_chain": [
+      52550973
+    ],
+    "set_candidates": [
+      "34163832-1842-4192-807e-3495105a3536"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "61307543",
+    "detail": "TDIL-EN099",
+    "status": "printing_recovered",
+    "card_id": "369731bb-4863-48f8-9c88-ad4a422502e6",
+    "game_name": null,
+    "alias_chain": [
+      61307543
+    ],
+    "set_candidates": [
+      "369731bb-4863-48f8-9c88-ad4a422502e6"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "66526672",
+    "detail": "AST-108",
+    "status": "printing_recovered",
+    "card_id": "ab438b5f-8f1a-42dc-bd2b-6b72161f206a",
+    "game_name": "Labyrinth of Nightmare",
+    "alias_chain": [
+      66526672
+    ],
+    "set_candidates": [
+      "ab438b5f-8f1a-42dc-bd2b-6b72161f206a"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "69868556",
+    "detail": "SR02-ENTKN",
+    "status": "printing_recovered",
+    "card_id": "2803e575-2206-413d-aa2c-bb769cf808db",
+    "game_name": "Dragon Lord Token",
+    "alias_chain": [
+      69868556
+    ],
+    "set_candidates": [
+      "2803e575-2206-413d-aa2c-bb769cf808db"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "73915053",
+    "detail": "TKN1-EN001",
+    "status": "printing_recovered",
+    "card_id": "90904ef1-7c19-46bf-9c0d-75df70e1ca2a",
+    "game_name": "Sheep Token",
+    "alias_chain": [
+      73915052,
+      73915053
+    ],
+    "set_candidates": [
+      "90904ef1-7c19-46bf-9c0d-75df70e1ca2a"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "73915054",
+    "detail": "TKN1-EN001",
+    "status": "printing_recovered",
+    "card_id": "90904ef1-7c19-46bf-9c0d-75df70e1ca2a",
+    "game_name": "Sheep Token",
+    "alias_chain": [
+      73915052,
+      73915054
+    ],
+    "set_candidates": [
+      "90904ef1-7c19-46bf-9c0d-75df70e1ca2a"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "73915055",
+    "detail": "TKN1-EN001",
+    "status": "printing_recovered",
+    "card_id": "90904ef1-7c19-46bf-9c0d-75df70e1ca2a",
+    "game_name": "Sheep Token",
+    "alias_chain": [
+      73915052,
+      73915055
+    ],
+    "set_candidates": [
+      "90904ef1-7c19-46bf-9c0d-75df70e1ca2a"
+    ]
+  },
+  {
+    "kind": "unmapped_game_pack",
+    "source": "tdoane-pack",
+    "record_key": "81172177",
+    "detail": "LOD-098",
+    "status": "printing_recovered",
+    "card_id": "a3023c91-8cec-479f-b65a-a6ac3f172d75",
+    "game_name": null,
+    "alias_chain": [
+      81172177
+    ],
+    "set_candidates": [
+      "a3023c91-8cec-479f-b65a-a6ac3f172d75"
+    ]
+  }
+]

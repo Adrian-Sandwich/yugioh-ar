@@ -3,6 +3,7 @@ import copy
 from collections import deque
 import cv2
 import numpy as np
+from identity_resolution import canonical
 
 def describe(image,native_height):
     small=cv2.resize(image,(32,48),interpolation=cv2.INTER_AREA)
@@ -19,26 +20,26 @@ def compatible(a,b):
     sa=max(float(np.linalg.norm(pa[0]-pa[2])),1);sb=max(float(np.linalg.norm(pb[0]-pb[2])),1)
     if not .8<sa/sb<1.25:return False
     if np.linalg.norm(pa.mean(0)-pb.mean(0))/sa>.18:return False
-    if a.get('visual_card_id')!=b.get('visual_card_id'):return False
+    if canonical(a.get('visual_card_id'))!=canonical(b.get('visual_card_id')):return False
     if a.get('_appearance') is None or b.get('_appearance') is None:return False
     distance=float(np.mean(np.abs(a['_appearance'].astype(float)-b['_appearance'].astype(float))))/255
     return distance<.055
 
 def fuse(item):
     sources={}
-    if item.get('visual_card_id'):sources['image']={item['visual_card_id']}
+    if item.get('visual_card_id'):sources['image']={canonical(item['visual_card_id'])}
     if item.get('ocr_score') is not None and item['ocr_score']>=.85 and not item.get('ambiguous'):
-        ids={m['card_id'] for m in item.get('matches',[])}
+        ids={canonical(m['card_id']) for m in item.get('matches',[])}
         if ids:sources['serial']=ids
     for field,label in (('name_ocr','name'),('set_ocr','set')):
         reading=item.get(field,{})
         if reading.get('status') in ('matched','conflict'):
-            ids={m['card_id'] for m in reading.get('matches',[])}
+            ids={canonical(m['card_id']) for m in reading.get('matches',[])}
             if ids:sources[label]=ids
     # Artwork verified by local features: visual evidence, independent of the
     # embedding, restricted to the candidates it was asked about.
     art=item.get('art_match',{})
-    if art.get('status')=='matched' and art.get('card_id'):sources['art']={art['card_id']}
+    if art.get('status')=='matched' and art.get('card_id'):sources['art']={canonical(art['card_id'])}
     intersection=set.intersection(*sources.values()) if sources else set()
     state='conflict' if sources and not intersection else 'candidate' if len(intersection)==1 else 'insufficient'
     return {'status':state,'card_id':next(iter(intersection)) if len(intersection)==1 else None,

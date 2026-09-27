@@ -8,6 +8,7 @@ from card_geometry import GeometryRefiner
 from name_ocr import NAME_REGION,TitleReader,mark_conflicts
 from set_ocr import SetReader
 from card_evidence import EvidenceSession,describe
+from identity_resolution import IDENTITIES,canonical
 
 ROOT=Path(__file__).resolve().parent
 DB=ROOT/'data/registry/registry.sqlite'
@@ -57,9 +58,10 @@ def lookup(code,db_path=DB,db=None):
         ids=[r[0] for r in db.execute("SELECT DISTINCT card_id FROM identifiers WHERE kind='passcode' AND value=?",(code,))]
         out=[]
         for uid in ids:
+            if not IDENTITIES.allows(uid,'passcode',code):continue
             row=db.execute("SELECT name FROM names WHERE card_id=? AND language IN ('es','en') ORDER BY CASE language WHEN 'es' THEN 0 ELSE 1 END,CASE WHEN source LIKE 'neuron:%' THEN 0 ELSE 1 END LIMIT 1",(uid,)).fetchone()
             out.append({'card_id':uid,'name':row[0] if row else uid})
-        return out
+        return IDENTITIES.merge(out)
     finally:
         if owned: db.close()
 
@@ -126,7 +128,7 @@ class Consensus:
                 track['votes'].append((item_hash,code))
             votes=len({h for h,c in track['votes'] if c==code})
             matches=item.get('matches',[])
-            visual=item.get('visual_card_id')
+            visual=canonical(item.get('visual_card_id'))
             conflict=bool(visual and matches and all(m['card_id']!=visual for m in matches))
             if item.get('ambiguous'): state='ambiguous_reading'
             elif not code: state='unreadable'
@@ -199,7 +201,8 @@ class PasscodeWorker:
                 refiner=GeometryRefiner(image) if any(not b.get('geometry_status') for b in selected) else None
                 prepared=[]
                 for box in selected:
-                    item={'corners':box['corners'],'visual_card_id':box.get('visual_card_id'),'visual_name':box.get('name'),
+                    item={'corners':box['corners'],'visual_card_id':canonical(box.get('visual_card_id')),'visual_name':box.get('name'),
+                          'source_visual_card_id':box.get('source_visual_card_id',box.get('visual_card_id')),
                           'name_ocr':{'status':'skipped','reason':'uncertain_geometry'},
                           'set_ocr':{'status':'skipped','reason':'uncertain_geometry'}}
                     try:
@@ -286,7 +289,7 @@ class PasscodeWorker:
                     items.append(item)
                 items=self.evidence.finish(items,captured,frame_hash)
                 items=self.consensus.update(items,frame_hash)
-                payload={'state':'ready','sequence':sequence,'captured_at':captured,'completed_at':time.time(),
+                payload={'state':'ready','identity_resolution':IDENTITIES.info(),'sequence':sequence,'captured_at':captured,'completed_at':time.time(),
                     'processing_ms':round((time.monotonic()-started)*1000),'items':items,'detected_cards':len(boxes),'processed_cards':len(items)}
             except Exception as e:payload={'state':'error','sequence':sequence,'error':str(e),'items':[]}
             finally:

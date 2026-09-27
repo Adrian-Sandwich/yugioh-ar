@@ -1,0 +1,193 @@
+{
+  "disk_groups": {
+    ".git": {
+      "bytes": 114710712,
+      "files": 391
+    },
+    ".runtime": {
+      "bytes": 379608,
+      "files": 24
+    },
+    ".venv": {
+      "bytes": 184424381,
+      "files": 2310
+    },
+    ".venv-eval": {
+      "bytes": 439711111,
+      "files": 6581
+    },
+    ".venv-glare": {
+      "bytes": 1012441443,
+      "files": 30449
+    },
+    ".venv-pose": {
+      "bytes": 1113264000,
+      "files": 26345
+    },
+    "__pycache__": {
+      "bytes": 327757,
+      "files": 23
+    },
+    "data/captures": {
+      "bytes": 516592,
+      "files": 3
+    },
+    "data/catalog": {
+      "bytes": 140124637,
+      "files": 3
+    },
+    "data/curated": {
+      "bytes": 1181587847,
+      "files": 8
+    },
+    "data/models": {
+      "bytes": 97580975,
+      "files": 2
+    },
+    "data/pilot": {
+      "bytes": 45538759,
+      "files": 6
+    },
+    "data/pose": {
+      "bytes": 7961568,
+      "files": 126
+    },
+    "data/references": {
+      "bytes": 213,
+      "files": 1
+    },
+    "data/registry": {
+      "bytes": 11502375943,
+      "files": 131926
+    },
+    "downloads/cardsoricabr": {
+      "bytes": 1292230201,
+      "files": 17909
+    },
+    "downloads/glare-models": {
+      "bytes": 3922526335,
+      "files": 4
+    },
+    "downloads/reference-assets": {
+      "bytes": 352891288,
+      "files": 21
+    },
+    "downloads/tcgplayer-sample": {
+      "bytes": 368794190,
+      "files": 7041
+    },
+    "downloads/tdoane-reference": {
+      "bytes": 1213560825,
+      "files": 22381
+    },
+    "downloads/ygoprodeck-art": {
+      "bytes": 2062586069,
+      "files": 14250
+    },
+    "repos": {
+      "bytes": 949198873,
+      "files": 103358
+    },
+    "research": {
+      "bytes": 13610560,
+      "files": 56
+    },
+    "research/__pycache__": {
+      "bytes": 28212,
+      "files": 4
+    },
+    "research/card-anatomy": {
+      "bytes": 49645,
+      "files": 3
+    },
+    "research/database-audit": {
+      "bytes": 262572232,
+      "files": 11
+    },
+    "research/digit-references": {
+      "bytes": 196732,
+      "files": 13
+    },
+    "research/glare-benchmark": {
+      "bytes": 15576963,
+      "files": 67
+    },
+    "research/pilot-evaluation": {
+      "bytes": 1794136,
+      "files": 8
+    },
+    "research/qa": {
+      "bytes": 13266355,
+      "files": 81
+    },
+    "research/recognition": {
+      "bytes": 846478,
+      "files": 3
+    },
+    "research/references-20260924": {
+      "bytes": 5400412,
+      "files": 17
+    },
+    "research/registry-coverage": {
+      "bytes": 3583410,
+      "files": 5
+    },
+    "research/tdoane": {
+      "bytes": 32307882,
+      "files": 4
+    },
+    "research/yolo11_pose": {
+      "bytes": 66831467,
+      "files": 88
+    },
+    "root_files": {
+      "bytes": 290519,
+      "files": 62
+    },
+    "transfer": {
+      "bytes": 599369896,
+      "files": 5
+    },
+    "web": {
+      "bytes": 56600,
+      "files": 6
+    }
+  },
+  "scan_errors": [],
+  "logical_bytes": 27018514826,
+  "registry": {
+    "cards": 14734,
+    "names": 305055,
+    "identifiers": 198116,
+    "artworks": 16121,
+    "products": 3306,
+    "printings": 533248,
+    "sources": 65998
+  },
+  "catalog": {
+    "cards": 14734,
+    "refs": 54436,
+    "by_kind": [
+      [
+        "art",
+        14249
+      ],
+      [
+        "card",
+        32753
+      ],
+      [
+        "field",
+        188
+      ],
+      [
+        "other",
+        1
+      ],
+      [
+        "sprite",
+        7245
+      ]
+    ]
+  }
+}

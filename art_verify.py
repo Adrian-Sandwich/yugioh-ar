@@ -13,6 +13,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from identity_resolution import canonical
 
 ROOT = Path(__file__).resolve().parent
 MANIFEST = ROOT / 'downloads/ygoprodeck-art/manifest.json'
@@ -31,7 +32,7 @@ class ArtVerifier:
             base = Path(manifest).parent
             for art_id, item in items.items():
                 if item.get('status') == 'ok':
-                    self.arts.setdefault(item['card_id'], []).append((art_id, base / item['path']))
+                    self.arts.setdefault(canonical(item['card_id']), []).append((art_id, base / item['path']))
         self.sift = cv2.SIFT_create(nfeatures=features)
         self.matcher = cv2.BFMatcher(cv2.NORM_L2)
         self.cache = OrderedDict(); self.cache_limit = cache_limit
@@ -77,7 +78,7 @@ class ArtVerifier:
     def verify(self, rectified, candidate_ids, limit=3):
         """Best artwork per candidate; orientation from the homography; explicit ambiguity."""
         started = time.perf_counter()
-        candidates = [c for c in dict.fromkeys(candidate_ids or []) if c][:limit]
+        candidates = [c for c in dict.fromkeys(canonical(c) for c in (candidate_ids or [])) if c][:limit]
         if not candidates:
             return {'status': 'skipped', 'reason': 'no_candidates', 'card_id': None, 'matches': [], 'candidates': []}
         if not self.available:

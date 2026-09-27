@@ -1,0 +1,177 @@
+{
+  "observed_at": "2026-09-26T09:11:24.486932+00:00",
+  "total_bytes": 33899294971,
+  "total_files": 396872,
+  "downloaded_images": {
+    "bytes": 6566771583,
+    "files": 90084
+  },
+  "disk_groups": {
+    ".git": {
+      "bytes": 114721280,
+      "files": 395
+    },
+    ".runtime": {
+      "bytes": 460521,
+      "files": 26
+    },
+    ".venv": {
+      "bytes": 184424381,
+      "files": 2310
+    },
+    ".venv-eval": {
+      "bytes": 439711111,
+      "files": 6581
+    },
+    ".venv-glare": {
+      "bytes": 1012441443,
+      "files": 30449
+    },
+    ".venv-pose": {
+      "bytes": 1113264000,
+      "files": 26345
+    },
+    "[root files]": {
+      "bytes": 324319,
+      "files": 69
+    },
+    "__pycache__": {
+      "bytes": 356678,
+      "files": 25
+    },
+    "data/captures": {
+      "bytes": 516592,
+      "files": 3
+    },
+    "data/catalog": {
+      "bytes": 140124637,
+      "files": 3
+    },
+    "data/curated": {
+      "bytes": 3732545969,
+      "files": 30
+    },
+    "data/models": {
+      "bytes": 97580975,
+      "files": 2
+    },
+    "data/pilot": {
+      "bytes": 45538759,
+      "files": 6
+    },
+    "data/pose": {
+      "bytes": 7961568,
+      "files": 126
+    },
+    "data/recognition-catalog": {
+      "bytes": 130562441,
+      "files": 10
+    },
+    "data/references": {
+      "bytes": 213,
+      "files": 1
+    },
+    "data/registry": {
+      "bytes": 11857872038,
+      "files": 136487
+    },
+    "downloads/cardsoricabr": {
+      "bytes": 1292230201,
+      "files": 17909
+    },
+    "downloads/glare-models": {
+      "bytes": 3922526335,
+      "files": 4
+    },
+    "downloads/reference-assets": {
+      "bytes": 352891288,
+      "files": 21
+    },
+    "downloads/tcgplayer-sample": {
+      "bytes": 2122620972,
+      "files": 35650
+    },
+    "downloads/tdoane-reference": {
+      "bytes": 1213560825,
+      "files": 22381
+    },
+    "downloads/ygoprodeck-art": {
+      "bytes": 2062586069,
+      "files": 14250
+    },
+    "repos": {
+      "bytes": 949198873,
+      "files": 103358
+    },
+    "research": {
+      "bytes": 13639265,
+      "files": 60
+    },
+    "research/__pycache__": {
+      "bytes": 39267,
+      "files": 5
+    },
+    "research/card-anatomy": {
+      "bytes": 49645,
+      "files": 3
+    },
+    "research/database-audit": {
+      "bytes": 882591423,
+      "files": 56
+    },
+    "research/digit-references": {
+      "bytes": 196732,
+      "files": 13
+    },
+    "research/glare-benchmark": {
+      "bytes": 15576963,
+      "files": 67
+    },
+    "research/pilot-evaluation": {
+      "bytes": 1794136,
+      "files": 8
+    },
+    "research/qa": {
+      "bytes": 13266978,
+      "files": 81
+    },
+    "research/recognition": {
+      "bytes": 846478,
+      "files": 3
+    },
+    "research/references-20260924": {
+      "bytes": 5400412,
+      "files": 17
+    },
+    "research/registry-coverage": {
+      "bytes": 3583410,
+      "files": 5
+    },
+    "research/tdoane": {
+      "bytes": 32307882,
+      "files": 4
+    },
+    "research/yolo11_pose": {
+      "bytes": 66831467,
+      "files": 88
+    },
+    "transfer/20260925-194603": {
+      "bytes": 599369896,
+      "files": 5
+    },
+    "transfer/20260926-065442": {
+      "bytes": 734746549,
+      "files": 5
+    },
+    "transfer/20260926-071123": {
+      "bytes": 734976380,
+      "files": 5
+    },
+    "web": {
+      "bytes": 56600,
+      "files": 6
+    }
+  },
+  "errors": [],
+  "note": "Logical file sizes, not allocated disk blocks; excludes symlinks. Files can change during scan."
+}

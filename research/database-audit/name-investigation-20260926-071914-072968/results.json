@@ -1,0 +1,4229 @@
+{
+  "summary": {
+    "version": "20260926-071914-072968",
+    "cases": 104,
+    "pages_requested": 67,
+    "status_counts": {
+      "unresolved_source_empty_or_missing": 104
+    },
+    "wiki_field_status": {
+      "source_field_empty": 101,
+      "field_missing_or_ambiguous": 3
+    },
+    "official_check_status": {
+      "nonpositive_identifier_needs_review": 10,
+      "detail_not_recovered": 6
+    },
+    "names_imported": 0,
+    "scope": "Source observations; no automatic translations or DB mutations."
+  },
+  "sources": [
+    {
+      "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+      "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+      "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+    },
+    {
+      "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+      "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+      "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+    },
+    {
+      "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+      "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+      "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+    },
+    {
+      "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+      "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+      "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+    }
+  ],
+  "cases": [
+    {
+      "canonical_card_id": "07e12b40-dd0a-404c-9f95-e12b5fc16428",
+      "name_en": "Machine Angel Ascension",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7ce0904442c0e89ba5119c29693f16ef48783ebed52c76d23e8fdc587f5d39a2",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS13",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#c5d69799-63cb-40e3-89b9-13f657a9baa7",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715683,
+          "title": "Machine Angel Ascension",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526795,
+          "revision_timestamp": "2025-02-02T19:55:25Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "083c0536-a484-4488-8044-89895f12f597",
+      "name_en": "Setting Sun",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7451d64db6543841cc237192385a4278f02d6fbfdaaa965568b6a78a4cb17f15",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS14",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#e468f519-f43d-403b-bd90-8addc4a5b91a",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806166,
+          "title": "Setting Sun",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5453382,
+          "revision_timestamp": "2024-12-06T08:18:33Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "083c0536-a484-4488-8044-89895f12f597",
+      "name_en": "Setting Sun",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "381dcdbe6b57c5c98edadd179e88b36857a72d5985f85055a072abd1fa6a4043",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES14",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#e468f519-f43d-403b-bd90-8addc4a5b91a",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806166,
+          "title": "Setting Sun",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5453382,
+          "revision_timestamp": "2024-12-06T08:18:33Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "083c0536-a484-4488-8044-89895f12f597",
+      "name_en": "Setting Sun",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "9fa32a5c4f44bf2a027a55579d7228727a41fc598ab16fa101d7810b33a6a567",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS14",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#e468f519-f43d-403b-bd90-8addc4a5b91a",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806166,
+          "title": "Setting Sun",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5453382,
+          "revision_timestamp": "2024-12-06T08:18:33Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0adf085d-17c4-431b-a09e-e97f7748d885",
+      "name_en": "Here Goes Something!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "f011d899518d6c47db54553e326fef0eb07f2e68bf6caba53a75ebfda98bc927",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS01",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#9663a63e-d24f-40ed-a550-e5a06d92f715",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715289,
+          "title": "Here Goes Something!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5473936,
+          "revision_timestamp": "2024-12-11T20:53:55Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0c3dbe6c-04ec-4108-aa49-7911cd0fcbd0",
+      "name_en": "Cloudy Skies of Grey",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "6c4eddfe11e0642140037abbad57d573ef443103e965047a44d11e1957add355",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS16",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#4f65d3ec-ed24-40f6-b9fa-a8c37ea8ca79",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806164,
+          "title": "Cloudy Skies of Grey",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5497445,
+          "revision_timestamp": "2024-12-20T11:28:17Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0c3dbe6c-04ec-4108-aa49-7911cd0fcbd0",
+      "name_en": "Cloudy Skies of Grey",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "c0dfe4623badf68a6d1491f198f1cae0d970b97986b2abe46404363aa459b38b",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES16",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#4f65d3ec-ed24-40f6-b9fa-a8c37ea8ca79",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806164,
+          "title": "Cloudy Skies of Grey",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5497445,
+          "revision_timestamp": "2024-12-20T11:28:17Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0c3dbe6c-04ec-4108-aa49-7911cd0fcbd0",
+      "name_en": "Cloudy Skies of Grey",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "51eda1b679b6a494281d1870c80253f32ca3ce7be3714d29e9795b4d7ae208b0",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS16",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#4f65d3ec-ed24-40f6-b9fa-a8c37ea8ca79",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806164,
+          "title": "Cloudy Skies of Grey",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5497445,
+          "revision_timestamp": "2024-12-20T11:28:17Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0ce16f34-8a66-45ce-aa80-4e9aba787b08",
+      "name_en": "Under Pressure",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "f17b9b40737febe8bc087c879d9f6d7b681a956a7a1bc25e2bd18f7296fc4979",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS05",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#1c98bf55-0f2a-41f7-9a6a-5bbdf8fa093f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 717315,
+          "title": "Under Pressure",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526826,
+          "revision_timestamp": "2025-02-02T22:04:48Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0ef56959-7ae6-4654-ac14-5b6a9998ed04",
+      "name_en": "Welcome to the Jungle",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "a14f6f1d033c82a6eb8140d58816b2fe03540acab421b88def1df750c7d5f009",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS04",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#cf5e2367-6e85-46fd-851c-dd329361145b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806156,
+          "title": "Welcome to the Jungle",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456826,
+          "revision_timestamp": "2024-12-06T11:30:17Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0ef56959-7ae6-4654-ac14-5b6a9998ed04",
+      "name_en": "Welcome to the Jungle",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "ea8933cdea6c58c31f553e7463ec5d2dc7218089161a7844706ae83996438b9f",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES04",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#cf5e2367-6e85-46fd-851c-dd329361145b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806156,
+          "title": "Welcome to the Jungle",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456826,
+          "revision_timestamp": "2024-12-06T11:30:17Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0ef56959-7ae6-4654-ac14-5b6a9998ed04",
+      "name_en": "Welcome to the Jungle",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "2dc3130bf7524b958bde16e206fefa88e8fe5b70089f19a8cd8ec52be2256dd5",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS04",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#cf5e2367-6e85-46fd-851c-dd329361145b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806156,
+          "title": "Welcome to the Jungle",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456826,
+          "revision_timestamp": "2024-12-06T11:30:17Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "0efc1bbe-4eba-487e-b7d4-340e42152390",
+      "name_en": "Chillin' Outback",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "faba48aeec93382c8dc3583da5c5c2c184f7ad7be95656d024ce6f3532cb93f0",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS06",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#4053f177-b639-46a8-8015-7dfe781e36cc",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714271,
+          "title": "Chillin' Outback",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526827,
+          "revision_timestamp": "2025-02-02T22:07:52Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "10065ade-8424-4274-8de8-1238ac700b6c",
+      "name_en": "Union Combination",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-5",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "70e53447ebe997e4e0cff7b816577b889bf492d9ff60513d6492d2b38b4d5558",
+          "source": "ygojson-individual-20260925",
+          "set_code": "STP4-PTS05",
+          "record_key": "sets/e3cffe3f-a688-44d0-bb45-62b230cd2367.json#d29c190b-8ea2-4115-b263-e5ff43c95cc9",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -5,
+          "path": "data/registry/neuron/card-pt--5.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 717320,
+          "title": "Union Combination",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5647678,
+          "revision_timestamp": "2025-05-31T10:28:08Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -5,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "131e19dc-22f8-46ee-ac36-eea945e89682",
+      "name_en": "Dark Unity",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "c83435ea947fdcacb6232a2c7c0dbde634eac6ada49d752f881a2845e085d53b",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS09",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#61097c75-b124-4a38-b2b2-ab4cf2c59d4f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806161,
+          "title": "Dark Unity",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444044,
+          "revision_timestamp": "2024-12-05T20:38:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "131e19dc-22f8-46ee-ac36-eea945e89682",
+      "name_en": "Dark Unity",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "579e054f861bf1f670f3e3dd4b58680116ad589dabc9c357cedea011b0284401",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES09",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#61097c75-b124-4a38-b2b2-ab4cf2c59d4f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806161,
+          "title": "Dark Unity",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444044,
+          "revision_timestamp": "2024-12-05T20:38:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "131e19dc-22f8-46ee-ac36-eea945e89682",
+      "name_en": "Dark Unity",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "ff376c9f623ae9475869c817280982621780486f2ef0ea28a96bb416c95633f1",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS09",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#61097c75-b124-4a38-b2b2-ab4cf2c59d4f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806161,
+          "title": "Dark Unity",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444044,
+          "revision_timestamp": "2024-12-05T20:38:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "224cfb2b-e584-4921-8bfa-7cbf75f998a4",
+      "name_en": "Cold-Blooded Tactician",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "812713ea38850ef23d173af4a0119aed616168a34666e7ee9468e40b20f81325",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS19",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2c8207ab-c6c9-4828-bdf3-300e4a369281",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806151,
+          "title": "Cold-Blooded Tactician",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5443128,
+          "revision_timestamp": "2024-12-05T19:32:55Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "224cfb2b-e584-4921-8bfa-7cbf75f998a4",
+      "name_en": "Cold-Blooded Tactician",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "3b8256ab831979ccb2ed66ff7c16704fc6f5fa3f9eff49a52f5161ed9b273a5c",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES19",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2c8207ab-c6c9-4828-bdf3-300e4a369281",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806151,
+          "title": "Cold-Blooded Tactician",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5443128,
+          "revision_timestamp": "2024-12-05T19:32:55Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "224cfb2b-e584-4921-8bfa-7cbf75f998a4",
+      "name_en": "Cold-Blooded Tactician",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "beff2e607fc7578212b2861ade1e86efd9c21cc585941beb7a698356e2280c8e",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS19",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2c8207ab-c6c9-4828-bdf3-300e4a369281",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806151,
+          "title": "Cold-Blooded Tactician",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5443128,
+          "revision_timestamp": "2024-12-05T19:32:55Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "22eda8b2-71f6-45b9-adb2-cdfecc2b9d74",
+      "name_en": "Energizing Elements",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "ac7ec637b92ac404645e25bf3236d7e4f4d609b5b797e2334fc01f6c6523d86b",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS17",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#fb95113d-5527-47b9-b307-7601ac26fe4e",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714798,
+          "title": "Energizing Elements",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526799,
+          "revision_timestamp": "2025-02-02T20:00:21Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "36389164-7f27-4c6d-b32e-d2ab25bf964b",
+      "name_en": "Armed and Ready!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "fd8652d37456b58d96e8524641e56b2d5af2deb44a5771d115fd1e3cc78c601a",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS11",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#353d9dff-cccf-4f34-991e-47a72a055225",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 713134,
+          "title": "Armed and Ready!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526793,
+          "revision_timestamp": "2025-02-02T19:51:56Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "3bcfff66-6d44-4bff-b511-ec242d5721e5",
+      "name_en": "Blaze Accelerator Deployment (Skill Card)",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "0821c576dd052e366a92ba633423a28d14f302d596292760bc97f0828671ea93",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS08",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#a1bde7b1-2c20-48f7-a824-0de7494b5be1",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 713935,
+          "title": "Blaze Accelerator Deployment (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5776476,
+          "revision_timestamp": "2025-12-06T18:06:21Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "43aae0c5-b4d7-41a2-b080-92b3237082e2",
+      "name_en": "Ancient Ruler Rises",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "0e2e7171b02e4c6a2498c229f4454e5d7acd9abec61620548d5a54f65b55a41e",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES18",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#09b4d098-46be-4d0b-9114-799fbf9b3166",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806150,
+          "title": "Ancient Ruler Rises",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5724645,
+          "revision_timestamp": "2025-09-12T17:26:14Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "43aae0c5-b4d7-41a2-b080-92b3237082e2",
+      "name_en": "Ancient Ruler Rises",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7f70c3198d93994d2c5a4bc78926b1aa60d82a6ee2a2f63608751140b8e1fb05",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS18",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#09b4d098-46be-4d0b-9114-799fbf9b3166",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806150,
+          "title": "Ancient Ruler Rises",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5724645,
+          "revision_timestamp": "2025-09-12T17:26:14Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "4fee3057-041b-43be-8d5d-216f3a1b3851",
+      "name_en": "Elements of Thunder, Water, and Wind",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "6c6724008e46aae1139cb9c7d84f04687e2c5d33498a7050db4f2788266819c1",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS10",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#264b3e58-c050-4730-b5b2-9ebb151ac4f2",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714777,
+          "title": "Elements of Thunder, Water, and Wind",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526829,
+          "revision_timestamp": "2025-02-02T22:11:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "506f53bc-0496-4ed7-93b7-7f1bd1d18d9d",
+      "name_en": "Crystal Transcendence",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "78642cd5e5afa7a8f00231a0d2be4ea7edf45425e0a3d109e2bd3a134cc64225",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS06",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#4c98ffb6-2ba5-4d5e-a118-198604caea01",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714387,
+          "title": "Crystal Transcendence",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526788,
+          "revision_timestamp": "2025-02-02T19:41:15Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5192cebb-1d3f-4bf9-b2a3-ee0a9957884e",
+      "name_en": "Double Evolution Pill",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-27",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "86e1cb3b4d4765cd99367bcfa794f0e73b9d3b2e6df02e90b9caf305d3ca4b99",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SBSC-PTS05",
+          "record_key": "sets/4a7bde5e-38b1-4dac-abb0-dafb4d083484.json#4d4a5443-9649-4133-b423-5e1891378497",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -27,
+          "path": "data/registry/neuron/card-pt--27.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 650054,
+          "title": "Double Evolution Pill (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729911,
+          "revision_timestamp": "2025-09-19T17:29:03Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -27,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "564a812d-21bb-454e-a30f-e048cdcb0052",
+      "name_en": "No One Suspects the Dark Scorpion Gang!",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "c2e097aac8acf125862d0681c3d25cb1fddba88b7450fda5077519738ae738b9",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS17",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2bf7b9fb-234e-4c6f-8679-3ec3ea32bc16",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806149,
+          "title": "No One Suspects the Dark Scorpion Gang!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5450818,
+          "revision_timestamp": "2024-12-06T05:42:47Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "564a812d-21bb-454e-a30f-e048cdcb0052",
+      "name_en": "No One Suspects the Dark Scorpion Gang!",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "f7143fabef6ff29ee691896240bdd9498932b9f7a5b2a67840a065f1d2f6c718",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES17",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2bf7b9fb-234e-4c6f-8679-3ec3ea32bc16",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806149,
+          "title": "No One Suspects the Dark Scorpion Gang!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5450818,
+          "revision_timestamp": "2024-12-06T05:42:47Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "564a812d-21bb-454e-a30f-e048cdcb0052",
+      "name_en": "No One Suspects the Dark Scorpion Gang!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "e22d56e0277e7d16b9e2d09ead0eca818ab3999163a7381d3b2e72e9854924c4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS17",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2bf7b9fb-234e-4c6f-8679-3ec3ea32bc16",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806149,
+          "title": "No One Suspects the Dark Scorpion Gang!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5450818,
+          "revision_timestamp": "2024-12-06T05:42:47Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5919ae0e-8261-45c8-9903-9d39729ec1d4",
+      "name_en": "Middle Age Mechs (Skill Card)",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "77e26d54d616c0d0c4e0b72313ff883edabfd79d7524754dd0ddcfe167b092cb",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS12",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#cb90a5df-f519-450b-b58e-f614b1218a95",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715902,
+          "title": "Middle Age Mechs (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5776481,
+          "revision_timestamp": "2025-12-06T18:17:03Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5af681fd-a45b-435f-9646-2e8f99beeab9",
+      "name_en": "Victory of the Shadow Riders",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "ca0891097b3b28447a81529b5fb6583fab1fbd9cb3eb3c2f4aea752ec1ba50e7",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS15",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#86af2ec3-2dc9-4c96-bc38-c6945c4dde31",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806165,
+          "title": "Victory of the Shadow Riders",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729929,
+          "revision_timestamp": "2025-09-19T17:46:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5af681fd-a45b-435f-9646-2e8f99beeab9",
+      "name_en": "Victory of the Shadow Riders",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "058656a4f415174e5179d4faab471bef2dc51bd5ad3605e13d9e371f5fa45cf9",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES15",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#86af2ec3-2dc9-4c96-bc38-c6945c4dde31",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806165,
+          "title": "Victory of the Shadow Riders",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729929,
+          "revision_timestamp": "2025-09-19T17:46:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5af681fd-a45b-435f-9646-2e8f99beeab9",
+      "name_en": "Victory of the Shadow Riders",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "d93ab3099550c0a8c5903f028c93821d2f7b5b4e3b7b3bb7881f60185fc749d1",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS15",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#86af2ec3-2dc9-4c96-bc38-c6945c4dde31",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806165,
+          "title": "Victory of the Shadow Riders",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729929,
+          "revision_timestamp": "2025-09-19T17:46:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5bf45415-6fc7-4a3e-88bd-e2e241b5cf25",
+      "name_en": "Looking into the Future",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "b21ab5564d440d8fbe13246bc8fb298d1f1c2a435ef7f348ee1867536ecfd266",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS10",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#cf6a3769-86bb-4e99-a278-b7c46bbebc52",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715648,
+          "title": "Looking into the Future",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5707555,
+          "revision_timestamp": "2025-08-15T18:13:52Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "5c8d2c7d-5b0f-4bce-95be-69a8802e7c7e",
+      "name_en": "Restructer Revolution",
+      "card_type": "spell",
+      "language": "pt",
+      "neuron_cids": "4871",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "8e48068f6d9b3a9a9c79c673067be609a084ff3c7326597b49659bb2d1cc4757",
+          "source": "ygojson-individual-20260925",
+          "set_code": "TP6-PT005",
+          "record_key": "sets/73128300-c525-437d-a561-255c80fa1bb2.json#31c5cd61-fa51-4f66-8038-f3fc67a36732",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": 4871,
+          "path": "data/registry/neuron/card-pt-4871.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 2577,
+          "title": "Restructer Revolution",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5717099,
+          "revision_timestamp": "2025-09-01T11:51:34Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=4871&request_locale=pt",
+          "artifact": "research/database-audit/name-investigation-20260926-071914-072968/neuron-pt-4871.html",
+          "sha256": "cb032084e97c859d93e34b1b80adbb92eb5d59eabaed30665c14b23abf0dfbe9",
+          "status": "detail_not_recovered",
+          "reason": "Card detail missing/unavailable in this language"
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "60ac779e-72b0-49f0-8dba-faadc85d8bf9",
+      "name_en": "Forbidden Cyber Style Technique",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "943e29df1d74dc85e012fbd51fd99ac408837c087ad567bcef979cb23d1c240d",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS07",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#92514ae8-31d3-4f2e-9c41-6ba2cff3f699",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715000,
+          "title": "Forbidden Cyber Style Technique",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526789,
+          "revision_timestamp": "2025-02-02T19:42:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "69b62d61-c981-4e7a-932c-d267f2e73443",
+      "name_en": "Delicious Morsel!",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "5fcc119d32ec9ffbeb00bb979d446412a7e082227e9765f08ab7a8826d86885f",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS11",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#90d0cee2-09fe-4883-a3c9-8010b0fe6686",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806162,
+          "title": "Delicious Morsel!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444213,
+          "revision_timestamp": "2024-12-05T20:49:18Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "69b62d61-c981-4e7a-932c-d267f2e73443",
+      "name_en": "Delicious Morsel!",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "b8b664ba97389f249049ce7f5405b0e49501b3d4f4586c22faac856ae02588a8",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES11",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#90d0cee2-09fe-4883-a3c9-8010b0fe6686",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806162,
+          "title": "Delicious Morsel!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444213,
+          "revision_timestamp": "2024-12-05T20:49:18Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "69b62d61-c981-4e7a-932c-d267f2e73443",
+      "name_en": "Delicious Morsel!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "df0241735b667605f19139327d857421fd8f8f38a5e2c1594c8383c326dbdaf1",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS11",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#90d0cee2-09fe-4883-a3c9-8010b0fe6686",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806162,
+          "title": "Delicious Morsel!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444213,
+          "revision_timestamp": "2024-12-05T20:49:18Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "6a172c8a-b63f-4f0a-94f4-7502b9d83cac",
+      "name_en": "Nekogal #1",
+      "card_type": "monster",
+      "language": "pt",
+      "neuron_cids": "4258",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7ae2f67d07ed3cb7bd05bc4eca65ccdf74fe37d615c139f3d62d540664f6d3d9",
+          "source": "ygojson-individual-20260925",
+          "set_code": "TP6-PT018",
+          "record_key": "sets/73128300-c525-437d-a561-255c80fa1bb2.json#aad376f1-4aa6-4150-9745-c5236dba9d98",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": 4258,
+          "path": "data/registry/neuron/card-pt-4258.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 508986,
+          "title": "Nekogal 1",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "field_missing_or_ambiguous",
+          "raw_values": [],
+          "revision_id": 5486944,
+          "revision_timestamp": "2024-12-14T15:06:51Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=4258&request_locale=pt",
+          "artifact": "research/database-audit/name-investigation-20260926-071914-072968/neuron-pt-4258.html",
+          "sha256": "225160ee99d4d192b7f0629f1c446e17e3d7468f9c00e7dd8fc777566b00d8bc",
+          "status": "detail_not_recovered",
+          "reason": "Card detail missing/unavailable in this language"
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "6a325223-c05d-4861-b2bf-e0cd22b918a4",
+      "name_en": "Yamata Dragon",
+      "card_type": "monster",
+      "language": "pt",
+      "neuron_cids": "5377",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "f41022274b2fe8169d97db343dbf24c034a182cd12655287a0786455bbc4432e",
+          "source": "ygojson-individual-20260925",
+          "set_code": "TP6-PT009",
+          "record_key": "sets/73128300-c525-437d-a561-255c80fa1bb2.json#dbfc605d-e039-4e93-8747-8abd5ce450ca",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": 5377,
+          "path": "data/registry/neuron/card-pt-5377.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 2826,
+          "title": "Yamata Dragon",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "field_missing_or_ambiguous",
+          "raw_values": [],
+          "revision_id": 5793547,
+          "revision_timestamp": "2026-01-02T11:10:43Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=5377&request_locale=pt",
+          "artifact": "research/database-audit/name-investigation-20260926-071914-072968/neuron-pt-5377.html",
+          "sha256": "9ec4bb8ea6242428410142c6a2df7c27456a77be79de5a93095db483e392233c",
+          "status": "detail_not_recovered",
+          "reason": "Card detail missing/unavailable in this language"
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "6c12c70d-e626-4df6-8c1d-f2094a8b7bad",
+      "name_en": "Behold, Gate Guardian!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "752cc00ae6a1b7db02f7fe06f52fb85ad74b93e2255ecc422c4737a008e39d97",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS04",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#bf200eae-22c4-4ab7-b0fb-117c1f721f8e",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 713668,
+          "title": "Behold, Gate Guardian!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526807,
+          "revision_timestamp": "2025-02-02T21:08:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "77b28c24-9318-4d65-9355-d5a47410b554",
+      "name_en": "Fog Warning",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "51e3b5ed6efdcc1b42f0edb0464720e0bbeccaa8464419d391cb46c93ac586c0",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS08",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#82c69bc1-c234-456c-9192-778297a71293",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806160,
+          "title": "Fog Warning",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5497444,
+          "revision_timestamp": "2024-12-20T11:26:46Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "77b28c24-9318-4d65-9355-d5a47410b554",
+      "name_en": "Fog Warning",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "9f403b0c09a5e6ef8bf5783e337b93fcf41f4dd276c33e07e2b52bec3fe496be",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES08",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#82c69bc1-c234-456c-9192-778297a71293",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806160,
+          "title": "Fog Warning",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5497444,
+          "revision_timestamp": "2024-12-20T11:26:46Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "77b28c24-9318-4d65-9355-d5a47410b554",
+      "name_en": "Fog Warning",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "5af0fb26aae6ffb3c63d723a5e10ac5a1a5a6c5bf981656fdf453fb83dbbe379",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS08",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#82c69bc1-c234-456c-9192-778297a71293",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806160,
+          "title": "Fog Warning",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5497444,
+          "revision_timestamp": "2024-12-20T11:26:46Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "827ef2f8-dfe0-46e2-8daf-84cdbbc98e03",
+      "name_en": "Watapon",
+      "card_type": "monster",
+      "language": "pt",
+      "neuron_cids": "6092",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "1a5388240a4d77dddc7fbab59a15e42c8edcdde9a9737d03042a313972bf8acb",
+          "source": "ygojson-individual-20260925",
+          "set_code": "MOV-PT003",
+          "record_key": "sets/62c9fa98-fb27-46ec-8f87-56862cd5df01.json#f24ba25b-d66c-409d-86ae-ffd65b701b0b",
+          "image_url": "https://ms.yugipedia.com//0/0b/Watapon-MOV-PT-C-LE.png"
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": 6092,
+          "path": "data/registry/neuron/card-pt-6092.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 1540,
+          "title": "Watapon",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456753,
+          "revision_timestamp": "2024-12-06T11:26:29Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=6092&request_locale=pt",
+          "artifact": "research/database-audit/name-investigation-20260926-071914-072968/neuron-pt-6092.html",
+          "sha256": "ece9bc2752e1f36871253c7e884a78671a756e661dd5fe30191846fced14cb74",
+          "status": "detail_not_recovered",
+          "reason": "Card detail missing/unavailable in this language"
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "923c0386-9ced-42db-875a-2995bb81c4e7",
+      "name_en": "Cyber Blade Fusion",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "4a64fb1a0615f1cd36301676c73f657a8748c825aec61d05db8a9c3bd4bf7b3b",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS05",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#6d14bf0f-a5a8-4e0a-8139-b613f271b2cb",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714403,
+          "title": "Cyber Blade Fusion",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526787,
+          "revision_timestamp": "2025-02-02T19:40:03Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "94b1745c-8fd8-49f8-8b24-897a589dbe1a",
+      "name_en": "Believe in Your Bro",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "e257d3f828a751752ec83ed67c5abd1105a63e73b587e7aa2084ebc904219527",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS11",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#40dff98f-02b2-4b63-a00f-d78282fd742c",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 713671,
+          "title": "Believe in Your Bro",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5667653,
+          "revision_timestamp": "2025-06-22T16:22:14Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "977ff417-08a8-4d2a-8e7b-b9fad228e07e",
+      "name_en": "Ruthless Means",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "4fbe0186dde9713e7dbf11efcfbd1de3dfbc19c31d1a4f35988f38768c974fd4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS01",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2b51b912-606f-40ff-86b4-a72d84a1584f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806153,
+          "title": "Ruthless Means",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5452940,
+          "revision_timestamp": "2024-12-06T07:53:47Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "977ff417-08a8-4d2a-8e7b-b9fad228e07e",
+      "name_en": "Ruthless Means",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "6579317998a6324a36dee95b154b257ade94996a2ed620327d7d8bfd295e55fd",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES01",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2b51b912-606f-40ff-86b4-a72d84a1584f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806153,
+          "title": "Ruthless Means",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5452940,
+          "revision_timestamp": "2024-12-06T07:53:47Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "977ff417-08a8-4d2a-8e7b-b9fad228e07e",
+      "name_en": "Ruthless Means",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "4ba8f1707e6ac0a41edc6229308f566e4f0ce2a0487687bae6ca50ece1736dce",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS01",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2b51b912-606f-40ff-86b4-a72d84a1584f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806153,
+          "title": "Ruthless Means",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5452940,
+          "revision_timestamp": "2024-12-06T07:53:47Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "9e541d2a-0f24-46ab-a7c6-85e47dcda6d3",
+      "name_en": "Land of the Ojamas (Skill Card)",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "83ec63140c06007a46b1e4b399e871b25e3fb7c8daf010b1dac915c171b41dc0",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS03",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#f7621207-ed6f-4650-b08d-872cf5467557",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715573,
+          "title": "Land of the Ojamas (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5776480,
+          "revision_timestamp": "2025-12-06T18:14:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "aab9937f-491d-40aa-8276-20c78b629dee",
+      "name_en": "Ritual Ceremony",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-36",
+      "printing_observations": 2,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "138a6576db30726c4ee7a44422e7872ef403ed8e3a801ed7c03cecb09f32d080",
+          "source": "ygojson-individual-20260925",
+          "set_code": "STP4-PTS06",
+          "record_key": "sets/e3cffe3f-a688-44d0-bb45-62b230cd2367.json#615a57c7-4aa8-43a0-9d3b-cfb71c2656c0",
+          "image_url": null
+        },
+        {
+          "printing_id": "3771325c47cbc50a4edd6c23134dd9ceaa628fb0a20b2cf6f4a6fac927bbdb2b",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SBTK-PTSP7",
+          "record_key": "sets/8a9c745e-7c24-40b0-86f9-6623be7ae8e6.json#9e110f4c-c0cd-4b36-926a-86260fe03672",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -36,
+          "path": "data/registry/neuron/card-pt--36.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 693805,
+          "title": "Ritual Ceremony",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5647679,
+          "revision_timestamp": "2025-05-31T10:29:14Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -36,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "acf383b2-d11f-4347-90e0-1b66a1b50ac4",
+      "name_en": "Archfiend Marmot of Nefariousness",
+      "card_type": "monster",
+      "language": "pt",
+      "neuron_cids": "4208",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "74a02b386606d311b95c79b4ddcd6b2d60a07991f45261a30fe03defcdfd2028",
+          "source": "ygojson-individual-20260925",
+          "set_code": "TP6-PT016",
+          "record_key": "sets/73128300-c525-437d-a561-255c80fa1bb2.json#dc3e6928-1f27-4010-a9ef-1f00c498cfae",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": 4208,
+          "path": "data/registry/neuron/card-pt-4208.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 508895,
+          "title": "Archfiend Marmot of Nefariousness",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "field_missing_or_ambiguous",
+          "raw_values": [],
+          "revision_id": 5959056,
+          "revision_timestamp": "2026-08-22T02:16:04Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=4208&request_locale=pt",
+          "artifact": "research/database-audit/name-investigation-20260926-071914-072968/neuron-pt-4208.html",
+          "sha256": "7a2cf4e33f5ddb298fff232700f3bbe1e849a4ad2df9b2bf52ca845b27afa15b",
+          "status": "detail_not_recovered",
+          "reason": "Card detail missing/unavailable in this language"
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "af02c1a7-4af1-4b86-bd83-40dc30090a43",
+      "name_en": "Powerful Group of Guys",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7e184b9f25c0f7464a511f6406a2fffbf4baba2d2d2c3819707bfed88373e65f",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS02",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#39b1988c-681e-40a0-a0df-a3f3a9b00de4",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 716272,
+          "title": "Powerful Group of Guys",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526785,
+          "revision_timestamp": "2025-02-02T19:37:21Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "af2f533c-5bac-41d1-bbd4-c1fad591c368",
+      "name_en": "Rainbow Crystal Collection",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "fb53d2f350aff331f85e8ed9eb6216aabffdd9dfb7fb7482320df2a83d9a4e62",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS14",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#63bd8733-6617-479a-a764-e61a595b9163",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 716368,
+          "title": "Rainbow Crystal Collection",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526796,
+          "revision_timestamp": "2025-02-02T19:56:21Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "b2be60fd-d220-46da-92ac-fa94e0d84abd",
+      "name_en": "Unlocking the Power",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "e270cd0bcf7e842f1aac0cfb2ad5d4b57d1847bce40d8e3dda15c2de239cbd0f",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS07",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#c133b1be-8432-4f07-958e-04e26914e5e0",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806159,
+          "title": "Unlocking the Power",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456301,
+          "revision_timestamp": "2024-12-06T11:00:44Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "b2be60fd-d220-46da-92ac-fa94e0d84abd",
+      "name_en": "Unlocking the Power",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "476e523cd4e6354e3a67d62bca8010bbf4df65c1657d8b9ec4c6c1bbaf208663",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES07",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#c133b1be-8432-4f07-958e-04e26914e5e0",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806159,
+          "title": "Unlocking the Power",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456301,
+          "revision_timestamp": "2024-12-06T11:00:44Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "b2be60fd-d220-46da-92ac-fa94e0d84abd",
+      "name_en": "Unlocking the Power",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7cadeff03ab652380c4e0d956ceab7bbfa8e85cb2bfcdd1dd60de7d391e5d802",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS07",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#c133b1be-8432-4f07-958e-04e26914e5e0",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806159,
+          "title": "Unlocking the Power",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456301,
+          "revision_timestamp": "2024-12-06T11:00:44Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "b6057dad-319d-4df1-b875-fcbd5518f9ee",
+      "name_en": "HEROES UNITE - FUSION!!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "803406647fc2641a07c8e098aa80156100d2f55413dc82314a5f3566724cbbf9",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS01",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#eb20f703-cb79-4b4e-84f5-3b13ee8800f4",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715233,
+          "title": "HEROES UNITE - FUSION!!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5557511,
+          "revision_timestamp": "2025-03-23T09:16:29Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ba244774-9d66-443a-8a17-ca0c0210261f",
+      "name_en": "Dragon Force",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "4c15932bab4ab99d3aac8c8516de4b8ae183daf11edd3fe901b6a2491f46bb55",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS10",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#301be21a-67c4-4c9d-a861-8bc716da50a6",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806168,
+          "title": "Dragon Force",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444820,
+          "revision_timestamp": "2024-12-05T21:33:43Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ba244774-9d66-443a-8a17-ca0c0210261f",
+      "name_en": "Dragon Force",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "d81c5ffa939bfc6d6cbad928bc639df934842b7867455871331ef055939d6213",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES10",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#301be21a-67c4-4c9d-a861-8bc716da50a6",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806168,
+          "title": "Dragon Force",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444820,
+          "revision_timestamp": "2024-12-05T21:33:43Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ba244774-9d66-443a-8a17-ca0c0210261f",
+      "name_en": "Dragon Force",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "f797c81ec6c1e5f9d910a18099f5ebf56721a7b20ea282686e87bb716fab8a19",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS10",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#301be21a-67c4-4c9d-a861-8bc716da50a6",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806168,
+          "title": "Dragon Force",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444820,
+          "revision_timestamp": "2024-12-05T21:33:43Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "bf974fcf-a798-42bc-9aab-136fee93cf6a",
+      "name_en": "Archfiend's Promotion",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "e97acb8140ddde62571a311232a82f8b55bc91e01f3865bf982042b5ee8d9a8a",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES13",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2f4f9244-1b87-4530-b208-80522ddb68b4",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806167,
+          "title": "Archfiend's Promotion",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5876771,
+          "revision_timestamp": "2026-04-22T20:00:42Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "bf974fcf-a798-42bc-9aab-136fee93cf6a",
+      "name_en": "Archfiend's Promotion",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "fe0a59fbfd9b63ec770da738b250fed0efb5f90d0fdd9c3f350c76e1bd5c7595",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS13",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#2f4f9244-1b87-4530-b208-80522ddb68b4",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806167,
+          "title": "Archfiend's Promotion",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5876771,
+          "revision_timestamp": "2026-04-22T20:00:42Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "c0a60a4a-4e69-4fec-91ce-5c23466c5e87",
+      "name_en": "Professor of Alchemy",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "76bd7a2f99d5af9b1b83605d203b91f27087e8237291139f12057d12d2977298",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS06",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#e787161e-5785-4e30-b415-6ea80c12de91",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806158,
+          "title": "Professor of Alchemy",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5748413,
+          "revision_timestamp": "2025-10-18T02:14:16Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "c0a60a4a-4e69-4fec-91ce-5c23466c5e87",
+      "name_en": "Professor of Alchemy",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "1ff1dee7538193188f8736563ac50226117b68c7688a1b18f2b62bcc79b8e6d4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES06",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#e787161e-5785-4e30-b415-6ea80c12de91",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806158,
+          "title": "Professor of Alchemy",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5748413,
+          "revision_timestamp": "2025-10-18T02:14:16Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "c0a60a4a-4e69-4fec-91ce-5c23466c5e87",
+      "name_en": "Professor of Alchemy",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "f708965c57fea2d2b8e472a29b15ff8ad2c1fb949e9d93c5b277faed16f17a8b",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS06",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#e787161e-5785-4e30-b415-6ea80c12de91",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806158,
+          "title": "Professor of Alchemy",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5748413,
+          "revision_timestamp": "2025-10-18T02:14:16Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "c3936ab0-5454-41b5-9ecb-5e4677b23ba4",
+      "name_en": "Full Salvo",
+      "card_type": "trap",
+      "language": "pt",
+      "neuron_cids": "6622",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7aac68f4790f828415cfd32a9c45b0996d4d7c0d8b08df277bac006692ac8855",
+          "source": "ygojson-individual-20260925",
+          "set_code": "LART-PT075",
+          "record_key": "sets/732543b0-9790-4b36-b7d9-418aaff2c9b2.json#5ffe1084-e47b-4b12-8837-18b1596a8a9c",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": 6622,
+          "path": "data/registry/neuron/card-pt-6622.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 11469,
+          "title": "Full Salvo",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5782426,
+          "revision_timestamp": "2025-12-15T20:55:56Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=6622&request_locale=pt",
+          "artifact": "research/database-audit/name-investigation-20260926-071914-072968/neuron-pt-6622.html",
+          "sha256": "888bfa3669cce1f4b230560df10b922c8840d3b23779f3085024443f9e47842b",
+          "status": "detail_not_recovered",
+          "reason": "Card detail missing/unavailable in this language"
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "c469678a-1e6a-4bec-8d81-a4715ecb839b",
+      "name_en": "Small Roid Big City",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "3aacfd8382b8c62994582f4697a03599d89c64d2b6d387c778ae65f8402b651a",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS12",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#f65f32b9-b292-43c0-87bd-3af96254e79d",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 716736,
+          "title": "Small Roid Big City",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729924,
+          "revision_timestamp": "2025-09-19T17:40:48Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "d03d4384-f54a-4f85-b553-79e3cc5277d1",
+      "name_en": "Low Blow",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-69",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "6968241aebf977e6f1d3707236eb116aec454bb678c9b7a1b967811ac51020b4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SBTK-PTSP8",
+          "record_key": "sets/8a9c745e-7c24-40b0-86f9-6623be7ae8e6.json#a0637d6c-79b2-4526-b766-829b2d516e78",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -69,
+          "path": "data/registry/neuron/card-pt--69.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 693495,
+          "title": "Low Blow",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5449214,
+          "revision_timestamp": "2024-12-06T04:07:28Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -69,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "d060d58a-19b6-488c-99d2-cc4210431248",
+      "name_en": "Archfiend's Conscription",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "969dd1460acb19178867bea3964d44cfd2c4e1699d8590c9619c7f0e0c54efd4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES05",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#7f8bb3a9-fbe3-41e6-a647-99c5159decae",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806157,
+          "title": "Archfiend's Conscription",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5724642,
+          "revision_timestamp": "2025-09-12T17:16:23Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "d060d58a-19b6-488c-99d2-cc4210431248",
+      "name_en": "Archfiend's Conscription",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "cec85dfe3ac07b7e8d705d82c4d0cbec61a2f9c8543ddfa66421523820b2d97a",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS05",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#7f8bb3a9-fbe3-41e6-a647-99c5159decae",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806157,
+          "title": "Archfiend's Conscription",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5724642,
+          "revision_timestamp": "2025-09-12T17:16:23Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "d37b2893-b6ac-4851-bb18-318a5bc8dcc7",
+      "name_en": "Power Up!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-49",
+      "printing_observations": 3,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "007ecaf0e09e1c3b7fa56f5c4c4f7d580791c5a0756014ab3e64135489a81b97",
+          "source": "ygojson-individual-20260925",
+          "set_code": "DEM6-PTS01",
+          "record_key": "sets/a1987aca-bbab-4744-97aa-a2a0086b812c.json#c5e670d2-8b56-4991-998d-5e658783cbdf",
+          "image_url": "https://ms.yugipedia.com//4/46/PowerUp-DEM6-PT-C-UE.png"
+        },
+        {
+          "printing_id": "4e86dda9f2a0beda272fd8e79a063214084d82a3f7f6d63311530116d27670f5",
+          "source": "ygojson-individual-20260925",
+          "set_code": "DEM5-PTS01",
+          "record_key": "sets/8a26ad24-4e3f-492d-9848-2b99f41d6d24.json#0d8de801-599b-4490-bbd8-95019e5d0832",
+          "image_url": null
+        },
+        {
+          "printing_id": "f1df9923af0f6bc42d218dc6a6f096562dfdebbbf43f069bbab40c2c91459e47",
+          "source": "ygojson-individual-20260925",
+          "set_code": "EVSD-PTS01",
+          "record_key": "sets/4844a8e3-623d-40d0-8e66-60415ffaea57.json#22e0d6a5-8d44-47b5-ba81-382e05475bbe",
+          "image_url": "https://ms.yugipedia.com//9/98/PowerUp-EVSD-PT-SR-UE.png"
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -49,
+          "path": "data/registry/neuron/card-pt--49.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 630128,
+          "title": "Power Up!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5543175,
+          "revision_timestamp": "2025-03-04T14:14:52Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -49,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "d5596546-9e0d-4f1b-8f67-86cffc343864",
+      "name_en": "Vampiric Aristocracy",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "e65268ee290eb47af27e3e1fcc29557d149d575f9705a8c0ab1f30b8c9471702",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS03",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#527476fa-d39f-4a38-b56d-77846ce3c519",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806155,
+          "title": "Vampiric Aristocracy",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456417,
+          "revision_timestamp": "2024-12-06T11:07:12Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "d5596546-9e0d-4f1b-8f67-86cffc343864",
+      "name_en": "Vampiric Aristocracy",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "d4df04d5472e908420258c0ed380fd7fd84f42b2a56a0b12539e389d9cb25016",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES03",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#527476fa-d39f-4a38-b56d-77846ce3c519",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806155,
+          "title": "Vampiric Aristocracy",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456417,
+          "revision_timestamp": "2024-12-06T11:07:12Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "d5596546-9e0d-4f1b-8f67-86cffc343864",
+      "name_en": "Vampiric Aristocracy",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "d9a8584deae1b40e5eda374297e1507ab9540f157bee93bdde96d542e4afdc49",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS03",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#527476fa-d39f-4a38-b56d-77846ce3c519",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806155,
+          "title": "Vampiric Aristocracy",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5456417,
+          "revision_timestamp": "2024-12-06T11:07:12Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "d7da1142-453e-424b-b879-28f7c7844418",
+      "name_en": "I'm Just Gonna Attack!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-53",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "016af2e490408b11a6ff1101e77e01076471e3b531b07dadc9b4454763f457d0",
+          "source": "ygojson-individual-20260925",
+          "set_code": "STP6-PTS04",
+          "record_key": "sets/6a5d86ed-1644-460b-bbe2-e4c07560b0ac.json#f9d0ce5d-19bc-40a3-8584-5ef09f30f3dc",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -53,
+          "path": "data/registry/neuron/card-pt--53.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715362,
+          "title": "I'm Just Gonna Attack!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5704326,
+          "revision_timestamp": "2025-08-10T10:00:53Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -53,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "db7032ec-b203-402a-83ed-48b3d2b6db7d",
+      "name_en": "Power Bond (Skill Card)",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 2,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "2fe50f6eec67605283774c0fe2a54a0979aecb20db459c346fa0b79eb9189bf3",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS08",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#bb735a89-9307-47e3-a719-100ae6f931be",
+          "image_url": null
+        },
+        {
+          "printing_id": "f62ad995d620cf6f82e5ba737e8ea65af4076a1defcb1f514c58180356d4a4fa",
+          "source": "ygojson-individual-20260925",
+          "set_code": "STP6-PTS05",
+          "record_key": "sets/6a5d86ed-1644-460b-bbe2-e4c07560b0ac.json#9a420629-3970-4f74-824a-2ec6f8097ccd",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 716262,
+          "title": "Power Bond (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729923,
+          "revision_timestamp": "2025-09-19T17:40:19Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "dd6d5ba8-413c-4a53-8301-1d980aca5e30",
+      "name_en": "Forged Steel",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "95c5bca390245b88e383286b5d9005e957aba0bc3f97869598ee139b2955dd0a",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS02",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#6be5c813-222c-4133-87c2-d4ec85fb3e5b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806154,
+          "title": "Forged Steel",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729927,
+          "revision_timestamp": "2025-09-19T17:45:19Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "dd6d5ba8-413c-4a53-8301-1d980aca5e30",
+      "name_en": "Forged Steel",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "6d4511a7c54765ffbebfd4a749c695358071523c93ffec7063042a372cd7ee24",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES02",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#6be5c813-222c-4133-87c2-d4ec85fb3e5b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806154,
+          "title": "Forged Steel",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729927,
+          "revision_timestamp": "2025-09-19T17:45:19Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "dd6d5ba8-413c-4a53-8301-1d980aca5e30",
+      "name_en": "Forged Steel",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "b804e8d0bc9630f50a1d468086dfd70f64b02b166a7b209e711aadc96e8cae30",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS02",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#6be5c813-222c-4133-87c2-d4ec85fb3e5b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806154,
+          "title": "Forged Steel",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729927,
+          "revision_timestamp": "2025-09-19T17:45:19Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "dee69f90-6d65-429b-a270-3d322689a831",
+      "name_en": "The Roids are Alright",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "0e22192feb5d898dfc75c4b33b9f80f8a54d70e9d09b9a38df835d33c170d15f",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS03",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#a66e7ec7-3644-48e2-b3d2-b34b7ea10eb4",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 717095,
+          "title": "The Roids are Alright",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526806,
+          "revision_timestamp": "2025-02-02T21:06:01Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "dfe600db-9d05-4f7b-8950-a69c1aa0f4af",
+      "name_en": "Heavy Metal Raiders",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-46",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "7bb7ed0cabefee762d4f535d45f57588b7733ae153af7967dfa7f1b26daccfc4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SBSC-PTS01",
+          "record_key": "sets/4a7bde5e-38b1-4dac-abb0-dafb4d083484.json#76b90a7e-66a7-4b6a-97af-6563226adcca",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -46,
+          "path": "data/registry/neuron/card-pt--46.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 650060,
+          "title": "Heavy Metal Raiders (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729909,
+          "revision_timestamp": "2025-09-19T17:28:20Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -46,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "e05e6193-1040-4d95-9a8b-91155dcdf072",
+      "name_en": "I've Got Dino DNA!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "42c117eb64b33a0c1ad87b06370b1943c4e950a3e2eb42df2cc822d8f2a96817",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS19",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#4242d2c3-4538-4ef1-a63c-7441833c2b7a",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715364,
+          "title": "I've Got Dino DNA!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5796607,
+          "revision_timestamp": "2026-01-05T14:06:10Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "e17c210f-76fe-4f50-8e4f-47e2239afe82",
+      "name_en": "Consumed By Darkness",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "fc950486983003fc70ee06514155c449ad213e756a92dfd4fac2fd9fa3f96b95",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS20",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#bdd159d9-9daa-44b5-8cbf-174be3eda381",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714335,
+          "title": "Consumed By Darkness",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5729921,
+          "revision_timestamp": "2025-09-19T17:38:41Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "e99e9c44-abee-4930-b0fc-459ad1f64771",
+      "name_en": "Order of the Queen",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "a725e23db490d47ccefa598ea148210ee9bb8de136b90798599232c3d0a92ee8",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS12",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#7fc9527b-16d2-4f9d-b655-78933d4de1a2",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806163,
+          "title": "Order of the Queen",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5451240,
+          "revision_timestamp": "2024-12-06T06:15:35Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "e99e9c44-abee-4930-b0fc-459ad1f64771",
+      "name_en": "Order of the Queen",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "52943aa712b9be1b879bf14e576c617c67599a2638184d381b9d5b16d1fe2611",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES12",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#7fc9527b-16d2-4f9d-b655-78933d4de1a2",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806163,
+          "title": "Order of the Queen",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5451240,
+          "revision_timestamp": "2024-12-06T06:15:35Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "e99e9c44-abee-4930-b0fc-459ad1f64771",
+      "name_en": "Order of the Queen",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "1493c68ea661e6b1918af6a25daea3ad42eceea868f39d1313c4f063e709da85",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS12",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#7fc9527b-16d2-4f9d-b655-78933d4de1a2",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806163,
+          "title": "Order of the Queen",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=806162%7C806163%7C806164%7C806165%7C806166%7C806167%7C806168&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-4.json",
+            "sha256": "893c3a16a42c08e7ce3cfbfab1cd1476e250195334a665e0bb013375cc0e7c94"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5451240,
+          "revision_timestamp": "2024-12-06T06:15:35Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ea162f13-8164-40df-8367-014cafb7b540",
+      "name_en": "Dark Creation",
+      "card_type": "skill",
+      "language": "es",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "838ad19c76557aaf274dc58516871261022b5643f97aee5c40bf8844071ec576",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-SPS20",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#b056ab0e-bc89-47b3-85c7-78c9b23e3a0f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806152,
+          "title": "Dark Creation",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5443887,
+          "revision_timestamp": "2024-12-05T20:26:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ea162f13-8164-40df-8367-014cafb7b540",
+      "name_en": "Dark Creation",
+      "card_type": "skill",
+      "language": "de",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "882d51dfc183b2ce5aeb5b7aad13000120f858d4b18d183e8bb2b577d2778b5e",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-DES20",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#b056ab0e-bc89-47b3-85c7-78c9b23e3a0f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806152,
+          "title": "Dark Creation",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5443887,
+          "revision_timestamp": "2024-12-05T20:26:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ea162f13-8164-40df-8367-014cafb7b540",
+      "name_en": "Dark Creation",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "d1b3eeeaf8f4f0db79d4fb955e9ad4dc19f5461c2544245b985e1e0edf6a7b1f",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX3-PTS20",
+          "record_key": "sets/e0f0787a-bb2d-4296-9289-508bec2b5631.json#b056ab0e-bc89-47b3-85c7-78c9b23e3a0f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 806152,
+          "title": "Dark Creation",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5443887,
+          "revision_timestamp": "2024-12-05T20:26:08Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "eb3b6bc2-ad59-4e02-9bb9-472077627a73",
+      "name_en": "Volcanic Cannon",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "93f8024777ffe4ab9d937fc3877649fadf9cc693ee2aac73dbcbd7b55abba3ca",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS16",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#3ad53408-713e-48b7-aed1-a8524dd0e31b",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 709786,
+          "title": "Volcanic Cannon",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526798,
+          "revision_timestamp": "2025-02-02T19:59:12Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ebb30098-8ce5-4495-b561-f5f04aa15256",
+      "name_en": "HERO World",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "988ca62d54c0c6c9208ebab933335bf5dde257bd4e5115cc0bd83b08304b82c4",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS07",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#cc15cf6d-a6a1-4296-92e9-29d4a5458a5f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 715232,
+          "title": "HERO World",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5474058,
+          "revision_timestamp": "2024-12-11T20:58:44Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "eca0c255-e5a8-4363-b013-04357badcf79",
+      "name_en": "Beware the Brothers Paradox!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "3be5b6906e86a72a6a168a84dcb5f98e0283c5f09c6c01056b8631e757dc341e",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS09",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#fa82d4c9-b729-4366-83a4-1e6a7057cea7",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 713701,
+          "title": "Beware the Brothers Paradox!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526828,
+          "revision_timestamp": "2025-02-02T22:09:34Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ed98332a-eb40-421d-bee6-317b55d9f78e",
+      "name_en": "Chemistry in Motion",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "b5813207a8add5d41706b13e6e2f2a7277c647d8cf883445b14da610319ed36e",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX2-PTS02",
+          "record_key": "sets/a00e86fc-ad7a-45e0-94e6-c0113e5ebec0.json#00b76aca-89d1-41b3-aef0-9dad277b1414",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714269,
+          "title": "Chemistry in Motion",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526805,
+          "revision_timestamp": "2025-02-02T21:05:05Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "ee700625-c80d-489f-a231-9297db0c7cfb",
+      "name_en": "Room for Growth",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "886874c6f4f3d3416c9fdeeeab99d8c95daa123486e5d33e664da1e639c039a3",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS18",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#e76672e6-0d4f-4e0a-b8bd-a7b6779d35ed",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 716509,
+          "title": "Room for Growth",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526800,
+          "revision_timestamp": "2025-02-02T20:01:24Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "f1a594d1-fc07-4e45-bd89-313f0ec07f66",
+      "name_en": "The Right Hero for the Job",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "02eaa8850d6e2d5eb5ac6f600a54acf2ae8f3b2719b8554350b87432c5ed9668",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS09",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#82a9e102-d1b9-4cc3-8f22-832b49775c92",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 717094,
+          "title": "The Right Hero for the Job",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=716368%7C716509%7C716736%7C717094%7C717095%7C717315%7C717320%7C806149%7C806150%7C806151%7C806152%7C806153%7C806154%7C806155%7C806156%7C806157%7C806158%7C806159%7C806160%7C806161&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-3.json",
+            "sha256": "b48baaa8b2336678f1aa185eb769430d84d190912d3468498627d30bb225edb4"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5526791,
+          "revision_timestamp": "2025-02-02T19:47:49Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "f22060b0-8375-46aa-9cf0-96db0b41acb0",
+      "name_en": "Fusion Party!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-39",
+      "printing_observations": 2,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "44ab5b88430394e3d31b6b2e4e98cc7431f967637d95157669dc4ff66b527476",
+          "source": "ygojson-individual-20260925",
+          "set_code": "STP4-PTS04",
+          "record_key": "sets/e3cffe3f-a688-44d0-bb45-62b230cd2367.json#c3cc8c4b-0a14-4e3b-b185-cf83faf1a749",
+          "image_url": null
+        },
+        {
+          "printing_id": "d4f5d0df6715f0822f16cd4dc2342723a779efba99019eb0ecad195073e1011c",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SBTK-PTSP6",
+          "record_key": "sets/8a9c745e-7c24-40b0-86f9-6623be7ae8e6.json#7176fc0a-b7ba-49fc-9a27-268e50cd9fac",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -39,
+          "path": "data/registry/neuron/card-pt--39.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 693802,
+          "title": "Fusion Party!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5749292,
+          "revision_timestamp": "2025-10-20T10:50:31Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -39,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "f66a504b-23cf-4944-b1e7-224588e34585",
+      "name_en": "Cyberdark Style (Skill Card)",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "9c445a798e6e7028d368ef7431fcacdf689a3c0286a9ce0b4ee0d43ac303f3fc",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SGX1-PTS15",
+          "record_key": "sets/17afc0bd-f32b-4a6a-ab6d-54d365baf4ff.json#ee39f100-b0e2-4096-8e35-dea68c3535d6",
+          "image_url": null
+        }
+      ],
+      "cached_details": [],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 714429,
+          "title": "Cyberdark Style (Skill Card)",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5776477,
+          "revision_timestamp": "2025-12-06T18:09:43Z"
+        }
+      ],
+      "official_checks": []
+    },
+    {
+      "canonical_card_id": "f85c6846-3263-4c2c-97ab-1ffaea7b88bf",
+      "name_en": "Digging for Gold",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-22",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "90e302767ece31399b456fc2f21e0632b64073e66b512f119adb65d759314b49",
+          "source": "ygojson-individual-20260925",
+          "set_code": "SBTK-PTSP9",
+          "record_key": "sets/8a9c745e-7c24-40b0-86f9-6623be7ae8e6.json#be4bfe64-9f75-4ef0-864e-d1a3efba0fc9",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -22,
+          "path": "data/registry/neuron/card-pt--22.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 693496,
+          "title": "Digging for Gold",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=1540%7C2577%7C2826%7C11469%7C508895%7C508986%7C630128%7C650054%7C650060%7C693495%7C693496%7C693802%7C693805%7C709786%7C713134%7C713668%7C713671%7C713701%7C713935%7C714269&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-1.json",
+            "sha256": "da85496159b6ecb1d1b0517d07189b2a96c783e060464ce5c2e064e1e38d090c"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5444474,
+          "revision_timestamp": "2024-12-05T21:09:11Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -22,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    },
+    {
+      "canonical_card_id": "fd25e763-ea19-4df4-9431-639043e7595a",
+      "name_en": "No More Mrs. Nice Mai!",
+      "card_type": "skill",
+      "language": "pt",
+      "neuron_cids": "-57",
+      "printing_observations": 1,
+      "reason": "Printing language declared but localized name absent; check source.",
+      "observations": [
+        {
+          "printing_id": "bc155d0199be700419448316dd035ecb345ee830d1c569ffb586bed14e87140a",
+          "source": "ygojson-individual-20260925",
+          "set_code": "STP6-PTS03",
+          "record_key": "sets/6a5d86ed-1644-460b-bbe2-e4c07560b0ac.json#96d9d897-1a7f-4703-adf0-835488b74a0f",
+          "image_url": null
+        }
+      ],
+      "cached_details": [
+        {
+          "cid": -57,
+          "path": "data/registry/neuron/card-pt--57.json",
+          "exists": false
+        }
+      ],
+      "status": "unresolved_source_empty_or_missing",
+      "wiki_checks": [
+        {
+          "page_id": 716048,
+          "title": "No More Mrs. Nice Mai!",
+          "source": {
+            "url": "https://yugipedia.com/api.php?action=query&pageids=714271%7C714335%7C714387%7C714403%7C714429%7C714777%7C714798%7C715000%7C715232%7C715233%7C715289%7C715362%7C715364%7C715573%7C715648%7C715683%7C715902%7C716048%7C716262%7C716272&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&format=json",
+            "artifact": "research/database-audit/name-investigation-20260926-071914-072968/yugipedia-2.json",
+            "sha256": "4c01bcc314132674fd5c3e9f98936f8b063b0a3056ef5984e0de3a5d6d8ca616"
+          },
+          "status": "source_field_empty",
+          "raw_values": [
+            " "
+          ],
+          "revision_id": 5472693,
+          "revision_timestamp": "2024-12-09T22:40:59Z"
+        }
+      ],
+      "official_checks": [
+        {
+          "cid": -57,
+          "status": "nonpositive_identifier_needs_review",
+          "reason": "Do not treat a nonpositive source dbID as a validated Neuron CID."
+        }
+      ]
+    }
+  ]
+}

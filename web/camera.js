@@ -1,4 +1,18 @@
 const frame=document.querySelector('#frame'),ctx=frame.getContext('2d');
+async function refreshDownloadWatch(){
+  const label=document.querySelector('#downloadWatch');if(!label)return;
+  try{
+    const response=await fetch('/download-status',{cache:'no-store'});if(!response.ok)throw new Error('status');
+    const d=await response.json(),age=Date.now()-Date.parse(d.watch_checked_at);
+    if(d.watch_state==='complete_pending_content_audit')label.textContent='Neuron: descarga e importación completas; falta auditoría del contenido.';
+    else if(d.watch_state==='finished_with_pending_work')label.textContent=`Neuron: proceso terminado con pendientes (${d.remaining_files} fichas por descargar).`;
+    else if(!Number.isFinite(age)||age>180000||d.watch_state==='stale_progress')label.textContent='Neuron: monitor sin actualización reciente; revisar el estado.';
+    else if(d.watch_state==='downloading')label.textContent=`Neuron: ${d.percent}% · ${d.cached_detail_files.toLocaleString()} / ${d.total_discovered.toLocaleString()} fichas · ${(d.current_run_errors||[]).length} errores registrados`;
+    else label.textContent=`Neuron: ${d.watch_state==='stopped'?'descarga detenida':d.watch_state==='access_blocked'?'acceso bloqueado':'monitor no disponible'}.`;
+  }catch(e){label.textContent='No se pudo consultar el monitor de descarga.';}
+  finally{setTimeout(refreshDownloadWatch,30000);}
+}
+refreshDownloadWatch();
 const status=document.querySelector('#status'),pause=document.querySelector('#pause'),save=document.querySelector('#save');
 const recognize=document.querySelector('#recognize'),ar=document.querySelector('#ar'),detection=document.querySelector('#detection');
 let paused=false,offline=false,currentBlob=null,currentBitmap=null,frameAt=0,frameNumber=0;

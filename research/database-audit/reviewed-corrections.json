@@ -1,0 +1,79 @@
+{
+  "reviewed_at": "2026-09-26",
+  "aliases": [
+    {
+      "alias": "8900bac3-3ccb-4f33-a31f-71c51ef13eb6",
+      "canonical": "dbf7a067-733d-442b-afde-e39f6b94f7d4",
+      "record_sha256": {
+        "8900bac3-3ccb-4f33-a31f-71c51ef13eb6": "004b9bff793d1fdee192f1fe712bf7e545d33a57e56abe71d1672a6f3a6d6de9",
+        "dbf7a067-733d-442b-afde-e39f6b94f7d4": "41072c53bf8c31161cdd24a0adabfe8d51bf2177c957c35656d2587d42b83daa"
+      },
+      "reason": "Same CID, passcode and effect except self-name spelling; confirmed against official Neuron.",
+      "official_url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=20590&request_locale=en",
+      "cached_official_record": "data/registry/neuron/card-en-20590.json"
+    },
+    {
+      "alias": "0e358b73-dff0-4181-8d24-d2261a04ed1e",
+      "canonical": "a425a140-2c9c-4fc0-9605-5fdb32e66ba8",
+      "record_sha256": {
+        "0e358b73-dff0-4181-8d24-d2261a04ed1e": "053d556a1c902825a2481ee6fbceddd2048ed6b691c34c76c128c21e5b5c61ac",
+        "a425a140-2c9c-4fc0-9605-5fdb32e66ba8": "bcccb0cc5bfaf5069d18644ddccd897a31f42c5d01594a163ebc38dda89dfc9f"
+      },
+      "reason": "Same CID, passcode and effect except self-name spelling; confirmed against official Neuron.",
+      "official_url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=21160&request_locale=en",
+      "cached_official_record": "data/registry/neuron/card-en-21160.json"
+    },
+    {
+      "alias": "da1a11b1-e866-42c2-93ae-990b249b1592",
+      "canonical": "f94da51d-20a1-42dc-a176-a703ab8dcde9",
+      "record_sha256": {
+        "da1a11b1-e866-42c2-93ae-990b249b1592": "a65edb54cda18b262361b9b1e4e39d07c2318f59602aef8155498c79e680d812",
+        "f94da51d-20a1-42dc-a176-a703ab8dcde9": "ac6d93ae3a2111dddc4045d372b7291ce8b2bf44c9064d0753a687a63556dd06"
+      },
+      "reason": "Earlier translated name and wording; current YGOPRODeck API ID 20415050 matches official Neuron name and effect. Manually reviewed, not fuzzy matching.",
+      "official_url": "https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=21938&request_locale=en",
+      "cached_official_record": "data/registry/neuron/card-en-21938.json"
+    }
+  ],
+  "identifier_decisions": [
+    {
+      "card_id": "cc08efa1-bf81-4c5e-aadb-6143dedea851",
+      "kind": "passcode",
+      "value": "55154344",
+      "status": "disputed",
+      "replacement": "81549048",
+      "reason": "Different CID/type/effect. Current source associates 55154344 with Wyrm Winds and 81549048 with Rivalry. Preserve original claim but exclude from recognition pending any printing-specific evidence.",
+      "urls": [
+        "https://yugioh.fandom.com/wiki/Ryu-Ge_Rivalry",
+        "https://yugioh.fandom.com/wiki/Ryu-Ge_Realm_-_Wyrm_Winds",
+        "https://db.ygoprodeck.com/api/v7/cardinfo.php?id=20415050,81549048,55154344"
+      ]
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "research/database-audit/evidence-20260926/ygoprodeck-cards.json",
+      "sha256": "edc124ca3e3707db92ad85fd2e2444a498572c1e302b194b0a5011d7848fc742"
+    },
+    {
+      "path": "data/registry/neuron/card-en-20590.json",
+      "sha256": "a68ed2bf0025e932de265f574857fafe071480ba991427db9ac2b6ea952b613c"
+    },
+    {
+      "path": "data/registry/neuron/card-en-21160.json",
+      "sha256": "bd47b4df075971be76e020ba7b672db91c48025bee5749d5b3f4ddcebea297fb"
+    },
+    {
+      "path": "data/registry/neuron/card-en-21938.json",
+      "sha256": "8808320a1f896820dcbb683c068b15c1e699600e501a6bbe0ef2e5aff7a957bb"
+    },
+    {
+      "path": "data/registry/neuron/card-en-20600.json",
+      "sha256": "a5a6a6403aa843a7db62f74e59ded40ae69862d6131d8eddc93fb83581fb4ca3"
+    },
+    {
+      "path": "data/registry/neuron/card-en-20601.json",
+      "sha256": "39bfac8894715dbcc22270d262e0ccc1825875e148677a97b6f462ef1df466fa"
+    }
+  ]
+}

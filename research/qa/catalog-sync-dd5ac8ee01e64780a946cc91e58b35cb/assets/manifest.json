@@ -1,0 +1,1 @@
+{"items": {"art1": {"card_id": "card", "image_source_id": "0", "path": "one.png", "status": "ok", "sha256": "wrong", "url": "https://example.test/one.png"}, "art2": {"card_id": "card", "image_source_id": "1", "path": "two.png", "status": "ok", "sha256": "89cf4c6823146a7be9f08518f663a2cf80e8dd460b4d30491abcfb37b5961398", "url": "https://example.test/two.png"}}}

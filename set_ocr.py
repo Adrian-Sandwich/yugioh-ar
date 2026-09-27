@@ -6,6 +6,7 @@ from contextlib import closing
 from pathlib import Path
 import cv2
 import numpy as np
+from identity_resolution import IDENTITIES
 
 DB=Path(__file__).resolve().parent/'data/registry/registry.sqlite'
 SET_REGIONS=((.52,.714,.96,.752),(.52,.742,.96,.785),(.52,.91,.96,.949))
@@ -21,7 +22,7 @@ def lookup_set(code,path=DB):
     grouped={}
     for uid,lang,rarity,edition in rows:
         grouped.setdefault(uid,{'card_id':uid,'printings':[]})['printings'].append({'language':lang,'rarity':rarity,'edition':edition})
-    return list(grouped.values())
+    return IDENTITIES.merge(list(grouped.values()))
 
 class SetReader:
     def __init__(self,engine,path=DB):self.engine=engine;self.path=path

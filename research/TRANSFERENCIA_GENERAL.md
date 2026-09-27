@@ -148,3 +148,36 @@ fallos conocidos: [PIPELINE_ESTADO.md](PIPELINE_ESTADO.md). Experimento de esqui
 [yolo11_pose/README.md](yolo11_pose/README.md). La integración nativa de Codebase
 Memory sigue cerrada; su CLI y las advertencias de frescura están documentadas
 en [CODEBASE_MEMORY.md](CODEBASE_MEMORY.md).
+
+## Base curada: impresiones y artes (26/09/2026)
+
+La versión `20260926-071914-072968` incorpora 204 vínculos impresión–arte
+declarados por URL exacta y una cola diagnóstica de 19,199 referencias visuales
+pendientes. Se conservan todas las observaciones e imágenes. Estos vínculos
+no constituyen verificación independiente de una carta física y no cambian
+el reconocimiento del visor. Esquema, pruebas y siguientes pasos en
+[IMPRESIONES_Y_ARTES.md](database-audit/IMPRESIONES_Y_ARTES.md).
+
+Auditoría posterior: [cobertura por idioma y metadatos](database-audit/coverage-20260926-071914-072968/README.md).
+Hay 104 pares carta–idioma con impresiones declaradas pero sin nombre: 98 de
+tipo Skill y seis de otros tipos en portugués. Los archivos incluyen fuentes,
+set codes y presencia de caché para investigar, sin completar traducciones por inferencia.
+
+[Inspección visual de 24 referencias](database-audit/visual-sample-20260926-071914-072968/INSPECCION.md):
+incluye artes alternativos, tokens, Rush Duel y diseños TDOANE. La comparación
+no constituye evaluación de cámara ni promovió propuestas. Conservar etiquetas
+de formato/origen al preparar datos en destino; no confundir un arte desconocido
+con una identidad incorrecta.
+
+## Paquete ampliado preparado
+
+[CATALOGO_RECONOCIMIENTO_AMPLIADO.md](CATALOGO_RECONOCIMIENTO_AMPLIADO.md)
+documenta el nuevo manifiesto: 13,094 artes de 12,947 identidades para generar
+vectores en destino, conservando las 54,436 referencias y sus motivos de inclusión
+o revisión. Incluye etiquetas de procedencia y verificaciones de archivos;
+no reemplaza el índice activo del visor.
+
+Los [104 huecos de nombres](database-audit/name-investigation-20260926-071914-072968/README.md)
+se investigaron en 67 páginas de Yugipedia y seis CIDs positivos de Neuron:
+no se recuperaron nombres localizados suficientes para importar. Los casos
+siguen abiertos y documentados; no se completaron con traducciones inventadas.

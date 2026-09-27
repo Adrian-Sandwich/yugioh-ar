@@ -1,0 +1,17 @@
+{
+  "8765": {
+    "version": "20260926-070446-424119",
+    "aliases": 12,
+    "disputed_identifiers": 1,
+    "error": null,
+    "data_source": "live_registry"
+  },
+  "8767": {
+    "version": "20260926-070446-424119",
+    "aliases": 12,
+    "disputed_identifiers": 1,
+    "error": null,
+    "data_source": "live_registry"
+  },
+  "reviewed_queries": "passed"
+}

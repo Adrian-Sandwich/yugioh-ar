@@ -1,0 +1,796 @@
+{
+  "observed_at": "2026-09-26T05:26:00.621233+00:00",
+  "scope": "Read snapshots per database, not an atomic snapshot of all files. Download remains active.",
+  "registry": {
+    "counts": {
+      "cards": 14734,
+      "names": 298935,
+      "identifiers": 191996,
+      "artworks": 16121,
+      "products": 3306,
+      "printings": 502313,
+      "sources": 59878,
+      "issues": 119
+    },
+    "quick_check": "ok",
+    "foreign_key_violations": [],
+    "origins": [
+      {
+        "origin": "neuron",
+        "n": 118
+      },
+      {
+        "origin": "ygojson",
+        "n": 14616
+      }
+    ],
+    "types": [
+      {
+        "card_type": null,
+        "n": 118
+      },
+      {
+        "card_type": "monster",
+        "n": 9242
+      },
+      {
+        "card_type": "skill",
+        "n": 176
+      },
+      {
+        "card_type": "spell",
+        "n": 2838
+      },
+      {
+        "card_type": "token",
+        "n": 301
+      },
+      {
+        "card_type": "trap",
+        "n": 2059
+      }
+    ],
+    "name_coverage": [
+      {
+        "language": "de",
+        "observations": 53282,
+        "cards": 14332
+      },
+      {
+        "language": "en",
+        "observations": 54160,
+        "cards": 14734
+      },
+      {
+        "language": "es",
+        "observations": 53141,
+        "cards": 14314
+      },
+      {
+        "language": "fr",
+        "observations": 53278,
+        "cards": 14351
+      },
+      {
+        "language": "it",
+        "observations": 13720,
+        "cards": 13720
+      },
+      {
+        "language": "ja",
+        "observations": 14293,
+        "cards": 14293
+      },
+      {
+        "language": "ko",
+        "observations": 13605,
+        "cards": 13605
+      },
+      {
+        "language": "pt",
+        "observations": 35001,
+        "cards": 12463
+      },
+      {
+        "language": "zh-CN",
+        "observations": 7587,
+        "cards": 7587
+      },
+      {
+        "language": "zh-TW",
+        "observations": 868,
+        "cards": 868
+      }
+    ],
+    "distinct_names": 121997,
+    "name_variants": [
+      {
+        "language": "de",
+        "cards_with_multiple_spellings": 512
+      },
+      {
+        "language": "en",
+        "cards_with_multiple_spellings": 112
+      },
+      {
+        "language": "es",
+        "cards_with_multiple_spellings": 547
+      },
+      {
+        "language": "fr",
+        "cards_with_multiple_spellings": 519
+      },
+      {
+        "language": "pt",
+        "cards_with_multiple_spellings": 37
+      }
+    ],
+    "identifiers": [
+      {
+        "kind": "game_id",
+        "observations": 8350,
+        "values_count": 8350,
+        "cards": 8253
+      },
+      {
+        "kind": "image_source_id",
+        "observations": 14367,
+        "values_count": 14363,
+        "cards": 14093
+      },
+      {
+        "kind": "neuron_cid",
+        "observations": 140822,
+        "values_count": 14272,
+        "cards": 14281
+      },
+      {
+        "kind": "passcode",
+        "observations": 14179,
+        "values_count": 14166,
+        "cards": 14099
+      },
+      {
+        "kind": "ygoprodeck_card_id",
+        "observations": 14278,
+        "values_count": 14278,
+        "cards": 14278
+      }
+    ],
+    "cards_without_passcode": 635,
+    "invalid_passcodes": [],
+    "passcode_collisions": [
+      {
+        "value": "06798031",
+        "identities": 2
+      },
+      {
+        "value": "17749468",
+        "identities": 2
+      },
+      {
+        "value": "18795635",
+        "identities": 2
+      },
+      {
+        "value": "20415050",
+        "identities": 2
+      },
+      {
+        "value": "20726052",
+        "identities": 2
+      },
+      {
+        "value": "20938824",
+        "identities": 2
+      },
+      {
+        "value": "27420823",
+        "identities": 2
+      },
+      {
+        "value": "31786838",
+        "identities": 2
+      },
+      {
+        "value": "50590801",
+        "identities": 2
+      },
+      {
+        "value": "55154344",
+        "identities": 2
+      },
+      {
+        "value": "56651978",
+        "identities": 2
+      },
+      {
+        "value": "83838727",
+        "identities": 2
+      },
+      {
+        "value": "97227123",
+        "identities": 2
+      }
+    ],
+    "multiple_passcodes": 78,
+    "neuron_collisions": [
+      {
+        "neuron_cid": 20580,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 20590,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 21160,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 21196,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 21380,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 21620,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 22174,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 22342,
+        "identities": 2
+      },
+      {
+        "neuron_cid": 22523,
+        "identities": 2
+      }
+    ],
+    "printings_by_source": [
+      {
+        "source_family": "neuron",
+        "observations": 153978
+      },
+      {
+        "source_family": "tdoane-pack",
+        "observations": 8350
+      },
+      {
+        "source_family": "ygojson-individual-20260925",
+        "observations": 339985
+      }
+    ],
+    "printings_by_language": [
+      {
+        "language": null,
+        "observations": 1508,
+        "cards": 1450,
+        "set_codes": 1397
+      },
+      {
+        "language": "ae",
+        "observations": 9128,
+        "cards": 5659,
+        "set_codes": 6327
+      },
+      {
+        "language": "de",
+        "observations": 72528,
+        "cards": 13998,
+        "set_codes": 34595
+      },
+      {
+        "language": "en",
+        "observations": 97191,
+        "cards": 14179,
+        "set_codes": 38559
+      },
+      {
+        "language": "es",
+        "observations": 69478,
+        "cards": 13938,
+        "set_codes": 33503
+      },
+      {
+        "language": "fr",
+        "observations": 71578,
+        "cards": 14007,
+        "set_codes": 34239
+      },
+      {
+        "language": "it",
+        "observations": 39324,
+        "cards": 13646,
+        "set_codes": 32651
+      },
+      {
+        "language": "ja",
+        "observations": 38726,
+        "cards": 14122,
+        "set_codes": 26919
+      },
+      {
+        "language": "ko",
+        "observations": 33594,
+        "cards": 13554,
+        "set_codes": 22851
+      },
+      {
+        "language": "pt",
+        "observations": 55443,
+        "cards": 12384,
+        "set_codes": 26445
+      },
+      {
+        "language": "zh-CN",
+        "observations": 12764,
+        "cards": 7107,
+        "set_codes": 8407
+      },
+      {
+        "language": "zh-TW",
+        "observations": 1051,
+        "cards": 861,
+        "set_codes": 925
+      }
+    ],
+    "printing_missing_fields": {
+      "set_code": 4773,
+      "language": 1508,
+      "rarity": 77,
+      "edition": 335401,
+      "artwork_id": 502313,
+      "image_url": 335401,
+      "release_date": 54673,
+      "product_id": 162328
+    },
+    "printing_distinct_observed_tuples": 502195,
+    "printing_card_code_language_groups": 266901,
+    "set_codes_multiple_identities": 50,
+    "set_code_collision_examples": [
+      {
+        "set_code": "ABPF-EN074",
+        "identities": 2
+      },
+      {
+        "set_code": "AT08-JP001",
+        "identities": 2
+      },
+      {
+        "set_code": "BLLR-EN0??",
+        "identities": 2
+      },
+      {
+        "set_code": "BOSH-DESE1",
+        "identities": 2
+      },
+      {
+        "set_code": "BOSH-FRSE1",
+        "identities": 2
+      },
+      {
+        "set_code": "BOSH-ITSE1",
+        "identities": 2
+      },
+      {
+        "set_code": "BOSH-PTSE1",
+        "identities": 2
+      },
+      {
+        "set_code": "BOSH-SPSE1",
+        "identities": 2
+      },
+      {
+        "set_code": "BP03-EN237",
+        "identities": 2
+      },
+      {
+        "set_code": "CR10-AES29",
+        "identities": 2
+      },
+      {
+        "set_code": "CT10-DE010",
+        "identities": 2
+      },
+      {
+        "set_code": "CT10-FR010",
+        "identities": 2
+      },
+      {
+        "set_code": "CT10-IT010",
+        "identities": 2
+      },
+      {
+        "set_code": "CT10-PT010",
+        "identities": 2
+      },
+      {
+        "set_code": "CT10-SP010",
+        "identities": 2
+      }
+    ],
+    "artwork_cards": 14616,
+    "cards_multiple_artworks": 1173,
+    "issues": [
+      {
+        "kind": "ambiguous_neuron_cid",
+        "n": 90
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "n": 9
+      },
+      {
+        "kind": "invalid_passcode",
+        "n": 3
+      },
+      {
+        "kind": "unmapped_game_pack",
+        "n": 17
+      }
+    ],
+    "issue_examples": [
+      {
+        "kind": "invalid_passcode",
+        "source": "ygojson-individual-20260925",
+        "record_key": "cards/3cd674e7-2084-4303-8e8c-5c3e71c77b04.json",
+        "detail": "39399168<!--This was found out by videogame password machines, where you put in a card number to get a card.-->"
+      },
+      {
+        "kind": "invalid_passcode",
+        "source": "ygojson-individual-20260925",
+        "record_key": "cards/4223345b-3c0b-4f5e-84f5-4473f34baf0e.json",
+        "detail": "74733322<!-- do not change, TCG prints are using Theorealize's -->"
+      },
+      {
+        "kind": "invalid_passcode",
+        "source": "ygojson-individual-20260925",
+        "record_key": "cards/c7b3d7c6-d39f-41d4-a756-412ebaec103f.json",
+        "detail": "48739627<!-- do not change, TCG prints are using Acropolis's -->"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "20580",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "20590",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "21160",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "21196",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "21380",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "21620",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "22174",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "22342",
+        "detail": "2"
+      },
+      {
+        "kind": "duplicate_neuron_cid",
+        "source": "ygojson-individual-20260925",
+        "record_key": "22523",
+        "detail": "2"
+      },
+      {
+        "kind": "unmapped_game_pack",
+        "source": "tdoane-pack",
+        "record_key": "11050416",
+        "detail": "YS16-ENT01"
+      },
+      {
+        "kind": "unmapped_game_pack",
+        "source": "tdoane-pack",
+        "record_key": "11050417",
+        "detail": "YS16-ENT01"
+      },
+      {
+        "kind": "unmapped_game_pack",
+        "source": "tdoane-pack",
+        "record_key": "11050418",
+        "detail": "YS16-ENT01"
+      }
+    ],
+    "all_five_languages": 12462
+  },
+  "catalog": {
+    "counts": {
+      "cards": 14616,
+      "refs": 40187,
+      "localizations": 54500
+    },
+    "references_by_source_status": [
+      {
+        "source": "cardsoricabr",
+        "status": "proposed",
+        "n": 13595
+      },
+      {
+        "source": "cardsoricabr",
+        "status": "unresolved",
+        "n": 4223
+      },
+      {
+        "source": "tdoane",
+        "status": "linked",
+        "n": 20988
+      },
+      {
+        "source": "tdoane",
+        "status": "proposed",
+        "n": 1215
+      },
+      {
+        "source": "tdoane",
+        "status": "unresolved",
+        "n": 166
+      }
+    ],
+    "distinct_image_hashes": 40058,
+    "duplicate_hash_groups": 116,
+    "linked_cards": 13856,
+    "cards_missing_from_registry": 0,
+    "registry_cards_missing_from_catalog": 118,
+    "missing_files": [
+      "cardsoricabr:1N8D7yfuPAssK0zFvitGEb9w690f7v7dB"
+    ],
+    "unsafe_paths": [],
+    "reference_ids_missing_from_registry": [],
+    "trusted_linked_cards": 13479,
+    "references_by_kind": [
+      {
+        "source": "cardsoricabr",
+        "kind": "card",
+        "count": 17818
+      },
+      {
+        "source": "tdoane",
+        "kind": "card",
+        "count": 14935
+      },
+      {
+        "source": "tdoane",
+        "kind": "field",
+        "count": 188
+      },
+      {
+        "source": "tdoane",
+        "kind": "other",
+        "count": 1
+      },
+      {
+        "source": "tdoane",
+        "kind": "sprite",
+        "count": 7245
+      }
+    ]
+  },
+  "reviews": {
+    "decisions": [],
+    "orphan_references": [],
+    "invalid_approved_ids": []
+  },
+  "neuron_cache": {
+    "cached_details": 59279,
+    "imported_detail_sources": 59197,
+    "cached_not_imported": [
+      "card-de-6108.json",
+      "card-de-6109.json",
+      "card-de-6110.json",
+      "card-de-6111.json",
+      "card-de-6112.json",
+      "card-de-6113.json",
+      "card-de-6114.json",
+      "card-de-6115.json",
+      "card-de-6116.json",
+      "card-de-6117.json",
+      "card-de-6118.json",
+      "card-de-6119.json",
+      "card-de-6120.json",
+      "card-de-6121.json",
+      "card-de-6122.json",
+      "card-de-6123.json",
+      "card-de-6124.json",
+      "card-en-6108.json",
+      "card-en-6109.json",
+      "card-en-6110.json",
+      "card-en-6111.json",
+      "card-en-6112.json",
+      "card-en-6113.json",
+      "card-en-6114.json",
+      "card-en-6115.json",
+      "card-en-6116.json",
+      "card-en-6117.json",
+      "card-en-6118.json",
+      "card-en-6119.json",
+      "card-en-6120.json",
+      "card-en-6121.json",
+      "card-en-6122.json",
+      "card-en-6123.json",
+      "card-en-6124.json",
+      "card-es-6109.json",
+      "card-es-6110.json",
+      "card-es-6111.json",
+      "card-es-6112.json",
+      "card-es-6113.json",
+      "card-es-6114.json",
+      "card-es-6115.json",
+      "card-es-6116.json",
+      "card-es-6117.json",
+      "card-es-6118.json",
+      "card-es-6119.json",
+      "card-es-6120.json",
+      "card-es-6121.json",
+      "card-es-6122.json",
+      "card-es-6123.json",
+      "card-es-6124.json",
+      "card-fr-6109.json",
+      "card-fr-6110.json",
+      "card-fr-6111.json",
+      "card-fr-6112.json",
+      "card-fr-6113.json",
+      "card-fr-6114.json",
+      "card-fr-6115.json",
+      "card-fr-6116.json",
+      "card-fr-6117.json",
+      "card-fr-6118.json",
+      "card-fr-6119.json",
+      "card-fr-6120.json",
+      "card-fr-6121.json",
+      "card-fr-6122.json",
+      "card-fr-6123.json",
+      "card-fr-6124.json",
+      "card-pt-6110.json",
+      "card-pt-6111.json",
+      "card-pt-6112.json",
+      "card-pt-6113.json",
+      "card-pt-6114.json",
+      "card-pt-6115.json",
+      "card-pt-6116.json",
+      "card-pt-6117.json",
+      "card-pt-6118.json",
+      "card-pt-6119.json",
+      "card-pt-6120.json",
+      "card-pt-6121.json",
+      "card-pt-6122.json",
+      "card-pt-6123.json",
+      "card-pt-6124.json",
+      "card-pt-6125.json"
+    ],
+    "imported_without_cache": [],
+    "warning": "File scan follows SQLite snapshot; a small import lag can be normal during download. Contents/hashes not revalidated here."
+  },
+  "download_folders": {
+    "cardsoricabr": {
+      "files": 17909,
+      "bytes": 1292230201,
+      "extensions": {
+        ".jpg": 17722,
+        ".png": 96,
+        ".html": 89,
+        ".json": 2
+      }
+    },
+    "glare-models": {
+      "files": 4,
+      "bytes": 3922526335,
+      "extensions": {
+        ".pth": 1,
+        ".pkl": 1,
+        ".yaml": 1,
+        ".pt": 1
+      }
+    },
+    "reference-assets": {
+      "files": 21,
+      "bytes": 352891288,
+      "extensions": {
+        ".json": 6,
+        ".zip": 4,
+        ".md": 3,
+        ".pt": 3,
+        ".onnx": 2,
+        ".jpg": 1,
+        ".ods": 1,
+        ".rar": 1
+      }
+    },
+    "tcgplayer-sample": {
+      "files": 122,
+      "bytes": 16014340,
+      "extensions": {
+        ".jpg": 120,
+        ".json": 2
+      }
+    },
+    "tdoane-reference": {
+      "files": 22381,
+      "bytes": 1213560825,
+      "extensions": {
+        ".jpg": 15122,
+        ".png": 7247,
+        ".cdb": 7,
+        ".txt": 4,
+        ".db": 1
+      }
+    },
+    "ygoprodeck-art": {
+      "files": 14250,
+      "bytes": 2062586069,
+      "extensions": {
+        ".jpg": 14248,
+        ".json": 2
+      }
+    }
+  },
+  "database_files": {
+    "data\\catalog\\catalog.sqlite": {
+      "bytes": 119169024,
+      "wal_bytes": 0
+    },
+    "data\\catalog\\reviews.sqlite": {
+      "bytes": 12288,
+      "wal_bytes": 0
+    },
+    "data\\registry\\registry.sqlite": {
+      "bytes": 565522432,
+      "wal_bytes": 6402512
+    }
+  },
+  "completed_at": "2026-09-26T05:26:53.567189+00:00",
+  "ygoprodeck_manifest": {
+    "artwork_entries": 15014,
+    "statuses": {
+      "missing": 765,
+      "ok": 14249
+    },
+    "note": "Manifest associations already exist; they are not rows of catalog.refs."
+  },
+  "path_repair_candidate": {
+    "stored_path": "downloads/cardsoricabr/files/1N8D7yfuPAssK0zFvitGEb9w690f7v7dB__Virtual World Phmenix - Fanfan.jpg",
+    "existing_path": "downloads/cardsoricabr/files/1N8D7yfuPAssK0zFvitGEb9w690f7v7dB__Virtual World Phoenix - Fanfan.jpg",
+    "same_sha256": true,
+    "applied": false
+  },
+  "recognition_pilot": {
+    "references": 63,
+    "identities": 50,
+    "scope": "Embedding index is pilot only; classifier is a separate recognition path."
+  }
+}
