@@ -139,6 +139,27 @@ de duelo pide resultados a `/analysis` para que el servidor siga analizando
 aunque el visor de diagnóstico esté cerrado. Las Zonas de Monstruo Extra sólo
 ofrecen Invocación Especial.
 
+## Monstruos AR de pie y efectos (27/09/2026)
+
+En `/duelo` los monstruos ya no se pegan planos sobre la carta: se paran sobre
+ella. Los 7,245 recortes de YGOPro (close-ups con transparencia) se sirven
+ajustados a su contenido en `/cutout/<ref>` (`SpriteOverlay.cutout_png`), así
+la fila inferior son los pies. La homografía de cada carta da su centro, su
+tamaño en perspectiva y la elipse de su sombra sobre el plano de la carta;
+"arriba" es el arriba de la imagen (la cámara mira la mesa desde arriba). Cada
+monstruo respira, flota y se balancea con una fase propia, se dibujan de lejos
+a cerca para que los cercanos tapen a los lejanos y llevan un anillo en la base
+(cian el jugador 1, ámbar el 2). En defensa, agachado con escudo azul; boca
+abajo, nada.
+
+Efectos, siempre por cambios del duelo y nunca por la cámara sola: columna de
+luz, anillo y partículas al invocar (el monstruo sube desde ella), embestida
+hacia el objetivo con destello al resolver un ataque, pedazos que caen al
+salir un monstruo del campo, y números de daño o ganancia bajo un marcador de
+LP que cuenta animado. Con AR activo el lienzo se repinta en cada fotograma
+(60 fps en Edge). Probado en Edge con los tapetes impresos: invocación,
+monstruos de pie, LP, ataque y destrucción sin errores.
+
 ## Tablero virtual sobre el vídeo (27/09/2026)
 
 Propuesta del usuario: un tablero siempre dibujado sobre el vídeo, sin tapete

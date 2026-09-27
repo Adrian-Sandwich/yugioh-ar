@@ -93,6 +93,20 @@ class SpriteOverlay:
         while len(self.png_cache)>self.prepared_limit:self.png_cache.popitem(last=False)
         return data
 
+    def cutout_png(self,ref):
+        """PNG of the sprite trimmed to its visible pixels, for monsters standing on the card
+        (duel view): with the transparent margin removed, the bottom row is where the feet are."""
+        sprite=self.load(ref)
+        if sprite is None:return None
+        key=('cutout',ref);cached=self.png_cache.get(key)
+        if cached is not None and cached[0] is sprite:return cached[1]
+        ys,xs=np.nonzero(sprite[...,3]>16)
+        trimmed=sprite[ys.min():ys.max()+1,xs.min():xs.max()+1] if len(ys) else sprite
+        data=cv2.imencode('.png',trimmed)[1].tobytes()
+        self.png_cache[key]=(sprite,data)
+        while len(self.png_cache)>self.prepared_limit*2:self.png_cache.popitem(last=False)
+        return data
+
     def render(self,frame,detections,transparent=False):
         output=np.zeros((*frame.shape[:2],4),np.uint8) if transparent else frame.copy()
         composed_bounds=None

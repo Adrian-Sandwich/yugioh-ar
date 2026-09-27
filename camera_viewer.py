@@ -112,6 +112,13 @@ class Handler(BaseHTTPRequestHandler):
                 live=getattr(self.server,'live_tracker',None)
                 self.reply(200,json.dumps({'tracks':track_payload(live.snapshot()) if live else [],'now':time.time(),
                     'tracking_ms':live.last_update_ms if live else None,'frames':live.frame_count if live else 0}).encode(),'application/json')
+            elif route.startswith('/cutout/'):
+                overlay=getattr(self.server,'overlay',None)
+                # The page URL-encodes the reference id (tdoane:sprite:...); decode it back.
+                from urllib.parse import unquote
+                data=overlay.cutout_png(unquote(route[len('/cutout/'):])) if overlay else None
+                if data is None: self.reply(404,b'No sprite','text/plain')
+                else: self.reply(200,data,'image/png',{'Cache-Control':'max-age=3600'})
             elif route.startswith('/sprite/'):
                 overlay=getattr(self.server,'overlay',None)
                 data=overlay.sprite_png(route[len('/sprite/'):]) if overlay else None
