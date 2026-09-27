@@ -11,9 +11,12 @@ on ordinary hardware, with nothing sent to the cloud.
 ![Four real cards on a table recognized by the viewer: Dark Magician, Red-Eyes Black Dragon and Blue-Eyes White Dragon identified with AR sprites](docs/img/mesa-cuatro-cartas.png)
 
 **Status, September 26, 2026:** working prototype. It recognizes several
-cards at once in saved captures and in live video from a phone, with 2D
-sprites over each card. There are no duel rules yet, no 3D models, and it does
-not reach the target of 5 analyses per second. The honest details are in
+cards at once in saved captures and in live video from a phone. Sprites now
+follow each card at video rate between analyses, identities confirmed on the
+illustration are accepted even on foil cards, and the recognizer runs in a
+child process that restarts itself. A structural duel engine exists but is
+not wired to the camera yet. There are still no 3D models, and each full
+analysis takes 1 to 4 seconds on CPU. The honest details are in
 [What works today and what does not](#what-works-today-and-what-does-not).
 
 This project needs help. Photos of real cards, tests on other cameras and
@@ -69,23 +72,36 @@ Works, verified with reproducible tests in this repository:
   exact registry lookup. It never guesses characters: a doubtful read stays
   doubtful.
 - Per-instance tracking with confirmation after two observations, and
-  separation of two identical copies.
-- 2D AR sprites projected onto each card's plane, composited in the browser.
+  separation of two identical copies. Between analyses, corners are followed
+  with optical flow so sprites and names move with the card at video rate.
+- 2D AR sprites warped in the browser (WebGL) over the card's corners; the
+  server only sends corners and a sprite id.
+- Acceptance by verified illustration: a card the embedding ranks first but
+  scores below threshold (foil printings) is accepted when SIFT matches its
+  artwork. Fresh, stable tracks keep their identity without re-encoding.
+- Frames from the phone's MJPEG stream, with single-shot polling as fallback;
+  ONNX inference in a child process that is killed and restarted on a hang.
+- Photographs of your own physical cards can be enrolled as extra references.
 - A multilingual registry in SQLite: EN/ES/DE/FR/PT names, passcodes, set
   codes, rarities and editions, with the provenance of every value.
 - A web viewer with a phone camera through IP Webcam, coordination between
   browser tabs, and saved captures for annotation.
+- A duel rules engine (zones, phases, life points, battle, event log, undo)
+  with reconciliation of camera observations. Structural rules only, no card
+  effects, and not yet connected to the recognizer.
 
 Does not work yet, or has not been measured:
 
-- **Speed.** Video runs at about 5 frames per second and each analysis takes
-  1 to 4 seconds on CPU. The target of 5 analyses per second and 25 FPS is not met.
+- **Speed.** A full analysis takes 1 to 4 seconds on CPU; tracking hides it
+  between analyses, but the first identification of a new card still waits
+  that long. End-to-end latency with the real phone is not measured.
 - **General accuracy.** The tests use few real cards. There are no accuracy
   figures over a broad set, nor across the five languages, nor with sleeves,
-  glare or different rarities.
-- **Thresholds.** The ONNX methods accept or reject with experimental,
-  uncalibrated thresholds.
-- **3D and rules.** No 3D models, no occlusion, no duel engine, no multiplayer.
+  glare or different rarities. The tracker was tested on synthetic frames only.
+- **Thresholds.** The ONNX methods accept or reject with experimental
+  thresholds; a calibration against TCGplayer scans is documented in
+  `research/CALIBRACION_ESCANEOS.md`.
+- **3D and rules.** No 3D models, no occlusion, no card effects, no multiplayer.
 - **GPU.** Everything has been tested on one laptop with integrated Intel graphics.
 
 ## How it works inside
@@ -97,7 +113,7 @@ phone (IP Webcam) --JPEG--> camera_viewer.py --/snapshot--> browser (web/camera.
                                   |
                   vision_onnx.py: OBB detector -> rectification -> identification
                                   |
-                  per-instance tracking -> AR layer (transparent PNG)
+                  per-instance tracking -> per-frame tracks (X-Tracks) -> WebGL sprites in the browser
                                   |
                   passcode_ocr.py / name_ocr.py / set_ocr.py (separate queue)
                                   |
@@ -172,6 +188,16 @@ In parallel, audit and repair of the registry, resolution of duplicate
 identities and an expanded recognition catalog. The documents are in
 [research/database-audit/](research/database-audit/).
 
+In the evening, the real-time loop without a GPU
+([TIEMPO_REAL.md](research/TIEMPO_REAL.md)): corner tracking between
+analyses, MJPEG stream, sprites warped in the browser, isolated inference,
+acceptance by verified artwork, all artworks in the pilot, enrolment of
+photographed cards, a first duel engine
+([MOTOR_DE_DUELO.md](research/MOTOR_DE_DUELO.md)), a capture protocol
+([PROTOCOLO_CAPTURAS.md](research/PROTOCOLO_CAPTURAS.md)), threshold
+calibration against TCGplayer scans and continuous integration
+([docs/CI.md](docs/CI.md)).
+
 ## Screenshots
 
 | | |
@@ -242,6 +268,9 @@ The `research/` directory is the project's lab notebook. It is written in
 Spanish. Main entries:
 
 - [Consolidated status and transfer to another PC](research/TRANSFERENCIA_GENERAL.md)
+- [Real-time loop without a GPU: tracking, stream, sprites, isolation](research/TIEMPO_REAL.md)
+- [Duel engine](research/MOTOR_DE_DUELO.md) · [Capture protocol for real cards](research/PROTOCOLO_CAPTURAS.md)
+- [Acceptance and set-code calibration with TCGplayer scans](research/CALIBRACION_ESCANEOS.md) · [CI](docs/CI.md)
 - [Current plan: variable camera, geometry, tracking and queries](research/PLAN_MEJORA_INTEGRAL.md)
 - [Original action plan and acceptance criteria](research/PLAN_DE_ACCION.md)
 - [Pilot delivery: usage, results and reproduction](research/ENTREGA_PILOTO.md)

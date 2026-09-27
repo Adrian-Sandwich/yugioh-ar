@@ -3,6 +3,16 @@
 25/09/2026. Entrada principal para retomar el proyecto. Distingue lo probado
 de lo pendiente; no sustituir el detector del visor por los pesos de prueba.
 
+**Actualización 26/09/2026 (noche):** el bucle en tiempo real sin GPU está en
+[TIEMPO_REAL.md](TIEMPO_REAL.md) (seguimiento de esquinas, stream MJPEG,
+sprites en el navegador, inferencia aislada, aceptación por arte, piloto con
+todos los artes, inscripción de fotos); el motor de duelo en
+[MOTOR_DE_DUELO.md](MOTOR_DE_DUELO.md); el protocolo para las capturas P0 en
+[PROTOCOLO_CAPTURAS.md](PROTOCOLO_CAPTURAS.md); la calibración de umbrales con
+escaneos en [CALIBRACION_ESCANEOS.md](CALIBRACION_ESCANEOS.md). El arranque
+por defecto de `camera_viewer.py` usa ahora stream, seguimiento y proceso
+aislado (`--no-stream`, `--no-tracking`, `--no-isolate` para volver atrás).
+
 Ver también [EVIDENCIA_TEMPORAL.md](EVIDENCIA_TEMPORAL.md): selección reciente de capturas, asociación conservadora, consenso, fusión de evidencias y OCR de set code ya implementados. Las filas pendientes de seguimiento y selección se refieren a flujo óptico, evaluación real y optimización del reconocedor completo.
 
 ## Mejoras cerradas en esta sesión

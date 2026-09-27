@@ -11,10 +11,13 @@ en AR** que funcione en vivo, con hardware normal y sin depender de la nube.
 ![Cuatro cartas reales sobre la mesa reconocidas por el visor: Mago Oscuro, Dragón Negro de Ojos Rojos y Dragón Blanco de Ojos Azules identificados con sprites AR](docs/img/mesa-cuatro-cartas.png)
 
 **Estado, 26 de septiembre de 2026:** prototipo funcional. Reconoce varias
-cartas a la vez en capturas y en vídeo desde un teléfono, con sprites 2D sobre
-cada carta. Todavía no hay reglas de duelo, ni modelos 3D, ni la velocidad
-objetivo de 5 análisis por segundo. Los detalles honestos están en
-[Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
+cartas a la vez en capturas y en vídeo desde un teléfono. Los sprites siguen
+a cada carta a la velocidad del vídeo entre análisis, las identidades
+confirmadas por la ilustración se aceptan aunque la carta sea foil, y el
+reconocedor corre en un proceso aparte que se reinicia solo. Existe un motor
+de duelo estructural, todavía sin conectar a la cámara. Siguen sin haber
+modelos 3D, y cada análisis completo tarda entre 1 y 4 segundos en CPU. Los
+detalles honestos están en [Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
 
 Este proyecto necesita ayuda. Fotos de cartas reales, pruebas en otras cámaras
 y computadoras, modelos 3D, código o documentación: todo cuenta. Ver
@@ -68,25 +71,42 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
   consulta exacta al registro. No corrige caracteres a ciegas: una lectura
   dudosa se queda como dudosa.
 - Seguimiento por instancia con confirmación en dos observaciones y
-  distinción de dos copias iguales.
-- Sprites AR 2D proyectados sobre el plano de cada carta, compuestos en el
-  navegador.
+  distinción de dos copias iguales. Entre análisis, las esquinas se siguen
+  con flujo óptico para que sprites y nombres se muevan con la carta a la
+  velocidad del vídeo.
+- Sprites AR 2D deformados en el navegador (WebGL) sobre las esquinas de la
+  carta; el servidor sólo manda esquinas y un identificador de sprite.
+- Aceptación por ilustración verificada: una carta que el embedding pone
+  primera pero bajo el umbral (impresiones foil) se acepta cuando SIFT
+  confirma su arte. Las pistas estables y recientes conservan su identidad
+  sin volver a codificar.
+- Fotogramas del stream MJPEG del teléfono, con sondeo de foto única como
+  respaldo; inferencia ONNX en un proceso hijo que se mata y reinicia si se
+  cuelga.
+- Las fotos de tus propias cartas físicas se pueden inscribir como
+  referencias adicionales.
 - Registro multilingüe en SQLite: nombres EN/ES/DE/FR/PT, passcodes, códigos
   de set, rarezas y ediciones, con procedencia de cada dato.
 - Visor web con cámara de teléfono por IP Webcam, coordinación entre pestañas
   y capturas guardadas para anotar.
+- Motor de duelo (zonas, fases, puntos de vida, batalla, registro de eventos,
+  deshacer) con conciliación de lo que observa la cámara. Sólo reglas
+  estructurales, sin efectos de cartas, y aún sin conectar al reconocedor.
 
 No funciona todavía, o no está medido:
 
-- **Velocidad.** El vídeo va a unos 5 fotogramas por segundo y cada análisis
-  tarda entre 1 y 4 segundos en CPU. La meta de 5 análisis por segundo y 25 FPS
-  no se cumple.
+- **Velocidad.** Un análisis completo tarda entre 1 y 4 segundos en CPU; el
+  seguimiento lo disimula entre análisis, pero la primera identificación de
+  una carta nueva sigue esperando ese tiempo. La latencia de extremo a extremo
+  con el teléfono real no está medida.
 - **Precisión general.** Las pruebas usan pocas cartas reales. No hay cifras
   de acierto sobre un conjunto amplio, ni en los cinco idiomas, ni con fundas,
-  brillos o rarezas distintas.
+  brillos o rarezas distintas. El seguidor sólo se probó con fotogramas
+  sintéticos.
 - **Umbrales.** Los métodos ONNX aceptan o rechazan con umbrales
-  experimentales, no calibrados.
-- **3D y reglas.** No hay modelos 3D, ni oclusión, ni motor de duelo, ni
+  experimentales; hay una calibración contra escaneos de TCGplayer en
+  `research/CALIBRACION_ESCANEOS.md`.
+- **3D y reglas.** No hay modelos 3D, ni oclusión, ni efectos de cartas, ni
   multijugador.
 - **GPU.** Todo se ha probado en una laptop con gráficos Intel integrados.
 
@@ -99,7 +119,7 @@ teléfono (IP Webcam) --JPEG--> camera_viewer.py --/snapshot--> navegador (web/c
                                      |
                      vision_onnx.py: detector OBB -> rectificación -> identificación
                                      |
-                     seguimiento por instancia -> capa AR (PNG transparente)
+                     seguimiento por instancia -> pistas por fotograma (X-Tracks) -> sprites WebGL en el navegador
                                      |
                      passcode_ocr.py / name_ocr.py / set_ocr.py (cola aparte)
                                      |
@@ -175,6 +195,16 @@ En paralelo, auditoría y reparación del registro, resolución de identidades
 duplicadas y un catálogo de reconocimiento ampliado. Los documentos están en
 [research/database-audit/](research/database-audit/).
 
+Por la noche, el bucle en tiempo real sin GPU
+([TIEMPO_REAL.md](research/TIEMPO_REAL.md)): seguimiento de esquinas entre
+análisis, stream MJPEG, sprites deformados en el navegador, inferencia
+aislada, aceptación por ilustración verificada, todos los artes en el piloto,
+inscripción de cartas fotografiadas, un primer motor de duelo
+([MOTOR_DE_DUELO.md](research/MOTOR_DE_DUELO.md)), un protocolo de capturas
+([PROTOCOLO_CAPTURAS.md](research/PROTOCOLO_CAPTURAS.md)), calibración de
+umbrales contra escaneos de TCGplayer e integración continua
+([docs/CI.md](docs/CI.md)).
+
 ## Capturas
 
 | | |
@@ -245,6 +275,9 @@ cambio dice qué se probó y qué no.
 El directorio `research/` es el cuaderno del proyecto. Entradas principales:
 
 - [Estado consolidado y traslado a otra PC](research/TRANSFERENCIA_GENERAL.md)
+- [Tiempo real sin GPU: seguimiento, stream, sprites, aislamiento](research/TIEMPO_REAL.md)
+- [Motor de duelo](research/MOTOR_DE_DUELO.md) · [Protocolo de capturas con cartas reales](research/PROTOCOLO_CAPTURAS.md)
+- [Calibración de aceptación y set code con escaneos de TCGplayer](research/CALIBRACION_ESCANEOS.md) · [CI](docs/CI.md)
 - [Plan vigente: cámara variable, geometría, seguimiento y consultas](research/PLAN_MEJORA_INTEGRAL.md)
 - [Plan de acción original y criterios de aceptación](research/PLAN_DE_ACCION.md)
 - [Entrega del piloto: uso, resultados y reproducción](research/ENTREGA_PILOTO.md)

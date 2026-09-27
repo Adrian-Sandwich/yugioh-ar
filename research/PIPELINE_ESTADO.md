@@ -88,6 +88,13 @@ Desde la raíz, con `.venv-eval` preparado:
 .\.venv-eval\Scripts\python.exe qa_shared_camera.py
 .\.venv-eval\Scripts\python.exe qa_sprite_cache.py
 .\.venv-eval\Scripts\python.exe qa_passcode_browser.py
+# 26/09/2026 (noche), ver TIEMPO_REAL.md:
+.\.venv-eval\Scripts\python.exe qa_vision_pipeline.py
+.\.venv-eval\Scripts\python.exe qa_live_tracking.py
+.\.venv-eval\Scripts\python.exe qa_camera_source.py
+.\.venv-eval\Scripts\python.exe qa_inference_host.py
+.\.venv-eval\Scripts\python.exe qa_enroll_reference.py
+.\.venv-eval\Scripts\python.exe qa_duel_engine.py
 ```
 
 Las pruebas de navegador requieren Edge y Playwright. Resultados en

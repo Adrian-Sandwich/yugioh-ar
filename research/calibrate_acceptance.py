@@ -291,27 +291,41 @@ def main():
     parser.add_argument('--max-negatives', type=int, default=6000)
     parser.add_argument('--seed', type=int, default=20260926)
     parser.add_argument('--measure', type=int, default=20, help='scans used to measure the per-scan time before sizing the negative sample')
+    parser.add_argument('--from-records', action='store_true', help='re-evaluate the rules from acceptance-records.json without encoding again')
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     started = time.perf_counter()
     model = ResearchRecognizer('embedding')
     model_sha = hashlib.sha256(model.encoder.model_path.read_bytes()).hexdigest()
     raw_ids = {r['card_id'] for r in model.rows}; pilot_ids = {canonical(c) for c in raw_ids}
-    positives_all, negatives_all, counts = select(args.min_width, pilot_ids)
-    print(f'selection: {counts} positives {len(positives_all)} negatives {len(negatives_all)}', flush=True)
-    positives = positives_all if len(positives_all) <= args.max_positives else stratified(positives_all, args.max_positives, args.seed)
-    # Measure the per-scan cost on the first scans of the positive set (they are re-used, not re-run).
-    measure = positives[:args.measure]
-    measured_rows, measured_s = run_group(model, measure, 'positive', log_every=10 ** 9)
-    per_scan = measured_s / max(len(measure), 1)
-    rest_rows, rest_s = run_group(model, positives[args.measure:], 'positive')
-    positive_rows = measured_rows + rest_rows; positives_s = measured_s + rest_s
-    remaining = args.budget_minutes * 60 - positives_s
-    n_neg = int(min(args.max_negatives, len(negatives_all), max(0, remaining / per_scan)))
-    print(f'per-scan {per_scan:.2f} s; positives took {positives_s / 60:.1f} min; negatives sized to {n_neg}', flush=True)
-    negatives = stratified(negatives_all, n_neg, args.seed)
-    negative_rows, negatives_s = run_group(model, negatives, 'negative')
-    photo_started = time.perf_counter(); photo_report = photos(model); photos_s = time.perf_counter() - photo_started
+    records_path = OUT / 'acceptance-records.json'
+    if args.from_records and records_path.exists():
+        saved = json.loads(records_path.read_text(encoding='utf-8'))
+        positives_all, negatives_all, counts = saved['positives_all'], saved['negatives_all'], saved['counts']
+        positive_rows, negative_rows, photo_report = saved['positive_rows'], saved['negative_rows'], saved['photo_report']
+        measure = positive_rows[:args.measure]; per_scan = saved['timing']['per_scan_s_measured']
+        positives_s, negatives_s, photos_s = saved['timing']['positives_s'], saved['timing']['negatives_s'], saved['timing']['photos_s']
+        print(f'records reloaded: {len(positive_rows)} positives, {len(negative_rows)} negatives', flush=True)
+    else:
+        positives_all, negatives_all, counts = select(args.min_width, pilot_ids)
+        print(f'selection: {counts} positives {len(positives_all)} negatives {len(negatives_all)}', flush=True)
+        positives = positives_all if len(positives_all) <= args.max_positives else stratified(positives_all, args.max_positives, args.seed)
+        # Measure the per-scan cost on the first scans of the positive set (they are re-used, not re-run).
+        measure = positives[:args.measure]
+        measured_rows, measured_s = run_group(model, measure, 'positive', log_every=10 ** 9)
+        per_scan = measured_s / max(len(measure), 1)
+        rest_rows, rest_s = run_group(model, positives[args.measure:], 'positive')
+        positive_rows = measured_rows + rest_rows; positives_s = measured_s + rest_s
+        remaining = args.budget_minutes * 60 - positives_s
+        n_neg = int(min(args.max_negatives, len(negatives_all), max(0, remaining / per_scan)))
+        print(f'per-scan {per_scan:.2f} s; positives took {positives_s / 60:.1f} min; negatives sized to {n_neg}', flush=True)
+        negatives = stratified(negatives_all, n_neg, args.seed)
+        negative_rows, negatives_s = run_group(model, negatives, 'negative')
+        photo_started = time.perf_counter(); photo_report = photos(model); photos_s = time.perf_counter() - photo_started
+        # Encoding is the expensive part: keep it before any evaluation can fail.
+        records_path.write_text(json.dumps({'positives_all': positives_all, 'negatives_all': negatives_all, 'counts': counts, 'positive_rows': positive_rows,
+                                            'negative_rows': negative_rows, 'photo_report': photo_report,
+                                            'timing': {'per_scan_s_measured': per_scan, 'positives_s': positives_s, 'negatives_s': negatives_s, 'photos_s': photos_s}}, ensure_ascii=False), encoding='utf-8')
     pos = [r for r in positive_rows if 'error' not in r]; neg = [r for r in negative_rows if 'error' not in r]
     fa, rc, fa_n, rc_n = evaluate(pos, neg)
     photo_rows = [r for r in photo_report['rows'] if 'skipped' not in r]
@@ -321,8 +335,10 @@ def main():
     for name, r in rules.items():
         if r is None: continue
         t, m = r['similarity'], r['margin']
-        a, b = SIM_GRID.index(t), MARGIN_GRID.index(m)
-        r.update(false_accept_rate=float(fa[a, b]), false_accepts=int(fa_n[a, b]), recall=float(rc[a, b]), recall_n=int(rc_n[a, b]),
+        # Rules off the grid (the current 0.07 margin) are scored directly.
+        accepted_neg = sum(1 for x in neg if x['similarity'] >= t and x['margin'] >= m)
+        accepted_pos = sum(1 for x in pos if x['similarity'] >= t and x['margin'] >= m and x['correct'])
+        r.update(false_accept_rate=accepted_neg / max(len(neg), 1), false_accepts=accepted_neg, recall=accepted_pos / max(len(pos), 1), recall_n=accepted_pos,
                  scans={'positives': rule_stats(pos, t, m), 'negatives': rule_stats(neg, t, m)}, photos=rule_stats(photo_rows, t, m))
     def summary(rows, with_truth):
         sims = np.array([r['similarity'] for r in rows]); margins = np.array([r['margin'] for r in rows])
