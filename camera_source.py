@@ -12,6 +12,28 @@ from urllib.request import ProxyHandler,Request,build_opener
 SOI=b'\xff\xd8';EOI=b'\xff\xd9'
 
 
+def frame_end(buffer,start):
+    """Index just past the EOI of the JPEG starting at `start`, or -1 if incomplete.
+
+    Walks the marker segments so an EXIF thumbnail (a whole JPEG inside APP1,
+    with its own EOI) does not cut the frame short; only after SOS is the next
+    FFD9 the real end, because entropy-coded data stuffs every FF with 00.
+    """
+    i=start+2;n=len(buffer)
+    while True:
+        if i+4>n:return -1
+        if buffer[i]!=0xFF:return -1  # not a marker: corrupt stream, resync
+        marker=buffer[i+1]
+        if marker==0xD8 or 0xD0<=marker<=0xD7 or marker==0x01 or marker==0xFF:
+            i+=1 if marker==0xFF else 2;continue
+        if marker==0xD9:return i+2
+        if marker==0xDA:
+            end=buffer.find(EOI,i+2)
+            return -1 if end<0 else end+2
+        length=(buffer[i+2]<<8)|buffer[i+3]
+        i+=2+length
+
+
 class MjpegSource:
     def __init__(self,base,path='/video',on_frame=None,stale_s=2.,max_frame=16*1024*1024,opener=None):
         self.url=base.rstrip('/')+path;self.on_frame=on_frame;self.stale_s=stale_s;self.max_frame=max_frame
@@ -56,12 +78,12 @@ class MjpegSource:
                 start=buffer.find(SOI)
                 if start<0:
                     del buffer[:-1];break
-                end=buffer.find(EOI,start+2)
+                end=frame_end(buffer,start)
                 if end<0:
-                    if len(buffer)-start>self.max_frame:del buffer[:start+2]
+                    if len(buffer)-start>self.max_frame or (len(buffer)>start+4 and buffer[start+2]!=0xFF):del buffer[:start+2]
                     else:del buffer[:start]
                     break
-                frame=bytes(buffer[start:end+2]);del buffer[:end+2]
+                frame=bytes(buffer[start:end]);del buffer[:end]
                 captured=time.time()
                 with self.lock:self.record=(frame,captured);self.frames+=1
                 if self.on_frame:

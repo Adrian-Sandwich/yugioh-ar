@@ -13,7 +13,7 @@ Fecha: 2026-09-24. Revisión estática de archivos; no equivale a confirmar que 
 
 Todos se clonaron con `--depth 1`. `repositories.json` registra los orígenes y commits; los archivos `*-files.txt` inventarían todos los paths versionados, incluidos los omitidos del checkout. El campo `downloaded_files` cuenta archivos visibles para rg, no todos los archivos ocultos/ignorados. Se comprobó `git status --porcelain` vacío en los cuatro checkouts válidos.
 
-Las carpetas `repos/opencv-yugioh-card-identifier` y `repos/yugioh-hololens` contienen restos de descargas completas interrumpidas, no checkouts utilizables. Se conservaron sin borrar; usar las carpetas `*-source` de la tabla. `opencv-tree.json` es una respuesta HTTP truncada por timeout y no debe usarse como índice; usar `opencv-identifier-source-files.txt`.
+Las carpetas `repos/opencv-yugioh-card-identifier` y `repos/yugioh-hololens` contienen restos de descargas completas interrumpidas, no checkouts utilizables. Se conservaron sin borrar; usar las carpetas `*-source` de la tabla. `opencv-tree.json` era una respuesta HTTP truncada por timeout y `hololens-tree.json` un listado sin uso; ambos se eliminaron del repositorio el 27/09/2026 (11 MB); usar `opencv-identifier-source-files.txt` y `hololens-source-files.txt`.
 
 Para obtener más adelante todos los assets de un clone selectivo, ejecutar `git -C repos/hololens-source sparse-checkout disable` o su equivalente para `opencv-identifier-source`, con conexión disponible. No hace falta para revisar el código.
 

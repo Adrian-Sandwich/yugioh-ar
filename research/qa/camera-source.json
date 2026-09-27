@@ -1,9 +1,10 @@
 {
   "status": "passed",
-  "frames_received": 54,
+  "frames_received": 43,
   "reconnects_observed": 2,
   "checks": [
     "frames parsed across chunk boundaries",
+    "EXIF thumbnail EOI does not cut the frame",
     "callback per frame in order",
     "stale stream raises",
     "viewer falls back to polling and feeds tracker",

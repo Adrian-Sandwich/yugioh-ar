@@ -103,7 +103,8 @@ class LiveTracker:
                 frames=list(self.frames)
                 for (ts_a,grey_a,scale),(ts_b,grey_b,_) in zip(frames[index:],frames[index+1:]):
                     self._flow(grey_a,grey_b,ts_b,scale)
-            return [self.tracks[k] for k in fresh]
+            # The replay may already have lost a card that left the frame since the analysis.
+            return [self.tracks[k] for k in fresh if k in self.tracks]
 
     def snapshot(self,now=None):
         now=time.time() if now is None else now

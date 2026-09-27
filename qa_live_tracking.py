@@ -52,11 +52,15 @@ def main():
     tracker.sync([{**detection,'corners':frames[19][1].tolist()}],frames[19][0]+3.01)
     for i in range(3):tracker.update(scene(rng,corners_at(19),texture,background) if i==0 else cv2.imencode('.jpg',background)[1].tobytes(),frames[19][0]+3.1+i*.066)
     assert tracker.snapshot()==[],'track survived the card disappearing'
+    # A late analysis whose card already left: the replay kills the fresh track and sync must not crash (KeyError seen live 27/09).
+    late=frames[19][0]+3.1
+    fresh_late=tracker.sync([{**detection,'corners':corners_at(19).tolist()}],late)
+    assert fresh_late==[] and tracker.snapshot()==[],'a track lost during replay must be reported as gone'
     # Sample points stay inside the quad.
     pts=grid_points(base);assert all(cv2.pointPolygonTest(base,(float(x),float(y)),False)>0 for x,y in pts)
     report={'status':'passed','frames':len(frames),'max_corner_error_px':round(max(errors),2),'replay_error_px':round(float(err),2),
             'last_update_ms':tracker.last_update_ms,'checks':['no tracks before analysis','late analysis replayed to newest frame','follows translation and rotation',
-            'reuse freshness window','same track on re-confirmation','silent track dropped','track dies when card disappears','grid points inside quad'],
+            'reuse freshness window','same track on re-confirmation','silent track dropped','track dies when card disappears','late sync after the card left does not crash','grid points inside quad'],
             'note':'Synthetic frames with a textured card on a smooth background; real cards, glare and hands are not covered.'}
     (ROOT/'research/qa/live-tracking.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report),flush=True)

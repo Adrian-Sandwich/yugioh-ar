@@ -12,6 +12,7 @@
     "same track on re-confirmation",
     "silent track dropped",
     "track dies when card disappears",
+    "late sync after the card left does not crash",
     "grid points inside quad"
   ],
   "note": "Synthetic frames with a textured card on a smooth background; real cards, glare and hands are not covered."

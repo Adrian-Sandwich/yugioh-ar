@@ -10,7 +10,11 @@ ROOT=Path(__file__).resolve().parent
 
 def jpeg(n):
     image=np.full((90,120,3),(n*9%256,60,90),np.uint8);cv2.putText(image,str(n),(5,60),cv2.FONT_HERSHEY_SIMPLEX,1.2,(255,255,255),2)
-    return cv2.imencode('.jpg',image)[1].tobytes()
+    data=cv2.imencode('.jpg',image)[1].tobytes()
+    # Like phone frames: an APP1 segment carrying a whole thumbnail JPEG (with its own EOI) right after SOI.
+    thumb=cv2.imencode('.jpg',cv2.resize(image,(24,18)))[1].tobytes()
+    app1=b'Exif\x00\x00'+thumb;segment=b'\xff\xe1'+(len(app1)+2).to_bytes(2,'big')+app1
+    return data[:2]+segment+data[2:]
 
 class Phone(BaseHTTPRequestHandler):
     frames=6;delay=.05;shots=0;streams=0;stop_stream=False
@@ -41,6 +45,10 @@ def main():
     assert source.frames>=Phone.frames,source.status()
     frame,captured=source.latest()
     assert frame.startswith(b'\xff\xd8') and frame.endswith(b'\xff\xd9') and cv2.imdecode(np.frombuffer(frame,np.uint8),cv2.IMREAD_COLOR).shape==(90,120,3)
+    assert frame.count(b'\xff\xd9')==2,'frame must not be cut at the EXIF thumbnail EOI'
+    assert frame in {jpeg(n) for n in range(1,Phone.frames+1)},'frame bytes must match a whole emitted frame'
+    from camera_source import frame_end
+    assert frame_end(bytearray(frame),0)==len(frame) and frame_end(bytearray(frame[:-1]),0)==-1
     assert len(seen)==source.frames and seen[-1][0]==len(frame),'callback must see every frame in order'
     assert all(b[1]>=a[1] for a,b in zip(seen,seen[1:])),'timestamps must not go backwards'
     # The stream ends after six frames: reconnects happen, and meanwhile latest() goes stale.
@@ -73,7 +81,7 @@ def main():
     assert Phone.shots==shots,'stream frames must not trigger polling'
     source.close();viewer.shutdown();viewer.server_close();Phone.stop_stream=True;phone.shutdown();phone.server_close()
     report={'status':'passed','frames_received':source.frames,'reconnects_observed':Phone.streams-1,
-            'checks':['frames parsed across chunk boundaries','callback per frame in order','stale stream raises','viewer falls back to polling and feeds tracker','X-Tracks header and /tracks','stream frames served without polling']}
+            'checks':['frames parsed across chunk boundaries','EXIF thumbnail EOI does not cut the frame','callback per frame in order','stale stream raises','viewer falls back to polling and feeds tracker','X-Tracks header and /tracks','stream frames served without polling']}
     (ROOT/'research/qa/camera-source.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report),flush=True)
 
