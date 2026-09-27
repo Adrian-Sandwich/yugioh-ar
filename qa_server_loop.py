@@ -74,6 +74,10 @@ def main():
         checks.append('newest frame, each at most once, in order')
         status,body=get(url+'/config');assert json.loads(body)['server_loop']['watching'] is True
         checks.append('/config reports the loop')
+        # A tab from before a server restart holds a sequence this server never reached.
+        status,body=get(url+f'/analysis?after={loop.sequence+10000}')
+        assert status==200 and json.loads(body)['sequence']<=loop.sequence,'stale sequence must get the latest result'
+        checks.append('stale sequence after restart gets the latest result')
         # POST /analyze still works while the loop runs (shared recognition lock).
         request=urllib.request.Request(url+'/analyze',data=jpeg(999),headers={'Content-Type':'image/jpeg','X-Captured-At':str(time.time())},method='POST')
         with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request,timeout=5) as r:

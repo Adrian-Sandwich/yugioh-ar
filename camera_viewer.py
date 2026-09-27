@@ -139,6 +139,12 @@ class Handler(BaseHTTPRequestHandler):
                 self.analyze()
             elif route == '/analysis':
                 self.latest_analysis()
+            elif route == '/card-info':
+                from card_info import card_sheet
+                query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
+                sheet=card_sheet(query.get('id',''))
+                if sheet is None: self.reply(404,b'Unknown card','text/plain')
+                else: self.reply(200,json.dumps(sheet,ensure_ascii=False).encode(),'application/json; charset=utf-8')
             else:
                 self.reply(404, b"Not found", "text/plain")
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
@@ -324,6 +330,9 @@ class AnalysisLoop:
     def wait_newer(self,after,timeout):
         with self.condition:
             self.last_client=time.monotonic();self.condition.notify_all()
+            # A tab that outlived a server restart asks for a sequence this process never
+            # reached: treat it as new instead of letting it wait forever.
+            if after>self.sequence: after=-1
             ready=lambda:self.body is not None and self.sequence>after
             if not self.condition.wait_for(lambda:ready() or self.closed,timeout):return None
             return self.body if ready() else None

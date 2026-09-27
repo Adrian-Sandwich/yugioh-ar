@@ -29,6 +29,13 @@
   .passcode-card code { font: bold 25px monospace; color: #8de5ca; }
   .passcode-card p { overflow-wrap: anywhere; }
   .passcode-card a { color: #8de5ca; }
+  #tableCards { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 14px; }
+  .sheet { background: #192335; border: 1px solid #40526b; border-radius: 12px; padding: 14px; }
+  .sheet h3 { margin: 0 0 2px; font-size: 19px; } .sheet .en { margin: 0 0 8px; font-size: 13px; }
+  .sheet .line { color: #ffd166; font-size: 14px; margin: 4px 0; }
+  .sheet .stats { font: bold 18px system-ui; color: #8de5ca; margin: 6px 0; }
+  .sheet .effect { white-space: pre-line; font-size: 14px; color: #d6deeb; max-height: 11em; overflow: auto; }
+  .sheet .legal { font-size: 12px; color: #aebbd0; }
   #qualityCards { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 12px; }
   .quality-card { background: #192335; padding: 12px; border-radius: 10px; }
   .quality-card img { width: 46%; max-height: 220px; object-fit: contain; margin-right: 3%; }
@@ -51,6 +58,7 @@
   <p>Contorno verde: bordes ajustados. Contorno amarillo discontinuo: caja aproximada, sin recorte de texto. El ajuste de bordes es experimental.</p>
   <p id="detection">Preparando cámara…</p>
   <p id="source"></p>
+  <section id="table"><h2>Cartas en la mesa</h2><p id="tableStatus">Las fichas aparecen cuando una carta queda reconocida. Datos del registro local: tipo, ATK/DEF, efecto y legalidad.</p><div id="tableCards"></div></section>
   <section id="quality"><h2>Reflejos y capturas por carta</h2><p>Compara la captura actual (izquierda) con una reciente con menos zonas blancas saturadas (derecha). Una zona blanca también puede ser parte del dibujo: el aviso es orientativo.</p><p id="qualityStatus">Esperando un análisis.</p><div id="qualityCards"></div></section>
   <section id="passcodes"><h2>Lectura del nombre y del identificador</h2><p>El OCR lee el nombre y el serial por separado. Mostramos el texto observado, las coincidencias y los conflictos; las sugerencias no confirman la identidad.</p><p id="passcodeStatus" role="status">Preparando lectores de texto…</p><div id="passcodeCards"></div></section>
 </main>

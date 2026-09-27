@@ -189,6 +189,7 @@ async function refreshCamera(){
       if(currentBitmap)currentBitmap.close();currentBitmap=bitmap;currentBlob=blob;
       // Tracks belong to exactly this frame; identities in them were confirmed by an earlier analysis.
       liveTracks=Array.isArray(tracks)?tracks.filter(t=>t.card_id&&t.corners?.length===4):[];
+      if(liveTracks.length)updateTable(liveTracks).catch(()=>{});
       frameAt=performance.now()-Math.max(0,Date.now()-frameCapturedAt*1000);frameNumber++;
       save.disabled=false;
       status.textContent=`${offline?'Captura guardada':'Cámara en vivo'} · fotograma ${frameNumber} · ${Math.round(performance.now()-started)} ms${liveTracks.length?` · ${liveTracks.length} carta${liveTracks.length>1?'s':''} seguida${liveTracks.length>1?'s':''}`:''}`;
@@ -207,6 +208,7 @@ async function acceptAnalysis(data,token,sourceAt){
     for(const d of data.detections||[])if(d.sprite_url)sprites.get(d.sprite_url);
     result=data;resultAt=sourceAt;
     lastAnalysis=data;lastAnalysisAt=sourceAt;
+    if(!liveTracks.length)updateTable(data.detections).catch(()=>{});
     await paintAnalysis(data,token);
     if(paused||!recognize.checked||token!==generation||lastAnalysis!==data)return;
     try{await paintQuality(data,sourceAt,token);}catch(e){document.querySelector('#qualityStatus').textContent='No se pudo preparar la comparación de reflejos.';}
@@ -215,6 +217,34 @@ async function acceptAnalysis(data,token,sourceAt){
     const cut=(data.candidates||[]).filter(c=>!c.accepted&&c.geometry_status==='frame_edge').length;
     detection.textContent=`Último análisis: ${names||'sin coincidencia aceptada'} · ${data.processing_ms} ms${data.reused_cards?` · ${data.reused_cards} sin recodificar`:''}${cut?` · ${cut} carta${cut>1?'s':''} cortada${cut>1?'s':''} por el borde`:''}`;
     detection.dataset.completed=String(Number(detection.dataset.completed||0)+1);
+}
+
+// "Cartas en la mesa": one sheet per recognized identity, from /card-info (local registry).
+const sheets=new Map();let tableKey='';
+const formats={tcg:'TCG',ocg:'OCG','ocg-kr':'OCG Corea',speed:'Speed Duel',masterduel:'Master Duel',genesys:'Genesys'};
+function sheetNode(info,count){
+  const box=document.createElement('article');box.className='sheet';
+  box.append(textNode('h3',(count>1?`${count}× `:'')+info.name));
+  if(info.name_en&&info.name_en!==info.name){const en=textNode('p',info.name_en);en.className='en';box.append(en);}
+  const line=textNode('p',info.line);line.className='line';box.append(line);
+  if(info.card_type==='monster'){const stats=textNode('p',info.link?`ATK ${info.atk??'?'} · LINK-${info.link}`:`ATK ${info.atk??'?'} / DEF ${info.def??'?'}`);stats.className='stats';box.append(stats);}
+  if(info.effect){const effect=textNode('p',info.effect);effect.className='effect';box.append(effect);}
+  const legal=Object.entries(info.legality||{}).map(([k,v])=>`${formats[k]||k}: ${v.estado}${v.puntos?` (${v.puntos} pts)`:''}`).join(' · ');
+  const extra=textNode('p',[legal,info.master_duel?`Master Duel: ${info.master_duel.toUpperCase()}`:''].filter(Boolean).join(' · '));extra.className='legal';box.append(extra);
+  return box;
+}
+async function updateTable(cards){
+  const counts=new Map();
+  for(const c of cards||[])if(c.card_id)counts.set(c.card_id,(counts.get(c.card_id)||0)+1);
+  const key=[...counts].sort().map(([id,n])=>id+':'+n).join('|');
+  if(key===tableKey)return;tableKey=key;
+  await Promise.all([...counts.keys()].filter(id=>!sheets.has(id)).map(async id=>{
+    try{const r=await fetch('/card-info?id='+encodeURIComponent(id));sheets.set(id,r.ok?await r.json():null);}catch(e){sheets.set(id,null);}
+  }));
+  if(key!==tableKey)return;  // a newer set arrived while fetching
+  const nodes=[...counts].filter(([id])=>sheets.get(id)).map(([id,n])=>sheetNode(sheets.get(id),n));
+  document.querySelector('#tableCards').replaceChildren(...nodes);
+  document.querySelector('#tableStatus').textContent=nodes.length?`${nodes.length} carta${nodes.length>1?'s':''} distinta${nodes.length>1?'s':''} reconocida${nodes.length>1?'s':''} en la mesa.`:'Sin cartas reconocidas en este momento.';
 }
 
 if(sharedAnalysis)sharedAnalysis.onmessage=event=>{

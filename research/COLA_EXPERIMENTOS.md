@@ -27,6 +27,24 @@ DINOv2 sin ajustar queda muy por debajo (recall 71–76 % con 0 falsas frente a
 97 %): el experimento 8 debe partir de DRAW2. Detalle en
 [TIEMPO_REAL.md](TIEMPO_REAL.md#27092026-gpu-bucle-en-el-servidor-y-geometría-en-vivo).
 
+**Decisiones del 27/09/2026 (con el usuario):**
+
+- **YOLO11 (experimento 5):** entrenar con fotos reales **descargadas de internet
+  y etiquetadas a mano** (cuatro esquinas), no con capturas propias: cada amigo
+  trae su mazo y tapete y la luz cambia mucho. Sin sesión propia de prueba, una
+  parte de las fotos descargadas se reserva sólo para evaluar.
+- **Plan adicional:** generador sintético a escala (cartas del catálogo sobre
+  fondos variados, perspectiva, luz, fundas, foil, manos) para complementar.
+- **Plan adicional:** FTS5 con trigramas para la búsqueda de texto del registro
+  (hoy 50-100 ms con `LIKE`; las consultas exactas ya tardan < 15 ms).
+- **Futuro:** servidor de duelo en red (cada jugador con su teléfono), candidato
+  natural para Go por concurrencia y WebSockets.
+- **No por ahora:** automatizar reglas con ygopro-core. Con cartas físicas la
+  cámara no ve manos ni mazos; el motor queda como árbitro asistente.
+- **Duelo:** dos modos de tapete (dos tapetes frente a frente y uno solo).
+- **Hecho:** ficha de cada carta reconocida en el visor desde el registro
+  local (`card_info.py`, ruta `/card-info`, sección "Cartas en la mesa").
+
 Orden sugerido: 1 y 2 (cambian qué referencias usa el reconocedor), luego 3 y
 4 (calibración), después 5 (necesita capturas anotadas) y 8 (necesita GPU y
 las capturas). El experimento 1 debe repetirse con las mismas capturas de aquí
