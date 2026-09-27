@@ -127,6 +127,29 @@ como identidad), así que "colocada boca abajo" la declara el jugador.
 Probado en Edge con un visor real y la escena de 9 cartas (calibración de un
 tapete, inicio, fases, LP, deshacer, 5 preguntas y una respuesta aplicada).
 
+## Tablero virtual sobre el vídeo (27/09/2026)
+
+Propuesta del usuario: un tablero siempre dibujado sobre el vídeo, sin tapete
+ni clics; se elige 1 o 2 jugadores, se ajusta y se fija. `playmat.tcg_layout`
+sigue ahora la distribución del tapete oficial vigente (referencia de
+2000 × 1167: Zona de Campo, cinco Zonas de Monstruo Principal, Cementerio;
+Mazo Extra, cinco de Magia/Trampa con Péndulo en los extremos, Mazo;
+Desterradas arriba a la derecha y las dos Zonas de Monstruo Extra encima de M2
+y M4). Sólo se usa la geometría, nunca la imagen. Cada ranura mide
+exactamente una carta (59 × 86 mm en un tapete de 60 × 35 cm).
+
+`table_duel.virtual_corners` convierte los controles (horizontal, vertical,
+tamaño, inclinación = lado lejano / lado cercano, profundidad, giro y, con dos
+jugadores, separación) en las esquinas de cada tablero. Con dos jugadores un
+solo cuadrilátero abarca la mesa y una sola homografía coloca ambos tableros,
+así el del rival sale más pequeño con la perspectiva correcta y girado 180°.
+El visor muestra la vista previa al moverlos (`POST /playmat` con `preview`,
+que no guarda) y "Fijar tablero" la guarda con los valores de los controles,
+que se recuperan al recargar. Pruebas: `qa_table_duel.py` (vista previa sin
+cambios, tablero lejano más pequeño, cartas en sus zonas, controles guardados)
+y en Edge (vista previa al cargar, el control mueve el tablero, fijar,
+recargar, reajustar y 1 jugador).
+
 ## Plantilla impresa con marcadores (27/09/2026)
 
 Propuesta del usuario (como los demos de duelo en AR): en lugar de marcar

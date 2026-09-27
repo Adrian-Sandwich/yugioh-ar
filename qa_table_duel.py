@@ -1,9 +1,10 @@
 """Viewer duel: calibration, camera questions, player answers, deduplication, persistence."""
 import json
+import numpy as np
 import shutil
 from pathlib import Path
 
-from qa_playmat import card_in_mat
+from qa_playmat import card_in_mat, center
 from table_duel import TableDuel
 
 ROOT = Path(__file__).resolve().parent
@@ -31,11 +32,11 @@ def main():
         try: table.calibrate('two', [{'player': 0, 'corners': NEAR}], [1920, 1080]); raise AssertionError('two mats need both players')
         except ValueError: pass
         overlay = table.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
-            # 16 zones per mat (4 piles, 5 + 5 zones, 2 Extra Monster Zones); the shared two are drawn once.
-        assert len(overlay['zones']) == 16 + 14 and overlay['mode'] == 'two', len(overlay['zones'])
+            # 17 zones per mat (5 piles, 5 + 5 zones, 2 Extra Monster Zones); the shared two are drawn once.
+        assert len(overlay['zones']) == 17 + 15 and overlay['mode'] == 'two', len(overlay['zones'])
         checks.append('calibration validated; zone outlines for both mats')
         # Before the duel starts, cards on the table are not sent to the engine.
-        kuriboh = track(table, 0, 1, 'kuriboh', 2.5 / 7, .25)
+        kuriboh = track(table, 0, 1, 'kuriboh', *center('monster:1'))
         feed(table, [kuriboh]); assert table.duel.log == []
         table.act({'type': 'start_duel', 'names': ['Ana', 'Beto'], 'starting': 0})
         for _ in range(2): table.act({'type': 'next_phase'})          # draw -> standby -> main1
@@ -56,7 +57,7 @@ def main():
         assert card['name'] == 'Kuriboh' and card['atk'] == 300 and card['position'] == 'attack' and view['questions'] == [], view
         checks.append('answer summons with registry stats; question cleared by the next sighting')
         # Defense position seen on the mat but not declared: a position conflict with its answers.
-        feed(table, [track(table, 0, 1, 'kuriboh', 2.5 / 7, .25, sideways=True)])
+        feed(table, [track(table, 0, 1, 'kuriboh', *center('monster:1'), sideways=True)])
         q = table.view()['questions']
         assert len(q) == 1 and q[0]['kind'] == 'conflict' and 'position' in q[0]['fields'] and q[0]['options'][0]['type'] == 'change_position', q
         feed(table, [kuriboh])  # back upright: consistent again
@@ -70,7 +71,7 @@ def main():
         view = table.view(); assert view['players'][0]['graveyard'] == 1 and not any(c['zone'] == 'monster:1' for c in view['board'])
         checks.append('card leaving the zone asks; graveyard answer applied')
         # A monster seen in a Spell & Trap Zone gets no answers, only a hint to check the mat.
-        feed(table, [track(table, 0, 3, 'dm', 3.5 / 7, .75)])
+        feed(table, [track(table, 0, 3, 'dm', *center('spell:2'))])
         q = [x for x in table.view()['questions'] if x['zone'] == 'spell:2']
         assert len(q) == 1 and q[0]['options'] == [] and 'Magia/Trampa' in q[0]['hint'], q
         feed(table, [])
@@ -85,6 +86,21 @@ def main():
         again = TableDuel(folder, sheet=SHEETS.get)
         assert again.mode == 'two' and again.duel.state == table.duel.state and len(again.duel.log) == len(table.duel.log)
         checks.append('calibration and duel survive a restart')
+        # Virtual boards from sliders: preview changes nothing; saving places both boards,
+        # the far one smaller (one perspective for the whole table), and cards land in its zones.
+        virtual = TableDuel(folder / 'virtual', sheet=SHEETS.get)
+        preview = virtual.preview('two', {'tilt': .7}, [1920, 1080])
+        assert preview['preview'] and len(preview['zones']) == 32 and virtual.mode is None
+        virtual.calibrate('two', [], [1920, 1080], virtual={'tilt': .7})
+        near_w = np.linalg.norm(virtual.mats[0].corners[1] - virtual.mats[0].corners[0]); far_w = np.linalg.norm(virtual.mats[1].corners[1] - virtual.mats[1].corners[0])
+        assert far_w < near_w, (near_w, far_w)
+        virtual.act({'type': 'start_duel'})
+        feed(virtual, [track(virtual, player, 20 + player, 'kuriboh', *center(zone)) for player, zone in ((0, 'monster:2'), (1, 'spell:0'))])
+        q = {(x['player'], x['zone']) for x in virtual.view()['questions']}
+        assert (0, 'monster:2') in q and (1, 'spell:0') in q, q
+        again = TableDuel(folder / 'virtual', sheet=SHEETS.get)
+        assert again.virtual['tilt'] == .7 and again.mode == 'two'
+        checks.append('virtual boards: preview, perspective, zones, sliders saved')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'

@@ -229,7 +229,8 @@ class Handler(BaseHTTPRequestHandler):
             length=int(self.headers.get('Content-Length','0'))
             if not 0<length<=65536: return self.reply(413,b'Invalid body size','text/plain')
             payload=json.loads(self.rfile.read(length))
-            if route=='/playmat': body=table.calibrate(payload['mode'],payload['mats'],payload.get('image_size'))
+            if route=='/playmat' and payload.get('preview'): body=table.preview(payload['mode'],payload.get('virtual'),payload['image_size'])
+            elif route=='/playmat': body=table.calibrate(payload['mode'],payload.get('mats',[]),payload.get('image_size'),payload.get('virtual'))
             else: body={'result':table.act(payload),'duel':table.view()}
             self.reply(200,json.dumps(body,ensure_ascii=False).encode(),'application/json; charset=utf-8')
         except (DuelError,ValueError,KeyError,TypeError) as exc:

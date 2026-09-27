@@ -43,6 +43,8 @@
   #duelMessage { min-height: 22px; }
   #duelMessage.error { color: #ff8f8f; }
   #calibrationHelp { font-weight: 650; color: #ffd166; }
+  #virtualControls label { display: inline-block; margin: 6px 14px 0 0; }
+  #virtualControls input[type=range] { vertical-align: middle; width: 150px; }
   #tableCards { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 14px; }
   .sheet { background: #192335; border: 1px solid #40526b; border-radius: 12px; padding: 14px; }
   .sheet h3 { margin: 0 0 2px; font-size: 19px; } .sheet .en { margin: 0 0 8px; font-size: 13px; }
@@ -76,9 +78,20 @@
     <h2>Duelo en la mesa</h2>
     <p>La cámara nunca invoca ni mueve cartas por su cuenta: cuando algo cambia en el tapete, aquí aparece una pregunta y tú confirmas qué pasó.</p>
     <div>
-      <select id="matMode"><option value="printed">Plantilla impresa (automática)</option><option value="two">Dos tapetes propios frente a frente (clics)</option><option value="one">Un tapete propio (clics)</option></select>
+      <select id="matMode"><option value="virtual-two">Tablero virtual · 2 jugadores</option><option value="virtual-one">Tablero virtual · 1 jugador</option><option value="printed">Plantilla impresa con marcadores (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics en esquinas)</option><option value="one">Un tapete propio (clics en esquinas)</option></select>
       <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
       <label><input type="checkbox" id="showZones" checked> Mostrar zonas sobre el vídeo</label>
+    </div>
+    <div id="virtualControls" hidden>
+      <p>Mueve los controles hasta que el tablero dibujado coincida con la mesa, y fíjalo. Cada jugador pone sus cartas dentro de los recuadros que ve en la pantalla.</p>
+      <label>Horizontal <input type="range" id="v-cx" min="0.1" max="0.9" step="0.005"></label>
+      <label>Vertical <input type="range" id="v-cy" min="0.1" max="0.9" step="0.005"></label>
+      <label>Tamaño <input type="range" id="v-width" min="0.2" max="1.4" step="0.005"></label>
+      <label>Inclinación <input type="range" id="v-tilt" min="0.3" max="1" step="0.005"></label>
+      <label>Profundidad <input type="range" id="v-depth" min="0.3" max="2" step="0.01"></label>
+      <label>Giro <input type="range" id="v-rotation" min="-45" max="45" step="0.5"></label>
+      <label id="v-gap-label">Separación <input type="range" id="v-gap" min="0" max="0.6" step="0.01"></label>
+      <button id="fixBoard">Fijar tablero</button>
     </div>
     <p id="calibrationHelp"></p>
     <p>Plantillas para imprimir (con marcadores; la cámara las encuentra sola aunque se mueva): jugador 1

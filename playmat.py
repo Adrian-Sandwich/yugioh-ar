@@ -30,17 +30,29 @@ CALIBRATION = ROOT / 'data/playmat/calibration.json'
 UNIT = np.float32([[0, 0], [1, 0], [1, 1], [0, 1]])
 
 
+# Official TCG game mat (Konami's current layout, 2000 x 1167 reference): card slots
+# in pixels of that reference. Only the geometry is used, never the artwork.
+OFFICIAL_PX = (2000, 1167)
+_SLOT_X = (16, 289, 595, 901, 1208, 1514, 1787)     # left edge of each column; slots are 197 px wide
+_SLOT_W = 197
+
+
 def tcg_layout():
-    """Zones of one official TCG mat as (name, x0, y0, x1, y1) in mat units."""
-    column = 1 / 7
-    zones = [('field', 0, 0, column, .5), ('graveyard', 6 * column, 0, 1, .5),
-             ('extra_deck', 0, .5, column, 1), ('deck', 6 * column, .5, 1, 1)]
-    for i in range(5):
-        zones.append((f'monster:{i}', (i + 1) * column, 0, (i + 2) * column, .5))
-        zones.append((f'spell:{i}', (i + 1) * column, .5, (i + 2) * column, 1))
-    # Shared Extra Monster Zones, off the mat toward the opponent, over Main Monster Zones 1 and 3.
-    zones.append(('extra_monster:0', 2 * column, -.55, 3 * column, -.05))
-    zones.append(('extra_monster:1', 4 * column, -.55, 5 * column, -.05))
+    """Zones of one official TCG mat as (name, x0, y0, x1, y1) in mat units (0..1).
+
+    Upper band: Extra Monster Zones over Main Monster Zones 2 and 4, Banished at
+    the top right. Middle row: Field, five Main Monster Zones, Graveyard. Lower
+    row: Extra Deck, five Spell & Trap Zones (the outer two are also Pendulum
+    Zones), Deck. The Extra Monster Zones are shared by both players.
+    """
+    W, H = OFFICIAL_PX
+    def box(x0, y0, x1, y1): return (x0 / W, y0 / H, x1 / W, y1 / H)
+    middle = ['field'] + [f'monster:{i}' for i in range(5)] + ['graveyard']
+    lower = ['extra_deck'] + [f'spell:{i}' for i in range(5)] + ['deck']
+    zones = [(name, *box(x, 440, x + _SLOT_W, 727)) for name, x in zip(middle, _SLOT_X)]
+    zones += [(name, *box(x, 779, x + _SLOT_W, 1065)) for name, x in zip(lower, _SLOT_X)]
+    zones += [('extra_monster:0', *box(595, 101, 792, 388)), ('extra_monster:1', *box(1208, 101, 1405, 388)),
+              ('banished', *box(1697, 101, 1983, 298))]
     return zones
 
 

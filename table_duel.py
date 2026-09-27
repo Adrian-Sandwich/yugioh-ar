@@ -33,6 +33,40 @@ ACTIONS = {
 }
 
 
+# Virtual board: always drawn over the video, placed with sliders instead of clicks.
+# cx, cy: centre (fraction of the image); width: near edge (fraction of image width);
+# tilt: far edge / near edge (camera pitch); depth: height stretch; rotation: degrees;
+# gap: space between the two boards, in board heights.
+VIRTUAL_DEFAULT = {'cx': .5, 'cy': .55, 'width': .7, 'tilt': .75, 'depth': 1., 'rotation': 0., 'gap': .08}
+
+
+def virtual_corners(mode, params, image_size):
+    """[{player, corners}] for the virtual board(s), corners TL, TR, BR, BL as each player sees them.
+
+    With two players one quadrilateral spans both boards (player 2's above, turned
+    180 degrees) and a single homography places them, so the far board comes out
+    smaller with the right perspective instead of being tilted on its own.
+    """
+    import cv2
+    import numpy as np
+    from playmat import OFFICIAL_PX
+    p = {**VIRTUAL_DEFAULT, **(params or {})}
+    W, H = image_size
+    rows = 1. if mode == 'one' else 2. + p['gap']
+    near = p['width'] * W; far = near * p['tilt']
+    height = near * OFFICIAL_PX[1] / OFFICIAL_PX[0] * rows * p['depth']
+    cx, cy = p['cx'] * W, p['cy'] * H
+    quad = np.float32([[cx - far / 2, cy - height / 2], [cx + far / 2, cy - height / 2], [cx + near / 2, cy + height / 2], [cx - near / 2, cy + height / 2]])
+    angle = np.radians(p['rotation']); rot = np.float32([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+    quad = (quad - [cx, cy]) @ rot.T + [cx, cy]
+    table = cv2.getPerspectiveTransform(np.float32([[0, 0], [1, 0], [1, rows], [0, rows]]), np.float32(quad))
+    place = lambda pts: cv2.perspectiveTransform(np.float32(pts).reshape(-1, 1, 2), table).reshape(-1, 2).tolist()
+    mats = [{'player': 0, 'corners': place([[0, rows - 1], [1, rows - 1], [1, rows], [0, rows]])}]
+    if mode == 'two':
+        mats.append({'player': 1, 'corners': place([[1, 1], [0, 1], [0, 0], [1, 0]])})
+    return mats
+
+
 def zone_label(zone):
     kind, _, index = zone.partition(':')
     if kind == 'monster': return f'Zona de Monstruo {int(index) + 1}'
@@ -51,11 +85,12 @@ class TableDuel:
         `folder` defaults to FOLDER read at call time, so tests can redirect it."""
         self.folder = Path(folder or FOLDER); self.sheet = sheet; self.stable = stable
         self.lock = threading.RLock()
-        self.mode = None; self.mats = []; self.image_size = None; self.tracker = None
+        self.mode = None; self.mats = []; self.image_size = None; self.tracker = None; self.virtual = None
         self.duel = Duel(); self.observed = {}; self.cards = {}; self.missing = {}
         calibration = self.folder / 'calibration.json'
         if calibration.exists():
             data = json.loads(calibration.read_text(encoding='utf-8'))
+            self.virtual = data.get('virtual')
             self._set_mats(data['mode'], data['mats'], data.get('image_size'))
         saved = self.folder / 'duel.json'
         if saved.exists():
@@ -77,12 +112,23 @@ class TableDuel:
         self.mode = mode; self.image_size = image_size
         self.tracker = ZoneTracker(self.mats, stable=self.stable); self.observed.clear(); self.missing.clear()
 
-    def calibrate(self, mode, mats, image_size):
+    def preview(self, mode, virtual, image_size):
+        """Zone outlines for virtual-board sliders, without changing the saved calibration."""
+        if mode not in ('one', 'two'): raise ValueError('El tablero virtual es de uno o dos jugadores')
+        mats = [Mat(m['player'], m['corners']) for m in virtual_corners(mode, virtual, image_size)]
+        return self.overlay(mats) | {'mode': mode, 'virtual': {**VIRTUAL_DEFAULT, **(virtual or {})}, 'preview': True}
+
+    def calibrate(self, mode, mats, image_size, virtual=None):
+        """Clicked corners (`mats`), a printed template, or a virtual board placed with sliders (`virtual`)."""
         with self.lock:
+            if virtual is not None:
+                if mode not in ('one', 'two'): raise ValueError('El tablero virtual es de uno o dos jugadores')
+                virtual = {**VIRTUAL_DEFAULT, **virtual}; mats = virtual_corners(mode, virtual, image_size)
+            self.virtual = virtual
             self._set_mats(mode, mats, image_size)
             self.folder.mkdir(parents=True, exist_ok=True)
             (self.folder / 'calibration.json').write_text(json.dumps({'mode': mode, 'image_size': image_size, 'layout': 'printed' if mode == 'printed' else 'tcg-single',
-                'mats': [] if mode == 'printed' else [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}, indent=2), encoding='utf-8')
+                'virtual': virtual, 'mats': [] if mode == 'printed' else [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}, indent=2), encoding='utf-8')
             return self.overlay()
 
     def see_markers(self, image, now=None):
@@ -97,17 +143,17 @@ class TableDuel:
             self.mats = [m for m, _ in sorted(self.found.values(), key=lambda v: v[0].player)]
             self.tracker.mats = self.mats
 
-    def overlay(self):
-        """Zone outlines in image pixels, for drawing over the video."""
+    def overlay(self, mats=None):
+        """Zone outlines in image pixels, for drawing over the video (`mats`: a preview instead of the saved ones)."""
         with self.lock:
             zones = []
-            for mat in self.mats:
+            for mat in (self.mats if mats is None else mats):
                 for name, x0, y0, x1, y1 in mat.layout:
                     if name.startswith('extra_monster') and mat.player != 0: continue  # shared: drawn once
                     zones.append({'player': mat.player, 'zone': name, 'label': zone_label(name),
                                   'polygon': mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).round(1).tolist()})
-            return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones,
-                    'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in self.mats]}
+            return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones, 'virtual': self.virtual,
+                    'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in (self.mats if mats is None else mats)]}
 
     # --- camera ----------------------------------------------------------------
     def feed(self, tracks):

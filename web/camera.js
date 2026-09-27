@@ -32,7 +32,7 @@ let passcodeMinCapturedAt=0;
 let qualityTracks=[],qualityNextId=1;
 const qualityWindow=10000;
 // Duel on the playmat: zone outlines from /playmat, calibration clicks in progress.
-let playmat=null,calibration=null,zonesVersion=0,renderedZones=-1;
+let playmat=null,calibration=null,zonesVersion=0,renderedZones=-1,virtualPreview=null;
 
 // Sprites are warped in the browser: a WebGL textured quad with perspective-correct
 // texture coordinates, so nothing but corners and a sprite id travel per frame.
@@ -490,14 +490,19 @@ const PHASES={draw:'Fase de Robo',standby:'Fase de Espera',main1:'Fase Principal
 const POSITIONS={attack:'ataque',defense:'defensa',facedown_defense:'defensa boca abajo',faceup:'boca arriba',facedown:'boca abajo'};
 let duelView=null;
 
+const SHORT={field:'Campo',graveyard:'Cementerio',extra_deck:'Mazo Extra',deck:'Mazo',banished:'Desterradas'};
+function shortLabel(zone){const [k,i]=zone.split(':');return k==='monster'?`M${+i+1}`:k==='spell'?(i==='0'||i==='4'?`MT${+i+1}·P`:`MT${+i+1}`):k==='extra_monster'?`Monstruo Extra ${+i+1}`:SHORT[zone]||zone;}
 function drawTableOverlay(context){
-  if(playmat&&$d('#showZones')?.checked&&!calibration){
-    context.save();context.lineWidth=2;context.font='14px system-ui';
-    for(const z of playmat.zones||[]){
-      context.strokeStyle=z.player===0?'rgba(141,229,202,.55)':'rgba(255,209,102,.55)';
+  const board=virtualPreview||playmat;
+  if(board&&$d('#showZones')?.checked&&!calibration){
+    // Line and text sizes follow the video resolution: the canvas is shown scaled down.
+    context.save();context.lineWidth=Math.max(2,frame.width/420);context.font=`600 ${Math.round(frame.width/75)}px system-ui`;context.textAlign='center';
+    for(const z of board.zones||[]){
+      // White outlines like the printed mat; the opponent's board slightly yellow.
+      context.strokeStyle=z.player===0?'rgba(255,255,255,.8)':'rgba(255,224,150,.8)';
       context.beginPath();z.polygon.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.stroke();
-      const [cx,cy]=z.polygon.reduce(([a,b],[x,y])=>[a+x/4,b+y/4],[0,0]);
-      context.fillStyle='rgba(233,238,247,.75)';context.fillText(z.zone.replace('monster:','M').replace('extra_monster:','EM').replace('spell:','MT'),cx-10,cy);
+      const bottom=z.polygon.reduce((a,p)=>a[1]>p[1]?a:p);const [cx]=z.polygon.reduce(([a],[x])=>[a+x/4],[0]);
+      context.fillStyle='rgba(255,255,255,.85)';context.fillText(shortLabel(z.zone),cx,bottom[1]-8);
     }
     context.restore();
   }
@@ -515,13 +520,57 @@ function calibrationStep(){
   if(!calibration){
     const seen=(playmat?.mats||[]).map(m=>`jugador ${m.player+1} (${m.markers} marcadores)`).join(', ');
     $d('#calibrationHelp').textContent=playmat?.mode==='printed'?(seen?`Plantilla impresa: veo ${seen}. Puedes mover la cámara o el tapete.`:'Plantilla impresa: no veo ningún tapete. Deja a la vista al menos 2 de sus 4 marcadores.'):
-      playmat?.mode?`Tapetes calibrados (${playmat.modes[playmat.mode]}). Si mueves la cámara, vuelve a calibrar.`:'Sin tapete: elige un modo. La plantilla impresa no necesita calibración.';
+      playmat?.virtual?`Tablero virtual fijado (${playmat.mode==='two'?'2 jugadores':'1 jugador'}). Si mueves la cámara, vuelve a elegirlo y ajústalo.`:
+      playmat?.mode?`Tapetes calibrados (${playmat.modes[playmat.mode]}). Si mueves la cámara, vuelve a calibrar.`:'Sin tablero: elige "Tablero virtual" y ajústalo sobre la mesa.';
     return;}
   const player=calibration.mats.length,who=calibration.mode==='one'?'tu tapete':`el tapete del jugador ${player+1} (${$d('#name'+player).value})`;
   $d('#calibrationHelp').textContent=`Haz clic en ${who}, esquina ${calibration.points.length+1} de 4: ${CORNERS[calibration.points.length]}, como lo ve ese jugador sentado.`;
 }
 
+// Virtual board: sliders place it, the server returns the zones (same geometry as the saved board).
+const VKEYS=['cx','cy','width','tilt','depth','rotation','gap'];
+const VDEFAULT={cx:.5,cy:.55,width:.7,tilt:.75,depth:1,rotation:0,gap:.08};
+// Two boards stacked must fit a 16:9 frame: start narrower and centred.
+const VSTART={'virtual-two':{...VDEFAULT,width:.42,cy:.5},'virtual-one':VDEFAULT};
+function virtualParams(){return Object.fromEntries(VKEYS.map(k=>[k,Number($d('#v-'+k).value)]));}
+function setVirtualParams(v){for(const k of VKEYS)$d('#v-'+k).value=String((v||VDEFAULT)[k]??VDEFAULT[k]);}
+let previewTimer=0,previewSeq=0;
+async function previewVirtual(){
+  const mode=$d('#matMode').value;if(!mode.startsWith('virtual-'))return;
+  // The canvas takes the video's size with the first frame; before that the board would be off-scale.
+  if(!currentBitmap){clearTimeout(previewTimer);previewTimer=setTimeout(previewVirtual,300);return;}
+  const seq=++previewSeq;
+  try{const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({preview:true,mode:mode.slice(8),virtual:virtualParams(),image_size:[frame.width,frame.height]})});
+    const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo dibujar el tablero');
+    if(seq===previewSeq){virtualPreview=data;zonesVersion++;}}
+  catch(e){duelMessage(e.message,true);}
+}
+function showMode(adjust=false){
+  const mode=$d('#matMode').value,virtual=mode.startsWith('virtual-');
+  const fixed=virtual&&playmat?.virtual&&'virtual-'+playmat.mode===mode;
+  const editing=virtual&&(adjust||!fixed);
+  $d('#virtualControls').hidden=!editing;$d('#calibrate').hidden=editing;$d('#v-gap-label').hidden=mode!=='virtual-two';
+  $d('#calibrate').textContent=virtual?'Ajustar tablero':'Usar este modo';
+  if(editing){$d('#calibrationHelp').textContent='Vista previa: ajusta los controles y pulsa "Fijar tablero".';previewVirtual();}
+  else{virtualPreview=null;zonesVersion++;calibrationStep();}
+}
+$d('#matMode').onchange=()=>{
+  // Switching boards starts from the saved sliders of that board, else from its default size.
+  const mode=$d('#matMode').value;
+  if(mode.startsWith('virtual-'))setVirtualParams(playmat?.virtual&&'virtual-'+playmat.mode===mode?playmat.virtual:VSTART[mode]);
+  showMode(false);
+};
+setVirtualParams(VSTART['virtual-two']);
+for(const k of VKEYS)$d('#v-'+k).oninput=()=>{clearTimeout(previewTimer);previewTimer=setTimeout(previewVirtual,40);};
+$d('#fixBoard').onclick=async()=>{
+  try{const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:$d('#matMode').value.slice(8),virtual:virtualParams(),image_size:[frame.width,frame.height]})});
+    const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo fijar el tablero');
+    playmat=data;duelMessage('Tablero fijado. Para moverlo, pulsa "Ajustar tablero".');showMode(false);}
+  catch(e){duelMessage(e.message,true);}
+};
+
 $d('#calibrate').onclick=async()=>{
+  if($d('#matMode').value.startsWith('virtual-')){showMode(true);return;}
   if($d('#matMode').value==='printed'){
     // Printed templates need no clicks: the markers are found on every analysis.
     try{const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'printed',mats:[],image_size:[frame.width,frame.height]})});
@@ -634,7 +683,11 @@ async function refreshDuel(){
     if(r.status===404){$d('#duel').hidden=true;return;}   // demo with a saved capture: no duel
     $d('#duel').hidden=false;renderDuel(await r.json());
     // Printed mats move with the camera: refresh their outline every poll (about once a second).
-    if((!playmat||playmat.mode==='printed')&&!calibration){const m=await fetch('/playmat');if(m.ok){const next=await m.json();if(JSON.stringify(next)!==JSON.stringify(playmat)){playmat=next;zonesVersion++;}calibrationStep();}}
+    if((!playmat||playmat.mode==='printed')&&!calibration&&!virtualPreview){const m=await fetch('/playmat');if(m.ok){const first=!playmat,next=await m.json();if(JSON.stringify(next)!==JSON.stringify(playmat)){playmat=next;zonesVersion++;}
+      // First load: show the saved board's mode and slider positions.
+      if(first&&next.mode){const option=next.virtual?'virtual-'+next.mode:next.mode;if([...$d('#matMode').options].some(o=>o.value===option))$d('#matMode').value=option;if(next.virtual)setVirtualParams(next.virtual);}
+      if(first)showMode(false);  // no saved board: the virtual board's preview appears right away
+      else calibrationStep();}}
   }catch(e){}
   finally{setTimeout(refreshDuel,800);}
 }
