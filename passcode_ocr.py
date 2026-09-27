@@ -169,6 +169,24 @@ class PasscodeWorker:
         with self.condition:
             return {**self.result,'pending':self.pending is not None}
 
+    def verified(self):
+        """Cards whose illustration the verifier matched in the latest batch.
+
+        Evidence for vision_onnx.promote_by_art: corners of the analysed frame,
+        the verified identity and when that frame was captured. Never carries
+        candidates the verifier rejected or found ambiguous.
+        """
+        with self.condition:
+            result=self.result
+        out=[]
+        for item in result.get('items',[]):
+            art=item.get('art_match') or {}
+            if art.get('status')!='matched' or not art.get('card_id') or not item.get('corners'):continue
+            best=(art.get('matches') or [{}])[0]
+            out.append({'corners':item['corners'],'card_id':art['card_id'],'artwork_id':best.get('artwork_id'),'inliers':best.get('inliers'),
+                        'captured_at':result.get('captured_at'),'evidence_track_id':item.get('evidence_track_id')})
+        return out
+
     def close(self):
         with self.condition:self.closed=True;self.pending=None;self.condition.notify()
 

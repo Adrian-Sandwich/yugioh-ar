@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "checks": [
+    "only identified training annotations enrolled",
+    "rectified to the render canvas",
+    "texture preserved",
+    "pilot metadata inherited",
+    "index merge and digest change",
+    "idempotent",
+    "CLI refuses test split"
+  ]
+}

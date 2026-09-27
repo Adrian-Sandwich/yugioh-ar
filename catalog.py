@@ -86,8 +86,13 @@ def card_detail(conn, card_id):
     return result
 
 
-def export_pilot(ids=None):
-    """Only source-linked or human-approved references; never filename suggestions."""
+def export_pilot(ids=None,max_artworks=None):
+    """Only source-linked or human-approved references; never filename suggestions.
+
+    `max_artworks` caps the distinct illustrations per identity (None: all).
+    Foil printings of an alternate artwork scored 0.66-0.76 against a pilot
+    that held only two of the six Dark Magician artworks (26/09/2026).
+    """
     init_reviews()
     with connect() as conn:
         available = [dict(r) for r in conn.execute('''SELECT c.id,c.name_en,c.name_es,c.category,r.ref_id,r.path,r.source_id,r.effective_artwork_id
@@ -136,7 +141,7 @@ def export_pilot(ids=None):
                          'source':os.path.relpath(path, ROOT/'data/pilot').replace('\\','/'),
                          'sprite_ref':exact_sprite[0] if exact_sprite else (sprite[0] if sprite else None),'category':card['category']}
                 catalog.append(entry)
-                if len(seen_art)>=2:
+                if max_artworks is not None and len(seen_art)>=max_artworks:
                     break
         target = ROOT/'data/pilot'
         target.mkdir(parents=True, exist_ok=True)

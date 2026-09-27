@@ -42,6 +42,7 @@ class SpriteOverlay:
         self.cache={}
         # 16 portrait canvases use at most 16.4 MB of additional pixel storage.
         self.prepared=OrderedDict();self.prepared_limit=prepared_limit
+        self.png_cache=OrderedDict()
 
     def clear_cache(self,ref=None):
         """Invalidate after an asset update; cached source arrays are immutable.
@@ -51,9 +52,9 @@ class SpriteOverlay:
         requires clearing.
         """
         if ref is None:
-            self.cache.clear();self.prepared.clear()
+            self.cache.clear();self.prepared.clear();self.png_cache.clear()
         else:
-            self.cache.pop(ref,None);self.prepared.pop(ref,None)
+            self.cache.pop(ref,None);self.prepared.pop(ref,None);self.png_cache.pop(ref,None)
 
     def prepared_canvas(self,ref,sprite):
         cached=self.prepared.get(ref)
@@ -72,18 +73,34 @@ class SpriteOverlay:
             self.prepared.popitem(last=False)
         return canvas
 
+    def load(self,ref):
+        """Decoded RGBA sprite for a reference id, or None (cached either way)."""
+        if ref not in self.cache:
+            with connect() as conn:
+                row=conn.execute('SELECT * FROM refs WHERE ref_id=? AND kind=\'sprite\'',(ref,)).fetchone()
+            self.cache[ref]=None if row is None else cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_UNCHANGED)
+        sprite=self.cache[ref]
+        return sprite if sprite is not None and sprite.ndim==3 and sprite.shape[2]==4 else None
+
+    def sprite_png(self,ref):
+        """PNG bytes of the prepared portrait canvas, for the browser to warp itself."""
+        sprite=self.load(ref)
+        if sprite is None:return None
+        cached=self.png_cache.get(ref)
+        if cached is not None and cached[0] is sprite:return cached[1]
+        data=cv2.imencode('.png',self.prepared_canvas(ref,sprite))[1].tobytes()
+        self.png_cache[ref]=(sprite,data)
+        while len(self.png_cache)>self.prepared_limit:self.png_cache.popitem(last=False)
+        return data
+
     def render(self,frame,detections,transparent=False):
         output=np.zeros((*frame.shape[:2],4),np.uint8) if transparent else frame.copy()
         composed_bounds=None
         for detection in detections:
             ref=detection.get('sprite_ref')
             if not ref or not detection.get('stable'): continue
-            if ref not in self.cache:
-                with connect() as conn:
-                    row=conn.execute('SELECT * FROM refs WHERE ref_id=? AND kind=\'sprite\'',(ref,)).fetchone()
-                self.cache[ref]=None if row is None else cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_UNCHANGED)
-            sprite=self.cache[ref]
-            if sprite is None or sprite.ndim!=3 or sprite.shape[2]!=4: continue
+            sprite=self.load(ref)
+            if sprite is None: continue
             canvas=self.prepared_canvas(ref,sprite)
             matrix=cv2.getPerspectiveTransform(np.float32([[0,0],[419,0],[419,609],[0,609]]),np.float32(detection['corners']))
             warped=cv2.warpPerspective(canvas,matrix,(frame.shape[1],frame.shape[0]))

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "frames_received": 54,
+  "reconnects_observed": 2,
+  "checks": [
+    "frames parsed across chunk boundaries",
+    "callback per frame in order",
+    "stale stream raises",
+    "viewer falls back to polling and feeds tracker",
+    "X-Tracks header and /tracks",
+    "stream frames served without polling"
+  ]
+}

@@ -1,4 +1,11 @@
-"""Local Android IP Webcam viewer; Python standard library only."""
+"""Local Android IP Webcam viewer; Python standard library only for the camera path.
+
+Frames come from the phone's MJPEG stream when available (camera_source.py)
+and from single-shot polling otherwise. Every frame advances the corner
+tracker (live_tracking.py); `/snapshot` carries the current tracks in an
+`X-Tracks` header so the browser draws names and sprites at video rate. The
+recognizer runs in a child process (inference_host.py) unless --no-isolate.
+"""
 
 import argparse
 import base64
@@ -16,6 +23,7 @@ from shared_snapshot import SharedSnapshots
 from identity_resolution import IDENTITIES,normalize_detection
 
 ROOT = Path(__file__).resolve().parent
+TRACK_FIELDS=('track_id','card_id','name','sprite_ref','corners','stable','verified_at','tracked_at','acceptance','inliers','frames')
 
 
 def camera_url(value):
@@ -40,11 +48,23 @@ def snapshot(base):
     return data
 
 
+def track_payload(tracks):
+    """Compact, ASCII-safe track list for a response header or JSON body."""
+    out=[]
+    for t in tracks:
+        item={k:t.get(k) for k in TRACK_FIELDS if k in t}
+        item['corners']=[[round(float(x),1),round(float(y),1)] for x,y in t['corners']]
+        out.append(item)
+    return out
+
+
 class Server(ThreadingHTTPServer):
     daemon_threads = True
 
     def __init__(self,*args,**kwargs):
         self.snapshots=SharedSnapshots()
+        self.tracker=None;self.live_tracker=None;self.stream=None;self.overlay=None;self.passcode_worker=None
+        self.recognizer=None;self.fixture=None;self.mode='single-reference';self.last_tracked_at=0.
         super().__init__(*args,**kwargs)
 
 
@@ -76,17 +96,34 @@ class Handler(BaseHTTPRequestHandler):
             elif route == '/pose-annotator':
                 self.reply(200,(ROOT/'web/pose_annotator.html').read_bytes(),'text/html; charset=utf-8')
             elif route == "/snapshot":
-                data,captured_at=self.get_snapshot_record()
-                self.reply(200, data, "image/jpeg", {'X-Captured-At':captured_at,
-                    'X-Capture-Time-Basis':'server_snapshot_request'})
+                data,captured_at,basis=self.get_snapshot_record()
+                headers={'X-Captured-At':captured_at,'X-Capture-Time-Basis':basis}
+                live=getattr(self.server,'live_tracker',None)
+                if live is not None:
+                    headers['X-Tracks']=json.dumps(track_payload(live.snapshot()),ensure_ascii=True,separators=(',',':'))
+                self.reply(200, data, "image/jpeg", headers)
+            elif route == '/tracks':
+                live=getattr(self.server,'live_tracker',None)
+                self.reply(200,json.dumps({'tracks':track_payload(live.snapshot()) if live else [],'now':time.time(),
+                    'tracking_ms':live.last_update_ms if live else None,'frames':live.frame_count if live else 0}).encode(),'application/json')
+            elif route.startswith('/sprite/'):
+                overlay=getattr(self.server,'overlay',None)
+                data=overlay.sprite_png(route[len('/sprite/'):]) if overlay else None
+                if data is None: self.reply(404,b'No sprite','text/plain')
+                else: self.reply(200,data,'image/png',{'Cache-Control':'max-age=3600'})
             elif route == "/config":
-                self.reply(200, json.dumps({"camera": self.server.camera, "recognition": self.server.recognizer is not None,
+                recognizer=self.server.recognizer
+                stream=getattr(self.server,'stream',None)
+                self.reply(200, json.dumps({"camera": self.server.camera, "recognition": recognizer is not None,
                     "mode":getattr(self.server,'mode','single-reference'),"offline":bool(getattr(self.server,'fixture',None)),
                     "experimental":getattr(self.server,'mode','') in ('draw2','embedding'),
                     "ar":getattr(self.server,'overlay',None) is not None,
                     "passcode_ocr":getattr(self.server,'passcode_worker',None) is not None,
                     "identity_resolution":IDENTITIES.info(),
-                    "references":len(self.server.recognizer.references) if self.server.recognizer else 0}).encode(), "application/json")
+                    "live_tracking":getattr(self.server,'live_tracker',None) is not None,
+                    "stream":stream.status() if stream else None,
+                    "inference":recognizer.status() if hasattr(recognizer,'status') else {'isolated':False},
+                    "references":len(recognizer.references) if recognizer else 0}).encode(), "application/json")
             elif route == '/passcodes':
                 worker=getattr(self.server,'passcode_worker',None)
                 self.reply(200,json.dumps(worker.snapshot() if worker else {'state':'disabled','items':[]}).encode(),'application/json')
@@ -165,14 +202,22 @@ class Handler(BaseHTTPRequestHandler):
         watchdog.start()
         try:
             if data is None:
-                data,captured_at=self.get_snapshot_record();capture_basis='server_snapshot_request'
+                data,captured_at,capture_basis=self.get_snapshot_record()
             inference_started=time.perf_counter()
-            result=self.server.recognizer.analyze_jpeg(data)
+            recognizer=self.server.recognizer
+            live=getattr(self.server,'live_tracker',None)
+            worker=getattr(self.server,'passcode_worker',None)
+            if getattr(recognizer,'supports_context',False):
+                from vision_onnx import REUSE_MAX_AGE_S
+                reuse=live.reuse_candidates(captured_at,REUSE_MAX_AGE_S) if live else ()
+                verified=worker.verified() if worker and hasattr(worker,'verified') else ()
+                result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified)
+            else:
+                result=recognizer.analyze_jpeg(data)
             result['detections']=[normalize_detection(d) for d in result['detections']]
             if 'candidates' in result:result['candidates']=[normalize_detection(d) for d in result['candidates']]
             result['identity_resolution']=IDENTITIES.info()
             inference_finished=time.perf_counter()
-            worker=getattr(self.server,'passcode_worker',None)
             if worker:
                 named={tuple(map(tuple,d['corners'])):d for d in result['detections']}
                 boxes=[]
@@ -185,14 +230,13 @@ class Handler(BaseHTTPRequestHandler):
                 worker.submit(data,boxes,captured_at)
             if getattr(self.server,'tracker',None):
                 result['detections']=self.server.tracker.update(result['detections'])
-            if getattr(self.server,'overlay',None):
-                import cv2
-                import numpy as np
-                frame=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR)
-                # Only the transparent layer travels; the browser composes it over
-                # the original JPEG, so no second full-frame blend/encode here.
-                layer=self.server.overlay.render(frame,result['detections'],transparent=True)
-                result['ar_layer']='data:image/png;base64,'+base64.b64encode(cv2.imencode('.png',layer)[1]).decode('ascii')
+            if live is not None:
+                # Sprites and names follow these corners at video rate from here on.
+                live.sync(result['detections'],captured_at)
+                result['tracks']=track_payload(live.snapshot())
+            for d in result['detections']:
+                if d.get('sprite_ref') and getattr(self.server,'overlay',None) is not None:
+                    d['sprite_url']='/sprite/'+d['sprite_ref']
             result['image']='data:image/jpeg;base64,'+base64.b64encode(data).decode('ascii')
             result.update(captured_at=captured_at,capture_time_basis=capture_basis,
                 received_at=received_at,completed_at=time.time())
@@ -212,9 +256,22 @@ class Handler(BaseHTTPRequestHandler):
         return self.get_snapshot_record()[0]
 
     def get_snapshot_record(self):
-        fixture=getattr(self.server,'fixture',None)
-        return self.server.snapshots.get((self.server.camera,str(fixture)),
-            lambda:fixture.read_bytes() if fixture else snapshot(self.server.camera))
+        """(jpeg, captured_at, basis): fixture, MJPEG stream, or single-shot polling."""
+        server=self.server
+        fixture=getattr(server,'fixture',None)
+        stream=getattr(server,'stream',None)
+        if fixture is None and stream is not None:
+            try:
+                data,captured=stream.latest()
+                return data,captured,'stream_frame_receipt'
+            except OSError:
+                pass  # Stale or disconnected stream: poll a single frame instead.
+        data,captured=server.snapshots.get((server.camera,str(fixture)),
+            lambda:fixture.read_bytes() if fixture else snapshot(server.camera))
+        live=getattr(server,'live_tracker',None)
+        if live is not None and captured>server.last_tracked_at:
+            server.last_tracked_at=captured;live.update(data,captured)
+        return data,captured,'server_snapshot_request'
 
 
 def main():
@@ -224,10 +281,13 @@ def main():
     parser.add_argument("--check", action="store_true", help="Fetch three JPEG frames and exit")
     parser.add_argument("--recognize", action="store_true", help="Enable recognition from the local reference catalog")
     parser.add_argument('--pilot',action='store_true',help='Use the reviewed pilot catalog with multi-card matching')
-    parser.add_argument('--ar',action='store_true',help='Overlay sprites after two consistent observations')
+    parser.add_argument('--ar',action='store_true',help='Serve sprites for stable detections; the browser warps them')
     parser.add_argument('--image',type=Path,help='Offline fixture image; explicitly labelled in the viewer')
     parser.add_argument('--backend',choices=['sift','draw2','embedding'],default='sift',help='ONNX choices are experimental and require .venv-eval')
     parser.add_argument('--no-passcode',action='store_true',help='Disable asynchronous passcode crop/OCR')
+    parser.add_argument('--no-stream',action='store_true',help='Poll /shot.jpg instead of reading the MJPEG /video stream')
+    parser.add_argument('--no-isolate',action='store_true',help='Run the ONNX recognizer inside this process instead of a restartable child')
+    parser.add_argument('--no-tracking',action='store_true',help='Disable corner tracking between analyses')
     args = parser.parse_args()
     if args.check:
         for i in range(3):
@@ -237,8 +297,13 @@ def main():
         return
     recognizer = None
     if args.backend!='sift':
-        from vision_onnx import LiveRecognizer
-        recognizer=LiveRecognizer('classifier' if args.backend=='draw2' else 'embedding')
+        mode='classifier' if args.backend=='draw2' else 'embedding'
+        if args.no_isolate:
+            from vision_onnx import LiveRecognizer
+            recognizer=LiveRecognizer(mode)
+        else:
+            from inference_host import RemoteRecognizer
+            recognizer=RemoteRecognizer(mode)
     elif args.recognize or args.pilot:
         from recognition import Recognizer,PilotRecognizer
         recognizer = PilotRecognizer() if args.pilot else Recognizer()
@@ -252,9 +317,6 @@ def main():
         data=server.fixture.read_bytes()
         if not data.startswith(b'\xff\xd8'):
             parser.error('--image requiere una captura JPEG')
-    server.tracker=None
-    server.overlay=None
-    server.passcode_worker=None
     if recognizer:
         from ar_overlay import Tracker,SpriteOverlay
         server.tracker=Tracker()
@@ -262,13 +324,22 @@ def main():
         if not args.no_passcode:
             from passcode_ocr import PasscodeWorker
             server.passcode_worker=PasscodeWorker()
+        if not args.no_tracking:
+            from live_tracking import LiveTracker
+            server.live_tracker=LiveTracker()
+    if not args.no_stream and server.fixture is None:
+        from camera_source import MjpegSource
+        live=server.live_tracker
+        server.stream=MjpegSource(args.camera,on_frame=(lambda frame,captured:live.update(frame,captured)) if live else None)
     print(f"Visor: http://127.0.0.1:{args.port} | Camara: {args.camera}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        if server.stream: server.stream.close()
         if server.passcode_worker: server.passcode_worker.close()
+        if hasattr(recognizer,'close'): recognizer.close()
         server.server_close()
 
 

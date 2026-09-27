@@ -19,9 +19,11 @@ let paused=false,offline=false,currentBlob=null,currentBitmap=null,frameAt=0,fra
 let frameCapturedAt=0;
 const sharedAnalysis=globalThis.BroadcastChannel&&navigator.locks?new BroadcastChannel('yugioh-analysis-v1'):null;
 let sharedCooldown=0;
-let result=null,layer=null,resultAt=0,generation=0,configured=false,lastAnalyzed=-1;
+let result=null,resultAt=0,generation=0,configured=false,lastAnalyzed=-1;
 const overlayMaxAge=2500;
-let renderedFrame=-1,renderedResult=null,renderedAR=false;
+let renderedFrame=-1,renderedResult=null,renderedAR=false,renderedTracks=null;
+// Tracks arrive with every frame (X-Tracks header): corners followed by the server between analyses.
+let liveTracks=[];
 const analysisView=document.querySelector('#analysisView'),analysisFrame=document.querySelector('#analysisFrame');
 let lastAnalysis=null,lastAnalysisAt=0,analysisPaint=0;
 let passcodeMinCapturedAt=0;
@@ -30,14 +32,83 @@ let passcodeMinCapturedAt=0;
 let qualityTracks=[],qualityNextId=1;
 const qualityWindow=10000;
 
-function drawCards(context,cards){
+// Sprites are warped in the browser: a WebGL textured quad with perspective-correct
+// texture coordinates, so nothing but corners and a sprite id travel per frame.
+const sprites={cache:new Map(),
+  get(url){
+    if(!url)return null;
+    let entry=this.cache.get(url);
+    if(!entry){entry={image:null,failed:false};this.cache.set(url,entry);const img=new Image();img.onload=()=>{entry.image=img;};img.onerror=()=>{entry.failed=true;};img.src=url;}
+    return entry.image;
+  }};
+const spriteGL=(()=>{
+  const canvas=document.createElement('canvas');const gl=canvas.getContext('webgl',{premultipliedAlpha:false,preserveDrawingBuffer:true});
+  if(!gl)return null;
+  const compile=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;};
+  const program=gl.createProgram();
+  gl.attachShader(program,compile(gl.VERTEX_SHADER,'attribute vec2 p;attribute vec3 t;varying vec3 v;uniform vec2 size;void main(){v=t;gl_Position=vec4(p.x/size.x*2.0-1.0,1.0-p.y/size.y*2.0,0.0,1.0);}'));
+  gl.attachShader(program,compile(gl.FRAGMENT_SHADER,'precision mediump float;varying vec3 v;uniform sampler2D s;void main(){gl_FragColor=texture2D(s,v.xy/v.z);}'));
+  gl.linkProgram(program);gl.useProgram(program);
+  const pos=gl.createBuffer(),tex=gl.createBuffer();
+  const aP=gl.getAttribLocation(program,'p'),aT=gl.getAttribLocation(program,'t'),uSize=gl.getUniformLocation(program,'size');
+  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  const textures=new Map();
+  function texture(image){
+    let t=textures.get(image);
+    if(t)return t;
+    t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    textures.set(image,t);return t;
+  }
+  // Perspective-correct quad: q per corner from the diagonal intersection (Heckbert).
+  function weights(c){
+    const [a,b,cc,d]=c;const den=(cc[0]-a[0])*(d[1]-b[1])-(cc[1]-a[1])*(d[0]-b[0]);
+    if(Math.abs(den)<1e-6)return [1,1,1,1];
+    const s=((b[0]-a[0])*(d[1]-b[1])-(b[1]-a[1])*(d[0]-b[0]))/den;
+    const x=[a[0]+s*(cc[0]-a[0]),a[1]+s*(cc[1]-a[1])];
+    const dist=c.map(p=>Math.hypot(p[0]-x[0],p[1]-x[1]));
+    return dist.map((di,i)=>{const dj=dist[(i+2)%4];return dj>1e-6?(di+dj)/dj:1;});
+  }
+  return {
+    draw(width,height,items){
+      if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+      gl.viewport(0,0,width,height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform2f(uSize,width,height);
+      let drawn=0;
+      for(const {corners,image} of items){
+        if(!image||corners?.length!==4)continue;
+        const q=weights(corners);
+        // Corner order follows the card: top-left, top-right, bottom-right, bottom-left.
+        const uv=[[0,0],[1,0],[1,1],[0,1]];const order=[0,1,2,0,2,3];
+        gl.bindBuffer(gl.ARRAY_BUFFER,pos);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(order.flatMap(i=>corners[i])),gl.STREAM_DRAW);
+        gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,2,gl.FLOAT,false,0,0);
+        gl.bindBuffer(gl.ARRAY_BUFFER,tex);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(order.flatMap(i=>[uv[i][0]*q[i],uv[i][1]*q[i],q[i]])),gl.STREAM_DRAW);
+        gl.enableVertexAttribArray(aT);gl.vertexAttribPointer(aT,3,gl.FLOAT,false,0,0);
+        gl.bindTexture(gl.TEXTURE_2D,texture(image));gl.drawArrays(gl.TRIANGLES,0,6);drawn++;
+      }
+      return drawn?canvas:null;
+    }};
+})();
+function drawSprites(context,cards,width,height){
+  if(!spriteGL||!ar.checked)return 0;
+  const items=(cards||[]).filter(c=>c.corners?.length===4&&(c.sprite_url||c.sprite_ref)).map(c=>({corners:c.corners,image:sprites.get(c.sprite_url||('/sprite/'+c.sprite_ref))}));
+  const layer=spriteGL.draw(width,height,items);
+  if(layer)context.drawImage(layer,0,0,width,height);
+  return items.filter(i=>i.image).length;
+}
+
+function drawCards(context,cards,options={}){
   for(const card of cards||[]){
     if(!card.corners?.length)continue;
+    const cut=card.geometry_status==='frame_edge';
     const approximate=card.geometry_status&&card.geometry_status!=='contour_refined';
     context.save();context.setLineDash(approximate?[12,8]:[]);
-    context.beginPath();card.corners.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.strokeStyle=approximate?'#ffd166':'#80ffbc';context.lineWidth=5;context.stroke();context.restore();
+    context.beginPath();card.corners.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.strokeStyle=cut&&options.hints?'#ff8f8f':approximate?'#ffd166':'#80ffbc';context.lineWidth=5;context.stroke();context.restore();
+    const label=card.name||(cut&&options.hints?'Carta cortada por el borde: muévela dentro del cuadro':null);
+    if(!label)continue;
     const x=Math.max(0,Math.min(...card.corners.map(p=>p[0]))),y=Math.max(32,Math.min(...card.corners.map(p=>p[1]))-10);
-    context.font='bold 25px system-ui';context.fillStyle='#10141d';context.fillRect(x,y-29,context.measureText(card.name).width+16,36);context.fillStyle='#80ffbc';context.fillText(card.name,x+8,y);
+    context.font='bold 25px system-ui';context.fillStyle='#10141d';context.fillRect(x,y-29,context.measureText(label).width+16,36);context.fillStyle=cut&&!card.name?'#ff8f8f':'#80ffbc';context.fillText(label,x+8,y);
   }
 }
 
@@ -48,16 +119,18 @@ async function paintAnalysis(data,token=generation){
   if(ticket!==analysisPaint||token!==generation||paused){bitmap.close();return;}
   analysisFrame.width=bitmap.width;analysisFrame.height=bitmap.height;
   const context=analysisFrame.getContext('2d');context.drawImage(bitmap,0,0);bitmap.close();
-  // The AR layer belongs to the same analysis as `result`; compose it locally over the original JPEG.
-  if(ar.checked&&layer&&data===result)context.drawImage(layer,0,0,analysisFrame.width,analysisFrame.height);
+  // Sprites of the same analysis, warped here over the original JPEG.
+  drawSprites(context,(data.detections||[]).filter(d=>d.stable),analysisFrame.width,analysisFrame.height);
+  drawCards(context,(data.candidates||[]).filter(c=>!c.accepted&&c.geometry_status==='frame_edge'),{hints:true});
   drawCards(context,data.detections);
   analysisView.hidden=false;
-  document.querySelector('#analysisNames').textContent=(data.detections||[]).map(c=>c.name).join(' / ')||'Sin coincidencia aceptada';
+  const cut=(data.candidates||[]).filter(c=>!c.accepted&&c.geometry_status==='frame_edge').length;
+  document.querySelector('#analysisNames').textContent=((data.detections||[]).map(c=>c.name).join(' / ')||'Sin coincidencia aceptada')+(cut?` · ${cut} carta${cut>1?'s':''} cortada${cut>1?'s':''} por el borde del cuadro`:'');
 }
 ar.onchange=()=>{if(lastAnalysis)paintAnalysis(lastAnalysis).catch(()=>{});};
 
 function clearRecognition(){
-  generation++;analysisPaint++;result=null;resultAt=0;if(layer)layer.close();layer=null;qualityTracks=[];
+  generation++;analysisPaint++;result=null;resultAt=0;liveTracks=[];qualityTracks=[];
   passcodeMinCapturedAt=Date.now()/1000;
   document.querySelector('#passcodeCards').replaceChildren();
   document.querySelector('#passcodeStatus').textContent='Esperando un nuevo análisis.';
@@ -73,19 +146,24 @@ save.onclick=()=>{
 // Rendering and camera acquisition never wait for model inference.
 function draw(){
   const visibleResult=recognize.checked&&result&&performance.now()-resultAt<overlayMaxAge?result:null;
+  // Live tracks belong to the current frame; without them, fall back to the last analysis while it is fresh.
+  const tracks=recognize.checked&&liveTracks.length?liveTracks:null;
   // Camera delivery is ~5 fps. Repainting the same full-resolution bitmap at
   // display refresh rate wastes CPU; still redraw when an overlay expires.
-  if(!paused&&currentBitmap&&(renderedFrame!==frameNumber||renderedResult!==visibleResult||renderedAR!==ar.checked)){
+  if(!paused&&currentBitmap&&(renderedFrame!==frameNumber||renderedResult!==visibleResult||renderedAR!==ar.checked||renderedTracks!==tracks)){
     if(frame.width!==currentBitmap.width||frame.height!==currentBitmap.height){frame.width=currentBitmap.width;frame.height=currentBitmap.height;}
     ctx.drawImage(currentBitmap,0,0);
-    if(visibleResult){
-      if(ar.checked&&layer)ctx.drawImage(layer,0,0,frame.width,frame.height);
+    if(tracks){
+      drawSprites(ctx,tracks.filter(t=>t.stable),frame.width,frame.height);
+      drawCards(ctx,tracks);
+    }else if(visibleResult){
       ctx.save();ctx.scale(frame.width/(result.width||frame.width),frame.height/(result.height||frame.height));
+      drawSprites(ctx,(result.detections||[]).filter(d=>d.stable),result.width||frame.width,result.height||frame.height);
       drawCards(ctx,result.detections);
       ctx.restore();
     }
-    frame.dataset.frameNumber=String(frameNumber);
-    renderedFrame=frameNumber;renderedResult=visibleResult;renderedAR=ar.checked;
+    frame.dataset.frameNumber=String(frameNumber);frame.dataset.tracks=String(tracks?tracks.length:0);
+    renderedFrame=frameNumber;renderedResult=visibleResult;renderedAR=ar.checked;renderedTracks=tracks;
   }
   if(lastAnalysis&&!analysisView.hidden){
     const caption=`Fotograma solicitado hace ${Math.floor((performance.now()-lastAnalysisAt)/1000)} s · análisis ${Math.round(lastAnalysis.processing_ms)} ms · imagen de referencia, no vídeo en vivo`;
@@ -95,7 +173,8 @@ function draw(){
 }
 
 async function refreshCamera(){
-  let delay=200;const started=performance.now(),token=generation;
+  // The server serves a cached stream frame, so polling can run faster than the old 200 ms.
+  let delay=66;const started=performance.now(),token=generation;
   try{
     if(!paused){
       const response=await fetch('/snapshot?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(10000)});
@@ -104,10 +183,14 @@ async function refreshCamera(){
       if(paused||token!==generation){bitmap.close();return;}
       const timestamp=Number(response.headers.get('X-Captured-At'));
       frameCapturedAt=timestamp>0&&Number.isFinite(timestamp)?timestamp:(performance.timeOrigin+started)/1000;
+      let tracks=[];
+      try{tracks=JSON.parse(response.headers.get('X-Tracks')||'[]');}catch(e){tracks=[];}
       if(currentBitmap)currentBitmap.close();currentBitmap=bitmap;currentBlob=blob;
+      // Tracks belong to exactly this frame; identities in them were confirmed by an earlier analysis.
+      liveTracks=Array.isArray(tracks)?tracks.filter(t=>t.card_id&&t.corners?.length===4):[];
       frameAt=performance.now()-Math.max(0,Date.now()-frameCapturedAt*1000);frameNumber++;
       save.disabled=false;
-      status.textContent=`${offline?'Captura guardada':'Cámara en vivo'} · fotograma ${frameNumber} · ${Math.round(performance.now()-started)} ms`;
+      status.textContent=`${offline?'Captura guardada':'Cámara en vivo'} · fotograma ${frameNumber} · ${Math.round(performance.now()-started)} ms${liveTracks.length?` · ${liveTracks.length} carta${liveTracks.length>1?'s':''} seguida${liveTracks.length>1?'s':''}`:''}`;
     }
   }catch(e){
     if(token!==generation)return;
@@ -120,17 +203,16 @@ async function refreshCamera(){
 async function acceptAnalysis(data,token,sourceAt){
     if(paused||!recognize.checked||token!==generation||data.captured_at<passcodeMinCapturedAt)return;
     if(lastAnalysis?.captured_at>data.captured_at)return;
-    let bitmap=null;
-    if(data.ar_layer)bitmap=await createImageBitmap(await (await fetch(data.ar_layer)).blob());
-    if(paused||!recognize.checked||token!==generation||lastAnalysis?.captured_at>data.captured_at){bitmap?.close();return;}
-    if(layer)layer.close();layer=bitmap;result=data;resultAt=sourceAt;
+    for(const d of data.detections||[])if(d.sprite_url)sprites.get(d.sprite_url);
+    result=data;resultAt=sourceAt;
     lastAnalysis=data;lastAnalysisAt=sourceAt;
     await paintAnalysis(data,token);
     if(paused||!recognize.checked||token!==generation||lastAnalysis!==data)return;
     try{await paintQuality(data,sourceAt,token);}catch(e){document.querySelector('#qualityStatus').textContent='No se pudo preparar la comparación de reflejos.';}
     if(paused||!recognize.checked||token!==generation||lastAnalysis!==data)return;
-    const names=(data.detections||[]).map(c=>`${c.name}${c.track_id?` · objeto ${c.track_id}`:''} · ${c.stable?'confirmada':'detectada'}`).join(' / ');
-    detection.textContent=`Último análisis: ${names||'sin coincidencia aceptada'} · ${data.processing_ms} ms`;
+    const names=(data.detections||[]).map(c=>`${c.name}${c.track_id?` · objeto ${c.track_id}`:''} · ${c.stable?'confirmada':'detectada'}${c.acceptance==='art_verified'?' · por ilustración verificada':''}${c.identity_source==='track'?' · identidad conservada por seguimiento':''}`).join(' / ');
+    const cut=(data.candidates||[]).filter(c=>!c.accepted&&c.geometry_status==='frame_edge').length;
+    detection.textContent=`Último análisis: ${names||'sin coincidencia aceptada'} · ${data.processing_ms} ms${data.reused_cards?` · ${data.reused_cards} sin recodificar`:''}${cut?` · ${cut} carta${cut>1?'s':''} cortada${cut>1?'s':''} por el borde`:''}`;
     detection.dataset.completed=String(Number(detection.dataset.completed||0)+1);
 }
 
@@ -181,7 +263,7 @@ async function refreshRecognition(){
 fetch('/config').then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{
   offline=!!c.offline;
   document.querySelector('#source').textContent=offline?'Prueba con una captura guardada · no es vídeo en vivo':`Cámara: ${c.camera}`;
-  document.querySelector('#method').textContent=`${c.mode}${c.experimental?' · método experimental; umbrales todavía sin calibrar':''}. La cámara sigue en vivo. El resultado detallado conserva la imagen exacta analizada; las marcas antiguas sólo se retiran del vídeo en vivo.`;
+  document.querySelector('#method').textContent=`${c.mode}${c.experimental?' · método experimental; umbrales todavía sin calibrar':''}. La cámara sigue en vivo.${c.live_tracking?' Las cartas confirmadas se siguen entre análisis.':''}${c.stream?(c.stream.connected?' Vídeo por stream MJPEG.':' Stream MJPEG no disponible; sondeo de fotogramas.'):''}${c.inference?.isolated?' Inferencia en un proceso aparte con reinicio automático.':''} El resultado detallado conserva la imagen exacta analizada; las marcas antiguas sólo se retiran del vídeo en vivo.`;
   if(sharedAnalysis)document.querySelector('#method').textContent+=' Análisis compartido entre pestañas de este navegador.';
   ar.disabled=!c.ar;ar.checked=!!c.ar;recognize.disabled=!c.recognition;recognize.checked=!!c.recognition;
   detection.textContent=c.recognition?`${c.references} referencias cargadas.`:'Reconocimiento desactivado en el servidor.';configured=true;

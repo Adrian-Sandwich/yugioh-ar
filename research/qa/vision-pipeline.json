@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "scene": "research\\qa\\corner-refinement\\current.jpg",
+  "cards": 9,
+  "orientations_skipped": 1,
+  "max_batch_score_drift": 0.0117,
+  "batched_ms": 6400,
+  "plain_ms": 7993,
+  "note": "Timings observed once on a loaded PC; not a benchmark. Batched int8 scores drift from single-image scores by at most max_batch_score_drift on this scene.",
+  "checks": [
+    "same identities as two-orientation path",
+    "orientation skip bounded",
+    "track reuse without encode",
+    "no reuse without overlap",
+    "art promotion requires identity, overlap and freshness",
+    "promotion keeps score",
+    "empty index rejects",
+    "quad IoU"
+  ]
+}

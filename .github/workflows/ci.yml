@@ -1,0 +1,37 @@
+# Comprobaciones en cada push a main y en cada pull request. Sólo corre lo que
+# no necesita data/, downloads/, pesos ONNX ni un navegador: ver docs/CI.md.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # Misma versión que .venv-eval del proyecto (Python 3.14.x, Windows); los pins
+          # de requirements*.txt ya se probaron con ella.
+          python-version: "3.14"
+          cache: pip
+      - name: Dependencias mínimas de las pruebas sin datos
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy==2.5.3 opencv-python-headless==5.0.0.93 onnxruntime==1.30.0
+      - name: Compilación de todos los módulos
+        run: python -m compileall -q .
+      - name: Pruebas que corren sin datos ni modelos
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          mkdir -p research/qa
+          for t in qa_duel_engine.py qa_shared_snapshot.py qa_sprite_cache.py qa_live_tracking.py qa_camera_source.py \
+                   qa_pipeline_core.py qa_card_geometry.py qa_card_evidence.py qa_enroll_reference.py \
+                   qa_catalog_sync.py qa_curated_registry.py qa_download_watch.py qa_printing_art_links.py; do
+            echo "=== $t"; python -X utf8 "$t" || exit 1
+          done

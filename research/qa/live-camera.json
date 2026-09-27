@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "frames_while_first_inference_running": 8,
+  "frames_while_first_inference_running": 9,
   "checks": [
     "independent capture and inference",
     "no repeated repaint of unchanged frame",

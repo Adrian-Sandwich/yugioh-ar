@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "startup_s": 4.0,
+  "detections": 1,
+  "names": [
+    "Dragón Blanco de Ojos Azules"
+  ],
+  "checks": [
+    "child process serves analyses",
+    "reuse/verified context crosses the pipe",
+    "timeout kills and restarts the child",
+    "same result after restart"
+  ],
+  "note": "Startup time observed once; the child loads the ONNX models and the pilot index."
+}

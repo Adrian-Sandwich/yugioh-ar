@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "date": "2026-09-26",
+  "engine": "duel_engine.py",
+  "events_supported": [
+    "start_duel",
+    "draw",
+    "normal_summon",
+    "set_monster",
+    "special_summon",
+    "flip",
+    "change_position",
+    "activate_spell_trap",
+    "set_spell_trap",
+    "send_to_graveyard",
+    "banish",
+    "return_to_hand",
+    "declare_attack",
+    "resolve_battle",
+    "change_lp",
+    "next_phase",
+    "end_turn",
+    "surrender",
+    "observe"
+  ],
+  "scripted_duel": {
+    "turns": 4,
+    "events_logged": 43,
+    "final_lp": [
+      8000,
+      -300
+    ],
+    "result": {
+      "winner": 0,
+      "loser": 1,
+      "reason": "lp",
+      "turn": 4
+    },
+    "graveyards": [
+      [],
+      [
+        "t3",
+        "t4"
+      ]
+    ]
+  },
+  "checks": [
+    "turn 1: no draw, one normal summon, set trap, battle phase skipped",
+    "set trap activated on a later turn by its owner outside their turn",
+    "attack into a stronger attack-position monster: attacker destroyed, controller takes the difference",
+    "undo restores the position change",
+    "attack into a face-down defender: revealed at resolution, destroyed by ATK > DEF, no damage",
+    "direct attack when the opponent controls no monsters",
+    "LP at or below zero ends the duel; only observations are accepted afterwards",
+    "JSON round trip, deterministic replay, monotonic sequence numbers, tampered state rejected",
+    "deck-out on draw loses the duel",
+    "surrender",
+    "start_duel validation, unknown events and unknown parameters rejected",
+    "equal ATK: both destroyed, no damage",
+    "tribute summon frees the zone it lands on and uses the shared extra monster zone",
+    "field and pendulum zone flags, trap from hand rejected, graveyard/banish/hand moves",
+    "observation: unexplained card reported not summoned, per-zone latest discrepancy, identity never inferred face down"
+  ],
+  "limits": "Reglas estructurales sólo; sin efectos de cartas, cadenas ni prioridad. No probado en duelos reales ni conectado al reconocedor."
+}
