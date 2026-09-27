@@ -88,3 +88,16 @@ mesa que convierta las esquinas en una zona (`player`, `monster:n`, ...) y
 llame a `observe` por cada carta estable. Con el registro de `pending` el
 visor puede pedir al jugador que explique una carta nueva ("¿Invocación
 Normal o Especial?") en lugar de adivinarlo.
+
+## Mapa del tapete (27/09/2026)
+
+`playmat.py`, prueba `qa_playmat.py`. Cuatro esquinas por tapete (vistas desde
+su jugador) dan una homografía al cuadrado unitario; la plantilla es el tapete
+oficial de TCG de un jugador (fila superior campo, cinco monstruos y
+cementerio; inferior mazo extra, cinco magias/trampas y mazo) y las dos zonas
+de monstruo extra quedan fuera del tapete, entre los jugadores. La orientación
+se mide en milímetros del tapete (60 × 35 cm): vertical = ataque, horizontal =
+defensa; boca abajo lo decide quien vio el reverso. `ZoneTracker` sólo reporta
+una zona tras tres lecturas coincidentes y nunca emite eventos: sus
+observaciones van a `observe`. Configuración elegida: dos tapetes frente a
+frente. Falta conectarlo al visor (clics de calibración, panel del duelo).

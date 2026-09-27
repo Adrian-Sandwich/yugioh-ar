@@ -27,6 +27,13 @@ from identity_resolution import canonical
 ROOT=Path(__file__).resolve().parent
 MODELS=ROOT/'downloads/reference-assets/draw2/onnx'
 PILOT=ROOT/'data/pilot'
+# Reference scope: 'pilot' (the <=50 cards chosen in the catalog, default) or
+# 'full' (every catalog identity with a usable image, catalog.export_full into
+# data/full). Photos enrolled with enroll_reference.py live in the pilot folder
+# and join either scope.
+SCOPE=os.environ.get('YUGIOH_SCOPE','pilot').lower()
+if SCOPE not in ('pilot','full'): raise ValueError(f'YUGIOH_SCOPE={SCOPE!r}: use pilot or full')
+REFS=PILOT if SCOPE=='pilot' else ROOT/'data/full'
 # Acceptance rules per mode: (minimum top-1 score, minimum margin to the best
 # different identity). Embedding rule calibrated on 26/09/2026 against 1,336
 # TCGplayer scans of cards outside the pilot (0 false accepts down to 0.48/0.24)
@@ -79,10 +86,10 @@ def session(path,threads=None):
 
 
 def index_paths(variant=None):
-    """Pilot index files for an encoder variant; int8 keeps the historical names."""
+    """Index files of the current scope for an encoder variant; int8 keeps the historical names."""
     variant=variant or ENCODER_VARIANT
     stem='embeddings' if variant=='int8' else f'embeddings-{variant}'
-    return PILOT/f'{stem}.npy',PILOT/f'{stem}.json'
+    return REFS/f'{stem}.npy',REFS/f'{stem}.json'
 
 
 IMAGENET_MEAN=np.float32([.485,.456,.406]);IMAGENET_STD=np.float32([.229,.224,.225])
@@ -206,31 +213,38 @@ def crop(image,corners):
     return cv2.warpPerspective(image,matrix,(224,224))
 
 
-def reference_entries(catalog_path=PILOT/'catalog.json',enrolled_path=PILOT/'enrolled.json'):
-    """Pilot renders plus photographs of the owner's physical cards (enroll_reference.py)."""
+def reference_entries(catalog_path=REFS/'catalog.json',enrolled_path=PILOT/'enrolled.json'):
+    """Scope references plus photographs of the owner's physical cards (enroll_reference.py)."""
     entries=json.loads(Path(catalog_path).read_text(encoding='utf-8'))
     enrolled=json.loads(Path(enrolled_path).read_text(encoding='utf-8')) if Path(enrolled_path).exists() else []
     for entry in enrolled:
-        entry.setdefault('enrolled',True)
+        # Enrolled sources are relative to the pilot folder, whatever the scope.
+        entry.setdefault('enrolled',True);entry['base']=str(Path(enrolled_path).parent)
     return entries+enrolled
 
 
-def references_digest(catalog_path=PILOT/'catalog.json',enrolled_path=PILOT/'enrolled.json'):
+def references_digest(catalog_path=REFS/'catalog.json',enrolled_path=PILOT/'enrolled.json'):
     digest=hashlib.sha256(Path(catalog_path).read_bytes())
     if Path(enrolled_path).exists(): digest.update(Path(enrolled_path).read_bytes())
     return digest.hexdigest()
 
 
-def build_index(catalog_path=PILOT/'catalog.json',encoder=None):
+def build_index(catalog_path=REFS/'catalog.json',encoder=None):
     entries=reference_entries(catalog_path)
     encoder=encoder or Encoder();vectors=[];rows=[]
-    for i,entry in enumerate(entries):
-        path=(Path(catalog_path).parent/entry['source']).resolve()
-        image=cv2.imdecode(np.frombuffer(path.read_bytes(),np.uint8),cv2.IMREAD_COLOR)
-        _,z=encoder.predict(image,classify=False)
-        vectors.append(z);rows.append({'ref_id':entry['id'],'card_id':entry['card_id'],'artwork_id':entry.get('artwork_id'),
-            'image_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'enrolled':bool(entry.get('enrolled'))})
-        if (i+1)%10==0: print('INDEX',i+1,'/',len(entries),flush=True)
+    # Float encoders batch 32 references per run (lote/imagen drift 0.0001); int8
+    # keeps one run per reference so the historical index reproduces exactly.
+    step=1 if encoder.variant=='int8' else 32
+    for start in range(0,len(entries),step):
+        chunk=entries[start:start+step];images=[];data=[]
+        for entry in chunk:
+            path=(Path(entry.get('base') or Path(catalog_path).parent)/entry['source']).resolve()
+            data.append(path.read_bytes());images.append(cv2.imdecode(np.frombuffer(data[-1],np.uint8),cv2.IMREAD_COLOR))
+        for entry,raw,(_,z) in zip(chunk,data,encoder.predict_batch(images,classify=False)):
+            vectors.append(z);rows.append({'ref_id':entry['id'],'card_id':entry['card_id'],'artwork_id':entry.get('artwork_id'),
+                'image_sha256':hashlib.sha256(raw).hexdigest(),'enrolled':bool(entry.get('enrolled'))})
+        done=start+len(chunk)
+        if done%(10 if len(entries)<1000 else 1024)<len(chunk) or done==len(entries): print('INDEX',done,'/',len(entries),flush=True)
     out=Path(catalog_path).parent
     vectors_path,metadata_path=index_paths(encoder.variant)
     # Atomic replace: two viewers may rebuild after the same pilot change, and a
@@ -241,7 +255,7 @@ def build_index(catalog_path=PILOT/'catalog.json',encoder=None):
     (out/(metadata_path.name+suffix)).write_text(json.dumps({'rows':rows,'encoder_variant':encoder.variant,
         'model_sha256':hashlib.sha256(encoder.model_path.read_bytes()).hexdigest(),
         'catalog_sha256':references_digest(catalog_path),
-        'dimension':len(vectors[0]),'normalization':'L2','retrieval':'exact cosine','scope':'pilot plus enrolled photos; thresholds not calibrated'},indent=2))
+        'dimension':len(vectors[0]),'normalization':'L2','retrieval':'exact cosine','scope':f'{SCOPE} plus enrolled photos; thresholds not calibrated'},indent=2))
     os.replace(out/(metadata_path.name+suffix),out/metadata_path.name)
     print('INDEX DONE',len(rows),flush=True)
 
@@ -281,6 +295,9 @@ class ResearchRecognizer:
         for i in np.argsort(scores)[::-1]:
             row=self.rows[i]
             grouped.setdefault(row['card_id'],{**row,'score':float(scores[i])})
+            # Only the first five identities are returned: stop there (a full
+            # catalog has ~16k references, and this loop is Python).
+            if len(grouped)==5: break
         return list(grouped.values())[:5]
 
     def identify(self,rectified_crops):
@@ -397,7 +414,7 @@ class LiveRecognizer(ResearchRecognizer):
         self.outside_pilot={};self.outside_pilot_limit=2000
 
     def pilot_signature(self):
-        return tuple(p.stat().st_mtime_ns if p.exists() else None for p in (PILOT/'catalog.json',PILOT/'enrolled.json'))
+        return tuple(p.stat().st_mtime_ns if p.exists() else None for p in (REFS/'catalog.json',PILOT/'enrolled.json'))
 
     def load_references(self):
         self.signature=self.pilot_signature()

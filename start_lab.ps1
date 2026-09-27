@@ -1,4 +1,6 @@
-param([switch]$Live, [switch]$Gpu)
+param([switch]$Live, [switch]$Gpu, [switch]$Full)
+# -Full: reconocer todo el catálogo (data/full, catalog.export_full) en lugar del piloto.
+if ($Full) { $env:YUGIOH_SCOPE = 'full' }
 $projectRoot = $PSScriptRoot
 $runtimeDir = Join-Path $projectRoot '.runtime'
 New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null

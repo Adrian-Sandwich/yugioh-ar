@@ -94,6 +94,40 @@ def pilot_eligible(conn,card_id):
     return conn.execute('SELECT 1 FROM ('+EFFECTIVE+') r WHERE r.effective_card_id=? AND '+PILOT_REFS+' LIMIT 1',(card_id,)).fetchone() is not None
 
 
+def export_full(target=ROOT/'data/full'):
+    """Every identity the pilot could hold, one reference per artwork, in the pilot's
+    format, for recognizing the whole catalog (vision_onnx with YUGIOH_SCOPE=full).
+
+    Same filter and artwork rule as export_pilot; sprites are resolved with two
+    queries instead of two per reference (~16k references).
+    """
+    import os
+    init_reviews()
+    with connect() as conn:
+        available = [dict(r) for r in conn.execute('''SELECT c.id,c.name_en,c.name_es,c.category,r.ref_id,r.path,r.source_id,r.effective_artwork_id
+            FROM (''' + EFFECTIVE + ''') r CROSS JOIN cards c
+            WHERE c.id=r.effective_card_id AND ''' + PILOT_REFS + ''' ORDER BY r.width DESC,r.ref_id''')]
+        sprites = conn.execute("SELECT effective_card_id,source_id,ref_id FROM (" + EFFECTIVE + ") WHERE kind='sprite' AND effective_status IN ('linked','approved') ORDER BY ref_id").fetchall()
+    first_sprite, exact_sprite = {}, {}
+    for card, source, ref in sprites:
+        first_sprite.setdefault(card, ref); exact_sprite.setdefault((card, source), ref)
+    catalog, cards, seen = [], {}, set()
+    for ref in available:
+        key = ref['id']; art = ref['effective_artwork_id'] or ref['ref_id']
+        if (key, art) in seen:
+            continue
+        seen.add((key, art))
+        name = ref['name_es'] or ref['name_en']
+        cards.setdefault(key, {'card_id': key, 'name': name, 'category': ref['category']})
+        catalog.append({'id': ref['ref_id'], 'card_id': key, 'artwork_id': art, 'name': name,
+                        'source': os.path.relpath(ROOT / ref['path'], target).replace('\\', '/'),
+                        'sprite_ref': exact_sprite.get((key, ref['source_id'])) or first_sprite.get(key), 'category': ref['category']})
+    target.mkdir(parents=True, exist_ok=True)
+    (target/'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=1), encoding='utf-8')
+    (target/'selection.json').write_text(json.dumps(list(cards.values()), ensure_ascii=False, indent=1), encoding='utf-8')
+    return {'cards': len(cards), 'references': len(catalog)}
+
+
 def export_pilot(ids=None,max_artworks=None):
     """Only source-linked or human-approved references; never filename suggestions.
 

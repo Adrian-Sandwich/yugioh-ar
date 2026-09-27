@@ -79,3 +79,28 @@ GPU en vivo al 7 %: detector y encoder ya no limitan. Lo que queda es la
 geometría (~136 ms p50 en vivo aunque casi todo esté seguido, por la evidencia
 de fotograma completo). La salida es YOLO11-pose en GPU (experimento 5), que
 necesita las capturas anotadas del protocolo.
+
+## 27/09/2026: reconocer todo el catálogo en lugar del piloto
+
+`catalog.export_full()` escribe `data/full/` con todas las identidades que
+tienen una imagen utilizable (mismo filtro y regla de un arte por ilustración
+que el piloto): 14,278 identidades y 14,782 referencias, 7,219 con sprite. Con
+`YUGIOH_SCOPE=full` (o `start_lab.ps1 -Full`) el reconocedor usa ese índice; las
+fotos inscritas se suman en ambos alcances. Índice fp16 en GPU: 3.2 min (el
+índice de artes en CPU tardaba 73 min). `rank` corta al reunir cinco
+identidades en lugar de recorrer las 14,782 referencias en Python.
+
+| Medida | Piloto (50) | Catálogo completo (14,278) |
+|---|---|---|
+| Análisis de la escena de 9 cartas, p50 | 124 ms | 137 ms |
+| Top-1 en 4,000 escaneos TCGplayer estratificados por rareza | — | **99.3 %** |
+| Regla 0.50/0.25: aceptadas correctas / aceptadas equivocadas | — | **96.2 % / 0** |
+| Fotos reales de mesa (16 cartas anotadas) | 15 aceptadas, 0 mal | 16/16 top-1, 15 aceptadas, 0 mal |
+
+Informe: `qa/calibration-full-fp16/`. Los "negativos" aceptados (51 de 196) no
+son cartas ajenas: son identidades duplicadas del catálogo en sets recientes,
+una con el nombre TCG y sin imagen y otra con la traducción previa del OCG y
+con imagen ("Crackle Blitzclique" / "Crack Blitzclique", "Hideout in the Sky,
+Coulomb" / "Kowloon, Citadel of the Sky"): el reconocedor acierta la carta
+física. Queda pendiente unificarlas en el registro. Los 27 top-1 incorrectos
+se concentran en Starlight y Ultimate Rare y todos quedan bajo la regla.
