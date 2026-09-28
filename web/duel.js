@@ -523,7 +523,9 @@ function drawMonster(context,item,now){
   const card=boardCard(track.track_id),position=card?.position;
   if(position==='facedown_defense'||position==='facedown')return;
   const defense=position==='defense',seed=(Number(track.track_id)||0)*1.7;
-  let height=g.width*(defense?1.45:2.1);const width=height*img.width/img.height;
+  // Smaller than the card is long and floating over its centre: tall sprites standing on the
+  // card left the frame for cards near the top edge.
+  let height=g.width*(defense?.95:1.25);const width=height*img.width/img.height;
   let [x,y]=g.center,alpha=defense?.82:1;
   // Summon: rise out of the light pillar.
   const summon=effectOf('summon',track.track_id,now);
@@ -532,14 +534,16 @@ function drawMonster(context,item,now){
   const attack=effects.find(e=>e.kind==='attack'&&e.attacker===track.track_id&&now-e.start<e.duration);
   if(attack){const t=(now-attack.start)/attack.duration,k=t<.45?t/.45:t<.6?1:Math.max(0,1-(t-.6)/.4);x+=(attack.to[0]-x)*.75*k;y+=(attack.to[1]-y)*.75*k;}
   const bob=Math.sin(now/650+seed)*.035*height,sway=Math.sin(now/950+seed)*.035,breathe=1+Math.sin(now/520+seed)*.015;
-  context.save();context.globalAlpha=alpha;context.translate(x,y-bob);context.rotate(sway);context.scale(breathe,1/breathe);
-  context.drawImage(img,-width/2,-height,width,height);
+  // Sprite centre a little above the card centre, never above the top of the frame.
+  const lift=height*.12,top=Math.max(0,y-lift-bob-height/2);
+  context.save();context.globalAlpha=alpha;context.translate(x,top+height/2);context.rotate(sway);context.scale(breathe,1/breathe);
+  context.drawImage(img,-width/2,-height/2,width,height);
   context.restore();
   if(defense){
     // Blue shield at the base: this monster is in Defense Position.
     context.save();context.globalAlpha=.85;context.fillStyle='rgba(80,160,255,.35)';context.strokeStyle='#8ec5ff';context.lineWidth=Math.max(2,g.width/30);
     const s=g.width*.28,[cx,cy]=g.center;context.beginPath();
-    for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+s*Math.cos(a),cy-g.width*.35+s*Math.sin(a));}
+    for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+s*Math.cos(a),cy+g.width*.3+s*Math.sin(a));}
     context.closePath();context.fill();context.stroke();context.restore();
   }
 }
@@ -565,12 +569,12 @@ function drawEffects(context,now){
     const seen=lastSeen.get(e.copy);
     if(e.kind==='summon'&&seen){
       // Pillar of light and a ring spreading on the table.
-      const {g}=seen,[x,y]=g.center,h=g.width*2.2*(t<.3?t/.3:1),fade=t<.7?1:1-(t-.7)/.3;
+      const {g}=seen,[x,y]=g.center,h=Math.min(y,g.width*1.5)*(t<.3?t/.3:1),fade=t<.7?1:1-(t-.7)/.3;
       context.save();const grad=context.createLinearGradient(x,y,x,y-h);grad.addColorStop(0,`rgba(180,245,255,${.75*fade})`);grad.addColorStop(1,'rgba(180,245,255,0)');
       context.fillStyle=grad;context.fillRect(x-g.width*.45,y-h,g.width*.9,h);
       context.strokeStyle=`rgba(140,240,255,${fade})`;context.lineWidth=Math.max(2,g.width/20);planeEllipse(context,g.H,.6+1.6*t);context.stroke();
       context.fillStyle=`rgba(230,255,255,${fade})`;
-      for(let k=0;k<22;k++){const a=k*2.4,r=g.width*(.2+.5*((k*37)%10)/10),px=x+Math.cos(a)*r,py=y-g.width*3*((t*1.4+k/22)%1);context.fillRect(px,py,g.width/40+1,g.width/40+1);}
+      for(let k=0;k<22;k++){const a=k*2.4,r=g.width*(.2+.5*((k*37)%10)/10),px=x+Math.cos(a)*r,py=y-g.width*1.6*((t*1.4+k/22)%1);context.fillRect(px,py,g.width/40+1,g.width/40+1);}
       context.restore();
     }
     if(e.kind==='impact'){
@@ -581,11 +585,12 @@ function drawEffects(context,now){
     }
     if(e.kind==='destroy'&&e.image){
       // The monster breaks into pieces that fall and fade.
-      const {g}=e,[x,y]=g.center,height=g.width*2.1,width=height*e.image.width/e.image.height,n=5;
+      // Same size and place as drawMonster: centred a little above the card.
+      const {g}=e,height=g.width*1.25,width=height*e.image.width/e.image.height,n=5,x=g.center[0],y=Math.max(height/2,g.center[1]-height*.12);
       context.save();context.globalAlpha=1-t;
       for(let r=0;r<n;r++)for(let c=0;c<n;c++){
         const sx=e.image.width*c/n,sy=e.image.height*r/n,sw=e.image.width/n,sh=e.image.height/n;
-        const dx=(c-(n-1)/2)*g.width*.9*t,dy=-height+(r+.5)*height/n+(r-n)*g.width*.3*t+g.width*3*t*t;
+        const dx=(c-(n-1)/2)*g.width*.9*t,dy=-height/2+(r+.5)*height/n+(r-n)*g.width*.2*t+g.width*2*t*t;
         context.save();context.translate(x+dx,y+dy);context.rotate((c-r)*1.3*t);
         context.drawImage(e.image,sx,sy,sw,sh,-width/n/2,-height/n/2,width/n,height/n);context.restore();
       }

@@ -4,6 +4,7 @@
   "engine": "duel_engine.py",
   "events_supported": [
     "start_duel",
+    "retrack",
     "draw",
     "normal_summon",
     "set_monster",
@@ -65,6 +66,7 @@
     "flip summon of a set monster, revealed and followed under the camera's new track",
     "turned face-up by an effect: defense, no Flip Summon limits",
     "set Spell/Trap activated, revealed under a new track",
+    "retrack: the same card found again under a new track keeps everything else",
     "observation: unexplained card reported not summoned, per-zone latest discrepancy, identity never inferred face down"
   ],
   "limits": "Reglas estructurales sólo; sin efectos de cartas, cadenas ni prioridad. No probado en duelos reales ni conectado al reconocedor."

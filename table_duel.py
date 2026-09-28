@@ -239,6 +239,7 @@ class TableDuel:
                 try: self.duel.observe(obs['player'], obs['zone'], obs['copy_id'], obs['card_id'], obs['position'])
                 except DuelError: continue
                 self._save()
+            self._retrack()
             carried = self._gesture(tracks)
             if self.auto:
                 import time
@@ -259,9 +260,22 @@ class TableDuel:
                 self.first_seen = {k: t for k, t in self.first_seen.items() if k in keys}
             return observations
 
+    def _retrack(self):
+        """The same face-up card seen again in its zone under a new track (the tracker lost it for a
+        moment): follow it with the new copy_id instead of asking. Bookkeeping only, even with
+        automatic plays off."""
+        for p in list(self.duel.state['pending']):
+            if p.get('kind') != 'different_copy' or p.get('known_at') is not None or not p.get('card_id'): continue
+            known = self._model_card(p['player'], p['zone'])
+            if not known or known['position'] in ('facedown', 'facedown_defense') or known.get('card_id') != p['card_id']: continue
+            try: self.duel.apply({'type': 'retrack', 'player': p['player'], 'zone': p['zone'], 'copy_id': p['copy_id']})
+            except DuelError: continue
+            self._save()
+
     # --- automatic plays --------------------------------------------------------
     def _facts(self, pending):
-        card_id = pending.get('card_id') or self.cards.get(pending.get('copy_id'))
+        # A card that left its zone is known by the track it had there (expected_copy).
+        card_id = pending.get('card_id') or self.cards.get(pending.get('copy_id')) or self.cards.get(pending.get('expected_copy'))
         return (self.sheet(card_id) if self.sheet and card_id else None) or {}
 
     def _plays(self, p):
@@ -426,6 +440,10 @@ class TableDuel:
     def _auto_play(self, pending):
         import time
         facts = self._facts(pending); plays = self._plays(pending)
+        # The card that was in the zone, before the play moves it (its name after a restart,
+        # when the track's card_id is no longer known).
+        was = self._model_card(pending['player'], pending['zone']) if pending.get('kind') == 'missing' else None
+        was_name = (was or {}).get('name') or ('carta boca abajo' if (was or {}).get('position') in ('facedown', 'facedown_defense') else None)
         for n, (event, label) in enumerate(plays):
             event = dict(event); reclaim = event.pop('_reclaim', []); used = event.pop('_with', None)
             saved = list(self.duel.log); start = len(saved)
@@ -443,7 +461,7 @@ class TableDuel:
             except DuelError:
                 self.duel = Duel.replay(saved); continue
             self.recent = [r for r in self.recent if r not in reclaim]
-            name = facts.get('name') or 'carta'
+            name = facts.get('name') or was_name or 'carta'
             options = ACTIONS.get((pending.get('kind'), family(pending['zone']))) or ACTIONS.get((pending.get('kind'), 'any')) or []
             if pending['zone'].startswith('extra_monster:') or any(w in (facts.get('line') or '') for w in EXTRA_DECK_WORDS):
                 options = [o for o in options if o[0] == 'special_summon']

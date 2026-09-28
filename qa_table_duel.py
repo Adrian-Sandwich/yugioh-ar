@@ -142,6 +142,13 @@ def main():
         feed(auto, [k1, dm])   # undone play does not come back by itself: it waits as a question
         assert not any(c['name'] == 'Mago Oscuro' for c in auto.view()['board']) and any(q['zone'] == 'monster:3' for q in auto.view()['questions'])
         checks.append('Special Summon when the Normal Summon is used; undo keeps it as a question')
+        # The tracker loses Kuriboh and finds it again as another track: same card, no question.
+        k1 = track(auto, 0, 7, 'kuriboh', *center('monster:1'))
+        events = len(auto.duel.log); feed(auto, [k1, dm])
+        view = auto.view(); card = next(c for c in view['board'] if c['zone'] == 'monster:1')
+        assert card['copy_id'] == 7 and not any(q['zone'] == 'monster:1' for q in view['questions']), (card, view['questions'])
+        assert [e['type'] for e in auto.duel.log[events:]] == ['observe', 'retrack'], auto.duel.log[events:]
+        checks.append('same card found again under a new track: followed silently (retrack)')
         # A hand over Kuriboh for a moment does not send it to the Graveyard.
         feed(auto, [dm])
         assert any(c['name'] == 'Kuriboh' for c in auto.view()['board'])
@@ -149,7 +156,7 @@ def main():
         view = auto.view(); assert not any(c['name'] == 'Kuriboh' for c in view['board']) and view['players'][0]['graveyard'] == 1, view['board']
         checks.append('a card gone briefly stays; gone for 3 s goes to the Graveyard')
         assert [c['name'] for c in view['players'][0]['graveyard_cards']] == ['Kuriboh'], view['players'][0]
-        assert view['recent'][0]['card_id'] == 'kuriboh', view['recent'][0]
+        assert view['recent'][0]['card_id'] == 'kuriboh' and view['recent'][0]['text'].startswith('Al Cementerio: Kuriboh'), view['recent'][0]
         checks.append('Graveyard contents with names; plays carry their card')
         # Phase buttons: jump to End Phase (turn 1 has no Battle Phase) and end the turn from anywhere.
         try: auto.act({'type': 'goto_phase', 'phase': 'battle'}); raise AssertionError('battle on turn 1')

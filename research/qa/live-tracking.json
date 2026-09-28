@@ -3,7 +3,7 @@
   "frames": 28,
   "max_corner_error_px": 1.12,
   "replay_error_px": 0.3,
-  "last_update_ms": 1.1,
+  "last_update_ms": 1.0,
   "checks": [
     "no tracks before analysis",
     "late analysis replayed to newest frame",

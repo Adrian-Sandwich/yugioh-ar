@@ -453,7 +453,20 @@ def _h_observe(st,player,zone,copy_id=None,card_id=None,position=None):
     return {'status':status,'notes':notes,'pending':len(st['pending'])}
 
 
-HANDLERS={'start_duel':_h_start_duel,'draw':_h_draw,'normal_summon':_h_normal_summon,'set_monster':_h_set_monster,
+def _h_retrack(st,player,zone,copy_id):
+    """La cámara perdió la pista de una carta y la volvió a encontrar con otro copy_id: misma
+    carta, misma zona. Sólo cambia el copy_id; nada del duelo se mueve."""
+    slot,i=_slot(st,player,zone);card=slot[i]
+    _need(card is not None,f'La zona {zone} del jugador {player} está vacía')
+    old=card['copy_id'];_as_copy(st,card,copy_id);_clear_pending(st,_key(player,zone))
+    pa=st['pending_attack']
+    if pa:
+        for k in ('attacker','target'):
+            if pa.get(k)==old: pa[k]=card['copy_id']
+    return {'from':old,'copy_id':card['copy_id'],'zone':zone}
+
+
+HANDLERS={'start_duel':_h_start_duel,'retrack':_h_retrack,'draw':_h_draw,'normal_summon':_h_normal_summon,'set_monster':_h_set_monster,
     'special_summon':_h_special_summon,'flip':_h_flip,'change_position':_h_change_position,
     'activate_spell_trap':_h_activate_spell_trap,'set_spell_trap':_h_set_spell_trap,'send_to_graveyard':_h_send_to_graveyard,
     'banish':_h_banish,'return_to_hand':_h_return_to_hand,'declare_attack':_h_declare_attack,'resolve_battle':_h_resolve_battle,
@@ -476,7 +489,7 @@ class Duel:
         working=copy.deepcopy(self.state)
         if kind!='start_duel':
             _need(working['started'],'El duelo no ha empezado')
-            if kind!='observe': _need(working['result'] is None,'El duelo ha terminado')
+            if kind not in ('observe','retrack'): _need(working['result'] is None,'El duelo ha terminado')
         try: result=handler(working,**params)
         except TypeError as error: raise DuelError(f'Parámetros inválidos para {kind}: {error}') from None
         if kind!='observe': _check_end(working)

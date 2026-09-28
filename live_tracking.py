@@ -46,7 +46,9 @@ class LiveTracker:
     def __init__(self,width=640,history=45,min_inliers=8,max_silent_s=2.5,max_load=.5):
         self.lock=threading.Lock();self.width=width;self.min_inliers=min_inliers;self.max_silent_s=max_silent_s;self.max_load=max_load
         self.frames=deque(maxlen=history)  # (captured_at, grey, scale)
-        self.tracks={};self.next_id=1;self.frame_count=0;self.skipped=0;self.last_update_ms=0.;self.next_allowed=0.
+        # Track ids become the duel's copy_ids and the duel survives restarts: start each run
+        # at a new number (milliseconds) so a fresh track never reuses a card's id from the saved duel.
+        self.tracks={};self.next_id=int(time.time()*1000);self.frame_count=0;self.skipped=0;self.last_update_ms=0.;self.next_allowed=0.
 
     # --- frames ---------------------------------------------------------------
     def decode(self,jpeg):

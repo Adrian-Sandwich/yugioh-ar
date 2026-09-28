@@ -219,6 +219,12 @@ def facedown_and_flip():
     c=d.state['players'][0]['spell'][1];assert c['copy_id']=='face2' and c['card_id']=='s' and c['position']=='faceup'
     assert Duel.from_json(d.to_json()).snapshot()==d.snapshot()
     check('set Spell/Trap activated, revealed under a new track')
+    d.observe(0,'spell:1',copy_id='again',card_id='s',position='faceup')
+    r=d.apply({'type':'retrack','player':0,'zone':'spell:1','copy_id':'again'})
+    assert r['from']=='face2' and d.state['players'][0]['spell'][1]['copy_id']=='again' and d.discrepancies()==[]
+    rejected(d,{'type':'retrack','player':0,'zone':'spell:4','copy_id':'x'},'vacía')
+    rejected(d,{'type':'retrack','player':0,'zone':'spell:1','copy_id':'face1'},'ya está en el modelo')
+    check('retrack: the same card found again under a new track keeps everything else')
 
 
 def observation_reconciliation():
@@ -253,7 +259,7 @@ def observation_reconciliation():
 
 
 def main():
-    assert len(EVENTS)==19
+    assert len(EVENTS)==20
     d=scripted_duel()
     json_roundtrip(d)
     deck_out_and_surrender()
