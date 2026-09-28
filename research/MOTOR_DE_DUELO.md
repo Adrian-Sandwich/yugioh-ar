@@ -146,8 +146,31 @@ impresa); las zonas de pila (Cementerio, Mazo, Mazo Extra, Desterradas) más
 tenues. Con un tablero puesto, sólo se muestran las cartas cuyo centro cae en
 una zona del campo (Monstruo, Magia/Trampa, Campo, Monstruo Extra): una carta
 en la mano, fuera del tablero o boca arriba en una pila no lleva marca, nombre
-ni monstruo, y el contador de arriba cuenta sólo las del campo. El reconocedor
-sigue analizando todo el fotograma; el filtro es de la vista. El panel muestra
+ni monstruo, y el contador de arriba cuenta sólo las del campo. Además el
+reconocedor recibe los polígonos de esas zonas (`TableDuel.field_regions`,
+`regions` en `analyze_jpeg`): las cajas cuyo centro queda fuera no pasan por
+geometría ni encoder (`outside_regions` las cuenta). Sin tablero se analiza
+todo, como en el visor de diagnóstico.
+
+## ygopro-core (revisado el 27/09/2026)
+
+`Fluorohydride/ygopro-core`: licencia MIT, C++ con Lua, activo (último push
+26/09/2026). Es el motor completo de YGOPro: el anfitrión carga los mazos
+enteros con `new_card`, llama a `process()` en bucle y responde a los mensajes
+que piden decisiones (`get_message`, `set_responsei/b`); cadenas, ventanas de
+activación, Damage Step y costos los resuelve él. Los efectos viven en
+`ygopro-scripts` (unos 13 mil scripts Lua, GPL-2.0) y los datos en `cards.cdb`.
+
+No encaja hoy con cartas físicas: el motor es dueño de la información oculta
+y del azar (orden del mazo, robos), y una mesa real roba otras cartas. Las
+opciones realistas, para más adelante: (1) consultor de reglas "en espejo",
+reconstruyendo el tablero visible y la mano declarada con la API de puzzles
+(`Debug.AddCard`, `Debug.ReloadFieldBegin/End` en `libdebug.cpp`) para
+preguntar qué acciones son legales o qué puede responder el rival; exige
+compilar el núcleo con Lua para Windows, un envoltorio (ctypes) y leer su
+protocolo binario de mensajes; (2) sólo sus datos (`cards.cdb` de
+ygopro-database) para arquetipos, categorías y tipos. Los scripts GPL se
+descargarían aparte, fuera del repositorio MIT. El panel muestra
 "Últimas jugadas" (tres) y "Preguntas" sólo cuando hay; LP, robar, deshacer y
 la lista del campo quedan plegados, y los ajustes del tablero se pliegan solos
 al fijarlo.

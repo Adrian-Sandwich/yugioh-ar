@@ -319,7 +319,10 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
             from vision_onnx import REUSE_MAX_AGE_S
             reuse=live.reuse_candidates(captured_at,REUSE_MAX_AGE_S) if live else ()
             verified=worker.verified() if worker and hasattr(worker,'verified') else ()
-            result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified)
+            # With a duel board set, cards outside its field zones are not analysed at all.
+            table=getattr(server,'table',None)
+            regions=table.field_regions() if table is not None else None
+            result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified,regions=regions)
         else:
             result=recognizer.analyze_jpeg(data)
         result['detections']=[normalize_detection(d) for d in result['detections']]

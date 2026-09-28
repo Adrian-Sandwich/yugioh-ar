@@ -315,11 +315,17 @@ class ResearchRecognizer:
             pending=[i for i in pending if options[i][0][0]<ORIENTATION_SKIP_SCORE]
         return [max(o,key=lambda x:x[0]) for o in options]
 
-    def detect(self,image,reuse=()):
+    def detect(self,image,reuse=(),regions=None):
+        """`regions`: image polygons of the duel board's field zones. Boxes whose centre falls
+        outside all of them (a hand, the Graveyard, the table) skip geometry and encoding."""
         started=time.perf_counter();result=[]
         # Frame-wide edge evidence does not depend on the boxes: extract it while the detector runs.
         evidence=EVIDENCE.submit(GeometryRefiner,image)
-        boxes=self.detector.detect(image)
+        boxes=self.detector.detect(image);outside=0
+        if regions:
+            polygons=[np.float32(r).reshape(-1,1,2) for r in regions]
+            inside=[b for b in boxes if any(cv2.pointPolygonTest(p,tuple(map(float,np.float32(b['corners']).mean(0))),False)>=0 for p in polygons)]
+            outside=len(boxes)-len(inside);boxes=inside
         geometry_started=time.perf_counter()
         # A box over a fresh, stable track takes the tracker's corners: the tracker
         # follows them at video rate (2-5 px) and refining a static card again cost
@@ -380,7 +386,7 @@ class ResearchRecognizer:
                            'identity_source':'embedding' if self.mode=='embedding' else 'classifier',
                            'acceptance':'score' if accepted else None})
         return {'detections':result,'processing_ms':round((time.perf_counter()-started)*1000,1),'mode':self.mode,
-                'experimental_thresholds':True,'geometry_ms':geometry_ms,'encoded_cards':encoded,'reused_cards':len(reused)}
+                'experimental_thresholds':True,'geometry_ms':geometry_ms,'encoded_cards':encoded,'reused_cards':len(reused),'outside_regions':outside}
 
 
 def promote_by_art(candidates,verified,now=None):
@@ -453,11 +459,11 @@ class LiveRecognizer(ResearchRecognizer):
         return {**candidate,'id':matching.get('id','model:'+candidate['card_id']),'name':entry['name'],'artwork_id':matching.get('artwork_id'),
                 'sprite_ref':matching.get('sprite_ref'),'experimental':True}
 
-    def analyze_jpeg(self,data,reuse=(),verified=()):
+    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None):
         image=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR)
         if image is None: raise ValueError('Invalid JPEG')
         reloaded=self.refresh_pilot()
-        result=self.detect(image,reuse=reuse)
+        result=self.detect(image,reuse=reuse,regions=regions)
         result['pilot_reloaded']=reloaded
         result['candidates']=result['detections']
         result['art_promoted']=promote_by_art(result['candidates'],verified)

@@ -75,6 +75,10 @@ def main():
     failed=sum(s=='unresolved' for _,s in first)
     assert all(snap for snap,_ in first) and sum(not snap for snap,_ in second)==failed,(first,second)
     model.unresolved=[]
+    # Duel board regions: only boxes whose centre is inside a field zone are analysed.
+    only=model.detect(image,regions=[boxes[0]['corners'].tolist()])
+    assert len(only['detections'])==1 and only['outside_regions']==len(boxes)-1 and only['encoded_cards']<=1,only['outside_regions']
+    assert model.detect(image,regions=None)['outside_regions']==0
     # No overlap: the track is ignored.
     far=[{**tracks[0],'corners':[[0,0],[10,0],[10,14],[0,14]]}]
     assert model.detect(image,reuse=far)['reused_cards']==0

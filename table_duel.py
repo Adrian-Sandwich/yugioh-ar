@@ -151,6 +151,14 @@ class TableDuel:
             self.mats = [m for m, _ in sorted(self.found.values(), key=lambda v: v[0].player)]
             self.tracker.mats = self.mats
 
+    def field_regions(self):
+        """Image polygons of the field zones (Monster, Spell & Trap, Field, Extra Monster) of the
+        current board, or None without a board: the recognizer skips cards outside them."""
+        with self.lock:
+            if not self.mats: return None
+            return [mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).tolist()
+                    for mat in self.mats for name, x0, y0, x1, y1 in mat.layout if family(name) in ('monster', 'spell')]
+
     def overlay(self, mats=None):
         """Zone outlines in image pixels, for drawing over the video (`mats`: a preview instead of the saved ones)."""
         with self.lock:
