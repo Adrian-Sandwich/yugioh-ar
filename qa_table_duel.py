@@ -274,6 +274,17 @@ def main():
         for _ in range(3): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
         view = f.view(); assert view['questions'] == [] and {c['copy_id'] for c in view['board']} >= {back_id}, view
         checks.append('a hand over a face-down card keeps it (same back id)')
+        # Covered for longer than the grace (a misreading, a hand): it goes to the Graveyard on its own...
+        for _ in range(4): f.feed([], backs=backs('0|spell:1'))
+        settle(f, [])
+        assert f.view()['players'][0]['graveyard'] == 1, f.view()['players'][0]
+        # ...and when the same back is seen again, that play is undone: it never left.
+        for _ in range(4): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
+        view = f.view(); card = next((c for c in view['board'] if c['zone'] == 'monster:0'), None)
+        assert card and card['position'] == 'facedown_defense' and card['copy_id'] == back_id and view['players'][0]['graveyard'] == 0, (card, view['players'][0])
+        assert view['questions'] == [], view['questions']
+        assert not any('desde el Cementerio' in r['text'] for r in view['recent']), view['recent']
+        checks.append('a face-down card sent to the Graveyard by mistake comes back face-down (the play is undone, not a revival)')
         f.act({'type': 'end_turn'}); f.act({'type': 'end_turn'})
         face = track(f, 0, 40, 'kuriboh', *center('monster:0'))
         for _ in range(3): f.feed([face], backs=backs('0|spell:1'))

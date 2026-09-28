@@ -30,6 +30,9 @@ INDEX = FOLDER / 'backs.json'
 OFFICIAL = [('official-ygoprodeck.jpg', 'https://images.ygoprodeck.com/images/cards/back_high.jpg'),
             ('official-yugipedia.png', 'https://ms.yugipedia.com//e/e5/Back-EN.png')]
 THRESHOLD = .45
+# A back this clear wins over a face the recogniser accepted in the same zone (vision_onnx):
+# face-up cards score <= 0.15 against the backs, taught and official backs 0.75-0.999.
+STRONG = .75
 SIZE = 224
 
 

@@ -815,7 +815,10 @@ function drawStage(context,tracks,now){
   const dt=lastFrame?Math.min(64,now-lastFrame):16;lastFrame=now;stepParticles(dt);
   // Every card on the field is remembered (activation effects need its place, sprite or not).
   for(const t of tracks)if(t.corners?.length===4)lastSeen.set(t.track_id,{g:geometry(t),sprite_ref:t.sprite_ref,name:t.name,kind:kindOf(t),rival:boardCard(t.track_id)?.controller===1});
-  const items=tracks.filter(t=>t.sprite_ref&&t.corners?.length===4).map(track=>({track,g:geometry(track)}));
+  // During a duel a figure appears only once its card is in the duel: the camera sees a card a
+  // few seconds before the play is recorded, and the entrance effect is what brings it in.
+  const inDuel=duelView?.started&&!duelView.result;
+  const items=tracks.filter(t=>t.sprite_ref&&t.corners?.length===4&&(!inDuel||boardCard(t.track_id))).map(track=>({track,g:geometry(track)}));
   const [sx,sy]=shakeOffset(now);context.save();context.translate(sx,sy);
   for(const {track,g} of items){
     const card=boardCard(track.track_id);if(card?.position==='facedown_defense'||card?.position==='facedown')continue;

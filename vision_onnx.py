@@ -476,11 +476,22 @@ class LiveRecognizer(ResearchRecognizer):
         if back_zones and self.mode=='embedding':
             from card_backs import BackChecker,THRESHOLD
             if getattr(self,'backs',None) is None: self.backs=BackChecker(self.encoder)
+            from card_backs import STRONG
             started=time.perf_counter()
-            # Only a recognised face counts as occupied: the detector sometimes boxes a back too, with no identity.
-            scores=self.backs.check(image,back_zones,occupied=[np.float32(d['corners']).mean(0) for d in result['detections'] if d.get('accepted')])
-            result['backs']=[s for s in scores if s['score']>=THRESHOLD];result['back_scores']=scores
-            result['backs_ms']=round((time.perf_counter()-started)*1000,1)
+            # Every zone is scored. A face-up card scores <= 0.15 against the backs, so a strong back
+            # score means a back even when the recogniser "accepted" a face there: on 28/09/2026 a
+            # set card was read as Salamangreat Almiraj for seconds, the zone looked empty and the
+            # duel sent the set monster to the Graveyard. Weak back scores still yield to a face.
+            scores=self.backs.check(image,back_zones)
+            polygons={z['id']:np.float32(z['polygon']).reshape(-1,1,2) for z in back_zones}
+            inside=lambda d,zid:cv2.pointPolygonTest(polygons[zid],tuple(map(float,np.float32(d['corners']).mean(0))),False)>=0
+            strong={s['id'] for s in scores if s['score']>=STRONG}
+            for d in result['detections']:
+                if d.get('accepted') and any(inside(d,zid) for zid in strong):
+                    d.update(accepted=False,acceptance=None,rejected_as='card_back')
+            faces=[d for d in result['detections'] if d.get('accepted')]
+            result['backs']=[s for s in scores if s['id'] in strong or (s['score']>=THRESHOLD and not any(inside(d,s['id']) for d in faces))]
+            result['back_scores']=scores;result['backs_ms']=round((time.perf_counter()-started)*1000,1)
         result['pilot_reloaded']=reloaded
         result['candidates']=result['detections']
         result['art_promoted']=promote_by_art(result['candidates'],verified)

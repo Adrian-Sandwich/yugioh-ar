@@ -256,9 +256,24 @@ class TableDuel:
                     # A hand over a card also empties its zone for a moment: a card only
                     # "left the field" after MISSING_GRACE_S without it.
                     if pending.get('kind') == 'missing' and now - first < MISSING_GRACE_S: continue
-                    self.tried.add(key); self._auto_play(pending)
+                    self.tried.add(key)
+                    if not self._came_back(pending): self._auto_play(pending)
                 self.first_seen = {k: t for k, t in self.first_seen.items() if k in keys}
             return observations
+
+    def _came_back(self, pending):
+        """A card the table sent to the Graveyard (or banished) on its own is seen again in the zone it
+        left, under the same track: it never left (a hand, a misreading covered it for a few seconds).
+        Undo that automatic play instead of reading it as a card coming back from its pile."""
+        if pending.get('kind') != 'moved' or (pending.get('known_at') or {}).get('zone') not in ('graveyard', 'banished'):
+            return False
+        play = next((r for r in self.recent if (r.get('event') or {}).get('type') in ('send_to_graveyard', 'banish')
+                     and r['event'].get('copy_id') == pending.get('copy_id') and r['pending']['zone'] == pending['zone']), None)
+        if play is None or any(r['start'] > play['start'] for r in self.recent):
+            return False
+        try: self.revise(play['id'])
+        except (ValueError, DuelError): return False
+        return True
 
     def _retrack(self):
         """The same face-up card seen again in its zone under a new track (the tracker lost it for a
@@ -283,7 +298,7 @@ class TableDuel:
         fam, kind, pos, facts = family(p['zone']), p.get('kind'), p.get('position'), self._facts(p)
         line, level, ctype = facts.get('line') or '', facts.get('level'), facts.get('card_type')
         base = {'player': p['player'], 'zone': p['zone'], 'copy_id': p.get('copy_id'), 'card_id': p.get('card_id')}
-        if kind == 'moved' and fam == 'monster' and (p.get('known_at') or {}).get('zone') in ('graveyard', 'banished'):
+        if kind == 'moved' and fam == 'monster' and pos in ('attack', 'defense') and (p.get('known_at') or {}).get('zone') in ('graveyard', 'banished'):
             source = p['known_at']['zone']   # the same tracked card came back from its pile
             return [({**base, 'type': 'special_summon', 'position': pos if pos in ('attack', 'defense') else 'attack', 'source': source},
                      'Invocación Especial desde el ' + ('Cementerio' if source == 'graveyard' else 'destierro'))]
