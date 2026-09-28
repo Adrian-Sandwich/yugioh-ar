@@ -159,6 +159,15 @@ class Handler(BaseHTTPRequestHandler):
                     import subprocess,sys
                     subprocess.run([sys.executable,str(ROOT/'playmat_print.py')],cwd=ROOT,check=True,capture_output=True)
                 self.reply(200,path.read_bytes(),'application/pdf' if name.endswith('.pdf') else 'image/png')
+            elif route == '/duel/history':
+                table=getattr(self.server,'table',None)
+                self.reply(200,json.dumps(table.history() if table else [],ensure_ascii=False).encode(),'application/json; charset=utf-8')
+            elif route == '/card-image':
+                # Card picture for the duel view's "Carta en juego" panel (best linked image, 360 px wide).
+                query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
+                data=card_image(query.get('id',''))
+                if data is None: self.reply(404,b'No image','text/plain')
+                else: self.reply(200,data,'image/jpeg')
             elif route in ('/playmat','/duel'):
                 table=getattr(self.server,'table',None)
                 if table is None: return self.reply(404,b'Duel disabled (live camera only)','text/plain')
@@ -266,6 +275,24 @@ class Handler(BaseHTTPRequestHandler):
 
     def get_snapshot_record(self):
         return snapshot_record(self.server)
+
+
+from functools import lru_cache
+
+
+@lru_cache(maxsize=256)
+def card_image(card_id):
+    """JPEG of the widest linked or approved card image of an identity, 360 px wide, or None."""
+    if not card_id: return None
+    import cv2,numpy as np
+    from catalog import connect,EFFECTIVE,PILOT_REFS,asset_path
+    with connect() as conn:
+        row=conn.execute('SELECT r.* FROM ('+EFFECTIVE+') r WHERE r.effective_card_id=? AND '+PILOT_REFS+' ORDER BY r.width DESC LIMIT 1',(card_id,)).fetchone()
+    if row is None: return None
+    image=cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_COLOR)
+    if image is None: return None
+    image=cv2.resize(image,(360,round(image.shape[0]*360/image.shape[1])),interpolation=cv2.INTER_AREA)
+    return cv2.imencode('.jpg',image,[cv2.IMWRITE_JPEG_QUALITY,88])[1].tobytes()
 
 
 def snapshot_record(server):

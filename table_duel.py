@@ -265,7 +265,8 @@ class TableDuel:
                 self._rollback(start); continue
             name = facts.get('name') or 'carta'
             options = ACTIONS.get((pending.get('kind'), family(pending['zone']))) or ACTIONS.get((pending.get('kind'), 'any')) or []
-            self.recent.insert(0, {'id': f'{start}-{len(self.duel.log)}', 'start': start, 'text': f"{label}: {name} ({zone_label(pending['zone'])}, {self.duel.state['players'][pending['player']]['name']})",
+            card_id = pending.get('card_id') or self.cards.get(pending.get('copy_id')) or self.cards.get(pending.get('expected_copy'))
+            self.recent.insert(0, {'id': f'{start}-{len(self.duel.log)}', 'start': start, 'card_id': card_id, 'text': f"{label}: {name} ({zone_label(pending['zone'])}, {self.duel.state['players'][pending['player']]['name']})",
                                    'pending': pending, 'alternatives': [{'type': t, 'label': l} for t, l in options if t != event['type']]})
             del self.recent[8:]
             self._save()
@@ -355,7 +356,8 @@ class TableDuel:
                 if kind in ('set_monster', 'set_spell_trap'): spec['card_id'] = None  # face-down: identity stays hidden
                 event['card'] = spec
             if kind == 'reset':
-                self.duel = Duel(); self.observed.clear(); self.missing.clear(); self.recent.clear(); self.tried.clear(); self._save(); return {'reset': True}
+                archived = self.archive()
+                self.duel = Duel(); self.observed.clear(); self.missing.clear(); self.recent.clear(); self.tried.clear(); self._save(); return {'reset': True, 'archived': archived}
             if kind == 'undo':
                 self.duel.undo(); self.observed.clear()
                 self.recent = [r for r in self.recent if r['start'] < len(self.duel.log)]
@@ -368,6 +370,31 @@ class TableDuel:
                     if signature is not None and key[1] == event.get('zone'): del self.observed[key]
             self._save()
             return result
+
+    def archive(self):
+        """Keep a finished or abandoned duel in history/ before starting another (full log, replayable)."""
+        import time
+        st = self.duel.state
+        if not st['started']: return None
+        names = [p['name'] for p in st['players']]
+        stamp = time.strftime('%Y%m%d-%H%M%S')
+        path = self.folder / 'history' / f'{stamp}.json'; path.parent.mkdir(parents=True, exist_ok=True)
+        winner = st['result']['winner'] if st['result'] else None
+        path.write_text(json.dumps({'saved_at': time.strftime('%Y-%m-%dT%H:%M:%S'), 'players': names, 'winner': winner,
+                                    'reason': (st['result'] or {}).get('reason'), 'turns': st['turn'], 'lp': [p['lp'] for p in st['players']],
+                                    'events': len(self.duel.log), 'log': self.duel.log}, ensure_ascii=False), encoding='utf-8')
+        return path.name
+
+    def history(self, limit=20):
+        """Most recent archived duels, newest first (summary only)."""
+        folder = self.folder / 'history'
+        if not folder.exists(): return []
+        out = []
+        for path in sorted(folder.glob('*.json'), reverse=True)[:limit]:
+            try: data = json.loads(path.read_text(encoding='utf-8'))
+            except ValueError: continue
+            out.append({k: data.get(k) for k in ('saved_at', 'players', 'winner', 'reason', 'turns', 'lp', 'events')} | {'file': path.name})
+        return out
 
     def _save(self):
         self.folder.mkdir(parents=True, exist_ok=True)
@@ -407,8 +434,10 @@ class TableDuel:
                 if ps['field'][0]: board.append({'player': i, 'zone': 'field', 'zone_label': zone_label('field'), **ps['field'][0]})
             for j, c in enumerate(st['shared']['extra_monster']):
                 if c: board.append({'player': c['controller'], 'zone': f'extra_monster:{j}', 'zone_label': zone_label(f'extra_monster:{j}'), **c})
-            players = [{k: ps[k] for k in ('name', 'lp', 'hand', 'deck', 'extra_deck')} | {'graveyard': len(ps['graveyard']), 'banished': len(ps['banished'])} for ps in st['players']]
+            pile = lambda cards: [{'copy_id': c.get('copy_id'), 'card_id': c.get('card_id'), 'name': c.get('name')} for c in cards]
+            players = [{k: ps[k] for k in ('name', 'lp', 'hand', 'deck', 'extra_deck')} | {'graveyard': len(ps['graveyard']), 'banished': len(ps['banished']),
+                        'graveyard_cards': pile(ps['graveyard']), 'banished_cards': pile(ps['banished'])} for ps in st['players']]
             return {'started': st['started'], 'turn': st['turn'], 'current': st['current'], 'phase': st['phase'], 'battle_step': st['battle_step'],
                     'result': st['result'], 'players': players, 'board': board, 'questions': questions, 'pending_attack': st['pending_attack'],
                     'calibrated': self.mode is not None, 'mode': self.mode, 'mats_seen': [m.player for m in self.mats], 'events': len(self.duel.log),
-                    'auto': self.auto, 'recent': [{k: r[k] for k in ('id', 'text', 'alternatives')} for r in self.recent]}
+                    'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id')} for r in self.recent]}

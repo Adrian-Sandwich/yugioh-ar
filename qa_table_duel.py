@@ -134,6 +134,9 @@ def main():
         auto.first_seen = {k: t - 5 for k, t in auto.first_seen.items()}; feed(auto, [dm], times=1)
         view = auto.view(); assert not any(c['name'] == 'Kuriboh' for c in view['board']) and view['players'][0]['graveyard'] == 1, view['board']
         checks.append('a card gone briefly stays; gone for 3 s goes to the Graveyard')
+        assert [c['name'] for c in view['players'][0]['graveyard_cards']] == ['Kuriboh'], view['players'][0]
+        assert view['recent'][0]['card_id'] == 'kuriboh', view['recent'][0]
+        checks.append('Graveyard contents with names; plays carry their card')
         # Phase buttons: jump to End Phase (turn 1 has no Battle Phase) and end the turn from anywhere.
         try: auto.act({'type': 'goto_phase', 'phase': 'battle'}); raise AssertionError('battle on turn 1')
         except Exception as error: assert 'primer turno' in str(error)
@@ -141,6 +144,14 @@ def main():
         auto.act({'type': 'end_turn'}); auto.act({'type': 'end_turn'})   # turn 2 ends from its Draw Phase
         assert auto.view()['turn'] == 3 and auto.view()['phase'] == 'draw'
         checks.append('phase jumps and End Turn from any phase')
+        # Ending the duel keeps it in the history, replayable.
+        result = auto.act({'type': 'reset'})
+        history = auto.history()
+        assert result['archived'] and len(history) == 1 and history[0]['players'] == ['Ana', 'Beto'] and history[0]['turns'] == 3, history
+        saved = json.loads((folder / 'auto' / 'history' / history[0]['file']).read_text(encoding='utf-8'))
+        from duel_engine import Duel
+        assert Duel.replay(saved['log']).state['turn'] == 3 and not auto.duel.state['started']
+        checks.append('reset archives the duel; the archived log replays')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'

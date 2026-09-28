@@ -5,12 +5,17 @@ let currentBitmap=null,frameNumber=0,liveTracks=[],renderedFrame=-1,renderedTrac
 let playmat=null,calibration=null,zonesVersion=0,renderedZones=-1,virtualPreview=null;
 function textNode(tag,text){const n=document.createElement(tag);n.textContent=text;return n;}
 
-// English names next to the Spanish ones (most TCG copies are printed in English).
-const englishNames=new Map();
-function englishName(cardId){
+// Card sheets (/card-info, local registry): labels under the cards and the "Carta en juego" panel.
+const cardSheets=new Map();
+function sheetOf(cardId){
   if(!cardId)return null;
-  if(!englishNames.has(cardId)){englishNames.set(cardId,null);fetch('/card-info?id='+encodeURIComponent(cardId)).then(r=>r.ok?r.json():null).then(s=>{if(s?.name_en){englishNames.set(cardId,s.name_en);renderedTracks=null;}}).catch(()=>{});}
-  return englishNames.get(cardId);
+  if(!cardSheets.has(cardId)){cardSheets.set(cardId,null);fetch('/card-info?id='+encodeURIComponent(cardId)).then(r=>r.ok?r.json():null).then(s=>{if(s){cardSheets.set(cardId,s);renderedTracks=null;}}).catch(()=>{});}
+  return cardSheets.get(cardId);
+}
+function statsLine(s){
+  if(!s)return null;
+  if(s.card_type!=='monster')return s.line?.split(' · ')[0]||null;   // "Magia Normal", "Trampa Continua"
+  return s.link?`ATK ${s.atk??'?'} · LINK-${s.link}`:`ATK ${s.atk??'?'} / DEF ${s.def??'?'}`;
 }
 
 
@@ -41,20 +46,46 @@ function fieldTracks(tracks){
 }
 
 function drawCards(context,cards){
-  const size=Math.round(frame.width/80);
+  const size=Math.max(11,Math.round(frame.width/125)),small=Math.max(10,Math.round(size*.85));
   for(const card of cards){
     context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='#80ffbc';context.lineCap='round';
     cornerMarks(context,card.corners,.18);
-    const en=englishName(card.card_id);const label=card.name?(en&&en!==card.name?`${card.name} · ${en}`:card.name):null;
-    if(label){
-      // Under the card: above it stands the AR monster.
-      const x=Math.max(0,Math.min(...card.corners.map(p=>p[0]))),y=Math.min(frame.height-4,Math.max(...card.corners.map(p=>p[1]))+size+6);
-      context.font=`bold ${size}px system-ui`;context.fillStyle='rgba(16,20,29,.85)';context.fillRect(x,y-size-2,context.measureText(label).width+14,size+10);
-      context.fillStyle='#80ffbc';context.fillText(label,x+7,y);
+    if(card.name){
+      // Two short lines under the card (above it stands the AR monster): name, then ATK/DEF or card type.
+      const stats=statsLine(sheetOf(card.card_id));
+      const cx=card.corners.reduce((s,p)=>s+p[0]/4,0),top=Math.min(frame.height-size*2-8,Math.max(...card.corners.map(p=>p[1]))+4);
+      context.textAlign='center';context.font=`600 ${size}px system-ui`;
+      const w=Math.max(context.measureText(card.name).width,stats?(context.font=`600 ${small}px system-ui`,context.measureText(stats).width):0)+10;
+      context.fillStyle='rgba(10,14,22,.72)';context.fillRect(cx-w/2,top,w,size+(stats?small+8:6));
+      context.font=`600 ${size}px system-ui`;context.fillStyle='#e9f6ff';context.fillText(card.name,cx,top+size);
+      if(stats){context.font=`600 ${small}px system-ui`;context.fillStyle='#80ffbc';context.fillText(stats,cx,top+size+small+3);}
     }
     context.restore();
   }
 }
+
+// "Carta en juego": which card is being played or looked at, and what it does.
+let spotlightId=null;
+async function spotlight(cardId){
+  if(!cardId)return;spotlightId=cardId;
+  let s=cardSheets.get(cardId);
+  if(!s){try{const r=await fetch('/card-info?id='+encodeURIComponent(cardId));s=r.ok?await r.json():null;if(s)cardSheets.set(cardId,s);}catch(e){}}
+  if(!s||spotlightId!==cardId)return;
+  const box=document.querySelector('#spotlight');box.hidden=false;
+  document.querySelector('#spotImage').src='/card-image?id='+encodeURIComponent(cardId);
+  document.querySelector('#spotName').textContent=s.name;
+  document.querySelector('#spotEn').textContent=s.name_en&&s.name_en!==s.name?s.name_en:'';
+  document.querySelector('#spotLine').textContent=s.line||'';
+  document.querySelector('#spotStats').textContent=s.card_type==='monster'?statsLine(s):'';
+  document.querySelector('#spotEffect').textContent=s.effect||'';
+}
+// Click a card on the video to see it.
+frame.addEventListener('click',event=>{
+  if(calibration)return;
+  const rect=frame.getBoundingClientRect(),p=[(event.clientX-rect.left)*frame.width/rect.width,(event.clientY-rect.top)*frame.height/rect.height];
+  const hit=fieldTracks(liveTracks).find(t=>insideQuad(p,t.corners));
+  if(hit)spotlight(hit.card_id);
+});
 
 function draw(now){
   const ar=document.querySelector('#ar').checked;
@@ -285,6 +316,8 @@ $d('#autoPlays').onchange=()=>duelAct({type:'auto',enabled:$d('#autoPlays').chec
 function renderRecent(view){
   const recent=(view.recent||[]).slice(0,3);
   $d('#recentSection').hidden=!recent.length;
+  // A new play puts its card in "Carta en juego".
+  if(recent[0]&&recent[0].id!==renderRecent.lastId){renderRecent.lastId=recent[0].id;spotlight(recent[0].card_id);}
   const key=JSON.stringify(recent);if(key===renderRecent.key)return;renderRecent.key=key;
   const nodes=recent.map((r,i)=>{
     const row=document.createElement('div');row.className='play';row.append(textNode('span',r.text));
@@ -296,9 +329,39 @@ function renderRecent(view){
   $d('#recentPlays').replaceChildren(...(nodes.length?nodes:[textNode('p','Todavía no hay jugadas.')]));
 }
 
+// Graveyard and Banished of each player, newest last; a click shows the card.
+function renderPiles(view){
+  const key=JSON.stringify((view.players||[]).map(p=>[p.graveyard_cards,p.banished_cards]));
+  if(key===renderPiles.key)return;renderPiles.key=key;
+  const nodes=[];
+  (view.players||[]).forEach(p=>{
+    for(const [title,cards] of [['Cementerio',p.graveyard_cards||[]],['Desterradas',p.banished_cards||[]]]){
+      const box=document.createElement('div');box.className='pile';box.append(textNode('h4',`${p.name} · ${title} (${cards.length})`));
+      for(const c of cards){const b=document.createElement('button');b.textContent=c.name||'Carta sin identificar';b.disabled=!c.card_id;b.onclick=()=>spotlight(c.card_id);box.append(b);}
+      nodes.push(box);
+    }
+  });
+  $d('#pilesBody').replaceChildren(...(nodes.length?nodes:[textNode('p','Empieza un duelo para ver sus pilas.')]));
+  const total=(view.players||[]).reduce((s,p)=>s+(p.graveyard||0)+(p.banished||0),0);
+  $d('#piles').querySelector('summary').textContent=`Cementerio y Desterradas${total?` (${total})`:''}`;
+}
+
+// Past duels, newest first (archived when a duel is ended with "Terminar y reiniciar").
+async function loadHistory(){
+  try{
+    const items=await (await fetch('/duel/history',{cache:'no-store'})).json();
+    $d('#historyBody').replaceChildren(...(items.length?items.map(h=>{
+      const who=h.winner!=null?`gana ${h.players[h.winner]}`:'sin terminar';
+      const box=document.createElement('div');box.className='history';
+      box.append(textNode('p',`${h.saved_at.replace('T',' ').slice(0,16)} · ${h.players.join(' vs ')} · ${who} · ${h.turns} turnos · LP ${h.lp.join(' / ')}`));return box;
+    }):[textNode('p','Todavía no hay duelos guardados.')]));
+  }catch(e){}
+}
+$d('#historyBox').addEventListener('toggle',()=>{if($d('#historyBox').open)loadHistory();});
+
 function renderDuel(view){
   stageEvents(duelView,view);   // summon, attack, destruction and LP effects from what changed
-  renderPhaseBar(view);renderRecent(view);
+  renderPhaseBar(view);renderRecent(view);renderPiles(view);
   if($d('#autoPlays').checked!==!!view.auto)$d('#autoPlays').checked=!!view.auto;
   duelView=view;
   $d('#duelSetup').hidden=view.started&&!view.result;$d('#duelControls').hidden=!view.started||!!view.result;
@@ -339,7 +402,7 @@ $d('#endTurn').onclick=()=>duelAct({type:'end_turn'});
 $d('#drawCard').onclick=()=>duelAct({type:'draw',player:duelView?.current??0});
 $d('#applyLp').onclick=()=>duelAct({type:'change_lp',player:Number($d('#lpPlayer').value),delta:Number($d('#lpDelta').value),reason:'manual'});
 $d('#undo').onclick=()=>duelAct({type:'undo'});
-$d('#resetDuel').onclick=()=>{if(confirm('¿Terminar este duelo y empezar otro? Se borra el registro del duelo actual.'))duelAct({type:'reset'});};
+$d('#resetDuel').onclick=async()=>{if(confirm('¿Terminar este duelo y empezar otro? Queda guardado en el historial.')){await duelAct({type:'reset'});loadHistory();}};
 
 async function refreshDuel(){
   try{

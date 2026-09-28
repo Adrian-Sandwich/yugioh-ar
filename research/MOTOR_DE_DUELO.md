@@ -152,6 +152,24 @@ reconocedor recibe los polígonos de esas zonas (`TableDuel.field_regions`,
 geometría ni encoder (`outside_regions` las cuenta). Sin tablero se analiza
 todo, como en el visor de diagnóstico.
 
+## Carta en juego, pilas e historial (27/09/2026)
+
+Decisiones con el usuario: los efectos no se resuelven solos todavía; primero
+que los jugadores entiendan qué pasa. "Carta en juego" (arriba del panel)
+muestra la carta de la última jugada, la que se toque en el vídeo o la que se
+elija en una pila: imagen (`/card-image`, la mejor imagen enlazada a 360 px),
+nombre en español e inglés, tipo, ATK/DEF y efecto. Bajo cada carta del campo,
+dos líneas cortas: nombre y ATK/DEF (o el tipo de Magia/Trampa).
+"Cementerio y Desterradas" lista las cartas de cada pila con su nombre
+(`graveyard_cards`, `banished_cards` en la vista del duelo). "Terminar y
+reiniciar" archiva el duelo en `data/playmat/history/` con su registro
+completo, reproducible con `Duel.replay`; "Historial de duelos" los lista.
+
+Siguiente, a acordar antes de hacerlo: tipos de invocación, declarar ataques
+con clic en el vídeo y que acercar físicamente un monstruo a otro cuente como
+ataque, con el daño propuesto pero no aplicado solo; datos de mecánicas desde
+BabelCDB (categorías de efecto por carta), descargados fuera del repositorio.
+
 ## ygopro-core (revisado el 27/09/2026)
 
 `Fluorohydride/ygopro-core`: licencia MIT, C++ con Lua, activo (último push

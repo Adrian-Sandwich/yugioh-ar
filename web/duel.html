@@ -49,6 +49,14 @@
   aside a { color: #8de5ca; }
   .bar { font-size: 13px; } .bar .hint { color: #5d6b82; margin-left: auto; }
   #duelPhase { color: #e9eef7; font-weight: 650; }
+  .spot { display: flex; gap: 10px; align-items: flex-start; }
+  .spot img { width: 110px; border-radius: 6px; flex: none; }
+  .spot h3 { margin: 0; font-size: 16px; } #spotEn { margin: 0; font-size: 12px; }
+  #spotLine { color: #ffd166; font-size: 12px; } #spotStats { color: #8de5ca; font-weight: 700; }
+  #spotEffect { white-space: pre-line; font-size: 13px; color: #d6deeb; max-height: 12em; overflow: auto; }
+  .pile h4 { margin: 8px 0 4px; font-size: 13px; color: #aebbd0; }
+  .pile button { margin: 2px 4px 2px 0; padding: 3px 7px; font-size: 12px; background: #1b2638; color: #e9eef7; font-weight: 500; }
+  .history p { font-size: 12px; margin: 4px 0; }
 </style>
 <header>
   <h1>Duelo</h1>
@@ -71,6 +79,10 @@
     </div>
   </div>
   <aside id="duel">
+    <section id="spotlight" hidden>
+      <div class="spot"><img id="spotImage" alt=""><div><h3 id="spotName"></h3><p id="spotEn"></p><p id="spotLine"></p><p id="spotStats"></p></div></div>
+      <p id="spotEffect"></p>
+    </section>
     <section id="duelSection">
       <div id="duelSetup">
         <input type="text" id="name0" value="Jugador 1" aria-label="Nombre del jugador 1"><input type="text" id="name1" value="Jugador 2" aria-label="Nombre del jugador 2">
@@ -83,6 +95,7 @@
     </section>
     <section id="recentSection" hidden><h2>Últimas jugadas</h2><div id="recentPlays"></div></section>
     <section id="questionsSection" hidden><h2>Preguntas</h2><div id="duelQuestions"></div></section>
+    <details id="piles"><summary>Cementerio y Desterradas</summary><div id="pilesBody"></div></details>
     <details id="moreDuel"><summary>LP, robar, deshacer</summary>
       <div id="duelPlayers"></div>
       <div id="duelControls" hidden>
@@ -92,6 +105,7 @@
       </div>
       <div id="duelBoard"></div>
     </details>
+    <details id="historyBox"><summary>Historial de duelos</summary><div id="historyBody"></div></details>
     <details id="boardSettings" open><summary>Tablero</summary>
       <select id="matMode"><option value="virtual-two">Virtual · 2 jugadores</option><option value="virtual-one">Virtual · 1 jugador</option><option value="printed">Plantilla impresa (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics)</option><option value="one">Un tapete propio (clics)</option></select>
       <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
