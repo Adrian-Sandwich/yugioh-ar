@@ -49,6 +49,8 @@ REUSE_MAX_AGE_S=8.
 REUSE_MIN_IOU=.75
 ART_PROMOTION_MAX_AGE_S=4.
 ART_PROMOTION_MIN_IOU=.5
+# A title read on a card stays valid this long while the card stays where it was read (IoU).
+NAME_MEMORY_S=20.
 # Detector OBB against a tracked quadrilateral: an upright rectangle around a
 # card in mild perspective still overlaps it well above this.
 TRACKED_GEOMETRY_MIN_IOU=.75
@@ -410,7 +412,7 @@ def promote_by_art(candidates,verified,now=None):
     return promoted
 
 
-def promote_by_name(candidates,verified,now=None):
+def promote_by_name(candidates,verified,now=None,max_age=ART_PROMOTION_MAX_AGE_S):
     """Accept a rejected candidate when the title OCR names one of its own top-5 identities.
 
     Two independent weak votes: the card is among the recognizer's candidates, and its printed
@@ -425,7 +427,7 @@ def promote_by_name(candidates,verified,now=None):
         if candidate.get('accepted') or not candidate.get('top5'): continue
         for item in verified:
             if item.get('evidence')!='name': continue
-            if not 0<=now-item.get('captured_at',0)<=ART_PROMOTION_MAX_AGE_S: continue
+            if not 0<=now-item.get('captured_at',0)<=max_age: continue
             if quad_iou(candidate['corners'],item['corners'])<ART_PROMOTION_MIN_IOU: continue
             chosen=next((t for t in candidate['top5'] if canonical(t.get('card_id'))==canonical(item['card_id'])),None)
             if chosen is None: continue
@@ -521,7 +523,14 @@ class LiveRecognizer(ResearchRecognizer):
         result['pilot_reloaded']=reloaded
         result['candidates']=result['detections']
         result['art_promoted']=promote_by_art(result['candidates'],verified)
-        result['name_promoted']=promote_by_name(result['candidates'],verified)
+        # Title evidence is remembered where it was read: the OCR worker reads a few cards per
+        # batch, and a promotion that needed a fresh reading every 4 s flickered on and off.
+        now=time.time();memory=getattr(self,'name_memory',[])
+        for item in verified:
+            if item.get('evidence')!='name': continue
+            memory=[m for m in memory if quad_iou(m['corners'],item['corners'])<ART_PROMOTION_MIN_IOU]+[item]
+        self.name_memory=[m for m in memory if 0<=now-m.get('captured_at',0)<=NAME_MEMORY_S]
+        result['name_promoted']=promote_by_name(result['candidates'],self.name_memory,now,max_age=NAME_MEMORY_S)
         result['detections']=[self.describe(c) for c in result['candidates'] if c['accepted']]
         result.update(width=image.shape[1],height=image.shape[0])
         return result

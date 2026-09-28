@@ -217,10 +217,15 @@ class PasscodeWorker:
                 image=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_COLOR)
                 if image is None: raise ValueError('JPEG inválido')
                 items=[]
-                # Rotate through large batches, rather than permanently excluding later cards.
-                offset=self.batch_offset%len(boxes) if len(boxes)>6 else 0
-                selected=(boxes[offset:]+boxes[:offset])[:6]
-                self.batch_offset=offset+len(selected)
+                # Cards the recognizer could not name go first: title and art evidence is what they
+                # need. The rest rotate through the remaining slots rather than being excluded.
+                unknown=[b for b in boxes if not b.get('visual_card_id')];known=[b for b in boxes if b.get('visual_card_id')]
+                ordered=unknown+known
+                if len(unknown)>6:   # more unknown cards than slots: rotate among them
+                    offset=self.batch_offset%len(unknown);selected=(unknown[offset:]+unknown[:offset])[:6];self.batch_offset=offset+6
+                else:
+                    offset=self.batch_offset%len(known) if known and len(ordered)>6 else 0
+                    selected=unknown+(known[offset:]+known[:offset])[:6-len(unknown)];self.batch_offset=offset+len(selected)-len(unknown)
                 refiner=GeometryRefiner(image) if any(not b.get('geometry_status') for b in selected) else None
                 prepared=[]
                 for box in selected:
