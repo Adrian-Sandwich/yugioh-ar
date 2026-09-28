@@ -76,6 +76,12 @@ El usuario indicó que hay más cosas por resolver; se irán anotando aquí.
 - Seguimiento de a dónde va una carta que sale de una zona (Cementerio, Mazo o
   mano), anotado como futuro el 27/09/2026.
 - Datos de mecánicas desde BabelCDB (acordado antes, sin empezar).
+- **Magias de Campo que cambian el ambiente del tablero en AR** (idea del
+  usuario, 28/09/2026): con una Magia de Campo activa, su escenario tiñe o
+  envuelve el tablero de ese jugador (o de ambos). 334 en el registro.
+- Sprites que faltan: sólo 5,853 de 9,178 monstruos del catálogo completo
+  (64 %) tienen recorte TDOANE; los más nuevos no. Y una figura genérica para
+  los monstruos en defensa boca abajo.
 
 ## Datos de referencia
 

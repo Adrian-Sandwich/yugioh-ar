@@ -26,6 +26,8 @@ from shared_snapshot import SharedSnapshots
 from identity_resolution import IDENTITIES,normalize_detection
 
 ROOT = Path(__file__).resolve().parent
+# Seconds after the diagnostic viewer's last poll during which the analysis covers the whole frame.
+DIAGNOSTIC_HOLD_S=5.
 TRACK_FIELDS=('track_id','card_id','name','sprite_ref','corners','stable','verified_at','tracked_at','acceptance','inliers','frames')
 
 
@@ -279,6 +281,9 @@ class Handler(BaseHTTPRequestHandler):
         query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
         try: after=int(query.get('after','-1'))
         except ValueError: return self.reply(400,b'Invalid sequence','text/plain')
+        # The duel view says so (view=duel); any other page is the diagnostic viewer, which must see
+        # every card, so while it watches the analysis is not limited to the board's zones.
+        if query.get('view')!='duel': self.server.diagnostic_seen=time.monotonic()
         body=loop.wait_newer(after,timeout=2.)
         if body is None: return self.reply(204,b'','application/json')
         self.reply(200,body,'application/json')
@@ -361,7 +366,9 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
             verified=worker.verified() if worker and hasattr(worker,'verified') else ()
             # With a duel board set, cards outside its field zones are not analysed at all.
             table=getattr(server,'table',None)
-            regions=table.field_regions() if table is not None else None
+            # Only while no diagnostic page is watching (it shows every card on the table).
+            diagnostic=time.monotonic()-getattr(server,'diagnostic_seen',-1e9)<DIAGNOSTIC_HOLD_S
+            regions=table.field_regions() if table is not None and not diagnostic else None
             # Face-down cards: zones without a detected card are compared with the card back (card_backs).
             back_zones=table.back_zones() if table is not None else None
             result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified,regions=regions,back_zones=back_zones)

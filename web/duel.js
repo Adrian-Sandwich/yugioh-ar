@@ -67,8 +67,54 @@ function drawCards(context,cards){
 
 // Face-down cards have no track (the detector does not see card backs): their zone gets the marks.
 let teachingBack=false,renderedDuel=null;
+// A face-down Defense Position monster gets a generic figure (never its identity). Three styles
+// to compare with the "Boca abajo" button: holographic shield, hooded silhouette, standing card back.
+const FD_STYLES=[['shield','Escudo'],['silhouette','Silueta'],['card','Carta de pie']];
+let fdStyle=(()=>{try{return localStorage.getItem('fdStyle')||'shield';}catch(e){return 'shield';}})();
+function fdButtonLabel(){const b=$d('#fdStyle');if(b)b.textContent='Boca abajo: '+FD_STYLES.find(s=>s[0]===fdStyle)[1];}
+function hexPath(context,cx,cy,r){context.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*.9*Math.sin(a));}context.closePath();}
+function drawFacedownFigure(context,polygon,now,seed){
+  const H=cardMap(polygon),[cx,cy]=H(.5,.5),l=H(0,.5),r=H(1,.5),w=Math.hypot(r[0]-l[0],r[1]-l[1]);
+  const pulse=.5+.5*Math.sin(now/700+seed),bob=Math.sin(now/900+seed)*w*.02;
+  context.save();
+  context.fillStyle='rgba(0,0,0,.3)';planeEllipse(context,H,.9);context.fill();
+  if(fdStyle==='shield'){
+    // Translucent shield with the back's orange swirl, breathing softly.
+    const y=Math.max(w*.4,cy-w*.18)+bob,s=w*.36;
+    const grad=context.createRadialGradient(cx,y,s*.1,cx,y,s);grad.addColorStop(0,'rgba(20,8,2,.85)');grad.addColorStop(.7,'rgba(120,55,12,.7)');grad.addColorStop(1,'rgba(230,140,50,.55)');
+    hexPath(context,cx,y,s);context.fillStyle=grad;context.fill();
+    context.shadowColor='#ffb35c';context.shadowBlur=w/5*(.6+.4*pulse);context.strokeStyle='#ffb35c';context.lineWidth=Math.max(2,w/28);context.stroke();
+    context.shadowBlur=0;context.strokeStyle=`rgba(255,170,80,${.5+.3*pulse})`;context.lineWidth=Math.max(1.5,w/45);
+    for(let k=0;k<3;k++){context.beginPath();context.ellipse(cx,y,s*(.25+.2*k),s*(.18+.15*k),now/1500+k,0,Math.PI*1.4);context.stroke();}
+  }else if(fdStyle==='silhouette'){
+    // A dark hooded figure crouching behind a round shield; only its eyes glow.
+    const base=cy+w*.05,hgt=w*.95,top=Math.max(w*.1,base-hgt)+bob;
+    context.fillStyle='rgba(22,12,38,.9)';context.shadowColor='#b58cff';context.shadowBlur=w/6;
+    context.beginPath();context.moveTo(cx-w*.3,base);context.quadraticCurveTo(cx-w*.26,top+hgt*.35,cx,top+hgt*.08);context.quadraticCurveTo(cx+w*.26,top+hgt*.35,cx+w*.3,base);context.closePath();context.fill();
+    context.beginPath();context.ellipse(cx,top+hgt*.2,w*.12,w*.14,0,0,Math.PI*2);context.fill();
+    context.shadowBlur=w/10;context.fillStyle=`rgba(255,80,120,${.6+.4*pulse})`;
+    context.beginPath();context.arc(cx-w*.04,top+hgt*.21,w*.018,0,Math.PI*2);context.arc(cx+w*.04,top+hgt*.21,w*.018,0,Math.PI*2);context.fill();
+    context.shadowColor='#b58cff';context.shadowBlur=w/8;context.fillStyle='rgba(60,40,90,.92)';context.strokeStyle='#b58cff';context.lineWidth=Math.max(2,w/30);
+    context.beginPath();context.ellipse(cx+w*.05,top+hgt*.62,w*.2,w*.24,0,0,Math.PI*2);context.fill();context.stroke();
+  }else{
+    // The card back standing up, turned sideways (Defense Position), as Master Duel shows it.
+    const cw=w*.62,ch=cw*.69,y=Math.max(ch/2,cy-w*.22)+bob;
+    context.shadowColor='#ffb35c';context.shadowBlur=w/6*(.6+.4*pulse);
+    context.fillStyle='#b8651e';context.fillRect(cx-cw/2,y-ch/2,cw,ch);context.shadowBlur=0;
+    const grad=context.createRadialGradient(cx,y,0,cx,y,cw*.5);grad.addColorStop(0,'#050201');grad.addColorStop(.6,'#2a1206');grad.addColorStop(1,'#5a2a0c');
+    context.fillStyle=grad;context.fillRect(cx-cw/2+cw*.05,y-ch/2+cw*.05,cw*.9,ch-cw*.1);
+    context.strokeStyle='rgba(255,150,60,.75)';context.lineWidth=Math.max(1.5,w/50);
+    for(let k=0;k<4;k++){context.beginPath();context.ellipse(cx,y,cw*(.1+.09*k),ch*(.1+.08*k),.6+now/4000,0,Math.PI*1.5);context.stroke();}
+  }
+  context.restore();
+}
 function drawFacedown(context){
   const board=virtualPreview||playmat;if(!board?.zones||calibration)return;
+  const now=performance.now();
+  if($d('#ar')?.checked)for(const card of duelView?.board||[]){
+    if(card.position!=='facedown_defense')continue;
+    const z=board.zones.find(z=>z.player===card.player&&z.zone===card.zone);if(z)drawFacedownFigure(context,z.polygon,now,card.zone.length+card.player*3);
+  }
   const size=Math.max(10,Math.round(frame.width/140));
   context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='#c9a0ff';context.lineCap='round';
   context.textAlign='center';context.font=`600 ${size}px system-ui`;
@@ -151,7 +197,7 @@ let analysisSequence=-1;
 async function followAnalysis(){
   let delay=0;
   try{
-    const r=await fetch('/analysis?after='+analysisSequence,{cache:'no-store',signal:AbortSignal.timeout(10000)});
+    const r=await fetch('/analysis?view=duel&after='+analysisSequence,{cache:'no-store',signal:AbortSignal.timeout(10000)});
     if(r.status===404){delay=5000;return;}   // no server loop (saved capture): nothing to keep alive
     if(r.status===200){const data=await r.json();if(Number.isFinite(data.sequence))analysisSequence=data.sequence;}
   }catch(e){delay=1000;}
@@ -460,6 +506,12 @@ function drawBattle(context){
 
 // Extra Deck of 15 each, so Synchro/Xyz/Fusion/Link placed on the field come out of it.
 $d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value),extra_deck_sizes:[15,15]});
+$d('#fdStyle').onclick=()=>{
+  const i=FD_STYLES.findIndex(s=>s[0]===fdStyle);fdStyle=FD_STYLES[(i+1)%FD_STYLES.length][0];
+  try{localStorage.setItem('fdStyle',fdStyle);}catch(e){}
+  fdButtonLabel();renderedAR=null;
+};
+fdButtonLabel();
 $d('#teachBack').onclick=()=>{teachingBack=true;duelMessage('Pon una carta boca abajo en una zona y haz clic en esa zona en el vídeo.');};
 $d('#forgetBacks').onclick=()=>{if(confirm('¿Olvidar los reversos enseñados? El reverso oficial se sigue reconociendo.'))duelAct({type:'forget_backs'});};
 $d('#nextPhase').onclick=nextPhase;
@@ -518,10 +570,56 @@ const hud={lp:[null,null]};
 function boardCard(copyId){return (duelView?.board||[]).find(c=>c.copy_id===copyId);}
 function effectOf(kind,copyId,now){return effects.find(e=>e.kind===kind&&e.copy===copyId&&now-e.start<e.duration);}
 
+// Monsters, Spells and Traps look different: colour (cyan / green / magenta), base on the
+// table (ring / turning magic circle / hexagon) and how the figure moves.
+const KIND_COLOR={monster:'#5ff2ff',spell:'#3fe0a4',trap:'#ff5fa2'};
+function kindOf(track){
+  const s=sheetOf(track.card_id);if(s?.card_type==='spell'||s?.card_type==='trap')return s.card_type;
+  const card=boardCard(track.track_id);
+  if(card&&/^Trampa/.test(card.type||''))return 'trap';
+  if(card&&(/^Magia/.test(card.type||'')||/^spell:|^field$/.test(card.zone)))return 'spell';
+  return 'monster';
+}
+function drawSpellTrap(context,item,kind,now){
+  const {track,g}=item,img=cutouts.get(track.sprite_ref);if(!img)return;
+  const seed=(Number(track.track_id)||0)%1000;
+  let height=g.width*1.05;const width=height*img.width/img.height;
+  const appear=effectOf('activate',track.track_id,now);
+  let [x,y]=g.center,alpha=.93,rot=0,scale=1;
+  if(kind==='spell'){y-=Math.sin(now/900+seed)*.05*height;}          // slow, calm hover
+  else{rot=Math.sin(now/170+seed)*.02;x+=Math.sin(now/90+seed)*.004*height;}   // restless: a trap is waiting
+  if(appear){const t=Math.min(1,(now-appear.start)/450);scale=kind==='trap'?(t<.6?t/.6*1.15:1.15-.15*(t-.6)/.4):t;alpha*=Math.min(1,t*1.5);}
+  const top=Math.max(0,y-height*.12-height*scale/2);
+  context.save();context.globalAlpha=alpha;context.shadowColor=KIND_COLOR[kind];context.shadowBlur=g.width/4;
+  context.translate(x,top+height*scale/2);context.rotate(rot);context.scale(scale,scale);
+  context.drawImage(img,-width/2,-height/2,width,height);context.restore();
+}
+function drawBase(context,g,kind,rival,now,seed){
+  const color=kind==='monster'&&rival?'#ffc861':KIND_COLOR[kind];
+  context.save();context.fillStyle='rgba(0,0,0,.34)';planeEllipse(context,g.H,1);context.fill();
+  context.shadowColor=color;context.shadowBlur=g.width/5;context.strokeStyle=color;context.lineWidth=Math.max(2,g.width/28);
+  context.globalAlpha=.55+.25*Math.sin(now/400+seed);
+  if(kind==='monster'){planeEllipse(context,g.H,1.08);context.stroke();}
+  else if(kind==='spell'){
+    // Magic circle on the card: two rings and marks turning slowly.
+    planeEllipse(context,g.H,1.08);context.stroke();context.lineWidth/=1.6;planeEllipse(context,g.H,.8);context.stroke();
+    const turn=now/2400;context.beginPath();
+    for(let k=0;k<8;k++){const a=turn+k*Math.PI/4,[x0,y0]=g.H(.5+.44*.8*Math.cos(a),.5+.3*.8*Math.sin(a)),[x1,y1]=g.H(.5+.44*1.08*Math.cos(a+.2),.5+.3*1.08*Math.sin(a+.2));context.moveTo(x0,y0);context.lineTo(x1,y1);}
+    context.stroke();
+  }else{
+    // Trap: a hexagon on the card plane, pulsing faster.
+    context.globalAlpha=.5+.35*Math.abs(Math.sin(now/260+seed));context.beginPath();
+    for(let k=0;k<=6;k++){const a=Math.PI/3*k+Math.PI/6,[px,py]=g.H(.5+.46*Math.cos(a),.5+.32*Math.sin(a));k?context.lineTo(px,py):context.moveTo(px,py);}
+    context.stroke();
+  }
+  context.restore();
+}
+
 function drawMonster(context,item,now){
   const {track,g}=item,img=cutouts.get(track.sprite_ref);if(!img)return;
   const card=boardCard(track.track_id),position=card?.position;
   if(position==='facedown_defense'||position==='facedown')return;
+  const kind=kindOf(track);if(kind!=='monster')return drawSpellTrap(context,item,kind,now);
   const defense=position==='defense',seed=(Number(track.track_id)||0)*1.7;
   // Smaller than the card is long and floating over its centre: tall sprites standing on the
   // card left the frame for cards near the top edge.
@@ -549,14 +647,13 @@ function drawMonster(context,item,now){
 }
 
 function drawStage(context,tracks,now){
+  // Every card on the field is remembered (activation effects need its place, sprite or not).
+  for(const t of tracks)if(t.corners?.length===4)lastSeen.set(t.track_id,{g:geometry(t),sprite_ref:t.sprite_ref,name:t.name,kind:kindOf(t)});
   const items=tracks.filter(t=>t.sprite_ref&&t.corners?.length===4).map(track=>({track,g:geometry(track)}));
-  for(const {track,g} of items)lastSeen.set(track.track_id,{g,sprite_ref:track.sprite_ref,name:track.name});
-  // Base: shadow on the card and a glowing ring, then monsters from far to near so near ones cover far ones.
+  // Base on the table by card kind, then figures from far to near so near ones cover far ones.
   for(const {track,g} of items){
-    const card=boardCard(track.track_id);if(card?.position==='facedown_defense')continue;
-    context.save();context.fillStyle='rgba(0,0,0,.38)';planeEllipse(context,g.H,1);context.fill();
-    context.shadowColor=card&&card.controller===1?'#ffc861':'#5ff2ff';context.shadowBlur=g.width/5;context.strokeStyle=context.shadowColor;context.lineWidth=Math.max(2,g.width/28);
-    context.globalAlpha=.55+.25*Math.sin(now/400+(Number(track.track_id)||0));planeEllipse(context,g.H,1.08);context.stroke();context.restore();
+    const card=boardCard(track.track_id);if(card?.position==='facedown_defense'||card?.position==='facedown')continue;
+    drawBase(context,g,kindOf(track),card?.controller===1,now,(Number(track.track_id)||0)%1000);
   }
   for(const item of items.sort((a,b)=>a.g.center[1]-b.g.center[1]))drawMonster(context,item,now);
   drawEffects(context,now);
@@ -575,6 +672,24 @@ function drawEffects(context,now){
       context.strokeStyle=`rgba(140,240,255,${fade})`;context.lineWidth=Math.max(2,g.width/20);planeEllipse(context,g.H,.6+1.6*t);context.stroke();
       context.fillStyle=`rgba(230,255,255,${fade})`;
       for(let k=0;k<22;k++){const a=k*2.4,r=g.width*(.2+.5*((k*37)%10)/10),px=x+Math.cos(a)*r,py=y-g.width*1.6*((t*1.4+k/22)%1);context.fillRect(px,py,g.width/40+1,g.width/40+1);}
+      context.restore();
+    }
+    if(e.kind==='activate'&&seen){
+      const {g}=seen,[x,y]=g.center,fade=t<.6?1:1-(t-.6)/.4;context.save();context.lineCap='round';
+      if(e.type==='spell'){
+        // Spell: a green magic circle opening on the table and glyphs rising.
+        context.strokeStyle=`rgba(90,240,170,${fade})`;context.shadowColor='#3fe0a4';context.shadowBlur=g.width/4;context.lineWidth=Math.max(2,g.width/22);
+        planeEllipse(context,g.H,.4+1.4*t);context.stroke();planeEllipse(context,g.H,.2+1.0*t);context.stroke();
+        context.fillStyle=`rgba(200,255,230,${fade})`;
+        for(let k=0;k<14;k++){const a=k*2.1+t*3,r=g.width*.45*(.5+(k%5)/5),px=x+Math.cos(a)*r,py=y-g.width*1.3*((t*1.2+k/14)%1);context.fillRect(px-2,py-2,g.width/30+2,g.width/30+2);}
+      }else{
+        // Trap: a magenta burst and chains snapping outward.
+        const r=g.width*(.3+1.3*Math.min(1,t*1.6));const grad=context.createRadialGradient(x,y,0,x,y,r);
+        grad.addColorStop(0,`rgba(255,220,240,${.8*fade})`);grad.addColorStop(.5,`rgba(255,95,162,${.5*fade})`);grad.addColorStop(1,'rgba(255,95,162,0)');
+        context.fillStyle=grad;context.beginPath();context.arc(x,y,r,0,Math.PI*2);context.fill();
+        context.strokeStyle=`rgba(255,120,180,${fade})`;context.lineWidth=Math.max(2,g.width/26);context.setLineDash([g.width/10,g.width/16]);
+        for(let k=0;k<6;k++){const a=k*Math.PI/3+.4,len=g.width*1.4*Math.min(1,t*2);context.beginPath();context.moveTo(x,y);context.lineTo(x+Math.cos(a)*len,y+Math.sin(a)*len*.7);context.stroke();}
+      }
       context.restore();
     }
     if(e.kind==='impact'){
@@ -627,6 +742,13 @@ function stageEvents(prev,next){
   if(!prev||!next||!document.querySelector('#fx').checked)return;const now=performance.now();
   const before=new Map((prev.board||[]).map(c=>[c.copy_id,c])),after=new Map((next.board||[]).map(c=>[c.copy_id,c]));
   for(const [id,c] of after)if(!before.has(id)&&c.zone.includes('monster')&&c.position!=='facedown_defense')effects.push({kind:'summon',copy:id,start:now,duration:900});
+  // Spells and Traps turned face-up (placed face-up, or a set card revealed under its face's track).
+  for(const [id,c] of after){
+    if(!/^spell:|^field$/.test(c.zone)||c.position!=='faceup')continue;
+    const was=before.get(id);if(was&&was.position==='faceup')continue;
+    const sheet=sheetOf(c.card_id),type=sheet?.card_type==='trap'||/^Trampa/.test(c.type||'')?'trap':'spell';
+    effects.push({kind:'activate',copy:id,type,start:now,duration:type==='trap'?800:1100});
+  }
   for(const [id,c] of before)if(!after.has(id)){
     const seen=lastSeen.get(id),image=seen&&cutouts.get(seen.sprite_ref);
     if(seen&&image&&c.zone.includes('monster'))effects.push({kind:'destroy',copy:id,g:seen.g,image,start:now,duration:800});
