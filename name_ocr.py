@@ -51,7 +51,11 @@ class NameRegistry:
                 if key:index.setdefault(key,[]).append(row)
             prefix={}
             for key in index:prefix.setdefault(name_key(key,True)[:2],[]).append(key)
-            self.index=index;self.prefix=prefix;self.signature=signature;self.available=True
+            by_id={};owners={}
+            for uid,_,name in rows:
+                key=name_key(name,True);by_id.setdefault(canonical(uid),set()).add(key);owners.setdefault(key,set()).add(canonical(uid))
+            self.index=index;self.prefix=prefix;self.by_id=by_id;self.owners=owners;self.all_keys=list(owners)
+            self.signature=signature;self.available=True
         except (OSError,sqlite3.Error):self.available=False
         return self.available
 
@@ -95,6 +99,36 @@ class NameRegistry:
         return {**best,'status':state,'ambiguous':ambiguous,'match_kind':'normalized' if best['matches'] else None,
             'suggestions':self.suggestions(best['text']) if available and not best['matches'] and best['score']>=.65 else [],
             'raw_observations':observations,'registry_available':available}
+
+
+# Title OCR as a second, independent vote among the recognizer's own candidates. Searching only
+# its top candidates (not 14,000 names) lets a misread title still name the card: a Ghost Rare
+# Naturia Barkion read as "NČHIRIA BARKION" was 5th visually and absent from the exact index.
+NAME_PICK_MIN=.72
+NAME_PICK_MARGIN=.12
+
+
+def pick_by_name(registry,text,candidate_ids,min_similarity=NAME_PICK_MIN,margin=NAME_PICK_MARGIN):
+    """The candidate whose name (any language) the title text resembles most, if it clearly wins:
+    {'card_id', 'similarity', 'runner_up'} or None."""
+    query=name_key(text or '',True)
+    if len(query)<6 or not registry.refresh():return None
+    scored=[]
+    for cid in dict.fromkeys(canonical(c) for c in candidate_ids if c):
+        names=getattr(registry,'by_id',{}).get(cid,())
+        best=max((difflib.SequenceMatcher(None,query,n,autojunk=False).ratio() for n in names),default=0.)
+        scored.append((best,cid))
+    scored.sort(key=lambda s:-s[0])
+    if not scored or scored[0][0]<min_similarity:return None
+    runner_up=scored[1][0] if len(scored)>1 else 0.
+    if scored[0][0]-runner_up<margin:return None
+    # The title must also be closest to that card in the whole registry: "Aroma Gardening" misread
+    # must not become "Aroma Garden" just because only the latter was among the candidates.
+    best,cid=scored[0]
+    for key in difflib.get_close_matches(query,getattr(registry,'all_keys',[]),n=5,cutoff=max(.5,best-.03)):
+        if cid not in registry.owners.get(key,()) and difflib.SequenceMatcher(None,query,key,autojunk=False).ratio()>=best-.03:
+            return None
+    return {'card_id':cid,'similarity':round(best,3),'runner_up':round(runner_up,3)}
 
 
 class TitleReader:

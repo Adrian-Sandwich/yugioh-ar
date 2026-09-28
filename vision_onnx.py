@@ -401,10 +401,36 @@ def promote_by_art(candidates,verified,now=None):
     for candidate in candidates:
         if candidate.get('accepted') or not candidate.get('card_id'): continue
         for item in verified:
+            if item.get('evidence')=='name': continue   # title evidence: promote_by_name
             if canonical(item.get('card_id'))!=canonical(candidate['card_id']): continue
             if not 0<=now-item.get('captured_at',0)<=ART_PROMOTION_MAX_AGE_S: continue
             if quad_iou(candidate['corners'],item['corners'])<ART_PROMOTION_MIN_IOU: continue
             candidate.update(accepted=True,acceptance='art_verified',art_inliers=item.get('inliers'),art_artwork_id=item.get('artwork_id'))
+            promoted+=1;break
+    return promoted
+
+
+def promote_by_name(candidates,verified,now=None):
+    """Accept a rejected candidate when the title OCR names one of its own top-5 identities.
+
+    Two independent weak votes: the card is among the recognizer's candidates, and its printed
+    name, read on the same card (overlapping corners, recent frame), resembles that candidate
+    more than any other name in the registry (name_ocr.pick_by_name). For printings whose
+    illustration no longer looks like the reference: Ghost, Starlight, glare. The chosen
+    identity moves to the front of top5 so sprite and name follow it.
+    """
+    now=time.time() if now is None else now
+    promoted=0
+    for candidate in candidates:
+        if candidate.get('accepted') or not candidate.get('top5'): continue
+        for item in verified:
+            if item.get('evidence')!='name': continue
+            if not 0<=now-item.get('captured_at',0)<=ART_PROMOTION_MAX_AGE_S: continue
+            if quad_iou(candidate['corners'],item['corners'])<ART_PROMOTION_MIN_IOU: continue
+            chosen=next((t for t in candidate['top5'] if canonical(t.get('card_id'))==canonical(item['card_id'])),None)
+            if chosen is None: continue
+            candidate.update(accepted=True,acceptance='name_ocr',card_id=chosen['card_id'],score=chosen.get('score',candidate.get('score')),
+                             top5=[chosen]+[t for t in candidate['top5'] if t is not chosen],name_similarity=item.get('similarity'),name_text=item.get('text'))
             promoted+=1;break
     return promoted
 
@@ -495,6 +521,7 @@ class LiveRecognizer(ResearchRecognizer):
         result['pilot_reloaded']=reloaded
         result['candidates']=result['detections']
         result['art_promoted']=promote_by_art(result['candidates'],verified)
+        result['name_promoted']=promote_by_name(result['candidates'],verified)
         result['detections']=[self.describe(c) for c in result['candidates'] if c['accepted']]
         result.update(width=image.shape[1],height=image.shape[0])
         return result

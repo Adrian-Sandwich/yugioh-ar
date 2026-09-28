@@ -5,7 +5,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 from card_geometry import GeometryRefiner
-from name_ocr import NAME_REGION,TitleReader,mark_conflicts
+from name_ocr import NAME_REGION,TitleReader,mark_conflicts,pick_by_name
 from set_ocr import SetReader
 from card_evidence import EvidenceSession,describe
 from identity_resolution import IDENTITIES,canonical
@@ -180,6 +180,11 @@ class PasscodeWorker:
             result=self.result
         out=[]
         for item in result.get('items',[]):
+            pick=item.get('name_pick')
+            if pick and item.get('corners'):
+                # Title evidence (vision_onnx.promote_by_name), kept apart from artwork evidence.
+                out.append({'corners':item['corners'],'card_id':pick['card_id'],'evidence':'name','similarity':pick['similarity'],
+                            'text':pick.get('text'),'captured_at':result.get('captured_at'),'evidence_track_id':item.get('evidence_track_id')})
             art=item.get('art_match') or {}
             if art.get('status')!='matched' or not art.get('card_id') or not item.get('corners'):continue
             best=(art.get('matches') or [{}])[0]
@@ -265,6 +270,12 @@ class PasscodeWorker:
                         title['processing_ms']=round((time.monotonic()-title_started)*1000)
                         serial_qualified=bool(best and best['score']>=.85 and not ambiguous)
                         item['name_ocr']=mark_conflicts(title,box.get('visual_card_id'),serial_matches,serial_qualified)
+                        # Second vote for cards the recognizer did not accept: the title names one of its
+                        # own candidates (name_ocr.pick_by_name). Evidence only; vision_onnx decides.
+                        title_reader=getattr(reader,'title_reader',None)
+                        if not box.get('visual_card_id') and title_reader is not None and title.get('text') and (title.get('score') or 0)>=.7:
+                            pick=pick_by_name(title_reader.registry,title['text'],box.get('candidate_ids') or [])
+                            if pick:item['name_pick']={**pick,'text':title['text'],'ocr_score':title.get('score')}
                         if native_height*.015<7:
                             item['set_ocr']={'status':'skipped','reason':'small_text'}
                         elif hasattr(reader,'read_set'):
@@ -273,7 +284,7 @@ class PasscodeWorker:
                         else:item['set_ocr']={'status':'skipped','reason':'reader_unavailable'}
                         # Independent check of the illustration against the candidates
                         # proposed by the recognizer (accepted identity first).
-                        proposals=[c for c in [box.get('visual_card_id'),*(box.get('candidate_ids') or [])] if c]
+                        proposals=[c for c in [box.get('visual_card_id'),*(box.get('candidate_ids') or [])[:3]] if c]
                         if verifier is None:item['art_match']={'status':'skipped','reason':'verifier_unavailable'}
                         elif native_height<120:item['art_match']={'status':'skipped','reason':'small_card'}
                         else:

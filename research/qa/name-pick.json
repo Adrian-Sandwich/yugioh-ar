@@ -1,0 +1,51 @@
+{
+  "date": "2026-09-28",
+  "n": 300,
+  "min_similarity": 0.72,
+  "margin": 0.12,
+  "by_errors": {
+    "1": {
+      "present": 297,
+      "found": 0.929,
+      "absent": 297,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "2": {
+      "present": 297,
+      "found": 0.855,
+      "absent": 297,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "3": {
+      "present": 297,
+      "found": 0.768,
+      "absent": 297,
+      "wrong": 0.0034,
+      "wrong_examples": [
+        {
+          "title": "NEIO MUSION",
+          "true": "Necro Fusion",
+          "picked": "Neos Fusion",
+          "similarity": 0.8
+        }
+      ]
+    },
+    "4": {
+      "present": 297,
+      "found": 0.707,
+      "absent": 297,
+      "wrong": 0.0034,
+      "wrong_examples": [
+        {
+          "title": "CYBERLÍAAÉ FUSIONN",
+          "true": "Cyberload Fusion",
+          "picked": "Cyber Blade Fusion",
+          "similarity": 0.848
+        }
+      ]
+    }
+  },
+  "limits": "Títulos simulados desde nombres en inglés con daño tipo OCR; compañeros = nombres más parecidos del registro. Falta medir con fotos reales anotadas."
+}

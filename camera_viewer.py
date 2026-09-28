@@ -385,7 +385,7 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
                 visual=named.get(tuple(map(tuple,d['corners'])),{})
                 boxes.append({'corners':d['corners'],'visual_card_id':visual.get('card_id'),'name':visual.get('name'),
                               'source_visual_card_id':visual.get('source_card_id',visual.get('card_id')),
-                              'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:3],
+                              'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:5],
                               'geometry_status':d.get('geometry_status'),'geometry_iou':d.get('geometry_iou')})
             worker.submit(data,boxes,captured_at)
         if getattr(server,'tracker',None):
