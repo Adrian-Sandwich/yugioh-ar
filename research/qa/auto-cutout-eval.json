@@ -5,30 +5,30 @@
     "isnet-anime": {
       "iou_mean": 0.692,
       "iou_median": 0.837,
-      "iou_p25": 0.556,
+      "iou_p25": 0.557,
       "share_iou_ge_0_8": 0.55,
-      "ms_per_card": 75.3
+      "ms_per_card": 92.1
     },
     "isnet-general": {
       "iou_mean": 0.64,
       "iou_median": 0.668,
       "iou_p25": 0.486,
       "share_iou_ge_0_8": 0.35,
-      "ms_per_card": 89.6
+      "ms_per_card": 105.6
     },
     "birefnet-lite": {
       "iou_mean": 0.808,
       "iou_median": 0.876,
       "iou_p25": 0.706,
       "share_iou_ge_0_8": 0.667,
-      "ms_per_card": 1672.4
+      "ms_per_card": 276.9
     },
     "birefnet": {
       "iou_mean": 0.861,
       "iou_median": 0.939,
       "iou_p25": 0.81,
       "share_iou_ge_0_8": 0.767,
-      "ms_per_card": 2968.9
+      "ms_per_card": 487.4
     }
   }
 }

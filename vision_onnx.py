@@ -426,6 +426,13 @@ class LiveRecognizer(ResearchRecognizer):
         self.signature=self.pilot_signature()
         self.references=reference_entries()
         self.cards={};self.references_by_id={}
+        # Cards without a TDOANE sprite use their automatic cut-out when research/auto_cutout.py made one.
+        auto=ROOT/'data/auto-sprites'
+        made={p.name for p in auto.glob('*.png')} if auto.exists() else set()
+        for ref in self.references:
+            if not ref.get('sprite_ref') and ref.get('source'):
+                name=Path(ref['source']).stem+'.png'
+                if name in made: ref['sprite_ref']='auto:'+name
         for ref in self.references:
             self.cards.setdefault(ref['card_id'],ref)
             self.references_by_id.setdefault(ref['id'],ref)

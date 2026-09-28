@@ -3,7 +3,9 @@ import time
 from collections import OrderedDict
 import cv2
 import numpy as np
+from pathlib import Path
 from catalog import connect,asset_path
+AUTO_SPRITES=Path(__file__).resolve().parent/'data/auto-sprites'
 
 
 class Tracker:
@@ -76,9 +78,14 @@ class SpriteOverlay:
     def load(self,ref):
         """Decoded RGBA sprite for a reference id, or None (cached either way)."""
         if ref not in self.cache:
-            with connect() as conn:
-                row=conn.execute('SELECT * FROM refs WHERE ref_id=? AND kind=\'sprite\'',(ref,)).fetchone()
-            self.cache[ref]=None if row is None else cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_UNCHANGED)
+            if ref.startswith('auto:'):
+                # Automatic cut-outs (research/auto_cutout.py) for cards without a TDOANE sprite.
+                path=AUTO_SPRITES/ref[5:]
+                self.cache[ref]=cv2.imread(str(path),cv2.IMREAD_UNCHANGED) if path.parent==AUTO_SPRITES and path.exists() else None
+            else:
+                with connect() as conn:
+                    row=conn.execute('SELECT * FROM refs WHERE ref_id=? AND kind=\'sprite\'',(ref,)).fetchone()
+                self.cache[ref]=None if row is None else cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_UNCHANGED)
         sprite=self.cache[ref]
         return sprite if sprite is not None and sprite.ndim==3 and sprite.shape[2]==4 else None
 
