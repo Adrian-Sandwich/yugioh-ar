@@ -394,6 +394,8 @@ function renderRecent(view){
   const key=JSON.stringify(recent);if(key===renderRecent.key)return;renderRecent.key=key;
   const nodes=recent.map((r,i)=>{
     const row=document.createElement('div');row.className='play';row.append(textNode('span',r.text));
+    // Notary mode: a rule this play skipped, as a quiet note (the players decide).
+    if(r.warnings?.length){const w=textNode('small','Aviso: '+r.warnings.join(' · '));w.className='warning';row.append(w);}
     if(i===0){   // only the latest can be changed without touching later plays
       for(const a of r.alternatives){const b=document.createElement('button');b.className='secondary';b.textContent=`Era: ${a.label}`;b.onclick=()=>duelAct({type:'revise',id:r.id,replacement:a.type});row.append(b);}
       const u=document.createElement('button');u.className='secondary';u.textContent='Deshacer';u.onclick=()=>duelAct({type:'revise',id:r.id});row.append(u);

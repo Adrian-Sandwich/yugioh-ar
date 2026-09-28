@@ -444,8 +444,9 @@ class TableDuel:
         # when the track's card_id is no longer known).
         was = self._model_card(pending['player'], pending['zone']) if pending.get('kind') == 'missing' else None
         was_name = (was or {}).get('name') or ('carta boca abajo' if (was or {}).get('position') in ('facedown', 'facedown_defense') else None)
-        for n, (event, label) in enumerate(plays):
-            event = dict(event); reclaim = event.pop('_reclaim', []); used = event.pop('_with', None)
+        def attempt(n, allow_warnings):
+            """Apply play n; None if the engine refuses it (or, first pass, only accepts it with warnings)."""
+            event = dict(plays[n][0]); reclaim = event.pop('_reclaim', []); used = event.pop('_with', None)
             saved = list(self.duel.log); start = len(saved)
             try:
                 if reclaim:
@@ -459,7 +460,20 @@ class TableDuel:
                 if event['type'] in SUMMON_EVENTS: self._to_main_phase(event['player'])
                 self.act(event, record=False)
             except DuelError:
-                self.duel = Duel.replay(saved); continue
+                self.duel = Duel.replay(saved); return None
+            warnings = [w for e in self.duel.log[start:] for w in e.get('warnings', [])]
+            if warnings and not allow_warnings: self.duel = Duel.replay(saved); return None
+            return event, reclaim, used, start, warnings
+        # Notary mode accepts almost anything with a warning: prefer the first play that breaks no rule
+        # (a second Normal Summon is more likely a Special Summon), then the first one at all.
+        done = None
+        for allow in (False, True):
+            for n in range(len(plays)):
+                done = attempt(n, allow)
+                if done: break
+            if done: break
+        if done:
+            event, reclaim, used, start, warnings = done; label = plays[n][1]
             self.recent = [r for r in self.recent if r not in reclaim]
             name = facts.get('name') or was_name or 'carta'
             options = ACTIONS.get((pending.get('kind'), family(pending['zone']))) or ACTIONS.get((pending.get('kind'), 'any')) or []
@@ -474,7 +488,8 @@ class TableDuel:
             self.recent.insert(0, {'id': f'{start}-{len(self.duel.log)}', 'start': start, 'end': len(self.duel.log), 'time': time.monotonic(),
                                    'card_id': card_id, 'text': f"{label}: {name}{f' con {used}' if used else ''} ({zone_label(pending['zone'])}, {self.duel.state['players'][pending['player']]['name']})",
                                    'pending': pending, 'event': event, 'materials': event.get('materials') or event.get('tributes') or [],
-                                   'plays': [{k: v for k, v in e.items() if k not in ('_reclaim', '_with')} for e, _ in others], 'alternatives': alternatives})
+                                   'plays': [{k: v for k, v in e.items() if k not in ('_reclaim', '_with')} for e, _ in others], 'alternatives': alternatives,
+                                   'warnings': warnings})
             del self.recent[8:]
             self._save()
             return True
@@ -649,6 +664,8 @@ class TableDuel:
         actions: goto_phase, end_turn, revise (change or undo an automatic play), auto."""
         with self.lock:
             event = dict(event); kind = event.get('type')
+            # Players decide and resolve: new duels record rule breaks as warnings (duel_engine notary mode).
+            if kind == 'start_duel': event.setdefault('rules', 'notary')
             if kind == 'goto_phase': return self.goto_phase(event.get('phase'))
             if kind == 'end_turn': return self.end_turn()
             if kind == 'revise': return self.revise(event.get('id'), event.get('replacement'))
@@ -745,7 +762,7 @@ class TableDuel:
             return {'started': st['started'], 'turn': st['turn'], 'current': st['current'], 'phase': st['phase'], 'battle_step': st['battle_step'],
                     'result': st['result'], 'players': players, 'board': board, 'questions': questions, 'pending_attack': st['pending_attack'],
                     'calibrated': self.mode is not None, 'mode': self.mode, 'mats_seen': [m.player for m in self.mats], 'events': len(self.duel.log),
-                    'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id')} for r in self.recent],
+                    'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id', 'warnings')} for r in self.recent],
                     'battle_preview': self.battle_preview(), 'carrying': sorted(self.gestures), 'card_backs': self._backs_summary()}
 
     def _backs_summary(self):

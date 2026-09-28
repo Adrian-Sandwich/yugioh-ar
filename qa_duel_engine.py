@@ -227,6 +227,23 @@ def facedown_and_flip():
     check('retrack: the same card found again under a new track keeps everything else')
 
 
+def notary_mode():
+    d=Duel();rejected(d,{'type':'start_duel','rules':'loose'},'rules debe ser')
+    d.start_duel(opening_hand=1,deck_sizes=[1,1],rules='notary');to_main1(d)
+    d.normal_summon(0,monster('n1','a',1000,1000),'monster:0')
+    r=d.normal_summon(0,monster('n2','b',1000,1000),'monster:1')          # second one, and the hand is 0
+    assert len(r['warnings'])==2 and d.log[-1]['warnings']==r['warnings'] and d.state['players'][0]['hand']==0
+    assert '_warnings' not in d.state,'Warnings travel with the event, never in the state'
+    rejected(d,{'type':'special_summon','player':0,'card':monster('n3','c',1,1),'zone':'monster:0'},'ocupada')
+    rejected(d,{'type':'flip','player':0,'copy_id':'nope'},'no es un monstruo')
+    d.set_spell_trap(1,{'copy_id':'t1'},'spell:0')                          # not their turn: warned
+    d.end_turn();d.draw(1);d.draw(1,effect=True)                           # deck estimate at 0: no deck-out
+    assert d.state['result'] is None and d.state['players'][1]['deck']==0 and 'warnings' in d.log[-1]
+    d.next_phase();d.next_phase();d.next_phase()
+    assert Duel.from_json(d.to_json()).snapshot()==d.snapshot()
+    check('notary mode: game rules become warnings in the log, counts never negative, no deck-out on estimates; impossibilities still rejected')
+
+
 def observation_reconciliation():
     d=Duel();d.start_duel();to_main1(d)
     r=d.observe(0,'monster:3',copy_id='x9',card_id='c9',position='attack')
@@ -266,6 +283,7 @@ def main():
     equal_attack_and_tributes()
     summon_materials()
     facedown_and_flip()
+    notary_mode()
     observation_reconciliation()
     final=d.snapshot()
     result={'status':'passed','date':'2026-09-26','engine':'duel_engine.py','events_supported':list(EVENTS),

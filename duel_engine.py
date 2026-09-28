@@ -25,6 +25,20 @@ def _need(condition,message):
     if not condition: raise DuelError(message)
 
 
+def _rule(st,condition,message):
+    """A game rule (phases, once per turn, estimated hand/deck counts). `rules='strict'` rejects
+    like _need; `rules='notary'` (players decide and resolve) records the event with a warning.
+    Physical impossibilities (occupied zone, unknown card) always use _need."""
+    if condition: return
+    if st.get('rules','strict')=='strict': raise DuelError(message)
+    st.setdefault('_warnings',[]).append(message)
+
+
+def _dec(p,key):
+    """Estimated counts (hand, deck, Extra Deck) never go below zero."""
+    p[key]=max(0,p[key]-1)
+
+
 def _empty():
     return {'started':False,'turn':0,'current':None,'starting':None,'phase':None,'battle_step':None,'result':None,
         'players':[],'shared':{'extra_monster':[None,None]},'pending':[],'pending_attack':None,'turn_flags':{}}
@@ -147,8 +161,8 @@ def _check_end(st):
 
 
 def _main_phase(st,player):
-    _need(player==st['current'],'Sólo el jugador del turno puede hacer esto')
-    _need(st['phase'] in ('main1','main2'),'Esta acción sólo se hace en una Main Phase')
+    _rule(st,player==st['current'],'Sólo el jugador del turno puede hacer esto')
+    _rule(st,st['phase'] in ('main1','main2'),'Esta acción sólo se hace en una Main Phase')
 
 
 def _pick(st,player,copy_id,card,source,allowed):
@@ -160,22 +174,23 @@ def _pick(st,player,copy_id,card,source,allowed):
         _need(kind in allowed,f'{copy_id!r} está en {zone}; ese movimiento no aplica desde ahí')
         return _take(st,copy_id)
     p=_player(st,player);_need(source in ('hand','deck','extra_deck'),'source debe ser hand, deck o extra_deck')
-    _need(p[source]>0,f'No hay cartas en {source} del jugador {player}')
-    new=_new_card(st,card,player);p[source]-=1
+    _rule(st,p[source]>0,f'No hay cartas en {source} del jugador {player}')
+    new=_new_card(st,card,player);_dec(p,source)
     return new
 
 
 # --- Eventos -----------------------------------------------------------------
 
-def _h_start_duel(st,names=('Jugador 1','Jugador 2'),starting=0,deck_sizes=(40,40),extra_deck_sizes=(0,0),lp=8000,opening_hand=5):
+def _h_start_duel(st,names=('Jugador 1','Jugador 2'),starting=0,deck_sizes=(40,40),extra_deck_sizes=(0,0),lp=8000,opening_hand=5,rules='strict'):
     _need(not st['started'],'El duelo ya empezó')
+    _need(rules in ('strict','notary'),'rules debe ser strict o notary')
     _need(starting in (0,1),'starting debe ser 0 o 1')
     _need(len(names)==2 and len(deck_sizes)==2 and len(extra_deck_sizes)==2,'Se necesitan exactamente dos jugadores')
     _need(isinstance(lp,int) and lp>0,'lp debe ser un entero positivo')
     _need(isinstance(opening_hand,int) and opening_hand>=0,'opening_hand debe ser un entero no negativo')
     for size in (*deck_sizes,*extra_deck_sizes): _need(isinstance(size,int) and size>=0,'Los tamaños de mazo deben ser enteros no negativos')
     _need(min(deck_sizes)>=opening_hand,'El mazo no alcanza para la mano inicial')
-    st.update(started=True,turn=1,current=starting,starting=starting,phase='draw',battle_step=None,result=None,pending=[],
+    st.update(started=True,rules=rules,turn=1,current=starting,starting=starting,phase='draw',battle_step=None,result=None,pending=[],
         pending_attack=None,turn_flags={'drew':False,'normal_summoned':False},shared={'extra_monster':[None,None]},
         players=[_player_state(str(names[i]),deck_sizes[i]-opening_hand,extra_deck_sizes[i],lp,opening_hand) for i in (0,1)])
     return {'turn':1,'current':starting,'phase':'draw'}
@@ -184,33 +199,37 @@ def _h_start_duel(st,names=('Jugador 1','Jugador 2'),starting=0,deck_sizes=(40,4
 def _h_draw(st,player,count=1,effect=False):
     p=_player(st,player);_need(isinstance(count,int) and not isinstance(count,bool) and count>=1,'count debe ser un entero positivo')
     if not effect:
-        _need(player==st['current'],'Sólo el jugador del turno roba en su Draw Phase')
-        _need(st['phase']=='draw','El robo normal ocurre en la Draw Phase')
-        _need(st['turn']>1,'El jugador que empieza no roba en el primer turno')
-        _need(not st['turn_flags']['drew'],'Ya se hizo el robo normal de este turno')
-        _need(count==1,'El robo normal es de una sola carta')
+        _rule(st,player==st['current'],'Sólo el jugador del turno roba en su Draw Phase')
+        _rule(st,st['phase']=='draw','El robo normal ocurre en la Draw Phase')
+        _rule(st,st['turn']>1,'El jugador que empieza no roba en el primer turno')
+        _rule(st,not st['turn_flags']['drew'],'Ya se hizo el robo normal de este turno')
+        _rule(st,count==1,'El robo normal es de una sola carta')
         st['turn_flags']['drew']=True
     drawn=0
     for _ in range(count):
-        if p['deck']==0: _finish(st,1-player,'deck_out');break
+        if p['deck']==0:
+            # The deck count is an estimate in notary mode: never end a duel on it.
+            if st.get('rules','strict')=='strict': _finish(st,1-player,'deck_out');break
+            _rule(st,False,f'El mazo estimado del jugador {player} ya estaba en 0')
+            p['hand']+=1;drawn+=1;continue
         p['deck']-=1;p['hand']+=1;drawn+=1
     return {'drawn':drawn,'deck':p['deck'],'hand':p['hand']}
 
 
 def _normal(st,player,spec,zone,tributes,position):
     p=_player(st,player);_main_phase(st,player)
-    _need(not st['turn_flags']['normal_summoned'],'Ya se hizo la Invocación Normal o colocación de este turno')
-    _need(p['hand']>0,f'No hay cartas en la mano del jugador {player}')
+    _rule(st,not st['turn_flags']['normal_summoned'],'Ya se hizo la Invocación Normal o colocación de este turno')
+    _rule(st,p['hand']>0,f'No hay cartas en la mano del jugador {player}')
     _need(isinstance(zone,str) and zone.startswith('monster:'),'La Invocación Normal o colocación va a una zona de monstruo principal (monster:0-4)')
     new=_new_card(st,spec,player);tributes=list(tributes)
     _need(len(set(tributes))==len(tributes),'Tributos repetidos')
     level=new['level']
     if level is not None:
         needed=0 if level<=4 else 1 if level<=6 else 2
-        _need(len(tributes)==needed,f'Nivel {level} requiere {needed} tributo(s); se indicaron {len(tributes)}')
-    for copy_id in tributes:
-        _own_monster(st,player,copy_id);_to_graveyard(st,_take(st,copy_id))
-    _place(st,player,zone,new,position);new['summoned_turn']=st['turn'];p['hand']-=1;st['turn_flags']['normal_summoned']=True
+        _rule(st,len(tributes)==needed,f'Nivel {level} requiere {needed} tributo(s); se indicaron {len(tributes)}')
+    for copy_id in tributes: _own_monster(st,player,copy_id)
+    for copy_id in tributes: _to_graveyard(st,_take(st,copy_id))
+    _place(st,player,zone,new,position);new['summoned_turn']=st['turn'];_dec(p,'hand');st['turn_flags']['normal_summoned']=True
     return {'copy_id':new['copy_id'],'zone':zone,'position':position,'tributed':tributes}
 
 
@@ -229,7 +248,7 @@ def _h_special_summon(st,player,card,zone,source='hand',position='attack',materi
     materials=list(materials);_need(len(set(materials))==len(materials),'Materiales repetidos')
     for copy_id in materials: _own_monster(st,player,copy_id)
     if source in ('hand','deck','extra_deck'):
-        _need(p[source]>0,f'No hay cartas en {source} del jugador {player}')
+        _rule(st,p[source]>0,f'No hay cartas en {source} del jugador {player}')
     elif source in ('graveyard','banished'):
         old=card['copy_id'] if from_copy is None else from_copy
         loc=_locate(st,old);_need(loc is not None and loc[1]==source,f'{old!r} no está en {source}')
@@ -237,7 +256,7 @@ def _h_special_summon(st,player,card,zone,source='hand',position='attack',materi
     else: raise DuelError(f'Origen desconocido: {source!r}')
     taken=[_take(st,copy_id) for copy_id in materials]   # materials leave first: the new monster may take their zone
     if source in ('hand','deck','extra_deck'):
-        new=_new_card(st,card,player);p[source]-=1
+        new=_new_card(st,card,player);_dec(p,source)
     else:
         new=_take(st,old);new['copy_id']=card['copy_id'];_merge(new,card)
     if attach: new['materials']=taken
@@ -262,8 +281,8 @@ def _h_flip(st,player,copy_id,reveal=None,as_copy=None,position='attack'):
     _need(card['position']=='facedown_defense','Sólo se voltea (Flip Summon) un monstruo boca abajo')
     if position=='attack':
         _main_phase(st,player)
-        _need(card['summoned_turn']!=st['turn'],'No se voltea un monstruo el turno en que se colocó')
-        _need(card['position_changed_turn']!=st['turn'],'Ese monstruo ya cambió de posición este turno')
+        _rule(st,card['summoned_turn']!=st['turn'],'No se voltea un monstruo el turno en que se colocó')
+        _rule(st,card['position_changed_turn']!=st['turn'],'Ese monstruo ya cambió de posición este turno')
         card['position_changed_turn']=st['turn']
     if reveal is not None: _merge(card,reveal)
     _as_copy(st,card,as_copy);card['position']=position
@@ -276,9 +295,9 @@ def _h_change_position(st,player,copy_id,position):
     _need(position in ('attack','defense'),'position debe ser attack o defense (boca abajo sólo con set_monster)')
     _need(card['position'] in ('attack','defense'),'Un monstruo boca abajo se voltea con flip')
     _need(card['position']!=position,'El monstruo ya está en esa posición')
-    _need(card['summoned_turn']!=st['turn'],'No cambia de posición el turno en que se invocó o colocó')
-    _need(card['position_changed_turn']!=st['turn'],'Ese monstruo ya cambió de posición este turno')
-    _need(card['attacked_turn']!=st['turn'],'Ese monstruo ya atacó este turno')
+    _rule(st,card['summoned_turn']!=st['turn'],'No cambia de posición el turno en que se invocó o colocó')
+    _rule(st,card['position_changed_turn']!=st['turn'],'Ese monstruo ya cambió de posición este turno')
+    _rule(st,card['attacked_turn']!=st['turn'],'Ese monstruo ya atacó este turno')
     card['position']=position;card['position_changed_turn']=st['turn']
     return {'copy_id':copy_id,'position':position}
 
@@ -293,22 +312,22 @@ def _h_activate_spell_trap(st,player,card=None,copy_id=None,zone=None,as_pendulu
         _need(loc is not None and loc[0]==player and _is_spell_zone(loc[1]),f'{copy_id!r} no es una carta colocada del jugador {player}')
         c=loc[2][loc[3]];_need(c['position']=='facedown','La carta ya está boca arriba')
         if reveal is not None: _merge(c,reveal)
-        _need(c['type']!='trap' or c['set_turn']!=st['turn'],'Una trampa no se activa el turno en que se colocó')
+        _rule(st,c['type']!='trap' or c['set_turn']!=st['turn'],'Una trampa no se activa el turno en que se colocó')
         _as_copy(st,c,as_copy);c['position']='faceup';_clear_pending(st,_key(player,loc[1]))
         return {'copy_id':c['copy_id'],'zone':loc[1],'position':'faceup'}
-    _main_phase(st,player);_need(p['hand']>0,f'No hay cartas en la mano del jugador {player}')
+    _main_phase(st,player);_rule(st,p['hand']>0,f'No hay cartas en la mano del jugador {player}')
     _need(isinstance(zone,str) and _is_spell_zone(zone),'Zona de magia/trampa requerida (spell:0-4 o field)')
     if as_pendulum:
-        _need(zone.startswith('spell:') and p['spell_zone_pendulum'][int(zone[-1])],f'{zone} no es una zona péndulo')
-    new=_new_card(st,card,player);_need(new['type']!='trap','Una trampa se coloca boca abajo antes de activarse')
-    _place(st,player,zone,new,'faceup');new['set_turn']=st['turn'];p['hand']-=1
+        _rule(st,zone.startswith('spell:') and p['spell_zone_pendulum'][int(zone[-1])],f'{zone} no es una zona péndulo')
+    new=_new_card(st,card,player);_rule(st,new['type']!='trap','Una trampa se coloca boca abajo antes de activarse')
+    _place(st,player,zone,new,'faceup');new['set_turn']=st['turn'];_dec(p,'hand')
     return {'copy_id':new['copy_id'],'zone':zone,'position':'faceup','as_pendulum':bool(as_pendulum)}
 
 
 def _h_set_spell_trap(st,player,card,zone):
-    p=_player(st,player);_main_phase(st,player);_need(p['hand']>0,f'No hay cartas en la mano del jugador {player}')
+    p=_player(st,player);_main_phase(st,player);_rule(st,p['hand']>0,f'No hay cartas en la mano del jugador {player}')
     _need(isinstance(zone,str) and _is_spell_zone(zone),'Zona de magia/trampa requerida (spell:0-4 o field)')
-    new=_new_card(st,card,player);_place(st,player,zone,new,'facedown');new['set_turn']=st['turn'];p['hand']-=1
+    new=_new_card(st,card,player);_place(st,player,zone,new,'facedown');new['set_turn']=st['turn'];_dec(p,'hand')
     return {'copy_id':new['copy_id'],'zone':zone,'position':'facedown'}
 
 
@@ -331,13 +350,13 @@ def _h_return_to_hand(st,player,copy_id,to='hand'):
 
 
 def _h_declare_attack(st,player,attacker,target=None):
-    _player(st,player);_need(player==st['current'],'Sólo ataca el jugador del turno')
+    _player(st,player);_rule(st,player==st['current'],'Sólo ataca el jugador del turno')
     _need(st['phase']=='battle' and st['battle_step']=='battle','Los ataques se declaran en el Battle Step de la Battle Phase')
     card=_own_monster(st,player,attacker)
-    _need(card['position']=='attack','Sólo ataca un monstruo boca arriba en posición de ataque')
-    _need(card['attacked_turn']!=st['turn'],'Ese monstruo ya atacó este turno')
+    _rule(st,card['position']=='attack','Sólo ataca un monstruo boca arriba en posición de ataque')
+    _rule(st,card['attacked_turn']!=st['turn'],'Ese monstruo ya atacó este turno')
     enemies=[c['copy_id'] for _,c in _monsters(st,1-player)]
-    if target is None: _need(not enemies,'Ataque directo sólo si el oponente no controla monstruos')
+    if target is None: _rule(st,not enemies,'Ataque directo sólo si el oponente no controla monstruos')
     else: _need(target in enemies,f'{target!r} no es un monstruo del oponente')
     st['pending_attack']={'attacker':attacker,'target':target,'player':player};st['battle_step']='damage'
     return {'attacker':attacker,'target':target,'direct':target is None}
@@ -389,7 +408,7 @@ def _h_change_lp(st,player,delta,reason=''):
 def _h_next_phase(st,skip_battle=False):
     phase=st['phase']
     if phase=='draw':
-        _need(st['turn_flags']['drew'] or st['turn']==1,'Hay que robar antes de salir de la Draw Phase');st['phase']='standby'
+        _rule(st,st['turn_flags']['drew'] or st['turn']==1,'Hay que robar antes de salir de la Draw Phase');st['phase']='standby'
     elif phase=='standby': st['phase']='main1'
     elif phase=='main1':
         if st['turn']==1 or skip_battle: st['phase']='end'
@@ -406,7 +425,7 @@ def _h_next_phase(st,skip_battle=False):
 
 
 def _h_end_turn(st):
-    _need(st['phase'] in ('main1','main2','end'),'El turno se termina desde Main Phase 1, Main Phase 2 o End Phase')
+    _rule(st,st['phase'] in ('main1','main2','end'),'El turno se termina desde Main Phase 1, Main Phase 2 o End Phase')
     st['turn']+=1;st['current']=1-st['current'];st['phase']='draw';st['battle_step']=None;st['pending_attack']=None
     st['turn_flags']={'drew':False,'normal_summoned':False}
     return {'turn':st['turn'],'current':st['current'],'phase':'draw'}
@@ -493,8 +512,12 @@ class Duel:
         try: result=handler(working,**params)
         except TypeError as error: raise DuelError(f'Parámetros inválidos para {kind}: {error}') from None
         if kind!='observe': _check_end(working)
-        seq=len(self.log)+1;self.log.append({'seq':seq,'type':kind,'params':params});self.state=working
-        return {'seq':seq,**(result or {})}
+        # Notary mode: the rules this event skipped travel with it (log and result), never in the state.
+        warnings=working.pop('_warnings',[])
+        entry={'seq':len(self.log)+1,'type':kind,'params':params}
+        if warnings: entry['warnings']=warnings
+        self.log.append(entry);self.state=working
+        return {'seq':entry['seq'],**(result or {}),**({'warnings':warnings} if warnings else {})}
 
     # Envolturas explícitas de cada evento.
     def start_duel(self,**params): return self.apply({'type':'start_duel',**params})

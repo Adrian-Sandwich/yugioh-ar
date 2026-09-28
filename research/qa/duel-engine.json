@@ -67,6 +67,7 @@
     "turned face-up by an effect: defense, no Flip Summon limits",
     "set Spell/Trap activated, revealed under a new track",
     "retrack: the same card found again under a new track keeps everything else",
+    "notary mode: game rules become warnings in the log, counts never negative, no deck-out on estimates; impossibilities still rejected",
     "observation: unexplained card reported not summoned, per-zone latest discrepancy, identity never inferred face down"
   ],
   "limits": "Reglas estructurales sólo; sin efectos de cartas, cadenas ni prioridad. No probado en duelos reales ni conectado al reconocedor."

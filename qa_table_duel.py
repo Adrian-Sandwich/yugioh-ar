@@ -93,12 +93,19 @@ def main():
         assert len(q) == 1 and q[0]['options'] == [] and 'Magia/Trampa' in q[0]['hint'], q
         feed(table, [])
         checks.append('monster in a Spell & Trap Zone: no answers, a hint')
-        # Invalid answers leave the duel untouched and say why.
+        # Notary mode (the table's default): a rule break is recorded with a warning...
+        assert table.duel.state['rules'] == 'notary'
+        r = table.act({'type': 'normal_summon', 'player': 0, 'zone': 'monster:3', 'copy_id': 5})
+        assert any('Invocación Normal' in w for w in r['warnings']) and 'warnings' in table.duel.log[-1], r
+        table.act({'type': 'undo'})
+        # ...an impossible answer leaves the duel untouched and says why.
         events = len(table.duel.log)
-        try: table.act({'type': 'normal_summon', 'player': 0, 'zone': 'monster:3', 'copy_id': 5}); raise AssertionError('second normal summon accepted')
-        except Exception as error: assert 'Normal' in str(error) or 'turno' in str(error), error
+        table.act({'type': 'special_summon', 'player': 0, 'zone': 'monster:4', 'copy_id': 6})
+        events = len(table.duel.log)
+        try: table.act({'type': 'special_summon', 'player': 0, 'zone': 'monster:4', 'copy_id': 5}); raise AssertionError('occupied zone accepted')
+        except Exception as error: assert 'ocupada' in str(error), error
         assert len(table.duel.log) == events
-        checks.append('invalid answer rejected with a reason, state unchanged')
+        checks.append('notary: a second Normal Summon is recorded with a warning; an occupied zone is still rejected, state unchanged')
         # Restart: calibration and duel come back from disk.
         again = TableDuel(folder, sheet=SHEETS.get)
         assert again.mode == 'two' and again.duel.state == table.duel.state and len(again.duel.log) == len(table.duel.log)
@@ -197,9 +204,10 @@ def main():
         # A click-declared attack can be cancelled (an effect stopped it).
         kb2 = track(battle, 0, 3, 'kuriboh', *center('monster:0'))
         battle.duel.special_summon(0, {'copy_id': 3, 'card_id': 'kuriboh', 'name': 'Kuriboh', 'atk': 300, 'def': 200}, 'monster:0', source='hand')
-        try: battle.act({'type': 'attack', 'attacker': 2, 'target': 3}); raise AssertionError('second attack of the same monster accepted')
-        except Exception as error: assert 'ya atacó' in str(error), error
-        checks.append('the engine refuses a second attack by the same monster')
+        battle.act({'type': 'attack', 'attacker': 2, 'target': 3})
+        assert any('ya atacó' in w for w in battle.duel.log[-1].get('warnings', [])), battle.duel.log[-1]
+        battle.act({'type': 'cancel_attack'}); assert not battle.duel.state['pending_attack']
+        checks.append('a second attack by the same monster is recorded with a warning and can be cancelled')
         # Summons with materials, deduced from the monsters that just left the field.
         s = TableDuel(folder / 'summons', sheet=SHEETS.get)
         s.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
@@ -278,6 +286,11 @@ def main():
         view = f.view(); card = next(c for c in view['board'] if c['zone'] == 'spell:1')
         assert card['copy_id'] == 41 and card['name'] == 'Olla de la Codicia' and card['position'] == 'faceup' and view['recent'][0]['text'].startswith('Activada: Olla'), view['recent'][0]
         checks.append('a set Spell turned face-up: activated and revealed')
+        for _ in range(3): f.feed([face, pot], backs=backs('0|monster:3'))
+        for _ in range(3): f.feed([face, pot], backs=backs('0|monster:3', '0|monster:4'))   # a second set this turn
+        view = f.view(); sets = {c['zone']: c['position'] for c in view['board'] if c['zone'] in ('monster:3', 'monster:4')}
+        assert sets == {'monster:3': 'facedown_defense', 'monster:4': 'facedown_defense'} and view['recent'][0]['warnings'] and not view['recent'][1]['warnings'], view['recent'][:2]
+        checks.append('notary: a second face-down monster in the same turn is still set, with a warning')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'
