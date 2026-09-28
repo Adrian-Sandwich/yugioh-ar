@@ -260,7 +260,9 @@ class PasscodeWorker:
                         # One connection per batch; the registry may still be absent.
                         serial_matches=lookup(best['passcode'],db=registry) if best and registry is not None else []
                         title_started=time.monotonic()
-                        if native_height*.025<8:
+                        # Titles from 240 px card height: a 308 px Ghost Rare Naturia Barkion read as
+                        # "NČHIRIA BARKION" (0.91). A misread small title cannot pass pick_by_name.
+                        if native_height*.025<6:
                             title={'status':'skipped','reason':'small_text'}
                         elif not hasattr(reader,'read_name'):
                             title={'status':'skipped','reason':'reader_unavailable'}
