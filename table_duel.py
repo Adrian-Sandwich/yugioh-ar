@@ -778,7 +778,10 @@ class TableDuel:
                     'result': st['result'], 'players': players, 'board': board, 'questions': questions, 'pending_attack': st['pending_attack'],
                     'calibrated': self.mode is not None, 'mode': self.mode, 'mats_seen': [m.player for m in self.mats], 'events': len(self.duel.log),
                     'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id', 'warnings')} for r in self.recent],
-                    'battle_preview': self.battle_preview(), 'carrying': sorted(self.gestures), 'card_backs': self._backs_summary()}
+                    'battle_preview': self.battle_preview(), 'carrying': sorted(self.gestures), 'card_backs': self._backs_summary(),
+                    # What the camera sees right now, whatever the duel recorded: the view draws face-down
+                    # figures from this (seen in the last two analyses).
+                    'backs_seen': [{'player': p, 'zone': z} for (p, z), age in sorted(self.back_age.items()) if age <= 2]}
 
     def _backs_summary(self):
         try:

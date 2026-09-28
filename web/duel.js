@@ -73,60 +73,83 @@ const FD_STYLES=[['shield','Escudo'],['silhouette','Silueta'],['card','Carta de 
 let fdStyle=(()=>{try{return localStorage.getItem('fdStyle')||'shield';}catch(e){return 'shield';}})();
 function fdButtonLabel(){const b=$d('#fdStyle');if(b)b.textContent='Boca abajo: '+FD_STYLES.find(s=>s[0]===fdStyle)[1];}
 function hexPath(context,cx,cy,r){context.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*.9*Math.sin(a));}context.closePath();}
-function drawFacedownFigure(context,polygon,now,seed){
+function drawFacedownFigure(context,polygon,now,seed,appear=1){
   const H=cardMap(polygon),[cx,cy]=H(.5,.5),l=H(0,.5),r=H(1,.5),w=Math.hypot(r[0]-l[0],r[1]-l[1]);
-  const pulse=.5+.5*Math.sin(now/700+seed),bob=Math.sin(now/900+seed)*w*.02;
-  context.save();
-  context.fillStyle='rgba(0,0,0,.3)';planeEllipse(context,H,.9);context.fill();
+  const g={H,center:[cx,cy],width:w*.72};
+  const pulse=.5+.5*Math.sin(now/700+seed),bob=Math.sin(now/900+seed)*w*.025,a=clamp(appear),pop=.6+.4*ease.back(a);
+  // Contact shadow and a warm pool of light, like every figure on the table.
+  context.save();const sh=context.createRadialGradient(cx,cy,0,cx,cy,w*.5);sh.addColorStop(0,`rgba(0,0,0,${.45*a})`);sh.addColorStop(1,'rgba(0,0,0,0)');
+  context.fillStyle=sh;planeEllipse(context,H,.95);context.fill();context.restore();
+  const tone=fdStyle==='silhouette'?[181,140,255]:RGB.back;
+  glow(context,cx,cy,w*.6,tone,(.18+.08*pulse)*a);
+  if(Math.random()<.04*a){const [x,y]=onPlane(g,Math.random()*6.28,Math.random()*.9);emit({x,y,vx:0,vy:-(.02+.03*Math.random())*w/100,life:1500,size:w*.02,color:tone,fadeIn:.3});}
+  context.save();context.globalAlpha=a;
   if(fdStyle==='shield'){
-    // Translucent shield with the back's orange swirl, breathing softly.
-    const y=Math.max(w*.4,cy-w*.18)+bob,s=w*.36;
-    const grad=context.createRadialGradient(cx,y,s*.1,cx,y,s);grad.addColorStop(0,'rgba(20,8,2,.85)');grad.addColorStop(.7,'rgba(120,55,12,.7)');grad.addColorStop(1,'rgba(230,140,50,.55)');
+    // A hexagonal crystal shield holding the back's swirl, a light sweeping across it.
+    const y=Math.max(w*.45,cy-w*.2)+bob,s=w*.36*pop;
+    const grad=context.createRadialGradient(cx,y-s*.2,s*.05,cx,y,s);grad.addColorStop(0,'rgba(10,4,1,.92)');grad.addColorStop(.55,'rgba(70,30,8,.85)');grad.addColorStop(1,'rgba(200,110,35,.7)');
     hexPath(context,cx,y,s);context.fillStyle=grad;context.fill();
-    context.shadowColor='#ffb35c';context.shadowBlur=w/5*(.6+.4*pulse);context.strokeStyle='#ffb35c';context.lineWidth=Math.max(2,w/28);context.stroke();
-    context.shadowBlur=0;context.strokeStyle=`rgba(255,170,80,${.5+.3*pulse})`;context.lineWidth=Math.max(1.5,w/45);
-    for(let k=0;k<3;k++){context.beginPath();context.ellipse(cx,y,s*(.25+.2*k),s*(.18+.15*k),now/1500+k,0,Math.PI*1.4);context.stroke();}
+    context.save();hexPath(context,cx,y,s);context.clip();
+    context.lineCap='round';
+    for(let k=0;k<4;k++){context.beginPath();context.ellipse(cx,y,s*(.18+.17*k),s*(.13+.13*k),now/(1300+k*300)+k,0,Math.PI*(1.1+.1*k));litStroke(context,RGB.back,.55+.2*pulse,Math.max(1.2,w/60));}
+    const sweep=((now/1800+seed)%1)*s*4-s*2,hl=context.createLinearGradient(cx+sweep-s*.35,0,cx+sweep+s*.35,0);
+    hl.addColorStop(0,'rgba(255,230,200,0)');hl.addColorStop(.5,'rgba(255,230,200,.45)');hl.addColorStop(1,'rgba(255,230,200,0)');
+    context.globalCompositeOperation='lighter';context.fillStyle=hl;context.fillRect(cx-s,y-s,s*2,s*2);context.restore();
+    hexPath(context,cx,y,s);litStroke(context,RGB.back,.9,Math.max(2,w/30));
+    hexPath(context,cx,y,s*.84);litStroke(context,RGB.back,.35,Math.max(1,w/70));
+    glow(context,cx,y,s*.35,[255,200,120],.25+.15*pulse);
   }else if(fdStyle==='silhouette'){
-    // A dark hooded figure crouching behind a round shield; only its eyes glow.
-    const base=cy+w*.05,hgt=w*.95,top=Math.max(w*.1,base-hgt)+bob;
-    context.fillStyle='rgba(22,12,38,.9)';context.shadowColor='#b58cff';context.shadowBlur=w/6;
-    context.beginPath();context.moveTo(cx-w*.3,base);context.quadraticCurveTo(cx-w*.26,top+hgt*.35,cx,top+hgt*.08);context.quadraticCurveTo(cx+w*.26,top+hgt*.35,cx+w*.3,base);context.closePath();context.fill();
-    context.beginPath();context.ellipse(cx,top+hgt*.2,w*.12,w*.14,0,0,Math.PI*2);context.fill();
-    context.shadowBlur=w/10;context.fillStyle=`rgba(255,80,120,${.6+.4*pulse})`;
-    context.beginPath();context.arc(cx-w*.04,top+hgt*.21,w*.018,0,Math.PI*2);context.arc(cx+w*.04,top+hgt*.21,w*.018,0,Math.PI*2);context.fill();
-    context.shadowColor='#b58cff';context.shadowBlur=w/8;context.fillStyle='rgba(60,40,90,.92)';context.strokeStyle='#b58cff';context.lineWidth=Math.max(2,w/30);
-    context.beginPath();context.ellipse(cx+w*.05,top+hgt*.62,w*.2,w*.24,0,0,Math.PI*2);context.fill();context.stroke();
+    // A hooded figure crouched behind a round shield: rim light, glowing eyes, mist at its feet.
+    const base=cy+w*.05,hgt=w*.95*pop,top=Math.max(w*.1,base-hgt)+bob;
+    glow(context,cx,top+hgt*.45,w*.55,[181,140,255],.22+.08*pulse);
+    const body=context.createLinearGradient(cx,top,cx,base);body.addColorStop(0,'rgba(34,22,58,.96)');body.addColorStop(1,'rgba(12,8,22,.96)');
+    context.beginPath();context.moveTo(cx-w*.3,base);context.quadraticCurveTo(cx-w*.27,top+hgt*.35,cx,top+hgt*.06);context.quadraticCurveTo(cx+w*.27,top+hgt*.35,cx+w*.3,base);context.closePath();
+    context.fillStyle=body;context.fill();litStroke(context,[181,140,255],.55,Math.max(1.5,w/50));
+    context.beginPath();context.ellipse(cx,top+hgt*.2,w*.12,w*.14,0,0,Math.PI*2);context.fillStyle='rgba(8,5,16,.97)';context.fill();litStroke(context,[181,140,255],.45,Math.max(1,w/60));
+    for(const ex of [-1,1]){glow(context,cx+ex*w*.042,top+hgt*.21,w*.05,[255,70,120],.8+.2*pulse);}
+    const sh2=context.createRadialGradient(cx+w*.05,top+hgt*.58,w*.02,cx+w*.05,top+hgt*.62,w*.24);sh2.addColorStop(0,'rgba(90,70,140,.95)');sh2.addColorStop(1,'rgba(40,28,70,.95)');
+    context.beginPath();context.ellipse(cx+w*.05,top+hgt*.62,w*.2,w*.24,0,0,Math.PI*2);context.fillStyle=sh2;context.fill();litStroke(context,[181,140,255],.9,Math.max(2,w/32));
+    context.beginPath();context.ellipse(cx+w*.05,top+hgt*.62,w*.1,w*.12,now/1200,0,Math.PI*1.3);litStroke(context,[181,140,255],.5,Math.max(1,w/60));
   }else{
-    // The card back standing up, turned sideways (Defense Position), as Master Duel shows it.
-    const cw=w*.62,ch=cw*.69,y=Math.max(ch/2,cy-w*.22)+bob;
-    context.shadowColor='#ffb35c';context.shadowBlur=w/6*(.6+.4*pulse);
-    context.fillStyle='#b8651e';context.fillRect(cx-cw/2,y-ch/2,cw,ch);context.shadowBlur=0;
-    const grad=context.createRadialGradient(cx,y,0,cx,y,cw*.5);grad.addColorStop(0,'#050201');grad.addColorStop(.6,'#2a1206');grad.addColorStop(1,'#5a2a0c');
-    context.fillStyle=grad;context.fillRect(cx-cw/2+cw*.05,y-ch/2+cw*.05,cw*.9,ch-cw*.1);
-    context.strokeStyle='rgba(255,150,60,.75)';context.lineWidth=Math.max(1.5,w/50);
-    for(let k=0;k<4;k++){context.beginPath();context.ellipse(cx,y,cw*(.1+.09*k),ch*(.1+.08*k),.6+now/4000,0,Math.PI*1.5);context.stroke();}
+    // The card back standing up, turned sideways (Defense Position), tilted toward the camera.
+    const cw=w*.64*pop,ch=cw*.69,y=Math.max(ch/2,cy-w*.24)+bob;
+    context.save();context.translate(cx,y);context.transform(1,0,Math.sin(now/1400+seed)*.08,1,0,0);
+    context.shadowColor='rgba(0,0,0,.5)';context.shadowBlur=w/12;context.shadowOffsetY=w/30;
+    const frameG=context.createLinearGradient(-cw/2,-ch/2,cw/2,ch/2);frameG.addColorStop(0,'#d98a3a');frameG.addColorStop(1,'#8a4312');
+    context.fillStyle=frameG;context.fillRect(-cw/2,-ch/2,cw,ch);context.shadowColor='transparent';
+    const inner=context.createRadialGradient(0,0,0,0,0,cw*.55);inner.addColorStop(0,'#040100');inner.addColorStop(.55,'#2a1206');inner.addColorStop(1,'#6a3210');
+    context.fillStyle=inner;context.fillRect(-cw/2+cw*.05,-ch/2+cw*.05,cw*.9,ch-cw*.1);
+    context.save();context.beginPath();context.rect(-cw/2+cw*.05,-ch/2+cw*.05,cw*.9,ch-cw*.1);context.clip();context.lineCap='round';
+    for(let k=0;k<5;k++){context.beginPath();context.ellipse(0,0,cw*(.08+.085*k),ch*(.08+.075*k),.6+now/(3200+k*400),0,Math.PI*1.5);litStroke(context,[255,150,60],.55,Math.max(1,w/70));}
+    const sweep=((now/2000+seed)%1)*cw*3-cw*1.5,hl=context.createLinearGradient(sweep-cw*.25,-ch/2,sweep+cw*.25,ch/2);
+    hl.addColorStop(0,'rgba(255,255,255,0)');hl.addColorStop(.5,'rgba(255,240,220,.35)');hl.addColorStop(1,'rgba(255,255,255,0)');
+    context.globalCompositeOperation='lighter';context.fillStyle=hl;context.fillRect(-cw/2,-ch/2,cw,ch);context.restore();
+    context.beginPath();context.rect(-cw/2,-ch/2,cw,ch);litStroke(context,RGB.back,.6+.3*pulse,Math.max(1.5,w/45));
+    context.restore();
   }
   context.restore();
 }
+// Face-down figures and marks come from the backs the camera sees now (duel view `backs_seen`),
+// not from what the duel recorded. A back seen for the first time plays its entrance ('set').
+const backArrived=new Map(),pageStart=performance.now();
 function drawFacedown(context){
   const board=virtualPreview||playmat;if(!board?.zones||calibration)return;
-  const now=performance.now();
-  if($d('#ar')?.checked)for(const card of duelView?.board||[]){
-    if(card.position!=='facedown_defense')continue;
-    const z=board.zones.find(z=>z.player===card.player&&z.zone===card.zone);if(z)drawFacedownFigure(context,z.polygon,now,card.zone.length+card.player*3);
-  }
+  const now=performance.now(),ar=$d('#ar')?.checked,seen=duelView?.backs_seen||[];
   const size=Math.max(10,Math.round(frame.width/140));
-  context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='#c9a0ff';context.lineCap='round';
-  context.textAlign='center';context.font=`600 ${size}px system-ui`;
-  for(const card of duelView?.board||[]){
-    if(card.position!=='facedown'&&card.position!=='facedown_defense')continue;
-    const z=board.zones.find(z=>z.player===card.player&&z.zone===card.zone);if(!z)continue;
-    cornerMarks(context,z.polygon,.3);
-    const [cx,cy]=z.polygon.reduce(([a,b],[x,y])=>[a+x/4,b+y/4],[0,0]),label='Boca abajo',w=context.measureText(label).width+10;
-    context.fillStyle='rgba(10,14,22,.72)';context.fillRect(cx-w/2,cy-size*.8,w,size*1.5);
-    context.fillStyle='#e6d6ff';context.fillText(label,cx,cy+size*.35);
+  for(const b of seen){
+    const z=board.zones.find(z=>z.player===b.player&&z.zone===b.zone);if(!z)continue;
+    const key=b.player+'|'+b.zone,last=backArrived.get(key);backArrived.set(key,now);
+    if((last===undefined||now-last>15000)&&now-pageStart>2500&&$d('#fx')?.checked){const g=zoneGeometry(b.player,b.zone);if(g)effects.push({kind:'set',g,key,start:now,duration:900});}
+    const entry=effects.find(e=>e.kind==='set'&&e.key===key&&now-e.start<e.duration),appear=entry?span((now-entry.start)/entry.duration,.35,.9):1;
+    if(ar&&/^monster:/.test(b.zone))drawFacedownFigure(context,z.polygon,now,b.zone.length+b.player*3,appear);
+    context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='rgba(255,176,90,.85)';context.lineCap='round';cornerMarks(context,z.polygon,.3);
+    if(!ar||!/^monster:/.test(b.zone)){
+      const [cx,cy]=z.polygon.reduce(([a,c],[x,y])=>[a+x/4,c+y/4],[0,0]),label='Boca abajo';context.font=`600 ${size}px system-ui`;context.textAlign='center';
+      const lw=context.measureText(label).width+10;context.fillStyle='rgba(10,14,22,.72)';context.fillRect(cx-lw/2,cy-size*.8,lw,size*1.5);
+      context.fillStyle='#ffd9ae';context.fillText(label,cx,cy+size*.35);
+    }
+    context.restore();
   }
-  context.restore();
 }
 
 // "Carta en juego": which card is being played or looked at, and what it does.
@@ -811,14 +834,30 @@ function drawMonster(context,item,now){
   }
 }
 
+// Arrivals: a card seen for the first time in a field zone gets its entrance effect. The same card
+// seen again in the same zone within 15 s (a hand over it, a lost track) is not a new arrival, and
+// cards already on the table when the page opens appear without one.
+const arrived=new Map();
+function noticeArrivals(tracks,now){
+  for(const t of tracks){
+    if(!t.stable||!t.card_id||t.corners?.length!==4)continue;
+    const g=geometry(t),hit=zoneHit(g.center),key=(hit?hit.player+'|'+hit.zone:'?')+'|'+t.card_id,last=arrived.get(key);
+    arrived.set(key,now);
+    if(last!==undefined&&now-last<15000)continue;
+    if(now-pageStart<2500||!$d('#fx')?.checked||effectOf('summon',t.track_id,now)||effectOf('activate',t.track_id,now))continue;
+    const kind=kindOf(t);
+    if(kind==='monster')effects.push({kind:'summon',copy:t.track_id,rival:hit?.player===1,start:now,duration:1300});
+    else effects.push({kind:'activate',copy:t.track_id,type:kind,start:now,duration:kind==='trap'?1000:1400});
+  }
+}
 function drawStage(context,tracks,now){
   const dt=lastFrame?Math.min(64,now-lastFrame):16;lastFrame=now;stepParticles(dt);
   // Every card on the field is remembered (activation effects need its place, sprite or not).
   for(const t of tracks)if(t.corners?.length===4)lastSeen.set(t.track_id,{g:geometry(t),sprite_ref:t.sprite_ref,name:t.name,kind:kindOf(t),rival:boardCard(t.track_id)?.controller===1});
-  // During a duel a figure appears only once its card is in the duel: the camera sees a card a
-  // few seconds before the play is recorded, and the entrance effect is what brings it in.
-  const inDuel=duelView?.started&&!duelView.result;
-  const items=tracks.filter(t=>t.sprite_ref&&t.corners?.length===4&&(!inDuel||boardCard(t.track_id))).map(track=>({track,g:geometry(track)}));
+  // What the camera sees drives the scene: a card that appears on the table gets its entrance
+  // effect right away (the figure is born inside it), whatever the duel has recorded yet.
+  noticeArrivals(tracks,now);
+  const items=tracks.filter(t=>t.sprite_ref&&t.corners?.length===4).map(track=>({track,g:geometry(track)}));
   const [sx,sy]=shakeOffset(now);context.save();context.translate(sx,sy);
   for(const {track,g} of items){
     const card=boardCard(track.track_id);if(card?.position==='facedown_defense'||card?.position==='facedown')continue;
@@ -958,18 +997,8 @@ function drawHud(context,now){
 function stageEvents(prev,next){
   if(!prev||!next||!document.querySelector('#fx').checked)return;const now=performance.now();
   const before=new Map((prev.board||[]).map(c=>[c.copy_id,c])),after=new Map((next.board||[]).map(c=>[c.copy_id,c]));
-  for(const [id,c] of after){
-    if(before.has(id))continue;
-    if(c.zone.includes('monster')&&c.position!=='facedown_defense')effects.push({kind:'summon',copy:id,rival:c.controller===1,start:now,duration:1300});
-    else if(c.position==='facedown_defense'||c.position==='facedown'){const g=zoneGeometry(c.player,c.zone);if(g)effects.push({kind:'set',g,start:now,duration:900});}
-  }
-  // Spells and Traps turned face-up (placed face-up, or a set card revealed under its face's track).
-  for(const [id,c] of after){
-    if(!/^spell:|^field$/.test(c.zone)||c.position!=='faceup')continue;
-    const was=before.get(id);if(was&&was.position==='faceup')continue;
-    const sheet=sheetOf(c.card_id),type=sheet?.card_type==='trap'||/^Trampa/.test(c.type||'')?'trap':'spell';
-    effects.push({kind:'activate',copy:id,type,start:now,duration:type==='trap'?1000:1400});
-  }
+  // Entrances (summon, activation, set) come from what the camera sees (noticeArrivals and
+  // drawFacedown); from the duel only the players' decisions: attacks, destruction, LP.
   for(const [id,c] of before)if(!after.has(id)){
     const seen=lastSeen.get(id),image=seen&&cutouts.get(seen.sprite_ref);
     if(seen&&image&&c.zone.includes('monster'))effects.push({kind:'destroy',copy:id,g:seen.g,image,start:now,duration:1100});
