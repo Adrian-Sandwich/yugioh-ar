@@ -54,7 +54,20 @@
   .spot img { width: 110px; border-radius: 6px; flex: none; }
   .spot h3 { margin: 0; font-size: 16px; } #spotEn { margin: 0; font-size: 12px; }
   #spotLine { color: #ffd166; font-size: 12px; } #spotStats { color: #8de5ca; font-weight: 700; }
-  #spotEffect { white-space: pre-line; font-size: 13px; color: #d6deeb; max-height: 12em; overflow: auto; }
+  #spotEffect { white-space: pre-line; font-size: 13px; color: #d6deeb; max-height: 16em; overflow: auto; }
+  /* Categories: one quiet line; the cost ones apart, in amber. */
+  #spotTags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 0; }
+  #spotTags span { font-size: 11px; padding: 1px 6px; border: 1px solid #3a4a66; border-radius: 9px; color: #b9c7de; }
+  #spotTags span.cost { border-color: #7a5a22; color: #e7c27a; }
+  #spotTags span.more { border-style: dashed; }
+  /* Effect text by blocks: when / cost / target / does. */
+  #spotEffect .eff { margin: 0 0 8px; white-space: normal; border-left: 2px solid #2b3850; padding-left: 7px; }
+  #spotEffect .eff > span { display: block; margin: 1px 0; }
+  #spotEffect .eff b { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #8093b3; margin-right: 4px; }
+  #spotEffect .eff .cost { color: #e7c27a; } #spotEffect .eff .cost b { color: #b98b3a; }
+  #spotEffect .eff .target b { color: #6fb7ff; }
+  #spotEffect .eff .does { color: #e9eef7; }
+  #spotEffect .restriction { font-size: 11px; color: #8093b3; font-style: italic; margin: 0 0 6px; }
   .pile h4 { margin: 8px 0 4px; font-size: 13px; color: #aebbd0; }
   .pile button { margin: 2px 4px 2px 0; padding: 3px 7px; font-size: 12px; background: #1b2638; color: #e9eef7; font-weight: 500; }
   .history p { font-size: 12px; margin: 4px 0; }
@@ -82,8 +95,8 @@
   </div>
   <aside id="duel">
     <section id="spotlight" hidden>
-      <div class="spot"><img id="spotImage" alt=""><div><h3 id="spotName"></h3><p id="spotEn"></p><p id="spotLine"></p><p id="spotStats"></p></div></div>
-      <p id="spotEffect"></p>
+      <div class="spot"><img id="spotImage" alt=""><div><h3 id="spotName"></h3><p id="spotEn"></p><p id="spotLine"></p><p id="spotStats"></p><div id="spotTags"></div></div></div>
+      <div id="spotEffect"></div>
     </section>
     <section id="duelSection">
       <div id="duelSetup">

@@ -142,7 +142,32 @@ async function spotlight(cardId){
   document.querySelector('#spotEn').textContent=s.name_en&&s.name_en!==s.name?s.name_en:'';
   document.querySelector('#spotLine').textContent=s.line||'';
   document.querySelector('#spotStats').textContent=s.card_type==='monster'?statsLine(s):'';
-  document.querySelector('#spotEffect').textContent=s.effect||'';
+  renderTags(s);renderEffect(s);
+}
+// What the card does (from the engine scripts, or rules on its text) and, apart, what it costs.
+function renderTags(s){
+  const tags=[],does=s.does||[],cost=s.cost||[],shown=does.slice(0,4);
+  for(const t of shown)tags.push(Object.assign(textNode('span',t),{title:s.categories_source==='text'?'Deducido del texto de la carta':'Declarado en el script del motor'}));
+  if(does.length>shown.length){const m=textNode('span',`+${does.length-shown.length}`);m.className='more';m.title=does.slice(4).join(', ');tags.push(m);}
+  for(const t of cost.slice(0,2)){const c=textNode('span','Costo: '+t);c.className='cost';tags.push(c);}
+  document.querySelector('#spotTags').replaceChildren(...tags);
+}
+// The effect text by blocks: when (condition) / cost / target / does; restrictions apart.
+function renderEffect(s){
+  const box=document.querySelector('#spotEffect'),blocks=s.effect_blocks||[];
+  const structured=blocks.some(b=>b.cost||b.condition||(b.targets||[]).length);
+  if(!structured){box.textContent=s.effect||'';return;}
+  const part=(cls,label,text)=>{const p=document.createElement('span');p.className=cls;const b=textNode('b',label);p.append(b,document.createTextNode(text+' '));return p;};
+  box.replaceChildren(...blocks.map(b=>{
+    if(b.restriction)return Object.assign(textNode('p',b.restriction),{className:'restriction'});
+    const p=document.createElement('p');p.className='eff';
+    if(b.plain){p.textContent=b.plain;return p;}
+    if(b.condition)p.append(part('when','Condición',b.condition));
+    if(b.cost)p.append(part('cost','Costo',b.cost));
+    for(const t of b.targets||[])p.append(part('target','Objetivo',t));
+    p.append(part('does','Hace',b.does));
+    return p;
+  }));
 }
 // Click a card on the video to see it.
 frame.addEventListener('click',event=>{

@@ -7,6 +7,8 @@ points) and Master Duel / Duel Links rarity. Names and effect texts come from
 The duel engine takes ATK, DEF and level from the same sheet.
 """
 import json
+import os
+import re
 import sqlite3
 import threading
 from functools import lru_cache
@@ -14,6 +16,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REGISTRY = ROOT / 'data/registry/registry.sqlite'
+# Effect categories per passcode, from the sibling project ygo-deckforge (tools.script_categories
+# + tools.text_categories): what the card does, what its costs are, and where each came from.
+CATEGORIES = Path(os.environ.get('YUGIOH_CARD_CATEGORIES') or ROOT.parents[1] / 'ygo-deckforge/artifacts/categories/card-categories.json')
 LANGS = ('es', 'en', 'de', 'fr', 'pt')
 
 ATTRIBUTES = {'dark': 'OSCURIDAD', 'light': 'LUZ', 'earth': 'TIERRA', 'water': 'AGUA', 'fire': 'FUEGO', 'wind': 'VIENTO', 'divine': 'DIVINIDAD'}
@@ -41,6 +46,55 @@ def _db():
 
 def _key(value):
     return ''.join(ch for ch in str(value).lower() if ch.isalnum())
+
+
+@lru_cache(maxsize=1)
+def _categories():
+    """passcode (8 digits) -> labels; empty when ygo-deckforge has not generated the table."""
+    try:
+        cards = json.loads(CATEGORIES.read_text(encoding='utf-8'))['cards']
+    except (OSError, ValueError, KeyError):
+        return {}
+    return {code: {'does': c.get('labels_es') or [], 'cost': c.get('cost_labels_es') or [], 'source': c.get('source')}
+            for code, c in cards.items()}
+
+
+# Card text marks its parts with punctuation, in Spanish as in English: condition before ':',
+# cost and targets between ':' and ';', what the effect does after ';'.
+_RESTRICTION = re.compile(r'^(?:s[óo]lo puedes (?:usar|activar|invocar|controlar|aplicar)|no puedes|you can only|you cannot)\b', re.I)
+_PREFIX = re.compile(r'^\s*(?:\((?:efecto r[áa]pido|quick effect)\)\s*:?\s*)?(?:una vez por turno,?\s*|once per turn,?\s*)?(?:durante [^,]*,\s*)?(?:puedes|you can)\s*', re.I)
+# Spanish verbs by stem: costs appear conjugated ("paga") and as infinitives after "puedes" ("descartar").
+_COST_VERB = re.compile(r'\b(?:pag|desterr|destierr|descart|sacrific|ofrec|envi|enví|mand|desacopl|revel|baraj|devolv|devuelv|destru|coloc|retir|remov|remuev|excav|declar)\w*|'
+                        r'\b(?:pay|banish|discard|tribute|send|detach|reveal|shuffle|return|destroy|place|remove|excavate|declare)\b', re.I)
+# Konami's Spanish text targets with "Selecciona …;" (English: "target").
+_TARGET = re.compile(r'\bselecciona\w*|\bobjetivo\b|\btarget\b', re.I)
+
+
+def effect_blocks(text):
+    """The effect text split into blocks: {condition, cost, targets, does}, {restriction} or {plain}."""
+    blocks = []
+    for line in (text or '').split('\n'):
+        for sentence in re.split(r'(?<=[.])\s+|\s(?=●)', line.strip()):
+            sentence = sentence.strip()
+            if not sentence or sentence.startswith('* '):
+                continue
+            previous = next((b for b in reversed(blocks) if 'does' in b), None)
+            if sentence.startswith('●') and previous is not None:
+                previous['condition'] = (previous['condition'] + ' ' + sentence).strip(); continue
+            if _RESTRICTION.match(sentence):
+                blocks.append({'restriction': sentence}); continue
+            if ':' not in sentence and ';' not in sentence:
+                blocks.append({'plain': sentence}); continue
+            head, does = sentence.rsplit(';', 1) if ';' in sentence else ('', sentence)
+            condition, slot = head.rsplit(':', 1) if ':' in head else ('', head)
+            if not head and ':' in does:
+                condition, does = does.rsplit(':', 1)
+            pieces = [p.strip() for p in re.split(r',\s*(?:y |luego |then |and )?|\s+(?:y luego|y|then|and)\s+', slot) if p.strip()]
+            targets = [_PREFIX.sub('', p) for p in pieces if _TARGET.search(p)]
+            pieces = [p for p in pieces if not _TARGET.search(p)]
+            cost = ', '.join(_PREFIX.sub('', p) for p in pieces if _COST_VERB.search(p))
+            blocks.append({'condition': condition.strip(), 'cost': cost.strip(), 'targets': targets, 'does': does.strip()})
+    return blocks
 
 
 @lru_cache(maxsize=4096)
@@ -80,7 +134,11 @@ def card_sheet(card_id):
         state = value.get('current') or value.get('currentLegality')
         legality[fmt] = {'estado': LEGALITY.get(state, state), 'puntos': value.get('currentPoints')}
     display = texts.get('es') or texts.get('en') or next(iter(texts.values()), {'name': card_id, 'effect': None})
+    table = _categories()
+    categories = next((table[str(p).zfill(8)] for p in facts.get('passwords', []) if str(p).zfill(8) in table), None) or {}
     return {'card_id': card_id, 'name': display['name'], 'name_en': texts.get('en', {}).get('name'), 'effect': display['effect'],
+            'effect_blocks': effect_blocks(display['effect']), 'does': categories.get('does', []), 'cost': categories.get('cost', []),
+            'categories_source': categories.get('source'),
             'texts': texts, 'card_type': kind, 'line': ' · '.join(p for p in line if p),
             'atk': facts.get('atk'), 'def': facts.get('def'), 'level': facts.get('level'), 'rank': facts.get('rank'),
             'link': len(facts['linkArrows']) if facts.get('linkArrows') else None,

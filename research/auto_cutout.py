@@ -46,7 +46,9 @@ class Cutter:
         # DEFAULT and exact-size arena growth also beat HEURISTIC (10 s) with the pattern on.
         so = ort.SessionOptions(); so.enable_mem_pattern = False; so.log_severity_level = 3
         cuda = {'cudnn_conv_algo_search': 'DEFAULT', 'arena_extend_strategy': 'kSameAsRequested'}
-        self.name = name; self.model = ort.InferenceSession(str(MODELS / file), so, providers=[('CUDAExecutionProvider', cuda), 'CPUExecutionProvider'])
+        # CUDA only: on 28/09/2026 a failed CUDA session init fell back to CPU silently and the
+        # build crawled for 30+ min; better to fail and let run_build.ps1 start a fresh process.
+        self.name = name; self.model = ort.InferenceSession(str(MODELS / file), so, providers=[('CUDAExecutionProvider', cuda)])
         inp = self.model.get_inputs()[0]; self.input = inp.name; self.size = (inp.shape[3], inp.shape[2]) if isinstance(inp.shape[2], int) else (1024, 1024)
 
     def mask(self, bgr):
