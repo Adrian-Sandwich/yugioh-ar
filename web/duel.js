@@ -14,11 +14,37 @@ function englishName(cardId){
 }
 
 
+// Minimal marks: only the four corners of a quadrilateral, each as an "L" along its edges.
+function cornerMarks(context,quad,fraction){
+  context.beginPath();
+  for(let i=0;i<4;i++){
+    const p=quad[i],prev=quad[(i+3)%4],next=quad[(i+1)%4];
+    context.moveTo(p[0]+(prev[0]-p[0])*fraction,p[1]+(prev[1]-p[1])*fraction);context.lineTo(p[0],p[1]);
+    context.lineTo(p[0]+(next[0]-p[0])*fraction,p[1]+(next[1]-p[1])*fraction);
+  }
+  context.stroke();
+}
+
+// Only cards inside a field zone of the board count: Monster, Spell & Trap, Field and Extra
+// Monster Zones. Graveyard, Deck, Extra Deck, Banished and anything off the board are ignored.
+const FIELD_ZONE=/^(monster|spell|extra_monster):|^field$/;
+function insideQuad([x,y],q){
+  let sign=0;
+  for(let i=0;i<4;i++){const [ax,ay]=q[i],[bx,by]=q[(i+1)%4],c=(bx-ax)*(y-ay)-(by-ay)*(x-ax);if(c!==0){if(sign&&Math.sign(c)!==sign)return false;sign=Math.sign(c);}}
+  return true;
+}
+function zoneAt(point){const board=virtualPreview||playmat;return (board?.zones||[]).find(z=>insideQuad(point,z.polygon))?.zone||null;}
+function fieldTracks(tracks){
+  const board=virtualPreview||playmat;
+  if(!board?.zones?.length)return tracks;   // no board yet: show everything while setting up
+  return tracks.filter(t=>FIELD_ZONE.test(zoneAt(t.corners.reduce(([a,b],[x,y])=>[a+x/4,b+y/4],[0,0]))||''));
+}
+
 function drawCards(context,cards){
-  const size=Math.round(frame.width/70);
+  const size=Math.round(frame.width/80);
   for(const card of cards){
-    context.save();context.lineWidth=Math.max(3,frame.width/500);context.strokeStyle='#80ffbc';
-    context.beginPath();card.corners.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.stroke();
+    context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='#80ffbc';context.lineCap='round';
+    cornerMarks(context,card.corners,.18);
     const en=englishName(card.card_id);const label=card.name?(en&&en!==card.name?`${card.name} · ${en}`:card.name):null;
     if(label){
       // Under the card: above it stands the AR monster.
@@ -37,8 +63,9 @@ function draw(now){
     if(frame.width!==currentBitmap.width||frame.height!==currentBitmap.height){frame.width=currentBitmap.width;frame.height=currentBitmap.height;zonesVersion++;}
     ctx.drawImage(currentBitmap,0,0);
     drawTableOverlay(ctx);
-    if(ar)drawStage(ctx,liveTracks.filter(t=>t.stable),now||performance.now());
-    drawCards(ctx,liveTracks);
+    const field=fieldTracks(liveTracks);
+    if(ar)drawStage(ctx,field.filter(t=>t.stable),now||performance.now());
+    drawCards(ctx,field);
     if(ar)drawHud(ctx,now||performance.now());   // effects are queued only with Efectos on (stageEvents)
     renderedFrame=frameNumber;renderedTracks=liveTracks;renderedZones=zonesVersion;renderedAR=ar;
   }
@@ -55,7 +82,8 @@ async function refreshCamera(){
     let tracks=[];try{tracks=JSON.parse(r.headers.get('X-Tracks')||'[]');}catch(e){}
     if(currentBitmap)currentBitmap.close();currentBitmap=bitmap;frameNumber++;
     liveTracks=Array.isArray(tracks)?tracks.filter(t=>t.card_id&&t.corners?.length===4):[];
-    document.querySelector('#videoStatus').textContent=`${liveTracks.length} carta${liveTracks.length===1?'':'s'} reconocida${liveTracks.length===1?'':'s'}`;
+    const onField=fieldTracks(liveTracks).length;
+    document.querySelector('#videoStatus').textContent=`${onField} carta${onField===1?'':'s'} en el campo`;
   }catch(e){document.querySelector('#videoStatus').textContent='Sin señal de cámara; reintentando…';delay=1500;}
   finally{setTimeout(refreshCamera,Math.max(30,delay-(performance.now()-started)));}
 }
@@ -86,13 +114,14 @@ function drawTableOverlay(context){
   const board=virtualPreview||playmat;
   if(board&&$d('#showZones')?.checked&&!calibration){
     // Line and text sizes follow the video resolution: the canvas is shown scaled down.
-    context.save();context.lineWidth=Math.max(2,frame.width/420);context.font=`600 ${Math.round(frame.width/75)}px system-ui`;context.textAlign='center';
+    context.save();context.lineWidth=Math.max(2,frame.width/520);context.lineCap='round';context.font=`600 ${Math.round(frame.width/95)}px system-ui`;context.textAlign='center';
     for(const z of board.zones||[]){
-      // White outlines like the printed mat; the opponent's board slightly yellow.
-      context.strokeStyle=z.player===0?'rgba(255,255,255,.8)':'rgba(255,224,150,.8)';
-      context.beginPath();z.polygon.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.stroke();
-      const bottom=z.polygon.reduce((a,p)=>a[1]>p[1]?a:p);const [cx]=z.polygon.reduce(([a],[x])=>[a+x/4],[0]);
-      context.fillStyle='rgba(255,255,255,.85)';context.fillText(shortLabel(z.zone),cx,bottom[1]-8);
+      // Only corner marks, like the printed mat; piles (Graveyard, Deck...) fainter than field zones.
+      const field=FIELD_ZONE.test(z.zone),a=field?.7:.35;
+      context.strokeStyle=z.player===0?`rgba(255,255,255,${a})`:`rgba(255,224,150,${a})`;
+      cornerMarks(context,z.polygon,.22);
+      const bottom=z.polygon.reduce((m,p)=>m[1]>p[1]?m:p);const [cx]=z.polygon.reduce(([s],[x])=>[s+x/4],[0]);
+      context.fillStyle=`rgba(255,255,255,${a*.7})`;context.fillText(shortLabel(z.zone),cx,bottom[1]-6);
     }
     context.restore();
   }
@@ -141,8 +170,8 @@ function showMode(adjust=false){
   const editing=virtual&&(adjust||!fixed);
   $d('#virtualControls').hidden=!editing;$d('#calibrate').hidden=editing;$d('#v-gap-label').hidden=mode!=='virtual-two';
   $d('#calibrate').textContent=virtual?'Ajustar tablero':'Usar este modo';
-  if(editing){$d('#calibrationHelp').textContent='Vista previa: ajusta los controles y pulsa "Fijar tablero".';previewVirtual();}
-  else{virtualPreview=null;zonesVersion++;calibrationStep();}
+  if(editing){$d('#boardSettings').open=true;$d('#calibrationHelp').textContent='Ajusta los controles y pulsa "Fijar tablero".';previewVirtual();}
+  else{virtualPreview=null;zonesVersion++;calibrationStep();if(playmat?.mode)$d('#boardSettings').open=false;}   // board set: fold its settings away
 }
 $d('#matMode').onchange=()=>{
   // Switching boards starts from the saved sliders of that board, else from its default size.
@@ -186,7 +215,7 @@ frame.addEventListener('click',async event=>{
 });
 $d('#showZones').onchange=()=>{zonesVersion++;};
 
-function duelMessage(text,error=false){const m=$d('#duelMessage');m.textContent=text;m.className=error?'error':'';}
+function duelMessage(text,error=false){const m=$d('#duelMessage');m.textContent=text;m.className=error?'error':'';if(text)$d('#duelSection').hidden=false;}
 async function duelAct(event){
   try{
     const r=await fetch('/duel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(event)});
@@ -254,8 +283,10 @@ $d('#autoPlays').onchange=()=>duelAct({type:'auto',enabled:$d('#autoPlays').chec
 
 // Automatic plays, newest first: change to another play or undo.
 function renderRecent(view){
-  const key=JSON.stringify(view.recent||[]);if(key===renderRecent.key)return;renderRecent.key=key;
-  const nodes=(view.recent||[]).map((r,i)=>{
+  const recent=(view.recent||[]).slice(0,3);
+  $d('#recentSection').hidden=!recent.length;
+  const key=JSON.stringify(recent);if(key===renderRecent.key)return;renderRecent.key=key;
+  const nodes=recent.map((r,i)=>{
     const row=document.createElement('div');row.className='play';row.append(textNode('span',r.text));
     if(i===0){   // only the latest can be changed without touching later plays
       for(const a of r.alternatives){const b=document.createElement('button');b.className='secondary';b.textContent=`Era: ${a.label}`;b.onclick=()=>duelAct({type:'revise',id:r.id,replacement:a.type});row.append(b);}
@@ -271,8 +302,10 @@ function renderDuel(view){
   if($d('#autoPlays').checked!==!!view.auto)$d('#autoPlays').checked=!!view.auto;
   duelView=view;
   $d('#duelSetup').hidden=view.started&&!view.result;$d('#duelControls').hidden=!view.started||!!view.result;
-  $d('#duelPhase').textContent=!view.started?'Duelo sin empezar.':view.result?`Duelo terminado: gana ${view.players[view.result.winner]?.name??'—'} (${view.result.reason}).`:
-    `Turno ${view.turn} · ${view.players[view.current]?.name} · ${PHASES[view.phase]||view.phase}${view.battle_step?` (${view.battle_step})`:''} · ${view.events} eventos registrados`;
+  // The phase bar over the video shows turn and phase; the panel only announces the result.
+  $d('#duelPhase').textContent=view.result?`Duelo terminado: gana ${view.players[view.result.winner]?.name??'—'} (${view.result.reason}).`:
+    view.started&&view.battle_step?`Battle Phase · ${view.battle_step}`:'';
+  $d('#duelSection').hidden=view.started&&!view.result&&!(view.phase==='battle')&&!$d('#duelMessage').textContent;
   $d('#duelPlayers').replaceChildren(...(view.players||[]).map((p,i)=>{
     const box=document.createElement('div');box.className='player'+(i===view.current?' current':'');
     box.append(textNode('h3',p.name),textNode('div',`${p.lp} LP`),textNode('p',`Mano ${p.hand} · Mazo ${p.deck} · Mazo Extra ${p.extra_deck} · Cementerio ${p.graveyard} · Desterradas ${p.banished}`));
@@ -280,7 +313,8 @@ function renderDuel(view){
   // Rebuilt only when the questions change: the panel refreshes every 800 ms and would
   // otherwise clear tribute checkboxes while the player is ticking them.
   const questionsKey=JSON.stringify([view.questions,(view.board||[]).map(c=>c.copy_id)]);
-  if(questionsKey!==renderDuel.questionsKey){renderDuel.questionsKey=questionsKey;const nodes=(view.questions||[]).map(questionNode);$d('#duelQuestions').replaceChildren(...(nodes.length?nodes:[textNode('p',view.started?'Sin preguntas pendientes.':'Empieza el duelo para que las cartas del tablero generen preguntas.')]));}
+  $d('#questionsSection').hidden=!(view.questions||[]).length;
+  if(questionsKey!==renderDuel.questionsKey){renderDuel.questionsKey=questionsKey;$d('#duelQuestions').replaceChildren(...(view.questions||[]).map(questionNode));}
   const board=view.board||[];
   $d('#duelBoard').replaceChildren(...(board.length?[textNode('h3','En el campo')]:[textNode('p','Nada en el campo todavía.')]),...board.map(c=>textNode('p',`${view.players[c.player]?.name} · ${c.zone_label}: ${c.name||'carta boca abajo'} · ${POSITIONS[c.position]||c.position}${c.atk!=null?` · ATK ${c.atk}${c.def!=null?` / DEF ${c.def}`:''}`:''}`)));
   ['#lpPlayer'].forEach(s=>[...$d(s).options].forEach((o,i)=>o.textContent=view.players?.[i]?.name||o.textContent));

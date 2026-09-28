@@ -44,34 +44,58 @@
   #duelMessage.error { color: #ff8f8f; }
   #duelBoard p { font-size: 13px; margin: 3px 0; }
   details summary { cursor: pointer; color: #aebbd0; }
+  aside section, aside details { background: #121a28; border: 1px solid #2a3950; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+  aside details summary { cursor: pointer; color: #aebbd0; font-weight: 650; }
+  aside a { color: #8de5ca; }
+  .bar { font-size: 13px; } .bar .hint { color: #5d6b82; margin-left: auto; }
+  #duelPhase { color: #e9eef7; font-weight: 650; }
 </style>
 <header>
-  <h1>Yu-Gi-Oh! · Duelo en la mesa</h1>
+  <h1>Duelo</h1>
   <span id="videoStatus">Conectando…</span>
-  <a href="/">Visor de diagnóstico</a>
+  <a href="/">Diagnóstico</a>
 </header>
 <main>
   <div>
-    <div class="screen"><canvas id="frame" width="960" height="540" aria-label="Mesa en vivo con el tablero y las cartas reconocidas"></canvas>
+    <div class="screen"><canvas id="frame" width="960" height="540" aria-label="Mesa en vivo con el tablero y las cartas en el campo"></canvas>
       <div id="phaseBar" hidden><span class="turn" id="turnLabel"></span>
         <button data-phase="draw" title="Draw Phase">DP</button><button data-phase="standby" title="Standby Phase">SP</button><button data-phase="main1" title="Main Phase 1">M1</button><button data-phase="battle" title="Battle Phase">BP</button><button data-phase="main2" title="Main Phase 2">M2</button><button data-phase="end" title="End Phase">EP</button>
         <button class="end" id="barEndTurn">Terminar turno</button></div>
     </div>
     <div class="bar">
-      <label><input type="checkbox" id="showZones" checked> Mostrar tablero</label>
-      <label><input type="checkbox" id="ar" checked> Monstruos AR</label>
+      <label><input type="checkbox" id="showZones" checked> Tablero</label>
+      <label><input type="checkbox" id="ar" checked> Monstruos</label>
       <label><input type="checkbox" id="fx" checked> Efectos</label>
-      <label><input type="checkbox" id="autoPlays" checked> Registrar jugadas solas</label>
-      <span>Poner una carta en el tablero cuenta como la jugada obvia; si fue otra, cámbiala en "Últimas jugadas". Espacio: siguiente fase.</span>
+      <label title="Poner una carta cuenta como la jugada obvia; se corrige en Últimas jugadas"><input type="checkbox" id="autoPlays" checked> Jugadas automáticas</label>
+      <span class="hint">Espacio: siguiente fase</span>
     </div>
   </div>
   <aside id="duel">
-    <section>
-      <h2>Tablero</h2>
-      <select id="matMode"><option value="virtual-two">Tablero virtual · 2 jugadores</option><option value="virtual-one">Tablero virtual · 1 jugador</option><option value="printed">Plantilla impresa con marcadores (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics en esquinas)</option><option value="one">Un tapete propio (clics en esquinas)</option></select>
+    <section id="duelSection">
+      <div id="duelSetup">
+        <input type="text" id="name0" value="Jugador 1" aria-label="Nombre del jugador 1"><input type="text" id="name1" value="Jugador 2" aria-label="Nombre del jugador 2">
+        <select id="starting"><option value="0">Empieza 1</option><option value="1">Empieza 2</option></select>
+        <button id="startDuel">Empezar duelo</button>
+      </div>
+      <p id="duelPhase"></p>
+      <div id="battle" hidden><select id="attacker" aria-label="Monstruo atacante"></select><select id="target" aria-label="Objetivo del ataque"></select><button id="declareAttack">Atacar</button><button id="resolveBattle" class="secondary">Resolver</button></div>
+      <p id="duelMessage" role="status"></p>
+    </section>
+    <section id="recentSection" hidden><h2>Últimas jugadas</h2><div id="recentPlays"></div></section>
+    <section id="questionsSection" hidden><h2>Preguntas</h2><div id="duelQuestions"></div></section>
+    <details id="moreDuel"><summary>LP, robar, deshacer</summary>
+      <div id="duelPlayers"></div>
+      <div id="duelControls" hidden>
+        <button id="nextPhase" class="secondary">Siguiente fase</button><button id="endTurn" class="secondary">Terminar turno</button><button id="drawCard" class="secondary">Robar</button>
+        <div><select id="lpPlayer"><option value="0">Jugador 1</option><option value="1">Jugador 2</option></select><input type="number" id="lpDelta" value="-500" step="100" aria-label="Cambio de LP"><button id="applyLp" class="secondary">Cambiar LP</button></div>
+        <button id="undo" class="secondary">Deshacer</button><button id="resetDuel" class="secondary">Terminar y reiniciar</button>
+      </div>
+      <div id="duelBoard"></div>
+    </details>
+    <details id="boardSettings" open><summary>Tablero</summary>
+      <select id="matMode"><option value="virtual-two">Virtual · 2 jugadores</option><option value="virtual-one">Virtual · 1 jugador</option><option value="printed">Plantilla impresa (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics)</option><option value="one">Un tapete propio (clics)</option></select>
       <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
       <div id="virtualControls" hidden>
-        <p>Mueve los controles hasta que el tablero dibujado coincida con la mesa, y fíjalo.</p>
         <label>Horizontal <input type="range" id="v-cx" min="0.1" max="0.9" step="0.005"></label>
         <label>Vertical <input type="range" id="v-cy" min="0.1" max="0.9" step="0.005"></label>
         <label>Tamaño <input type="range" id="v-width" min="0.2" max="1.4" step="0.005"></label>
@@ -82,32 +106,8 @@
         <button id="fixBoard">Fijar tablero</button>
       </div>
       <p id="calibrationHelp"></p>
-      <details><summary>Plantillas para imprimir</summary>
-        <p>Con marcadores: la cámara las encuentra sola aunque se mueva. Imprime al 100 %.</p>
-        <p>Jugador 1: <a href="/playmat/print/tapete-jugador1-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> · <a href="/playmat/print/tapete-jugador1-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a></p>
-        <p>Jugador 2: <a href="/playmat/print/tapete-jugador2-hojas-carta.pdf" target="_blank" style="color:#8de5ca">6 hojas carta</a> · <a href="/playmat/print/tapete-jugador2-una-pieza.pdf" target="_blank" style="color:#8de5ca">una pieza</a></p>
-      </details>
-    </section>
-    <section>
-      <h2>Duelo</h2>
-      <div id="duelSetup">
-        <input type="text" id="name0" value="Jugador 1" aria-label="Nombre del jugador 1"><input type="text" id="name1" value="Jugador 2" aria-label="Nombre del jugador 2">
-        <select id="starting"><option value="0">Empieza el jugador 1</option><option value="1">Empieza el jugador 2</option></select>
-        <button id="startDuel">Empezar duelo</button>
-      </div>
-      <p id="duelPhase"></p>
-      <div id="duelPlayers"></div>
-      <div id="duelControls" hidden>
-        <button id="nextPhase" class="secondary">Siguiente fase</button><button id="endTurn" class="secondary">Terminar turno</button><button id="drawCard" class="secondary">Robar</button>
-        <div><select id="lpPlayer"><option value="0">Jugador 1</option><option value="1">Jugador 2</option></select><input type="number" id="lpDelta" value="-500" step="100" aria-label="Cambio de LP"><button id="applyLp" class="secondary">Cambiar LP</button></div>
-        <button id="undo" class="secondary">Deshacer</button><button id="resetDuel" class="secondary">Terminar y reiniciar</button>
-      </div>
-      <div id="battle" hidden><select id="attacker" aria-label="Monstruo atacante"></select><select id="target" aria-label="Objetivo del ataque"></select><button id="declareAttack">Declarar ataque</button><button id="resolveBattle" class="secondary">Resolver batalla</button></div>
-      <p id="duelMessage" role="status"></p>
-    </section>
-    <section><h2>Últimas jugadas</h2><div id="recentPlays"><p>Todavía no hay jugadas.</p></div></section>
-    <section><h2>Preguntas</h2><div id="duelQuestions"><p>Sin preguntas pendientes.</p></div></section>
-    <section><div id="duelBoard"><p>Nada en el campo todavía.</p></div></section>
+      <p>Plantillas para imprimir (al 100 %): jugador 1 <a href="/playmat/print/tapete-jugador1-hojas-carta.pdf" target="_blank">hojas carta</a> · <a href="/playmat/print/tapete-jugador1-una-pieza.pdf" target="_blank">una pieza</a>; jugador 2 <a href="/playmat/print/tapete-jugador2-hojas-carta.pdf" target="_blank">hojas carta</a> · <a href="/playmat/print/tapete-jugador2-una-pieza.pdf" target="_blank">una pieza</a></p>
+    </details>
   </aside>
 </main>
 <script src="/duel.js"></script>

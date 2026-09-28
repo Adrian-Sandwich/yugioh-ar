@@ -139,6 +139,19 @@ de duelo pide resultados a `/analysis` para que el servidor siga analizando
 aunque el visor de diagnóstico esté cerrado. Las Zonas de Monstruo Extra sólo
 ofrecen Invocación Especial.
 
+## Vista de duelo minimalista (27/09/2026)
+
+Cartas y zonas se marcan sólo con sus cuatro esquinas (como la plantilla
+impresa); las zonas de pila (Cementerio, Mazo, Mazo Extra, Desterradas) más
+tenues. Con un tablero puesto, sólo se muestran las cartas cuyo centro cae en
+una zona del campo (Monstruo, Magia/Trampa, Campo, Monstruo Extra): una carta
+en la mano, fuera del tablero o boca arriba en una pila no lleva marca, nombre
+ni monstruo, y el contador de arriba cuenta sólo las del campo. El reconocedor
+sigue analizando todo el fotograma; el filtro es de la vista. El panel muestra
+"Últimas jugadas" (tres) y "Preguntas" sólo cuando hay; LP, robar, deshacer y
+la lista del campo quedan plegados, y los ajustes del tablero se pliegan solos
+al fijarlo.
+
 ## Jugadas automáticas y barra de fases (27/09/2026)
 
 Con una pregunta por cada carta el duelo se volvía lento. Como en Master Duel
