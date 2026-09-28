@@ -10,7 +10,15 @@
   header a { color: #8de5ca; margin-left: auto; }
   main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 16px; padding: 14px 18px; align-items: start; }
   @media(max-width:1000px) { main { grid-template-columns: 1fr; } }
-  .screen { background: #05070c; border-radius: 12px; overflow: hidden; display: grid; place-items: center; min-height: 240px; }
+  .screen { position: relative; background: #05070c; border-radius: 12px; overflow: hidden; display: grid; place-items: center; min-height: 240px; }
+  #phaseBar { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; align-items: center; background: rgba(8,14,26,.8); padding: 5px 8px; border-radius: 10px; border: 1px solid #2a3950; }
+  #phaseBar .turn { color: #e9eef7; font-weight: 700; margin-right: 6px; white-space: nowrap; }
+  #phaseBar button { margin: 0; padding: 6px 9px; background: #1b2638; color: #aebbd0; font-size: 13px; }
+  #phaseBar button.now { background: #5ff2ff; color: #06202a; }
+  #phaseBar button.end { background: #8de5ca; color: #11281f; margin-left: 6px; }
+  .play { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; border-bottom: 1px solid #243047; padding: 6px 0; }
+  .play span { flex: 1 1 100%; color: #e9eef7; font-size: 13px; }
+  .play button { margin: 0; padding: 4px 8px; font-size: 12px; }
   canvas { display: block; max-width: 100%; max-height: 82vh; width: auto; height: auto; }
   .bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 8px; color: #aebbd0; }
   aside section { background: #121a28; border: 1px solid #2a3950; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
@@ -44,11 +52,17 @@
 </header>
 <main>
   <div>
-    <div class="screen"><canvas id="frame" width="960" height="540" aria-label="Mesa en vivo con el tablero y las cartas reconocidas"></canvas></div>
+    <div class="screen"><canvas id="frame" width="960" height="540" aria-label="Mesa en vivo con el tablero y las cartas reconocidas"></canvas>
+      <div id="phaseBar" hidden><span class="turn" id="turnLabel"></span>
+        <button data-phase="draw" title="Draw Phase">DP</button><button data-phase="standby" title="Standby Phase">SP</button><button data-phase="main1" title="Main Phase 1">M1</button><button data-phase="battle" title="Battle Phase">BP</button><button data-phase="main2" title="Main Phase 2">M2</button><button data-phase="end" title="End Phase">EP</button>
+        <button class="end" id="barEndTurn">Terminar turno</button></div>
+    </div>
     <div class="bar">
       <label><input type="checkbox" id="showZones" checked> Mostrar tablero</label>
       <label><input type="checkbox" id="ar" checked> Monstruos AR</label>
-      <span>La cámara nunca invoca ni mueve cartas por su cuenta: cuando algo cambia en el tablero, a la derecha aparece una pregunta.</span>
+      <label><input type="checkbox" id="fx" checked> Efectos</label>
+      <label><input type="checkbox" id="autoPlays" checked> Registrar jugadas solas</label>
+      <span>Poner una carta en el tablero cuenta como la jugada obvia; si fue otra, cámbiala en "Últimas jugadas". Espacio: siguiente fase.</span>
     </div>
   </div>
   <aside id="duel">
@@ -84,13 +98,14 @@
       <p id="duelPhase"></p>
       <div id="duelPlayers"></div>
       <div id="duelControls" hidden>
-        <button id="nextPhase">Siguiente fase</button><button id="endTurn">Terminar turno</button><button id="drawCard" class="secondary">Robar</button>
+        <button id="nextPhase" class="secondary">Siguiente fase</button><button id="endTurn" class="secondary">Terminar turno</button><button id="drawCard" class="secondary">Robar</button>
         <div><select id="lpPlayer"><option value="0">Jugador 1</option><option value="1">Jugador 2</option></select><input type="number" id="lpDelta" value="-500" step="100" aria-label="Cambio de LP"><button id="applyLp" class="secondary">Cambiar LP</button></div>
         <button id="undo" class="secondary">Deshacer</button><button id="resetDuel" class="secondary">Terminar y reiniciar</button>
       </div>
       <div id="battle" hidden><select id="attacker" aria-label="Monstruo atacante"></select><select id="target" aria-label="Objetivo del ataque"></select><button id="declareAttack">Declarar ataque</button><button id="resolveBattle" class="secondary">Resolver batalla</button></div>
       <p id="duelMessage" role="status"></p>
     </section>
+    <section><h2>Últimas jugadas</h2><div id="recentPlays"><p>Todavía no hay jugadas.</p></div></section>
     <section><h2>Preguntas</h2><div id="duelQuestions"><p>Sin preguntas pendientes.</p></div></section>
     <section><div id="duelBoard"><p>Nada en el campo todavía.</p></div></section>
   </aside>

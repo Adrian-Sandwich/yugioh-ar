@@ -139,6 +139,39 @@ de duelo pide resultados a `/analysis` para que el servidor siga analizando
 aunque el visor de diagnóstico esté cerrado. Las Zonas de Monstruo Extra sólo
 ofrecen Invocación Especial.
 
+## Jugadas automáticas y barra de fases (27/09/2026)
+
+Con una pregunta por cada carta el duelo se volvía lento. Como en Master Duel
+y YGOPro, poner una carta cuenta como la jugada obvia (`TableDuel._plays`, en
+orden de probabilidad) y las preguntas quedan sólo para lo que el motor
+rechaza: monstruo vertical, Invocación Normal si es nivel 4 o menos y queda la
+del turno, si no Especial (desde el Mazo Extra si es Sincronía, Xyz, Fusión o
+Link); horizontal, Especial en defensa; sin identidad, colocado; magia/trampa
+reconocida, activada, si no colocada; monstruo que desaparece 3 s
+(`MISSING_GRACE_S`, para que una mano encima no lo mande al Cementerio), al
+Cementerio; cambio de orientación, cambio de posición o volteo. Si la jugada
+llega en la Draw o Standby Phase del jugador del turno, se avanza a la Main
+Phase 1 robando si faltaba (la carta física ya se robó).
+
+Cada jugada automática queda en "Últimas jugadas" con "Era: …" (otra jugada) y
+"Deshacer": se regresa el registro exactamente al punto anterior a ella
+(`revise`) y una jugada deshecha no se vuelve a aplicar sola, queda como
+pregunta. "Registrar jugadas solas" lo desactiva.
+
+Sobre el vídeo, una barra de fases DP · SP · M1 · BP · M2 · EP con la fase
+actual resaltada; clic en una fase posterior salta a ella (`goto_phase`, que
+roba si hace falta y se detiene en el primer turno, sin Battle Phase ni Main
+Phase 2), "Terminar turno" funciona desde cualquier fase (`end_turn`) y la
+barra espaciadora avanza de fase. Los marcadores de LP pasan a esquinas
+opuestas y los efectos se acortaron, con interruptor.
+
+Pruebas: `qa_table_duel.py` (16 comprobaciones: la carta en Draw Phase queda
+Invocada Normal en M1, Especial cuando la Normal ya se usó, deshacer la deja
+como pregunta, una mano un momento no la manda al Cementerio y 3 s sí, saltos
+de fase y fin de turno) y en Edge con los tapetes impresos (las tres cartas se
+registran solas, sin preguntas, barra en M1, deshacer, EP, espacio termina el
+turno).
+
 ## Monstruos AR de pie y efectos (27/09/2026)
 
 En `/duelo` los monstruos ya no se pegan planos sobre la carta: se paran sobre

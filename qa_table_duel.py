@@ -28,7 +28,7 @@ def main():
     shutil.rmtree(folder, ignore_errors=True)
     checks = []
     try:
-        table = TableDuel(folder, sheet=SHEETS.get)
+        table = TableDuel(folder, sheet=SHEETS.get); table.auto = False   # question mode
         try: table.calibrate('two', [{'player': 0, 'corners': NEAR}], [1920, 1080]); raise AssertionError('two mats need both players')
         except ValueError: pass
         overlay = table.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
@@ -94,7 +94,7 @@ def main():
         checks.append('calibration and duel survive a restart')
         # Virtual boards from sliders: preview changes nothing; saving places both boards,
         # the far one smaller (one perspective for the whole table), and cards land in its zones.
-        virtual = TableDuel(folder / 'virtual', sheet=SHEETS.get)
+        virtual = TableDuel(folder / 'virtual', sheet=SHEETS.get); virtual.auto = False
         preview = virtual.preview('two', {'tilt': .7}, [1920, 1080])
         assert preview['preview'] and len(preview['zones']) == 32 and virtual.mode is None
         virtual.calibrate('two', [], [1920, 1080], virtual={'tilt': .7})
@@ -107,6 +107,40 @@ def main():
         again = TableDuel(folder / 'virtual', sheet=SHEETS.get)
         assert again.virtual['tilt'] == .7 and again.mode == 'two'
         checks.append('virtual boards: preview, perspective, zones, sliders saved')
+        # Automatic plays: placing a card is the obvious play, with the phase advanced for it.
+        auto = TableDuel(folder / 'auto', sheet=SHEETS.get)
+        auto.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
+        auto.act({'type': 'start_duel', 'names': ['Ana', 'Beto'], 'starting': 0, 'extra_deck_sizes': [15, 15]})
+        assert auto.view()['phase'] == 'draw'
+        k1 = track(auto, 0, 1, 'kuriboh', *center('monster:1'))
+        feed(auto, [k1])
+        view = auto.view(); card = next((c for c in view['board'] if c['zone'] == 'monster:1'), None)
+        assert card and card['name'] == 'Kuriboh' and view['phase'] == 'main1' and view['questions'] == [], view
+        assert view['recent'][0]['text'].startswith('Invocación Normal: Kuriboh') and 'special_summon' in [a['type'] for a in view['recent'][0]['alternatives']]
+        checks.append('card placed in Draw Phase: advanced to Main Phase 1 and Normal Summoned, no question')
+        # Level 7 with the Normal Summon used: Special Summon; then changed to... undone.
+        dm = track(auto, 0, 2, 'dm', *center('monster:3'))
+        feed(auto, [k1, dm])
+        assert any(c['name'] == 'Mago Oscuro' for c in auto.view()['board'])
+        play = auto.view()['recent'][0]; assert play['text'].startswith('Invocación Especial: Mago Oscuro'), play
+        auto.act({'type': 'revise', 'id': play['id']})
+        assert not any(c['name'] == 'Mago Oscuro' for c in auto.view()['board'])
+        feed(auto, [k1, dm])   # undone play does not come back by itself: it waits as a question
+        assert not any(c['name'] == 'Mago Oscuro' for c in auto.view()['board']) and any(q['zone'] == 'monster:3' for q in auto.view()['questions'])
+        checks.append('Special Summon when the Normal Summon is used; undo keeps it as a question')
+        # A hand over Kuriboh for a moment does not send it to the Graveyard.
+        feed(auto, [dm])
+        assert any(c['name'] == 'Kuriboh' for c in auto.view()['board'])
+        auto.first_seen = {k: t - 5 for k, t in auto.first_seen.items()}; feed(auto, [dm], times=1)
+        view = auto.view(); assert not any(c['name'] == 'Kuriboh' for c in view['board']) and view['players'][0]['graveyard'] == 1, view['board']
+        checks.append('a card gone briefly stays; gone for 3 s goes to the Graveyard')
+        # Phase buttons: jump to End Phase (turn 1 has no Battle Phase) and end the turn from anywhere.
+        try: auto.act({'type': 'goto_phase', 'phase': 'battle'}); raise AssertionError('battle on turn 1')
+        except Exception as error: assert 'primer turno' in str(error)
+        auto.act({'type': 'goto_phase', 'phase': 'end'}); assert auto.view()['phase'] == 'end'
+        auto.act({'type': 'end_turn'}); auto.act({'type': 'end_turn'})   # turn 2 ends from its Draw Phase
+        assert auto.view()['turn'] == 3 and auto.view()['phase'] == 'draw'
+        checks.append('phase jumps and End Turn from any phase')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'

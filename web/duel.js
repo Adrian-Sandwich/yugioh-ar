@@ -39,7 +39,7 @@ function draw(now){
     drawTableOverlay(ctx);
     if(ar)drawStage(ctx,liveTracks.filter(t=>t.stable),now||performance.now());
     drawCards(ctx,liveTracks);
-    if(ar)drawHud(ctx,now||performance.now());
+    if(ar)drawHud(ctx,now||performance.now());   // effects are queued only with Efectos on (stageEvents)
     renderedFrame=frameNumber;renderedTracks=liveTracks;renderedZones=zonesVersion;renderedAR=ar;
   }
   requestAnimationFrame(draw);
@@ -229,8 +229,46 @@ function questionNode(q){
   return box;
 }
 
+// Phase bar over the video (as in Master Duel): current phase lit, later phases clickable.
+const PHASE_KEYS=['draw','standby','main1','battle','main2','end'];
+function renderPhaseBar(view){
+  const bar=$d('#phaseBar');bar.hidden=!view.started||!!view.result;if(bar.hidden)return;
+  $d('#turnLabel').textContent=`Turno ${view.turn} · ${view.players[view.current]?.name}`;
+  const at=PHASE_KEYS.indexOf(view.phase);
+  bar.querySelectorAll('button[data-phase]').forEach(b=>{
+    const i=PHASE_KEYS.indexOf(b.dataset.phase);b.className=i===at?'now':'';
+    b.disabled=i<at||(view.turn===1&&['battle','main2'].includes(b.dataset.phase));
+  });
+}
+function nextPhase(){
+  const v=duelView;if(!v?.started||v.result)return;
+  if(v.phase==='end')return duelAct({type:'end_turn'});
+  let i=PHASE_KEYS.indexOf(v.phase)+1;
+  if(v.turn===1&&PHASE_KEYS[i]==='battle')i=PHASE_KEYS.indexOf('end');
+  duelAct({type:'goto_phase',phase:PHASE_KEYS[i]});
+}
+document.querySelectorAll('#phaseBar button[data-phase]').forEach(b=>b.onclick=()=>duelAct({type:'goto_phase',phase:b.dataset.phase}));
+$d('#barEndTurn').onclick=()=>duelAct({type:'end_turn'});
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&!['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName)){e.preventDefault();nextPhase();}});
+$d('#autoPlays').onchange=()=>duelAct({type:'auto',enabled:$d('#autoPlays').checked});
+
+// Automatic plays, newest first: change to another play or undo.
+function renderRecent(view){
+  const key=JSON.stringify(view.recent||[]);if(key===renderRecent.key)return;renderRecent.key=key;
+  const nodes=(view.recent||[]).map((r,i)=>{
+    const row=document.createElement('div');row.className='play';row.append(textNode('span',r.text));
+    if(i===0){   // only the latest can be changed without touching later plays
+      for(const a of r.alternatives){const b=document.createElement('button');b.className='secondary';b.textContent=`Era: ${a.label}`;b.onclick=()=>duelAct({type:'revise',id:r.id,replacement:a.type});row.append(b);}
+      const u=document.createElement('button');u.className='secondary';u.textContent='Deshacer';u.onclick=()=>duelAct({type:'revise',id:r.id});row.append(u);
+    }
+    return row;});
+  $d('#recentPlays').replaceChildren(...(nodes.length?nodes:[textNode('p','Todavía no hay jugadas.')]));
+}
+
 function renderDuel(view){
   stageEvents(duelView,view);   // summon, attack, destruction and LP effects from what changed
+  renderPhaseBar(view);renderRecent(view);
+  if($d('#autoPlays').checked!==!!view.auto)$d('#autoPlays').checked=!!view.auto;
   duelView=view;
   $d('#duelSetup').hidden=view.started&&!view.result;$d('#duelControls').hidden=!view.started||!!view.result;
   $d('#duelPhase').textContent=!view.started?'Duelo sin empezar.':view.result?`Duelo terminado: gana ${view.players[view.result.winner]?.name??'—'} (${view.result.reason}).`:
@@ -260,8 +298,9 @@ const copyValue=v=>v===''?null:(Number.isNaN(Number(v))?v:Number(v));
 $d('#declareAttack').onclick=()=>duelAct({type:'declare_attack',player:duelView?.current??0,attacker:copyValue($d('#attacker').value),target:copyValue($d('#target').value)});
 $d('#resolveBattle').onclick=()=>duelAct({type:'resolve_battle'});
 
-$d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value)});
-$d('#nextPhase').onclick=()=>duelAct({type:'next_phase'});
+// Extra Deck of 15 each, so Synchro/Xyz/Fusion/Link placed on the field come out of it.
+$d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value),extra_deck_sizes:[15,15]});
+$d('#nextPhase').onclick=nextPhase;
 $d('#endTurn').onclick=()=>duelAct({type:'end_turn'});
 $d('#drawCard').onclick=()=>duelAct({type:'draw',player:duelView?.current??0});
 $d('#applyLp').onclick=()=>duelAct({type:'change_lp',player:Number($d('#lpPlayer').value),delta:Number($d('#lpDelta').value),reason:'manual'});
@@ -364,7 +403,7 @@ function drawEffects(context,now){
     const seen=lastSeen.get(e.copy);
     if(e.kind==='summon'&&seen){
       // Pillar of light and a ring spreading on the table.
-      const {g}=seen,[x,y]=g.center,h=g.width*3.4*(t<.3?t/.3:1),fade=t<.7?1:1-(t-.7)/.3;
+      const {g}=seen,[x,y]=g.center,h=g.width*2.2*(t<.3?t/.3:1),fade=t<.7?1:1-(t-.7)/.3;
       context.save();const grad=context.createLinearGradient(x,y,x,y-h);grad.addColorStop(0,`rgba(180,245,255,${.75*fade})`);grad.addColorStop(1,'rgba(180,245,255,0)');
       context.fillStyle=grad;context.fillRect(x-g.width*.45,y-h,g.width*.9,h);
       context.strokeStyle=`rgba(140,240,255,${fade})`;context.lineWidth=Math.max(2,g.width/20);planeEllipse(context,g.H,.6+1.6*t);context.stroke();
@@ -395,12 +434,13 @@ function drawEffects(context,now){
       const [x,y]=hudAnchor(e.player);context.save();context.globalAlpha=1-t;context.font=`bold ${Math.round(frame.width/28)}px system-ui`;context.textAlign='center';
       context.fillStyle=e.delta<0?'#ff6b6b':'#6bff9e';context.strokeStyle='rgba(0,0,0,.7)';context.lineWidth=6;
       // Starts just below the LP box and rises toward it.
-      const ty=y+frame.height*.13-frame.height*.06*t,text=(e.delta>0?'+':'')+e.delta;context.strokeText(text,x,ty);context.fillText(text,x,ty);context.restore();
+      const dir=e.player===0?-1:1,ty=y+dir*(frame.height*.1+frame.height*.05*t),text=(e.delta>0?'+':'')+e.delta;context.strokeText(text,x,ty);context.fillText(text,x,ty);context.restore();
     }
   }
 }
 
-function hudAnchor(player){return [frame.width*(player===0?.36:.64),frame.height*.07];}
+// LP boxes in opposite corners: the near player bottom-left, the opponent top-right (the phase bar is top centre).
+function hudAnchor(player){return player===0?[frame.width*.13,frame.height*.93]:[frame.width*.87,frame.height*.08];}
 function drawHud(context,now){
   const view=duelView;if(!view?.started)return;
   // LP boxes at the top, counting toward the real value.
@@ -417,22 +457,22 @@ function drawHud(context,now){
 
 // Effects come from what changed in the duel, never from the camera alone.
 function stageEvents(prev,next){
-  if(!prev||!next)return;const now=performance.now();
+  if(!prev||!next||!document.querySelector('#fx').checked)return;const now=performance.now();
   const before=new Map((prev.board||[]).map(c=>[c.copy_id,c])),after=new Map((next.board||[]).map(c=>[c.copy_id,c]));
-  for(const [id,c] of after)if(!before.has(id)&&c.zone.includes('monster')&&c.position!=='facedown_defense')effects.push({kind:'summon',copy:id,start:now,duration:1400});
+  for(const [id,c] of after)if(!before.has(id)&&c.zone.includes('monster')&&c.position!=='facedown_defense')effects.push({kind:'summon',copy:id,start:now,duration:900});
   for(const [id,c] of before)if(!after.has(id)){
     const seen=lastSeen.get(id),image=seen&&cutouts.get(seen.sprite_ref);
-    if(seen&&image&&c.zone.includes('monster'))effects.push({kind:'destroy',copy:id,g:seen.g,image,start:now,duration:1100});
+    if(seen&&image&&c.zone.includes('monster'))effects.push({kind:'destroy',copy:id,g:seen.g,image,start:now,duration:800});
   }
   if(prev.pending_attack&&!next.pending_attack){
     const {attacker,target}=prev.pending_attack,from=lastSeen.get(attacker),to=target!=null?lastSeen.get(target):null;
     if(from){
       const aim=to?to.g.center:[from.g.center[0],from.g.center[1]-from.g.width*4];
-      effects.push({kind:'attack',attacker,to:aim,start:now,duration:900});
+      effects.push({kind:'attack',attacker,to:aim,start:now,duration:700});
       setTimeout(()=>effects.push({kind:'impact',at:aim,size:from.g.width*1.6,start:performance.now(),duration:600}),380);
     }
   }
-  (next.players||[]).forEach((p,i)=>{const old=prev.players?.[i]?.lp;if(old!=null&&old!==p.lp)effects.push({kind:'lp',player:i,delta:p.lp-old,start:now,duration:1600});});
+  (next.players||[]).forEach((p,i)=>{const old=prev.players?.[i]?.lp;if(old!=null&&old!==p.lp)effects.push({kind:'lp',player:i,delta:p.lp-old,start:now,duration:1400});});
 }
 
 draw();refreshCamera();followAnalysis();
