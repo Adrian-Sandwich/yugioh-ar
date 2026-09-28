@@ -90,7 +90,11 @@
         <button id="startDuel">Empezar duelo</button>
       </div>
       <p id="duelPhase"></p>
-      <div id="battle" hidden><select id="attacker" aria-label="Monstruo atacante"></select><select id="target" aria-label="Objetivo del ataque"></select><button id="declareAttack">Atacar</button><button id="resolveBattle" class="secondary">Resolver</button></div>
+      <div id="battle" hidden>
+        <p id="battleHelp"></p><button id="directAttack" hidden>Ataque directo</button>
+        <div id="battlePreview" hidden><p id="battleText"></p><p id="battleOutcome"></p>
+          <button id="applyBattle">Aplicar resultado</button><button id="cancelBattle" class="secondary">Cancelar ataque</button></div>
+      </div>
       <p id="duelMessage" role="status"></p>
     </section>
     <section id="recentSection" hidden><h2>Últimas jugadas</h2><div id="recentPlays"></div></section>

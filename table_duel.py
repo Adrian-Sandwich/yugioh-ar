@@ -14,6 +14,8 @@ import json
 import threading
 from pathlib import Path
 
+import numpy as np
+
 from duel_engine import Duel, DuelError
 from playmat import Mat, ZoneTracker, tcg_layout
 
@@ -94,7 +96,7 @@ class TableDuel:
         self.duel = Duel(); self.observed = {}; self.cards = {}; self.missing = {}
         # Automatic plays (a card placed counts as the obvious play); `recent` lets the
         # players change or undo them, `tried` keeps an undone play from coming back.
-        self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}
+        self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
         calibration = self.folder / 'calibration.json'
         if calibration.exists():
             data = json.loads(calibration.read_text(encoding='utf-8'))
@@ -194,6 +196,7 @@ class TableDuel:
                 try: self.duel.observe(obs['player'], obs['zone'], obs['copy_id'], obs['card_id'], obs['position'])
                 except DuelError: continue
                 self._save()
+            carried = self._gesture(tracks)
             if self.auto:
                 import time
                 now = time.monotonic(); keys = set()
@@ -201,6 +204,8 @@ class TableDuel:
                     key = (pending['key'], pending.get('kind'), pending.get('copy_id'), pending.get('expected_copy'), pending.get('position'))
                     keys.add(key); first = self.first_seen.setdefault(key, now)
                     if key in self.tried: continue
+                    # A monster being carried to attack leaves its zone empty on purpose.
+                    if pending.get('expected_copy') in carried or pending.get('copy_id') in carried: continue
                     # A hand over a card also empties its zone for a moment: a card only
                     # "left the field" after MISSING_GRACE_S without it.
                     if pending.get('kind') == 'missing' and now - first < MISSING_GRACE_S: continue
@@ -315,6 +320,89 @@ class TableDuel:
             self._save()
             return {'phase': self.duel.state['phase']}
 
+    # --- battle -----------------------------------------------------------------
+    def attack(self, attacker, target=None):
+        """Declare an attack (click on the video or the carry-and-return gesture), moving to
+        the Battle Step first if needed. Nothing is applied: `battle_preview` shows the result
+        and the players confirm with resolve_battle, or cancel it."""
+        with self.lock:
+            start = len(self.duel.log); st = self.duel.state
+            try:
+                if st['phase'] != 'battle': self.goto_phase('battle')
+                if self.duel.state['battle_step'] == 'start': self.duel.next_phase()
+                self.duel.declare_attack(self.duel.state['current'], attacker, target)
+            except DuelError:
+                self._rollback(start); raise
+            self.attack_start = start; self._save()
+            return {'attacker': attacker, 'target': target}
+
+    def cancel_attack(self):
+        """Take back a declared attack (an effect stopped it, or it was a mistake)."""
+        with self.lock:
+            if not self.duel.state['pending_attack']: raise DuelError('No hay ataque declarado')
+            self._rollback(getattr(self, 'attack_start', len(self.duel.log) - 1)); self._save()
+            return {'cancelled': True}
+
+    def battle_preview(self):
+        """What resolving the declared attack would do, computed on a copy of the duel."""
+        st = self.duel.state; pa = st['pending_attack']
+        if not pa: return None
+        def card(copy_id):
+            for p in st['players']:
+                for c in p['monster']:
+                    if c and c['copy_id'] == copy_id: return c
+            return next((c for c in st['shared']['extra_monster'] if c and c['copy_id'] == copy_id), None)
+        a, t = card(pa['attacker']), card(pa['target']) if pa['target'] is not None else None
+        names = [p['name'] for p in st['players']]
+        stats = lambda c: f"ATK {c['atk']}" if c['position'] == 'attack' else f"DEF {c['def'] if c['def'] is not None else '?'}"
+        text = f"{a['name'] or 'Monstruo'} (ATK {a['atk']}) ataca " + (f"a {t['name'] or 'un monstruo boca abajo'} ({stats(t)})" if t else 'directamente')
+        try:
+            result = Duel.replay(self.duel.log).resolve_battle()
+        except DuelError as error:
+            return {'text': text, 'outcome': None, 'problem': str(error)}
+        parts = []
+        for copy_id in result['destroyed']:
+            c = card(copy_id); parts.append(f"{(c or {}).get('name') or 'monstruo'} es destruido")
+        for change in result['lp_changes']:
+            parts.append(f"{names[change['player']]} {'pierde' if change['delta'] < 0 else 'gana'} {abs(change['delta'])} LP")
+        if not parts: parts.append('sin daño ni destrucción')
+        return {'text': text, 'outcome': '; '.join(parts), 'problem': None}
+
+    def _gesture(self, tracks):
+        """Battle Phase: a monster carried next to an opponent's monster and brought back to its
+        zone declares that attack. Returns copy_ids in the middle of a gesture."""
+        import time
+        st = self.duel.state
+        if not st['started'] or st['result'] or st['phase'] != 'battle' or st['pending_attack'] or not self.mats:
+            self.gestures = {}; return set()
+        now = time.monotonic(); me = st['current']
+        center = {t['track_id']: np.float32(t['corners']).mean(0) for t in tracks}
+        def home(player, zone):
+            mat = next((m for m in self.mats if m.player == (0 if zone.startswith('extra_monster') else player)), None)
+            rect = next((z for z in (mat.layout if mat else []) if z[0] == zone), None)
+            if rect is None: return None, None
+            _, x0, y0, x1, y1 = rect; pts = mat.image_points([[x0, (y0 + y1) / 2], [x1, (y0 + y1) / 2], [(x0 + x1) / 2, (y0 + y1) / 2]])
+            return pts[2], float(np.linalg.norm(pts[1] - pts[0]))
+        board = [(p, f'{k}:{i}', c) for p, ps in enumerate(st['players']) for k in ('monster',) for i, c in enumerate(ps[k]) if c]
+        board += [(c['controller'], f'extra_monster:{i}', c) for i, c in enumerate(st['shared']['extra_monster']) if c]
+        enemies = [(c['copy_id'], center.get(c['copy_id'], home(p, zone)[0])) for p, zone, c in board if p != me]
+        for p, zone, c in board:
+            copy = c['copy_id']
+            if p != me or c['position'] != 'attack' or c.get('attacked_turn') == st['turn'] or copy not in center: continue
+            base, size = home(p, zone)
+            if base is None: continue
+            here = center[copy]; away = float(np.linalg.norm(here - base)); gesture = self.gestures.get(copy)
+            near = [(float(np.linalg.norm(here - pos)), tid) for tid, pos in enemies if pos is not None and float(np.linalg.norm(here - pos)) < .6 * size]
+            if near and away > .6 * size:
+                self.gestures[copy] = {'target': min(near)[1], 'at': now}
+            elif gesture and away < .35 * size:
+                del self.gestures[copy]
+                if now - gesture['at'] < 8:
+                    try: self.attack(copy, gesture['target'])
+                    except DuelError: pass
+        self.gestures = {k: g for k, g in self.gestures.items() if now - g['at'] < 8}
+        return set(self.gestures)
+
     def end_turn(self):
         """End the turn from any phase: advance to a phase where the rules allow it first."""
         with self.lock:
@@ -351,6 +439,8 @@ class TableDuel:
             if kind == 'end_turn': return self.end_turn()
             if kind == 'revise': return self.revise(event.get('id'), event.get('replacement'))
             if kind == 'auto': self.auto = bool(event.get('enabled')); return {'auto': self.auto}
+            if kind == 'attack': return self.attack(event.get('attacker'), event.get('target'))
+            if kind == 'cancel_attack': return self.cancel_attack()
             if kind in ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap') or (kind == 'activate_spell_trap' and event.get('copy_id') is not None and 'card' not in event):
                 spec = self.card_spec(event.pop('copy_id'), event.pop('card_id', None))
                 if kind in ('set_monster', 'set_spell_trap'): spec['card_id'] = None  # face-down: identity stays hidden
@@ -440,4 +530,5 @@ class TableDuel:
             return {'started': st['started'], 'turn': st['turn'], 'current': st['current'], 'phase': st['phase'], 'battle_step': st['battle_step'],
                     'result': st['result'], 'players': players, 'board': board, 'questions': questions, 'pending_attack': st['pending_attack'],
                     'calibrated': self.mode is not None, 'mode': self.mode, 'mats_seen': [m.player for m in self.mats], 'events': len(self.duel.log),
-                    'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id')} for r in self.recent]}
+                    'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id')} for r in self.recent],
+                    'battle_preview': self.battle_preview(), 'carrying': sorted(self.gestures)}

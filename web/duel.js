@@ -83,6 +83,7 @@ async function spotlight(cardId){
 frame.addEventListener('click',event=>{
   if(calibration)return;
   const rect=frame.getBoundingClientRect(),p=[(event.clientX-rect.left)*frame.width/rect.width,(event.clientY-rect.top)*frame.height/rect.height];
+  if(battleClick(p))return;   // Battle Phase: choosing attacker and target
   const hit=fieldTracks(liveTracks).find(t=>insideQuad(p,t.corners));
   if(hit)spotlight(hit.card_id);
 });
@@ -97,6 +98,7 @@ function draw(now){
     const field=fieldTracks(liveTracks);
     if(ar)drawStage(ctx,field.filter(t=>t.stable),now||performance.now());
     drawCards(ctx,field);
+    drawBattle(ctx);
     if(ar)drawHud(ctx,now||performance.now());   // effects are queued only with Efectos on (stageEvents)
     renderedFrame=frameNumber;renderedTracks=liveTracks;renderedZones=zonesVersion;renderedAR=ar;
   }
@@ -381,19 +383,53 @@ function renderDuel(view){
   const board=view.board||[];
   $d('#duelBoard').replaceChildren(...(board.length?[textNode('h3','En el campo')]:[textNode('p','Nada en el campo todavía.')]),...board.map(c=>textNode('p',`${view.players[c.player]?.name} · ${c.zone_label}: ${c.name||'carta boca abajo'} · ${POSITIONS[c.position]||c.position}${c.atk!=null?` · ATK ${c.atk}${c.def!=null?` / DEF ${c.def}`:''}`:''}`)));
   ['#lpPlayer'].forEach(s=>[...$d(s).options].forEach((o,i)=>o.textContent=view.players?.[i]?.name||o.textContent));
-  // Battle Phase: the current player's face-up Attack Position monsters against the opponent's monsters or directly.
-  const inBattle=view.started&&!view.result&&view.phase==='battle';$d('#battle').hidden=!inBattle;
-  if(inBattle){
-    const keep=(sel,items)=>{const old=$d(sel).value;$d(sel).replaceChildren(...items.map(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;return o;}));if([...$d(sel).options].some(o=>o.value===old))$d(sel).value=old;};
-    keep('#attacker',board.filter(c=>c.player===view.current&&c.zone.includes('monster')&&c.position==='attack').map(c=>[String(c.copy_id),`${c.name||'monstruo'} (ATK ${c.atk??'?'})`]));
-    keep('#target',[['','Ataque directo'],...board.filter(c=>c.player!==view.current&&c.zone.includes('monster')).map(c=>[String(c.copy_id),`${c.name||'boca abajo'} · ${POSITIONS[c.position]||c.position}`])]);
-    $d('#resolveBattle').disabled=!view.pending_attack;
-  }
+  renderBattle(view);
 }
-// copy_id comes from the recognizer's track ids (integers); option values are text.
-const copyValue=v=>v===''?null:(Number.isNaN(Number(v))?v:Number(v));
-$d('#declareAttack').onclick=()=>duelAct({type:'declare_attack',player:duelView?.current??0,attacker:copyValue($d('#attacker').value),target:copyValue($d('#target').value)});
-$d('#resolveBattle').onclick=()=>duelAct({type:'resolve_battle'});
+
+// ---- Battle: click (or carry-and-return gesture) declares; the result is proposed, then applied
+let selectedAttacker=null;
+function renderBattle(view){
+  const inBattle=view.started&&!view.result&&view.phase==='battle';$d('#battle').hidden=!inBattle;$d('#duelSection').hidden&&=!inBattle;
+  if(!inBattle){selectedAttacker=null;return;}
+  const preview=view.battle_preview,attacker=selectedAttacker!=null?(view.board||[]).find(c=>c.copy_id===selectedAttacker):null;
+  $d('#battleHelp').textContent=preview?'':attacker?`${attacker.name} va a atacar: haz clic en el monstruo rival o usa "Ataque directo".`:
+    'Haz clic en tu monstruo y luego en el rival, o lleva tu carta junto al monstruo rival y regrésala a su zona.';
+  $d('#battlePreview').hidden=!preview;
+  if(preview){$d('#battleText').textContent=preview.text;$d('#battleOutcome').textContent=preview.problem?`No se puede calcular: ${preview.problem}`:`Resultado: ${preview.outcome}.`;}
+  $d('#applyBattle').disabled=!preview||!!preview.problem;
+  $d('#directAttack').hidden=!attacker||!!preview;
+}
+function battleClick(point){
+  const v=duelView;if(!v?.started||v.phase!=='battle'||v.battle_preview)return false;
+  const hit=fieldTracks(liveTracks).find(t=>insideQuad(point,t.corners));if(!hit)return false;
+  const card=(v.board||[]).find(c=>c.copy_id===hit.track_id);if(!card||!card.zone.includes('monster'))return false;
+  if(card.player===v.current&&card.position==='attack'){selectedAttacker=card.copy_id;renderedTracks=null;renderBattle(v);return true;}
+  if(card.player!==v.current&&selectedAttacker!=null){duelAct({type:'attack',attacker:selectedAttacker,target:card.copy_id});selectedAttacker=null;return true;}
+  return false;
+}
+$d('#directAttack').onclick=()=>{if(selectedAttacker!=null){duelAct({type:'attack',attacker:selectedAttacker,target:null});selectedAttacker=null;}};
+$d('#applyBattle').onclick=()=>duelAct({type:'resolve_battle'});
+$d('#cancelBattle').onclick=()=>duelAct({type:'cancel_attack'});
+
+// On the video: the chosen attacker glows, and a declared attack shows an arrow to its target.
+function drawBattle(context){
+  const v=duelView;if(!v?.started||v.phase!=='battle')return;
+  const where=id=>{const t=liveTracks.find(x=>x.track_id===id);return t?{c:t.corners.reduce(([a,b],[x,y])=>[a+x/4,b+y/4],[0,0]),q:t.corners}:null;};
+  context.save();context.lineCap='round';
+  const sel=selectedAttacker!=null?where(selectedAttacker):null;
+  if(sel){context.strokeStyle='#5ff2ff';context.lineWidth=Math.max(5,frame.width/260);cornerMarks(context,sel.q,.28);}
+  const pa=v.pending_attack;
+  if(pa){
+    const a=where(pa.attacker),t=pa.target!=null?where(pa.target):null;
+    if(a){
+      const to=t?t.c:[a.c[0],Math.max(20,a.c[1]-frame.height*.35)],ang=Math.atan2(to[1]-a.c[1],to[0]-a.c[0]),head=frame.width/60;
+      context.strokeStyle='#ff6b4a';context.fillStyle='#ff6b4a';context.lineWidth=Math.max(5,frame.width/240);
+      context.beginPath();context.moveTo(a.c[0],a.c[1]);context.lineTo(to[0]-Math.cos(ang)*head,to[1]-Math.sin(ang)*head);context.stroke();
+      context.beginPath();context.moveTo(to[0],to[1]);context.lineTo(to[0]-head*Math.cos(ang-.45),to[1]-head*Math.sin(ang-.45));context.lineTo(to[0]-head*Math.cos(ang+.45),to[1]-head*Math.sin(ang+.45));context.closePath();context.fill();
+    }
+  }
+  context.restore();
+}
 
 // Extra Deck of 15 each, so Synchro/Xyz/Fusion/Link placed on the field come out of it.
 $d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value),extra_deck_sizes:[15,15]});

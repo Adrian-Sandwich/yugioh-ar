@@ -165,10 +165,30 @@ dos líneas cortas: nombre y ATK/DEF (o el tipo de Magia/Trampa).
 reiniciar" archiva el duelo en `data/playmat/history/` con su registro
 completo, reproducible con `Duel.replay`; "Historial de duelos" los lista.
 
-Siguiente, a acordar antes de hacerlo: tipos de invocación, declarar ataques
-con clic en el vídeo y que acercar físicamente un monstruo a otro cuente como
-ataque, con el daño propuesto pero no aplicado solo; datos de mecánicas desde
-BabelCDB (categorías de efecto por carta), descargados fuera del repositorio.
+## Batalla (27/09/2026)
+
+Acordado con el usuario: ataques con clic en el vídeo o con el gesto de
+llevar y regresar, y el daño propuesto pero nunca aplicado solo (los efectos
+pueden cambiarlo). En la Battle Phase, clic en un monstruo propio en ataque y
+luego en uno rival (o "Ataque directo"): `TableDuel.attack` avanza al Battle
+Step si hace falta y declara. El gesto (`_gesture`): un monstruo propio en
+ataque que se aleja más de 0.6 anchos de zona de la suya, llega a menos de 0.6
+de un monstruo rival y regresa a menos de 0.35 de su zona en 8 s declara ese
+ataque; mientras dura, su zona vacía no cuenta como "salió del campo".
+`battle_preview` resuelve el ataque sobre una copia del duelo
+(`Duel.replay(log)`), así lo propuesto es exactamente lo que se aplicaría:
+"Dragón Blanco de Ojos Azules (ATK 3000) ataca a Mago Oscuro (ATK 2500) ·
+Mago Oscuro es destruido; Jugador 1 pierde 500 LP". "Aplicar resultado"
+resuelve; "Cancelar ataque" regresa el registro al punto anterior a la
+declaración. En el vídeo, el atacante elegido brilla y el ataque declarado
+lleva una flecha al objetivo. Pruebas: `qa_table_duel.py` (gesto, propuesta
+sin aplicar, aplicar, segundo ataque rechazado) y en Edge (clic, propuesta,
+LP intactos hasta aplicar, Cementerio).
+
+Siguiente, ya acordado: tipos de invocación con materiales deducidos de lo
+que acaba de salir del campo y propuestos (Tributo, Sincronía, Xyz, Link,
+revivir desde el Cementerio); boca abajo y Volteo (el reverso como identidad);
+datos de mecánicas desde BabelCDB, descargados fuera del repositorio.
 
 ## ygopro-core (revisado el 27/09/2026)
 

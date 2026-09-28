@@ -152,6 +152,33 @@ def main():
         from duel_engine import Duel
         assert Duel.replay(saved['log']).state['turn'] == 3 and not auto.duel.state['started']
         checks.append('reset archives the duel; the archived log replays')
+        # Battle: carry-and-return gesture declares the attack; the result is proposed, not applied.
+        battle = TableDuel(folder / 'battle', sheet=SHEETS.get)
+        battle.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
+        battle.act({'type': 'start_duel', 'names': ['Ana', 'Beto'], 'starting': 0})
+        kb = track(battle, 0, 1, 'kuriboh', *center('monster:2'))
+        feed(battle, [kb]); battle.act({'type': 'end_turn'})
+        dm_home = track(battle, 1, 2, 'dm', *center('monster:2'))
+        feed(battle, [kb, dm_home])
+        assert {c['name'] for c in battle.view()['board']} == {'Kuriboh', 'Mago Oscuro'}, battle.view()['board']
+        battle.act({'type': 'goto_phase', 'phase': 'battle'})
+        kb_center = np.float32(kb['corners']).mean(0); dm_center = np.float32(dm_home['corners']).mean(0)
+        dm_near = {**dm_home, 'corners': (np.float32(dm_home['corners']) + (kb_center - dm_center) * .9).tolist()}
+        battle.feed([kb, dm_near]); assert battle.view()['carrying'] == [2] and not battle.duel.state['pending_attack']
+        battle.feed([kb, dm_home])
+        preview = battle.view()['battle_preview']
+        assert preview and 'Mago Oscuro (ATK 2500) ataca a Kuriboh (ATK 300)' in preview['text'] and 'Kuriboh es destruido' in preview['outcome'] and 'Ana pierde 2200 LP' in preview['outcome'], preview
+        assert battle.view()['players'][0]['lp'] == 8000, 'the result must not be applied before confirming'
+        checks.append('carry-and-return gesture declares the attack; damage proposed, not applied')
+        battle.act({'type': 'resolve_battle'})
+        view = battle.view(); assert view['players'][0]['lp'] == 5800 and [c['name'] for c in view['players'][0]['graveyard_cards']] == ['Kuriboh'], view['players'][0]
+        checks.append('confirming applies the proposed result')
+        # A click-declared attack can be cancelled (an effect stopped it).
+        kb2 = track(battle, 0, 3, 'kuriboh', *center('monster:0'))
+        battle.duel.special_summon(0, {'copy_id': 3, 'card_id': 'kuriboh', 'name': 'Kuriboh', 'atk': 300, 'def': 200}, 'monster:0', source='hand')
+        try: battle.act({'type': 'attack', 'attacker': 2, 'target': 3}); raise AssertionError('second attack of the same monster accepted')
+        except Exception as error: assert 'ya atacó' in str(error), error
+        checks.append('the engine refuses a second attack by the same monster')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'
