@@ -1,19 +1,21 @@
 {
   "status": "passed",
-  "date": "2026-09-27",
+  "date": "2026-09-28",
   "encoder": "fp16",
   "threshold": 0.45,
   "scores": {
-    "back_up": 0.752,
+    "back_up": 0.751,
     "back_side": 0.864,
     "empty_a": 0.113,
     "empty_b": 0.072,
     "face": 0.073,
-    "sleeve": 0.104
+    "sleeve": 0.104,
+    "sleeve_up": 0.176
   },
   "sleeve_after_teaching": 0.999,
-  "zones_checked": 6,
-  "first_check_ms_with_reference_encoding": 342.4,
-  "check_ms": 11.1,
+  "sleeve_turned_after_teaching": 0.744,
+  "zones_checked": 7,
+  "first_check_ms_with_reference_encoding": 372.8,
+  "check_ms": 13.5,
   "limits": "Escena sintética: reversos pegados en una captura en vivo, sin reflejos ni manos. Falta calibrar el umbral con capturas reales."
 }

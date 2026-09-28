@@ -115,8 +115,9 @@ class BackChecker:
         for e in entries():
             image = cv2.imread(str(FOLDER / e['source']), cv2.IMREAD_COLOR)
             if image is None: continue
-            # Taught crops are zones already; a 180 degree turn is the same card seen from the other side.
-            crops += [image, np.ascontiguousarray(np.rot90(image, 2))] if e.get('kind') == 'taught' else official_crops(image)
+            # Taught crops are zones already. All four turns: a printed sleeve (a character, a logo)
+            # taught upright in a Spell & Trap Zone must still match sideways in a Monster Zone.
+            crops += [np.ascontiguousarray(np.rot90(image, k)) for k in range(4)] if e.get('kind') == 'taught' else official_crops(image)
         self.vectors = np.stack([z for _, z in self.encoder.predict_batch(crops, classify=False)]) if crops else None
         self.signature = signature
 

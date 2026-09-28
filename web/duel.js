@@ -592,14 +592,22 @@ function planeEllipse(context,H,scale){
   context.closePath();
 }
 
+// ---- Motor de efectos: luz aditiva, partículas con física, curvas con rebote y sacudida ----
+// Everything is drawn over the live video with the canvas 2D API. Lights add up
+// ('lighter'), glows come from blurred silhouettes cached once per sprite and colour,
+// and each duel event plays a short timed sequence (see drawEffects).
 const effects=[];const lastSeen=new Map();
-const hud={lp:[null,null]};
+const hud={lp:[null,null],flash:[0,0],flashColor:['#ff5a5a','#ff5a5a']};
 function boardCard(copyId){return (duelView?.board||[]).find(c=>c.copy_id===copyId);}
 function effectOf(kind,copyId,now){return effects.find(e=>e.kind===kind&&e.copy===copyId&&now-e.start<e.duration);}
 
-// Monsters, Spells and Traps look different: colour (cyan / green / magenta), base on the
-// table (ring / turning magic circle / hexagon) and how the figure moves.
-const KIND_COLOR={monster:'#5ff2ff',spell:'#3fe0a4',trap:'#ff5fa2'};
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const ease={out:t=>1-Math.pow(1-clamp(t),3),in:t=>Math.pow(clamp(t),3),inOut:t=>{t=clamp(t);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;},
+  back:t=>{t=clamp(t);const c=1.9;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);}};
+const span=(t,a,b)=>clamp((t-a)/(b-a));   // progress of t inside [a, b]
+const RGB={monster:[95,242,255],rival:[255,196,92],spell:[63,230,164],trap:[255,86,160],white:[255,255,255],fire:[255,150,60],back:[255,160,70],heal:[110,255,160],hurt:[255,80,80]};
+const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${clamp(a)})`;
+const KIND_COLOR={monster:'#5ff2ff',spell:'#3fe6a4',trap:'#ff56a0'};
 function kindOf(track){
   const s=sheetOf(track.card_id);if(s?.card_type==='spell'||s?.card_type==='trap')return s.card_type;
   const card=boardCard(track.track_id);
@@ -607,143 +615,311 @@ function kindOf(track){
   if(card&&(/^Magia/.test(card.type||'')||/^spell:|^field$/.test(card.zone)))return 'spell';
   return 'monster';
 }
-function drawSpellTrap(context,item,kind,now){
-  const {track,g}=item,img=cutouts.get(track.sprite_ref);if(!img)return;
-  const seed=(Number(track.track_id)||0)%1000;
-  let height=g.width*1.05;const width=height*img.width/img.height;
-  const appear=effectOf('activate',track.track_id,now);
-  let [x,y]=g.center,alpha=.93,rot=0,scale=1;
-  if(kind==='spell'){y-=Math.sin(now/900+seed)*.05*height;}          // slow, calm hover
-  else{rot=Math.sin(now/170+seed)*.02;x+=Math.sin(now/90+seed)*.004*height;}   // restless: a trap is waiting
-  if(appear){const t=Math.min(1,(now-appear.start)/450);scale=kind==='trap'?(t<.6?t/.6*1.15:1.15-.15*(t-.6)/.4):t;alpha*=Math.min(1,t*1.5);}
-  const top=Math.max(0,y-height*.12-height*scale/2);
-  context.save();context.globalAlpha=alpha;context.shadowColor=KIND_COLOR[kind];context.shadowBlur=g.width/4;
-  context.translate(x,top+height*scale/2);context.rotate(rot);context.scale(scale,scale);
-  context.drawImage(img,-width/2,-height/2,width,height);context.restore();
+function ownerColor(kind,rival){return kind==='monster'?(rival?RGB.rival:RGB.monster):RGB[kind];}
+
+// Blurred, tinted silhouette of a sprite (glow and flashes), cached per image, colour and blur.
+const silhouettes=new Map();
+function silhouette(img,color,blur){
+  const key=img.src+'|'+color+'|'+blur;let s=silhouettes.get(key);
+  if(!s){
+    const pad=Math.ceil(blur*2.2),c=document.createElement('canvas');c.width=img.width+pad*2;c.height=img.height+pad*2;
+    const x=c.getContext('2d');if(blur)x.filter=`blur(${blur}px)`;x.drawImage(img,pad,pad);x.filter='none';
+    x.globalCompositeOperation='source-in';x.fillStyle=color;x.fillRect(0,0,c.width,c.height);
+    s={canvas:c,pad};silhouettes.set(key,s);if(silhouettes.size>160)silhouettes.delete(silhouettes.keys().next().value);
+  }
+  return s;
 }
-function drawBase(context,g,kind,rival,now,seed){
-  const color=kind==='monster'&&rival?'#ffc861':KIND_COLOR[kind];
-  context.save();context.fillStyle='rgba(0,0,0,.34)';planeEllipse(context,g.H,1);context.fill();
-  context.shadowColor=color;context.shadowBlur=g.width/5;context.strokeStyle=color;context.lineWidth=Math.max(2,g.width/28);
-  context.globalAlpha=.55+.25*Math.sin(now/400+seed);
-  if(kind==='monster'){planeEllipse(context,g.H,1.08);context.stroke();}
-  else if(kind==='spell'){
-    // Magic circle on the card: two rings and marks turning slowly.
-    planeEllipse(context,g.H,1.08);context.stroke();context.lineWidth/=1.6;planeEllipse(context,g.H,.8);context.stroke();
-    const turn=now/2400;context.beginPath();
-    for(let k=0;k<8;k++){const a=turn+k*Math.PI/4,[x0,y0]=g.H(.5+.44*.8*Math.cos(a),.5+.3*.8*Math.sin(a)),[x1,y1]=g.H(.5+.44*1.08*Math.cos(a+.2),.5+.3*1.08*Math.sin(a+.2));context.moveTo(x0,y0);context.lineTo(x1,y1);}
-    context.stroke();
-  }else{
-    // Trap: a hexagon on the card plane, pulsing faster.
-    context.globalAlpha=.5+.35*Math.abs(Math.sin(now/260+seed));context.beginPath();
-    for(let k=0;k<=6;k++){const a=Math.PI/3*k+Math.PI/6,[px,py]=g.H(.5+.46*Math.cos(a),.5+.32*Math.sin(a));k?context.lineTo(px,py):context.moveTo(px,py);}
-    context.stroke();
+// A figure centred at (x, y): glow behind, the sprite, then an optional white flash on top.
+function drawFigure(context,img,x,y,width,height,o={}){
+  const k=width/img.width;
+  context.save();context.translate(x,y);if(o.rot)context.rotate(o.rot);if(o.scale&&o.scale!==1)context.scale(o.scale,o.scale*(o.squash||1));
+  if(o.glow){
+    const g=silhouette(img,o.glow,Math.max(4,Math.round(img.width*.045))),a=clamp(o.glowAlpha??.55)*clamp(o.alpha??1);
+    // Normal-blend halo first (shows on bright tables), then the additive one (shines on dark ones).
+    context.globalAlpha=a*.55;context.drawImage(g.canvas,-width/2-g.pad*k,-height/2-g.pad*k,g.canvas.width*k,g.canvas.height*k);
+    context.globalCompositeOperation='lighter';context.globalAlpha=a;
+    context.drawImage(g.canvas,-width/2-g.pad*k,-height/2-g.pad*k,g.canvas.width*k,g.canvas.height*k);
+  }
+  context.globalCompositeOperation='source-over';context.globalAlpha=clamp(o.alpha??1);
+  context.drawImage(img,-width/2,-height/2,width,height);
+  if(o.flash>0){
+    const w=silhouette(img,'#ffffff',0);context.globalCompositeOperation='lighter';context.globalAlpha=clamp(o.flash);
+    context.drawImage(w.canvas,-width/2,-height/2,width,height);
   }
   context.restore();
 }
 
+// ---- partículas ----
+const particles=[];let lastFrame=0;
+function emit(p){if(particles.length<1200)particles.push({age:0,drag:.0015,gravity:0,spin:0,rot:0,shape:'dot',...p});}
+function burst(n,make){for(let i=0;i<n;i++)emit(make(i,n));}
+function stepParticles(dt){
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];p.age+=dt;if(p.age>=p.life){particles.splice(i,1);continue;}
+    const d=Math.exp(-p.drag*dt);p.vx*=d;p.vy=p.vy*d+p.gravity*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.spin*dt;
+  }
+}
+function drawParticles(context){
+  context.save();
+  for(const p of particles){
+    const t=p.age/p.life,a=(p.fadeIn?Math.min(1,t/p.fadeIn):1)*(1-ease.in(t));
+    if(p.shape==='smoke'){   // dark, normal blending, grows
+      const r=p.size*(1+t*1.8),g=context.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+      context.globalCompositeOperation='source-over';g.addColorStop(0,`rgba(20,16,24,${.35*a})`);g.addColorStop(1,'rgba(20,16,24,0)');
+      context.fillStyle=g;context.beginPath();context.arc(p.x,p.y,r,0,Math.PI*2);context.fill();continue;
+    }
+    if(p.shape==='spark'){   // a streak along its velocity (darker core line keeps it visible on bright mats)
+      context.beginPath();context.moveTo(p.x,p.y);context.lineTo(p.x-p.vx*p.trail,p.y-p.vy*p.trail);context.lineCap='round';
+      litStroke(context,p.color,a,p.size*(1-t*.6));
+    }else if(p.shape==='glyph'){   // small spinning diamond (magic)
+      context.save();context.translate(p.x,p.y);context.rotate(p.rot);
+      const s=p.size;context.beginPath();context.moveTo(0,-s);context.lineTo(s*.6,0);context.lineTo(0,s);context.lineTo(-s*.6,0);context.closePath();
+      context.fillStyle=rgba(dark(p.color),a*.8);context.fill();context.globalCompositeOperation='lighter';context.fillStyle=rgba(p.color,a);context.scale(.7,.7);context.fill();context.restore();
+    }else{   // soft dot
+      context.globalCompositeOperation='lighter';
+      const r=p.size*(p.grow?1+t*p.grow:1),g=context.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+      g.addColorStop(0,rgba([255,255,255],a));g.addColorStop(.35,rgba(p.color,a*.9));g.addColorStop(1,rgba(p.color,0));
+      context.fillStyle=g;context.fillRect(p.x-r,p.y-r,r*2,r*2);
+    }
+  }
+  context.restore();
+}
+
+// ---- utilidades de luz y geometría sobre el plano de la carta ----
+let shake={until:0,mag:0,start:0};
+function addShake(mag,ms){const now=performance.now();if(mag>=shake.mag||now>shake.until)shake={until:now+ms,mag,start:now};}
+function shakeOffset(now){
+  if(now>shake.until)return [0,0];const k=1-(now-shake.start)/(shake.until-shake.start);
+  return [Math.sin(now*.11)*shake.mag*k,Math.cos(now*.13)*shake.mag*k*.7];
+}
+let screenFlash={until:0,start:0,color:RGB.white,alpha:0};
+function addFlash(color,alpha,ms){const now=performance.now();screenFlash={until:now+ms,start:now,color,alpha};}
+// Two layers for every light: a normal-blend tint (a light added to a white mat stays white,
+// so on bright tables this is what shows) and the additive glow (what shines on dark tables).
+const dark=c=>c.map(v=>Math.round(v*.55));
+function glow(context,x,y,r,color,a){
+  if(r<=0||a<=0)return;context.save();
+  const t=context.createRadialGradient(x,y,0,x,y,r);t.addColorStop(0,rgba(color,a*.32));t.addColorStop(1,rgba(color,0));
+  context.fillStyle=t;context.fillRect(x-r,y-r,r*2,r*2);
+  const g=context.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba([255,255,255],a));g.addColorStop(.25,rgba(color,a*.8));g.addColorStop(1,rgba(color,0));
+  context.globalCompositeOperation='lighter';context.fillStyle=g;context.fillRect(x-r,y-r,r*2,r*2);context.restore();
+}
+// Strokes the current path twice: a darker, wider normal-blend line, then the additive one.
+function litStroke(context,color,a,lw){
+  if(a<=0)return;context.save();context.globalCompositeOperation='source-over';context.strokeStyle=rgba(dark(color),a*.75);context.lineWidth=lw*1.9;context.stroke();
+  context.globalCompositeOperation='lighter';context.strokeStyle=rgba(color,a);context.lineWidth=lw;context.stroke();context.restore();
+}
+// Point on the card plane at angle a and radius r (in card half-widths), as the camera sees it.
+function onPlane(g,a,r){return g.H(.5+.44*r*Math.cos(a),.5+.3*r*Math.sin(a));}
+function planePath(context,g,pts){context.beginPath();pts.forEach(([a,r],i)=>{const [x,y]=onPlane(g,a,r);i?context.lineTo(x,y):context.moveTo(x,y);});context.closePath();}
+// Light pillar: three layered vertical gradients (outer colour, mid, white core).
+function beam(context,x,bottom,height,width,color,a){
+  if(a<=0||height<=0)return;context.save();
+  const tint=context.createLinearGradient(0,bottom,0,bottom-height);tint.addColorStop(0,rgba(color,a*.3));tint.addColorStop(1,rgba(color,0));
+  context.fillStyle=tint;context.fillRect(x-width*.35,bottom-height,width*.7,height);
+  context.globalCompositeOperation='lighter';
+  for(const [w,c,k] of [[width,color,.55],[width*.45,color,.8],[width*.14,[255,255,255],.9]]){
+    const g=context.createLinearGradient(0,bottom,0,bottom-height);g.addColorStop(0,rgba(c,a*k));g.addColorStop(.6,rgba(c,a*k*.45));g.addColorStop(1,rgba(c,0));
+    context.fillStyle=g;context.fillRect(x-w/2,bottom-height,w,height);
+  }
+  context.restore();
+}
+// Magic circle on the card plane: two counter-rotating rings, rune ticks and a hexagram.
+function magicCircle(context,g,now,color,size,a,opts={}){
+  if(a<=0)return;const spin=now/(opts.slow?5200:2600);
+  context.save();context.lineCap='round';
+  const lw=Math.max(1.5,g.width/40);
+  planeEllipse(context,g.H,size);litStroke(context,color,a,lw*1.3);
+  planeEllipse(context,g.H,size*.82);litStroke(context,color,a*.7,lw*.8);
+  context.beginPath();for(let k=0;k<24;k++){const ang=spin+k*Math.PI/12,[x0,y0]=onPlane(g,ang,size*.84),[x1,y1]=onPlane(g,ang,size*(k%3?.92:.98));context.moveTo(x0,y0);context.lineTo(x1,y1);}
+  litStroke(context,color,a*.85,lw);
+  if(opts.hexagram!==false)for(const off of [0,Math.PI/3]){planePath(context,g,[0,1,2].map(i=>[-spin*.7+off+i*2*Math.PI/3,size*.8]));litStroke(context,color,a*.55,lw*.8);}
+  context.restore();
+}
+function shockwave(context,g,t,color,from=.3,to=2.3){
+  if(t<=0||t>=1)return;planeEllipse(context,g.H,from+(to-from)*ease.out(t));litStroke(context,color,(1-t)*.9,Math.max(1,g.width/14*(1-t)));
+}
+
+// ---- figuras en reposo ----
+function drawBase(context,g,kind,rival,now,seed){
+  const c=ownerColor(kind,rival);
+  // Contact shadow, then a soft pool of light on the card and the kind's emblem.
+  context.save();const [cx,cy]=g.center,sh=context.createRadialGradient(cx,cy,0,cx,cy,g.width*.62);
+  sh.addColorStop(0,'rgba(0,0,0,.45)');sh.addColorStop(1,'rgba(0,0,0,0)');context.fillStyle=sh;planeEllipse(context,g.H,1.05);context.fill();context.restore();
+  glow(context,cx,cy,g.width*.55,c,.16+.05*Math.sin(now/600+seed));
+  if(kind==='monster'){
+    context.save();context.lineCap='round';
+    planeEllipse(context,g.H,1.02);litStroke(context,c,.55,Math.max(1.5,g.width/32));
+    // Two energy arcs chasing each other around the ring.
+    for(let k=0;k<2;k++){const a0=now/900+seed+k*Math.PI;
+      context.beginPath();for(let i=0;i<=10;i++){const [x,y]=onPlane(g,a0+i*.09,1.02);i?context.lineTo(x,y):context.moveTo(x,y);}litStroke(context,c,.9,Math.max(2,g.width/22));}
+    context.restore();
+  }else if(kind==='spell')magicCircle(context,g,now+seed*500,c,1.05,.5,{slow:true});
+  else{
+    const pulse=.45+.4*Math.abs(Math.sin(now/300+seed)),lw=Math.max(1.5,g.width/28);
+    planePath(context,g,[0,1,2,3,4,5].map(i=>[Math.PI/6+i*Math.PI/3,1.05]));litStroke(context,c,pulse,lw);
+    planePath(context,g,[0,1,2,3,4,5].map(i=>[Math.PI/6+i*Math.PI/3,.78]));litStroke(context,c,pulse*.5,lw);
+  }
+  // Ambient motes rising from the card.
+  if(Math.random()<.05){const [x,y]=onPlane(g,Math.random()*6.28,Math.random()*.9);
+    emit({x,y,vx:(Math.random()-.5)*.004*g.width/100,vy:-(.02+.03*Math.random())*g.width/100,life:1400+Math.random()*900,size:g.width*(.018+.02*Math.random()),color:c,fadeIn:.25});}
+}
+function figureSize(img,g,kind,defense){const height=g.width*(kind==='monster'?(defense?.95:1.25):1.05);return [height*img.width/img.height,height];}
+function drawSpellTrap(context,item,kind,now){
+  const {track,g}=item,img=cutouts.get(track.sprite_ref);if(!img)return;
+  const seed=(Number(track.track_id)||0)%1000,c=RGB[kind];let [width,height]=figureSize(img,g,kind,false);
+  const act=effectOf('activate',track.track_id,now);let [x,y]=g.center,alpha=.95,rot=0,scale=1,flash=0,lift=0;
+  if(kind==='spell'){lift=Math.sin(now/900+seed)*.05*height;}          // calm hover
+  else{rot=Math.sin(now/170+seed)*.018;x+=Math.sin(now/90+seed)*.004*height;}   // restless: a trap is waiting
+  if(act){const t=(now-act.start)/act.duration;
+    if(kind==='spell'){const u=span(t,.15,.55);scale=.4+.6*ease.back(u);alpha*=u;lift+=height*.25*(1-ease.out(span(t,.15,.9)));flash=1-span(t,.3,.8);}
+    else{const u=span(t,0,.35);scale=.3+.7*ease.back(u);alpha*=u;rot+=Math.sin(t*60)*.08*(1-t);flash=1-span(t,.15,.6);}}
+  const top=Math.max(0,y-height*.12-lift-height*scale/2);
+  drawFigure(context,img,x,top+height*scale/2,width,height,{alpha,rot,scale,glow:KIND_COLOR[kind],glowAlpha:.6,flash});
+}
 function drawMonster(context,item,now){
   const {track,g}=item,img=cutouts.get(track.sprite_ref);if(!img)return;
   const card=boardCard(track.track_id),position=card?.position;
   if(position==='facedown_defense'||position==='facedown')return;
   const kind=kindOf(track);if(kind!=='monster')return drawSpellTrap(context,item,kind,now);
-  const defense=position==='defense',seed=(Number(track.track_id)||0)*1.7;
-  // Smaller than the card is long and floating over its centre: tall sprites standing on the
-  // card left the frame for cards near the top edge.
-  let height=g.width*(defense?.95:1.25);const width=height*img.width/img.height;
-  let [x,y]=g.center,alpha=defense?.82:1;
-  // Summon: rise out of the light pillar.
+  const defense=position==='defense',rival=card?.controller===1,seed=(Number(track.track_id)||0)*1.7,c=ownerColor('monster',rival);
+  let [width,height]=figureSize(img,g,'monster',defense);
+  let [x,y]=g.center,alpha=defense?.85:1,scale=1,squash=1,flash=0,rot=Math.sin(now/950+seed)*.03;
+  // Summon: appears at 30 % of the sequence with an overshoot and a white flash.
   const summon=effectOf('summon',track.track_id,now);
-  if(summon){const t=Math.min(1,(now-summon.start)/700);height*=.4+.6*t;alpha*=t;}
-  // Attack: lunge toward the target and back.
+  if(summon){const t=(now-summon.start)/summon.duration,u=span(t,.3,.62);scale=.5+.5*ease.back(u);alpha*=clamp(u*2);flash=1-span(t,.35,.85);if(u<=0)return;}
+  // Attack: wind-up, dash (with after-images), hold, return.
   const attack=effects.find(e=>e.kind==='attack'&&e.attacker===track.track_id&&now-e.start<e.duration);
-  if(attack){const t=(now-attack.start)/attack.duration,k=t<.45?t/.45:t<.6?1:Math.max(0,1-(t-.6)/.4);x+=(attack.to[0]-x)*.75*k;y+=(attack.to[1]-y)*.75*k;}
-  const bob=Math.sin(now/650+seed)*.035*height,sway=Math.sin(now/950+seed)*.035,breathe=1+Math.sin(now/520+seed)*.015;
-  // Sprite centre a little above the card centre, never above the top of the frame.
-  const lift=height*.12,top=Math.max(0,y-lift-bob-height/2);
-  context.save();context.globalAlpha=alpha;context.translate(x,top+height/2);context.rotate(sway);context.scale(breathe,1/breathe);
-  context.drawImage(img,-width/2,-height/2,width,height);
-  context.restore();
+  if(attack){
+    const t=(now-attack.start)/attack.duration,[tx,ty]=attack.to,dx=tx-x,dy=ty-y;
+    const k=t<.2?-.12*ease.out(t/.2):t<.42?-.12+.92*ease.in(span(t,.2,.42)):t<.58?.8:.8*(1-ease.out(span(t,.58,1)));
+    if(t>.2&&t<.46){for(let i=3;i>=1;i--){const kk=Math.max(-.12,k-i*.12);
+      drawFigure(context,img,x+dx*kk,y+dy*kk-height*.12,width,height,{alpha:.18*i/3,glow:rgba(c,1),glowAlpha:.5});}}
+    x+=dx*k;y+=dy*k;rot+=(t<.2?-.12:t<.46?.1:0)*Math.sign(dx||1);squash=t<.2?.94:t<.46?1.06:1;
+  }
+  const bob=Math.sin(now/650+seed)*.035*height,breathe=1+Math.sin(now/520+seed)*.015;
+  const top=Math.max(0,y-height*.12-bob-height/2);
+  drawFigure(context,img,x,top+height/2,width,height,{alpha,rot,scale:scale*breathe,squash:squash/breathe,glow:rgba(c,1),glowAlpha:rival?.45:.5,flash});
   if(defense){
-    // Blue shield at the base: this monster is in Defense Position.
-    context.save();context.globalAlpha=.85;context.fillStyle='rgba(80,160,255,.35)';context.strokeStyle='#8ec5ff';context.lineWidth=Math.max(2,g.width/30);
-    const s=g.width*.28,[cx,cy]=g.center;context.beginPath();
-    for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+s*Math.cos(a),cy+g.width*.3+s*Math.sin(a));}
-    context.closePath();context.fill();context.stroke();context.restore();
+    // Translucent hex shield in front, with a highlight sweeping across it.
+    const s=g.width*.3,[cx,cy]=[x,g.center[1]+g.width*.28];context.save();
+    const grad=context.createLinearGradient(cx-s,cy-s,cx+s,cy+s);grad.addColorStop(0,'rgba(90,170,255,.18)');grad.addColorStop(1,'rgba(40,90,200,.32)');
+    hexPath(context,cx,cy,s);context.fillStyle=grad;context.fill();
+    context.globalCompositeOperation='lighter';context.strokeStyle='rgba(150,205,255,.85)';context.lineWidth=Math.max(1.5,g.width/34);context.stroke();
+    context.clip();const sweep=((now/1600+seed)%1)*s*4-s*2;const h=context.createLinearGradient(cx+sweep-s*.3,0,cx+sweep+s*.3,0);
+    h.addColorStop(0,'rgba(255,255,255,0)');h.addColorStop(.5,'rgba(220,240,255,.35)');h.addColorStop(1,'rgba(255,255,255,0)');context.fillStyle=h;context.fillRect(cx-s,cy-s,s*2,s*2);context.restore();
   }
 }
 
 function drawStage(context,tracks,now){
+  const dt=lastFrame?Math.min(64,now-lastFrame):16;lastFrame=now;stepParticles(dt);
   // Every card on the field is remembered (activation effects need its place, sprite or not).
-  for(const t of tracks)if(t.corners?.length===4)lastSeen.set(t.track_id,{g:geometry(t),sprite_ref:t.sprite_ref,name:t.name,kind:kindOf(t)});
+  for(const t of tracks)if(t.corners?.length===4)lastSeen.set(t.track_id,{g:geometry(t),sprite_ref:t.sprite_ref,name:t.name,kind:kindOf(t),rival:boardCard(t.track_id)?.controller===1});
   const items=tracks.filter(t=>t.sprite_ref&&t.corners?.length===4).map(track=>({track,g:geometry(track)}));
-  // Base on the table by card kind, then figures from far to near so near ones cover far ones.
+  const [sx,sy]=shakeOffset(now);context.save();context.translate(sx,sy);
   for(const {track,g} of items){
     const card=boardCard(track.track_id);if(card?.position==='facedown_defense'||card?.position==='facedown')continue;
     drawBase(context,g,kindOf(track),card?.controller===1,now,(Number(track.track_id)||0)%1000);
   }
+  drawEffects(context,now,'under');
   for(const item of items.sort((a,b)=>a.g.center[1]-b.g.center[1]))drawMonster(context,item,now);
-  drawEffects(context,now);
+  drawEffects(context,now,'over');drawParticles(context);
+  context.restore();
+  if(now<screenFlash.until){const a=screenFlash.alpha*(1-(now-screenFlash.start)/(screenFlash.until-screenFlash.start));
+    context.save();context.globalCompositeOperation='lighter';context.fillStyle=rgba(screenFlash.color,a);context.fillRect(0,0,frame.width,frame.height);context.restore();}
 }
 
-function drawEffects(context,now){
+// ---- secuencias de cada evento ----
+// Each effect is drawn in two layers: 'under' (on the table, below the figures) and 'over'.
+// The first frame of an effect spawns its particles and camera shake (e.fired).
+function zoneGeometry(player,zone){
+  const board=virtualPreview||playmat,z=board?.zones?.find(z=>z.player===player&&z.zone===zone);
+  if(!z)return null;const H=cardMap(z.polygon),l=H(0,.5),r=H(1,.5);return {H,center:H(.5,.5),width:Math.hypot(r[0]-l[0],r[1]-l[1])*.72};
+}
+function drawEffects(context,now,layer){
   for(let i=effects.length-1;i>=0;i--){
     const e=effects[i],t=(now-e.start)/e.duration;
-    if(t>=1){effects.splice(i,1);continue;}
-    const seen=lastSeen.get(e.copy);
-    if(e.kind==='summon'&&seen){
-      // Pillar of light and a ring spreading on the table.
-      const {g}=seen,[x,y]=g.center,h=Math.min(y,g.width*1.5)*(t<.3?t/.3:1),fade=t<.7?1:1-(t-.7)/.3;
-      context.save();const grad=context.createLinearGradient(x,y,x,y-h);grad.addColorStop(0,`rgba(180,245,255,${.75*fade})`);grad.addColorStop(1,'rgba(180,245,255,0)');
-      context.fillStyle=grad;context.fillRect(x-g.width*.45,y-h,g.width*.9,h);
-      context.strokeStyle=`rgba(140,240,255,${fade})`;context.lineWidth=Math.max(2,g.width/20);planeEllipse(context,g.H,.6+1.6*t);context.stroke();
-      context.fillStyle=`rgba(230,255,255,${fade})`;
-      for(let k=0;k<22;k++){const a=k*2.4,r=g.width*(.2+.5*((k*37)%10)/10),px=x+Math.cos(a)*r,py=y-g.width*1.6*((t*1.4+k/22)%1);context.fillRect(px,py,g.width/40+1,g.width/40+1);}
-      context.restore();
-    }
-    if(e.kind==='activate'&&seen){
-      const {g}=seen,[x,y]=g.center,fade=t<.6?1:1-(t-.6)/.4;context.save();context.lineCap='round';
-      if(e.type==='spell'){
-        // Spell: a green magic circle opening on the table and glyphs rising.
-        context.strokeStyle=`rgba(90,240,170,${fade})`;context.shadowColor='#3fe0a4';context.shadowBlur=g.width/4;context.lineWidth=Math.max(2,g.width/22);
-        planeEllipse(context,g.H,.4+1.4*t);context.stroke();planeEllipse(context,g.H,.2+1.0*t);context.stroke();
-        context.fillStyle=`rgba(200,255,230,${fade})`;
-        for(let k=0;k<14;k++){const a=k*2.1+t*3,r=g.width*.45*(.5+(k%5)/5),px=x+Math.cos(a)*r,py=y-g.width*1.3*((t*1.2+k/14)%1);context.fillRect(px-2,py-2,g.width/30+2,g.width/30+2);}
+    if(t>=1){if(layer==='over')effects.splice(i,1);continue;}
+    if(t<0)continue;
+    const seen=e.g?{g:e.g}:lastSeen.get(e.copy),g=seen?.g;
+    if(e.kind==='summon'&&g){
+      const c=e.rival?RGB.rival:RGB.monster,[x,y]=g.center;
+      if(!e.fired&&t>.3){e.fired=true;addShake(g.width*.035,260);
+        burst(40,()=>{const a=Math.random()*6.28,v=(.08+.18*Math.random())*g.width/100;return {x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v*.55,life:500+Math.random()*400,size:g.width*.02,color:c,shape:'spark',trail:40,drag:.004};});
+        burst(34,()=>{const a=Math.random()*6.28,[px,py]=onPlane(g,a,.3+.7*Math.random());return {x:px,y:py,vx:Math.cos(a)*.01*g.width/100,vy:-(.06+.12*Math.random())*g.width/100,life:900+Math.random()*700,size:g.width*(.02+.025*Math.random()),color:c,fadeIn:.1};});}
+      if(layer==='under'){
+        magicCircle(context,g,now,c,.3+.9*ease.out(span(t,0,.35)),(1-span(t,.7,1))*.95);
+        glow(context,x,y,g.width*(.4+.9*ease.out(span(t,0,.4))),c,.5*(1-span(t,.6,1)));
+        shockwave(context,g,span(t,.3,.75),c);
       }else{
-        // Trap: a magenta burst and chains snapping outward.
-        const r=g.width*(.3+1.3*Math.min(1,t*1.6));const grad=context.createRadialGradient(x,y,0,x,y,r);
-        grad.addColorStop(0,`rgba(255,220,240,${.8*fade})`);grad.addColorStop(.5,`rgba(255,95,162,${.5*fade})`);grad.addColorStop(1,'rgba(255,95,162,0)');
-        context.fillStyle=grad;context.beginPath();context.arc(x,y,r,0,Math.PI*2);context.fill();
-        context.strokeStyle=`rgba(255,120,180,${fade})`;context.lineWidth=Math.max(2,g.width/26);context.setLineDash([g.width/10,g.width/16]);
-        for(let k=0;k<6;k++){const a=k*Math.PI/3+.4,len=g.width*1.4*Math.min(1,t*2);context.beginPath();context.moveTo(x,y);context.lineTo(x+Math.cos(a)*len,y+Math.sin(a)*len*.7);context.stroke();}
+        const up=ease.out(span(t,.12,.4)),down=1-span(t,.55,1);
+        beam(context,x,y,Math.min(y,g.width*2.4)*up,g.width*1.05,c,down*.9);
+        glow(context,x,y-g.width*.5,g.width*.9,[255,255,255],.35*(1-span(t,.3,.7))*span(t,.25,.32));
       }
-      context.restore();
     }
-    if(e.kind==='impact'){
-      // Flash where the attack lands.
-      const [x,y]=e.at,r=e.size*(.3+1.2*t);context.save();const grad=context.createRadialGradient(x,y,0,x,y,r);
-      grad.addColorStop(0,`rgba(255,255,255,${1-t})`);grad.addColorStop(.4,`rgba(255,200,120,${.7*(1-t)})`);grad.addColorStop(1,'rgba(255,120,60,0)');
-      context.fillStyle=grad;context.beginPath();context.arc(x,y,r,0,Math.PI*2);context.fill();context.restore();
+    else if(e.kind==='activate'&&g){
+      const trap=e.type==='trap',c=trap?RGB.trap:RGB.spell,[x,y]=g.center;
+      if(!e.fired){e.fired=true;
+        if(trap){addShake(g.width*.05,300);addFlash(RGB.trap,.12,220);
+          burst(36,()=>{const a=Math.random()*6.28,v=(.12+.2*Math.random())*g.width/100;return {x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v*.6,life:420+Math.random()*300,size:g.width*.018,color:c,shape:'spark',trail:30,drag:.005};});}
+        else burst(30,()=>{const [px,py]=onPlane(g,Math.random()*6.28,Math.random()*1.1);return {x:px,y:py,vx:(Math.random()-.5)*.02*g.width/100,vy:-(.05+.1*Math.random())*g.width/100,life:1100+Math.random()*600,size:g.width*.03,color:c,shape:'glyph',spin:(Math.random()-.5)*.01,fadeIn:.15};});}
+      if(layer==='under'){
+        if(trap){
+          // The hexagon snaps shut, chains whip out from it.
+          const s=1.5-.45*ease.back(span(t,0,.3)),a=1-span(t,.6,1);context.save();
+          planePath(context,g,[0,1,2,3,4,5].map(k=>[Math.PI/6+k*Math.PI/3,s]));litStroke(context,c,a,Math.max(2,g.width/18));
+          context.setLineDash([g.width/9,g.width/14]);
+          for(let k=0;k<6;k++){const ang=k*Math.PI/3+.3,len=1.2+1.3*ease.out(span(t,.1,.5));context.beginPath();
+            for(let j=0;j<=8;j++){const r=len*j/8,[px,py]=onPlane(g,ang+Math.sin(j*.9+t*8)*.08,r);j?context.lineTo(px,py):context.moveTo(px,py);}litStroke(context,c,a*.9,Math.max(2,g.width/26));}
+          context.restore();glow(context,x,y,g.width*(.5+1.2*ease.out(span(t,0,.3))),c,.55*(1-span(t,.2,.8)));
+        }else{magicCircle(context,g,now,c,.4+1.1*ease.back(span(t,0,.45)),1-span(t,.7,1));glow(context,x,y,g.width*1.2,c,.35*(1-span(t,.5,1)));}
+      }else if(!trap)beam(context,x,y,Math.min(y,g.width*1.8)*ease.out(span(t,.1,.45)),g.width*.8,c,.6*(1-span(t,.5,1)));
     }
-    if(e.kind==='destroy'&&e.image){
-      // The monster breaks into pieces that fall and fade.
-      // Same size and place as drawMonster: centred a little above the card.
-      const {g}=e,height=g.width*1.25,width=height*e.image.width/e.image.height,n=5,x=g.center[0],y=Math.max(height/2,g.center[1]-height*.12);
-      context.save();context.globalAlpha=1-t;
-      for(let r=0;r<n;r++)for(let c=0;c<n;c++){
-        const sx=e.image.width*c/n,sy=e.image.height*r/n,sw=e.image.width/n,sh=e.image.height/n;
-        const dx=(c-(n-1)/2)*g.width*.9*t,dy=-height/2+(r+.5)*height/n+(r-n)*g.width*.2*t+g.width*2*t*t;
-        context.save();context.translate(x+dx,y+dy);context.rotate((c-r)*1.3*t);
-        context.drawImage(e.image,sx,sy,sw,sh,-width/n/2,-height/n/2,width/n,height/n);context.restore();
+    else if(e.kind==='set'&&g&&layer==='under'){
+      // Face-down: the card back's swirl gathers into the zone.
+      const [x,y]=g.center;
+      if(!e.fired){e.fired=true;burst(26,()=>{const a=Math.random()*6.28,[px,py]=onPlane(g,a,1.6);return {x:px,y:py,vx:(x-px)/650,vy:(y-py)/650,life:650,size:g.width*.025,color:RGB.back,drag:0};});}
+      context.save();context.lineCap='round';
+      for(let k=0;k<3;k++){context.beginPath();
+        for(let j=0;j<=24;j++){const a=now/300+k*2.1+j*.18,r=(1.4-1.2*ease.out(t))*(1-j/30),[px,py]=onPlane(g,a,r);j?context.lineTo(px,py):context.moveTo(px,py);}
+        litStroke(context,RGB.back,(1-t)*.8,Math.max(1.5,g.width/30));}
+      context.restore();glow(context,x,y,g.width*.8,RGB.back,.4*span(t,.5,.8)*(1-span(t,.8,1)));
+    }
+    else if(e.kind==='impact'&&layer==='over'){
+      const [x,y]=e.at,c=e.color||RGB.fire;
+      if(!e.fired){e.fired=true;addShake(e.size*.06,320);addFlash(RGB.white,.18,160);
+        burst(46,()=>{const a=Math.random()*6.28,v=(.2+.45*Math.random())*e.size/100;return {x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:350+Math.random()*350,size:e.size*.022,color:Math.random()<.5?c:RGB.white,shape:'spark',trail:35,drag:.006,gravity:.0006*e.size/100};});
+        burst(16,()=>{const a=Math.random()*6.28;return {x,y,vx:Math.cos(a)*.05*e.size/100,vy:Math.sin(a)*.05*e.size/100-.02,life:800,size:e.size*.05,color:c,grow:1.2};});}
+      glow(context,x,y,e.size*(.4+1.1*ease.out(t)),c,.9*(1-t));
+      context.beginPath();context.ellipse(x,y,e.size*1.4*ease.out(t),e.size*.8*ease.out(t),0,0,Math.PI*2);litStroke(context,c,1-t,Math.max(1,e.size/20*(1-t)));
+    }
+    else if(e.kind==='destroy'&&e.image&&layer==='over'){
+      // Shatters: fragments fly with gravity and burn out, embers rise, smoke spreads.
+      const img=e.image,[width,height]=figureSize(img,e.g,'monster',false),x=e.g.center[0],y=Math.max(height/2,e.g.center[1]-height*.12),n=6;
+      if(!e.fired){e.fired=true;addShake(e.g.width*.03,220);
+        burst(10,()=>({x:x+(Math.random()-.5)*width*.6,y:y+(Math.random()-.3)*height*.5,vx:(Math.random()-.5)*.02,vy:-.015,life:1100,size:e.g.width*.35,shape:'smoke',color:[0,0,0]}));
+        burst(40,()=>({x:x+(Math.random()-.5)*width,y:y+(Math.random()-.5)*height,vx:(Math.random()-.5)*.05,vy:-(.02+.08*Math.random()),life:700+Math.random()*700,size:e.g.width*.02,color:RGB.fire,fadeIn:.05}));}
+      const k=ease.out(span(t,0,1)),burn=span(t,.1,.9);
+      context.save();
+      for(let r=0;r<n;r++)for(let q=0;q<n;q++){
+        const sx=img.width*q/n,sy=img.height*r/n,sw=img.width/n,sh=img.height/n,seedK=((r*7+q*13)%10)/10;
+        const dx=(q-(n-1)/2)*width/n*1.8*k*(.7+seedK*.6),dy=-height/2+(r+.5)*height/n-e.g.width*.4*k*(1-seedK)+e.g.width*2.2*t*t;
+        context.save();context.globalAlpha=1-burn;context.translate(x+dx,y+dy);context.rotate((q-r+seedK)*1.4*k);
+        context.drawImage(img,sx,sy,sw,sh,-width/n/2,-height/n/2,width/n,height/n);
+        context.globalCompositeOperation='lighter';context.globalAlpha=(1-burn)*.6*span(t,0,.25);
+        context.drawImage(silhouette(img,'#ff9a3c',0).canvas,sx,sy,sw,sh,-width/n/2,-height/n/2,width/n,height/n);context.restore();
       }
-      context.restore();
+      context.restore();glow(context,x,y,e.g.width*1.2,RGB.fire,.5*(1-span(t,0,.4)));
     }
-    if(e.kind==='lp'){
-      // Damage or gain floating up from that player's LP counter.
-      const [x,y]=hudAnchor(e.player);context.save();context.globalAlpha=1-t;context.font=`bold ${Math.round(frame.width/28)}px system-ui`;context.textAlign='center';
-      context.fillStyle=e.delta<0?'#ff6b6b':'#6bff9e';context.strokeStyle='rgba(0,0,0,.7)';context.lineWidth=6;
-      // Starts just below the LP box and rises toward it.
-      const dir=e.player===0?-1:1,ty=y+dir*(frame.height*.1+frame.height*.05*t),text=(e.delta>0?'+':'')+e.delta;context.strokeText(text,x,ty);context.fillText(text,x,ty);context.restore();
+    else if(e.kind==='lp'&&layer==='over'){
+      const [x,y]=hudAnchor(e.player),hurt=e.delta<0,c=hurt?RGB.hurt:RGB.heal;
+      if(!e.fired){e.fired=true;hud.flash[e.player]=now;hud.flashColor[e.player]=hurt?'#ff5a5a':'#6bff9e';if(hurt&&Math.abs(e.delta)>=1000)addShake(frame.width*.004,300);
+        burst(24,()=>{const a=Math.random()*6.28,v=.1+.25*Math.random();return {x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:600,size:frame.width*.004,color:c,shape:'spark',trail:25,drag:.005};});}
+      const dir=e.player===0?-1:1,pop=ease.back(span(t,0,.25)),size=Math.round(frame.width/24*(.6+.4*pop));
+      context.save();context.globalAlpha=1-span(t,.7,1);context.font=`900 ${size}px system-ui`;context.textAlign='center';
+      const ty=y+dir*(frame.height*.1+frame.height*.05*ease.out(t)),text=(e.delta>0?'+':'')+e.delta;
+      context.lineWidth=Math.max(4,size/7);context.strokeStyle='rgba(0,0,0,.75)';context.strokeText(text,x,ty);
+      context.shadowColor=rgba(c,1);context.shadowBlur=size/2;context.fillStyle=rgba(c,1);context.fillText(text,x,ty);context.restore();
     }
   }
 }
@@ -752,14 +928,25 @@ function drawEffects(context,now){
 function hudAnchor(player){return player===0?[frame.width*.13,frame.height*.93]:[frame.width*.87,frame.height*.08];}
 function drawHud(context,now){
   const view=duelView;if(!view?.started)return;
-  // LP boxes at the top, counting toward the real value.
   view.players.forEach((p,i)=>{
     const shown=hud.lp[i]??p.lp;hud.lp[i]=Math.abs(shown-p.lp)<1?p.lp:shown+(p.lp-shown)*.08;
-    const [x,y]=hudAnchor(i),w=frame.width*.2,h=frame.height*.085;
-    context.save();context.fillStyle='rgba(8,14,26,.72)';context.strokeStyle=i===view.current?'#5ff2ff':'rgba(160,190,230,.6)';context.lineWidth=3;
-    context.beginPath();context.roundRect?context.roundRect(x-w/2,y-h/2,w,h,12):context.rect(x-w/2,y-h/2,w,h);context.fill();context.stroke();
-    context.textAlign='center';context.fillStyle='#aebbd0';context.font=`600 ${Math.round(h*.26)}px system-ui`;context.fillText(p.name,x,y-h*.12);
-    context.fillStyle='#e9f6ff';context.font=`bold ${Math.round(h*.44)}px system-ui`;context.fillText(`${Math.round(hud.lp[i])} LP`,x,y+h*.32);
+    const [ax,ay]=hudAnchor(i),w=frame.width*.2,h=frame.height*.085,since=now-(hud.flash[i]||-1e9);
+    const jolt=since<400?Math.sin(since*.09)*frame.width*.004*(1-since/400):0,x=ax+jolt,y=ay,current=i===view.current;
+    const accent=i===0?RGB.monster:RGB.rival;
+    context.save();
+    if(current)glow(context,x,y,w*.75,accent,.18+.06*Math.sin(now/500));
+    const bg=context.createLinearGradient(x-w/2,y-h/2,x+w/2,y+h/2);bg.addColorStop(0,'rgba(14,22,40,.88)');bg.addColorStop(1,'rgba(6,10,20,.82)');
+    context.fillStyle=bg;context.beginPath();context.roundRect?context.roundRect(x-w/2,y-h/2,w,h,h*.22):context.rect(x-w/2,y-h/2,w,h);context.fill();
+    context.lineWidth=Math.max(1.5,h/30);context.strokeStyle=current?rgba(accent,.95):'rgba(150,175,215,.45)';context.stroke();
+    if(since<600){context.save();context.globalCompositeOperation='lighter';context.globalAlpha=.4*(1-since/600);context.fillStyle=hud.flashColor[i];context.fill();context.restore();}
+    // Life bar under the number (8000 = full).
+    const frac=clamp(hud.lp[i]/8000),bw=w*.82,bx=x-bw/2,by=y+h*.3,bh=h*.07;
+    context.fillStyle='rgba(255,255,255,.1)';context.fillRect(bx,by,bw,bh);
+    const lg=context.createLinearGradient(bx,0,bx+bw,0);lg.addColorStop(0,frac<.3?'#ff5a5a':'#5ff2ff');lg.addColorStop(1,frac<.3?'#ffb35c':'#8dffc8');
+    context.fillStyle=lg;context.fillRect(bx,by,bw*frac,bh);
+    context.textAlign='center';context.fillStyle='#9fb0c9';context.font=`600 ${Math.round(h*.22)}px system-ui`;context.fillText(p.name,x,y-h*.2);
+    context.fillStyle='#f2f8ff';context.font=`800 ${Math.round(h*.4)}px system-ui`;context.fillText(`${Math.round(hud.lp[i])}`,x-h*.18,y+h*.2);
+    context.fillStyle=rgba(accent,.9);context.font=`700 ${Math.round(h*.2)}px system-ui`;context.textAlign='left';context.fillText('LP',x+context.measureText(`${Math.round(hud.lp[i])}`).width*1.25-h*.1,y+h*.2);
     context.restore();
   });
 }
@@ -768,27 +955,31 @@ function drawHud(context,now){
 function stageEvents(prev,next){
   if(!prev||!next||!document.querySelector('#fx').checked)return;const now=performance.now();
   const before=new Map((prev.board||[]).map(c=>[c.copy_id,c])),after=new Map((next.board||[]).map(c=>[c.copy_id,c]));
-  for(const [id,c] of after)if(!before.has(id)&&c.zone.includes('monster')&&c.position!=='facedown_defense')effects.push({kind:'summon',copy:id,start:now,duration:900});
+  for(const [id,c] of after){
+    if(before.has(id))continue;
+    if(c.zone.includes('monster')&&c.position!=='facedown_defense')effects.push({kind:'summon',copy:id,rival:c.controller===1,start:now,duration:1300});
+    else if(c.position==='facedown_defense'||c.position==='facedown'){const g=zoneGeometry(c.player,c.zone);if(g)effects.push({kind:'set',g,start:now,duration:900});}
+  }
   // Spells and Traps turned face-up (placed face-up, or a set card revealed under its face's track).
   for(const [id,c] of after){
     if(!/^spell:|^field$/.test(c.zone)||c.position!=='faceup')continue;
     const was=before.get(id);if(was&&was.position==='faceup')continue;
     const sheet=sheetOf(c.card_id),type=sheet?.card_type==='trap'||/^Trampa/.test(c.type||'')?'trap':'spell';
-    effects.push({kind:'activate',copy:id,type,start:now,duration:type==='trap'?800:1100});
+    effects.push({kind:'activate',copy:id,type,start:now,duration:type==='trap'?1000:1400});
   }
   for(const [id,c] of before)if(!after.has(id)){
     const seen=lastSeen.get(id),image=seen&&cutouts.get(seen.sprite_ref);
-    if(seen&&image&&c.zone.includes('monster'))effects.push({kind:'destroy',copy:id,g:seen.g,image,start:now,duration:800});
+    if(seen&&image&&c.zone.includes('monster'))effects.push({kind:'destroy',copy:id,g:seen.g,image,start:now,duration:1100});
   }
   if(prev.pending_attack&&!next.pending_attack){
     const {attacker,target}=prev.pending_attack,from=lastSeen.get(attacker),to=target!=null?lastSeen.get(target):null;
     if(from){
       const aim=to?to.g.center:[from.g.center[0],from.g.center[1]-from.g.width*4];
-      effects.push({kind:'attack',attacker,to:aim,start:now,duration:700});
-      setTimeout(()=>effects.push({kind:'impact',at:aim,size:from.g.width*1.6,start:performance.now(),duration:600}),380);
+      effects.push({kind:'attack',attacker,to:aim,start:now,duration:900});
+      effects.push({kind:'impact',at:aim,size:from.g.width*1.6,color:from.rival?RGB.rival:RGB.fire,start:now+900*.42,duration:650});
     }
   }
-  (next.players||[]).forEach((p,i)=>{const old=prev.players?.[i]?.lp;if(old!=null&&old!==p.lp)effects.push({kind:'lp',player:i,delta:p.lp-old,start:now,duration:1400});});
+  (next.players||[]).forEach((p,i)=>{const old=prev.players?.[i]?.lp;if(old!=null&&old!==p.lp)effects.push({kind:'lp',player:i,delta:p.lp-old,start:now,duration:1600});});
 }
 
 draw();refreshCamera();followAnalysis();
