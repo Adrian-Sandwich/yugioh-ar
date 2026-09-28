@@ -72,6 +72,10 @@ def virtual_corners(mode, params, image_size):
 PHASE_ORDER = ('draw', 'standby', 'main1', 'battle', 'main2', 'end')
 MISSING_GRACE_S = 3.
 EXTRA_DECK_WORDS = ('Sincronía', 'Xyz', 'Fusión', 'Link')
+# Monsters sent to the Graveyard automatically this recently can still turn out to be the
+# materials (or tributes) of the next monster placed.
+MATERIAL_WINDOW_S = 20.
+SUMMON_EVENTS = ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap', 'activate_spell_trap')
 
 
 def zone_label(zone):
@@ -201,9 +205,12 @@ class TableDuel:
                 import time
                 now = time.monotonic(); keys = set()
                 for pending in list(self.duel.state['pending']):
+                    if pending not in self.duel.state['pending']: continue  # resolved by an earlier play (materials)
                     key = (pending['key'], pending.get('kind'), pending.get('copy_id'), pending.get('expected_copy'), pending.get('position'))
                     keys.add(key); first = self.first_seen.setdefault(key, now)
                     if key in self.tried: continue
+                    # A monster that needs materials may be placed just before they are taken away.
+                    if self._needs_materials(pending) and now - first < MISSING_GRACE_S: continue
                     # A monster being carried to attack leaves its zone empty on purpose.
                     if pending.get('expected_copy') in carried or pending.get('copy_id') in carried: continue
                     # A hand over a card also empties its zone for a moment: a card only
@@ -223,16 +230,26 @@ class TableDuel:
         fam, kind, pos, facts = family(p['zone']), p.get('kind'), p.get('position'), self._facts(p)
         line, level, ctype = facts.get('line') or '', facts.get('level'), facts.get('card_type')
         base = {'player': p['player'], 'zone': p['zone'], 'copy_id': p.get('copy_id'), 'card_id': p.get('card_id')}
+        if kind == 'moved' and fam == 'monster' and (p.get('known_at') or {}).get('zone') in ('graveyard', 'banished'):
+            source = p['known_at']['zone']   # the same tracked card came back from its pile
+            return [({**base, 'type': 'special_summon', 'position': pos if pos in ('attack', 'defense') else 'attack', 'source': source},
+                     'Invocación Especial desde el ' + ('Cementerio' if source == 'graveyard' else 'destierro'))]
+        if kind == 'different_copy' and fam == 'monster' and p.get('known_at') is None:
+            # Placed on top of one of its own materials (or tributes): only a summon using it explains it.
+            return self._material_plays(p, facts, pos, base, forced=p.get('expected_copy'))
         if kind == 'unexplained' and fam == 'monster':
             if ctype and ctype != 'monster': return []
-            if pos == 'facedown_defense': return [({**base, 'type': 'set_monster'}, 'Colocado boca abajo')]
             extra = any(w in line for w in EXTRA_DECK_WORDS)
+            materials = self._material_plays(p, facts, pos, base)
+            if pos == 'facedown_defense': return materials + [({**base, 'type': 'set_monster'}, 'Colocado boca abajo')]
             special = ({**base, 'type': 'special_summon', 'position': pos if pos in ('attack', 'defense') else 'attack',
                         'source': 'extra_deck' if extra else 'hand'}, 'Invocación Especial')
-            if extra or p['zone'].startswith('extra_monster:'): return [special]
+            revive = self._revive(p, pos, base)
+            if extra or p['zone'].startswith('extra_monster:'): return materials + revive + [special]
             plays = []
             if pos == 'attack' and (level is None or level <= 4): plays.append(({**base, 'type': 'normal_summon'}, 'Invocación Normal'))
-            return plays + [special]
+            # A Level 5+ monster with no tributes more likely came back from the Graveyard.
+            return materials + (plays + revive if plays else revive + plays) + [special]
         if kind == 'unexplained' and fam == 'spell':
             if ctype == 'monster' and 'Péndulo' not in line: return []
             if p.get('card_id') and pos != 'facedown': return [({**base, 'type': 'activate_spell_trap'}, 'Activada')]
@@ -245,6 +262,99 @@ class TableDuel:
             if pos in ('attack', 'defense'):
                 return [({'type': 'change_position', 'player': p['player'], 'copy_id': p['copy_id'], 'position': pos}, 'Cambio de posición')]
         return []
+
+    # --- summons with materials -------------------------------------------------
+    def _material_facts(self, card):
+        facts = (self.sheet(card.get('card_id')) if self.sheet and card.get('card_id') else None) or {}
+        line = facts.get('line') or card.get('type') or ''
+        level = facts.get('level') if facts else card.get('level')
+        return {'copy_id': card['copy_id'], 'name': facts.get('name') or card.get('name') or 'monstruo', 'level': level, 'tuner': 'Cantante' in line}
+
+    def _material_pool(self, player):
+        """Own monsters that just left the field, as possible materials: the ones the camera no
+        longer sees (still on the model's field), then the ones already sent to the Graveyard
+        automatically (`reclaim`: those plays, newest first, undone if they are used)."""
+        st = self.duel.state; pool = []
+        field = {c['copy_id']: c for ps in st['players'] for c in ps['monster'] if c}
+        field.update({c['copy_id']: c for c in st['shared']['extra_monster'] if c})
+        for p in st['pending']:
+            copy = p.get('expected_copy')
+            if p['player'] == player and p.get('kind') in ('missing', 'different_copy') and family(p['zone']) == 'monster' and copy in field \
+                    and field[copy]['controller'] == player and all(m['copy_id'] != copy for m in pool):
+                pool.append(self._material_facts(field[copy]) | {'reclaim': None})
+        import time
+        now = time.monotonic(); reclaim = []
+        for r in self.recent:
+            e = r.get('event') or {}
+            if e.get('type') != 'send_to_graveyard' or r['pending']['player'] != player or family(r['pending']['zone']) != 'monster' \
+                    or now - r.get('time', 0) > MATERIAL_WINDOW_S: break
+            reclaim.append(r)
+        if reclaim:
+            # Only observations may have happened since: anything else would be undone with them.
+            ours = {i for r in reclaim for i in range(r['start'], r['end'])}
+            if any(i not in ours and self.duel.log[i]['type'] != 'observe' for i in range(min(r['start'] for r in reclaim), len(self.duel.log))): reclaim = []
+        grave = {c['copy_id']: c for c in st['players'][player]['graveyard']}
+        for i, r in enumerate(reclaim):
+            card = grave.get(r['event']['copy_id'])
+            if card is None: break
+            pool.append(self._material_facts(card) | {'reclaim': i})
+        return pool, reclaim
+
+    def _material_plays(self, p, facts, pos, base, forced=None):
+        """Tribute, Synchro, Xyz, Link and Fusion Summons whose materials fit the monsters that
+        just left the field: (event, label) with the materials named, most likely first."""
+        import itertools
+        line, level, rank, link = facts.get('line') or '', facts.get('level'), facts.get('rank'), facts.get('link')
+        pool, reclaim = self._material_pool(p['player'])
+        if not pool: return []
+        position = pos if pos in ('attack', 'defense') else 'attack'
+        def fits(rule, sizes):
+            for n in sizes:
+                for combo in itertools.combinations(pool, n):
+                    ids = {m['copy_id'] for m in combo}
+                    used = sorted(m['reclaim'] for m in combo if m['reclaim'] is not None)
+                    # Reclaimed plays are undone newest first: the ones used must be the newest ones.
+                    if (forced is None or forced in ids) and used == list(range(len(used))) and rule(combo): return list(combo)
+        def play(event, label, ms):
+            used = [m['reclaim'] for m in ms if m['reclaim'] is not None]
+            return ({**base, **event, '_reclaim': reclaim[:max(used) + 1] if used else [], '_with': ' + '.join(m['name'] for m in ms)}, label)
+        ids = lambda ms: [m['copy_id'] for m in ms]
+        extra = {'type': 'special_summon', 'position': position, 'source': 'extra_deck'}
+        every = range(len(pool), 0, -1); plays = []
+        if 'Sincronía' in line and level:
+            ms = fits(lambda c: sum(m['tuner'] for m in c) == 1 and all(m['level'] for m in c) and sum(m['level'] for m in c) == level, every)
+            if ms: plays.append(play({**extra, 'materials': ids(ms)}, 'Invocación Sincronía', ms))
+        if 'Xyz' in line and rank:
+            ms = fits(lambda c: len(c) >= 2 and all(m['level'] == rank for m in c), every)
+            if ms: plays.append(play({**extra, 'materials': ids(ms), 'attach': True}, 'Invocación Xyz', ms))
+        if 'Link' in line and link:
+            ms = fits(lambda c: True, [link])
+            if ms: plays.append(play({**extra, 'materials': ids(ms)}, 'Invocación Link', ms))
+        if 'Fusión' in line:
+            ms = fits(lambda c: len(c) >= 2, every)
+            if ms: plays.append(play({**extra, 'materials': ids(ms)}, 'Invocación por Fusión', ms))
+        if not any(w in line for w in EXTRA_DECK_WORDS) and level and level >= 5 and p['zone'].startswith('monster:'):
+            ms = fits(lambda c: True, [1 if level <= 6 else 2])
+            if ms and pos == 'attack': plays.append(play({'type': 'normal_summon', 'tributes': ids(ms)}, 'Invocación por Tributo', ms))
+            elif ms and pos == 'facedown_defense': plays.append(play({'type': 'set_monster', 'tributes': ids(ms)}, 'Colocado con Tributo', ms))
+        return plays
+
+    def _revive(self, p, pos, base):
+        """The same card is in its player's Graveyard: it may have come back (followed now as a new track)."""
+        card_id = base.get('card_id') or self.cards.get(base.get('copy_id'))
+        grave = self.duel.state['players'][p['player']]['graveyard']
+        old = next((c for c in reversed(grave) if card_id and c.get('card_id') == card_id), None)
+        if old is None: return []
+        return [({**base, 'type': 'special_summon', 'position': pos if pos in ('attack', 'defense') else 'attack', 'source': 'graveyard',
+                  'from_copy': old['copy_id']}, 'Invocación Especial desde el Cementerio')]
+
+    def _needs_materials(self, p):
+        """A face-up monster that is normally summoned with materials (Extra Deck, Level 5+) and has none
+        to use yet: wait a moment for them to leave the field before deciding."""
+        if p.get('kind') != 'unexplained' or family(p['zone']) != 'monster' or p.get('position') not in ('attack', 'defense'): return False
+        facts = self._facts(p); line, level = facts.get('line') or '', facts.get('level')
+        if not (any(w in line for w in EXTRA_DECK_WORDS) or (level or 0) >= 5): return False
+        return not self._material_pool(p['player'])[0]
 
     def _rollback(self, length):
         while len(self.duel.log) > length: self.duel.undo()
@@ -259,20 +369,39 @@ class TableDuel:
             self.duel.next_phase(); st = self.duel.state
 
     def _auto_play(self, pending):
-        facts = self._facts(pending)
-        for event, label in self._plays(pending):
-            start = len(self.duel.log)
+        import time
+        facts = self._facts(pending); plays = self._plays(pending)
+        for n, (event, label) in enumerate(plays):
+            event = dict(event); reclaim = event.pop('_reclaim', []); used = event.pop('_with', None)
+            saved = list(self.duel.log); start = len(saved)
             try:
-                if event['type'] in ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap', 'activate_spell_trap'):
-                    self._to_main_phase(event['player'])
+                if reclaim:
+                    # The materials had already gone to the Graveyard on their own: undo those plays and
+                    # repeat the camera observations since, so the materials are back on the field.
+                    first = min(r['start'] for r in reclaim)
+                    self._rollback(first)
+                    for e in saved[first:]:
+                        if e['type'] == 'observe': self.duel.apply({'type': 'observe', **e['params']})
+                    start = len(self.duel.log)
+                if event['type'] in SUMMON_EVENTS: self._to_main_phase(event['player'])
                 self.act(event, record=False)
             except DuelError:
-                self._rollback(start); continue
+                self.duel = Duel.replay(saved); continue
+            self.recent = [r for r in self.recent if r not in reclaim]
             name = facts.get('name') or 'carta'
             options = ACTIONS.get((pending.get('kind'), family(pending['zone']))) or ACTIONS.get((pending.get('kind'), 'any')) or []
+            if pending['zone'].startswith('extra_monster:') or any(w in (facts.get('line') or '') for w in EXTRA_DECK_WORDS):
+                options = [o for o in options if o[0] == 'special_summon']
+            # Other summons that fit (with their materials, or from the Graveyard), then the plain answers.
+            special = lambda e: e.get('materials') or e.get('tributes') or e.get('source') in ('graveyard', 'banished')
+            others = [(e, l) for i, (e, l) in enumerate(plays) if i != n and (reclaim or not e.get('_reclaim')) and special(e)]
+            alternatives = [{'type': f'play:{i}', 'label': l + (f" con {e['_with']}" if e.get('_with') else '')} for i, (e, l) in enumerate(others)]
+            alternatives += [{'type': t, 'label': l} for t, l in options if t != event['type'] or special(event)]
             card_id = pending.get('card_id') or self.cards.get(pending.get('copy_id')) or self.cards.get(pending.get('expected_copy'))
-            self.recent.insert(0, {'id': f'{start}-{len(self.duel.log)}', 'start': start, 'card_id': card_id, 'text': f"{label}: {name} ({zone_label(pending['zone'])}, {self.duel.state['players'][pending['player']]['name']})",
-                                   'pending': pending, 'alternatives': [{'type': t, 'label': l} for t, l in options if t != event['type']]})
+            self.recent.insert(0, {'id': f'{start}-{len(self.duel.log)}', 'start': start, 'end': len(self.duel.log), 'time': time.monotonic(),
+                                   'card_id': card_id, 'text': f"{label}: {name}{f' con {used}' if used else ''} ({zone_label(pending['zone'])}, {self.duel.state['players'][pending['player']]['name']})",
+                                   'pending': pending, 'event': event, 'materials': event.get('materials') or event.get('tributes') or [],
+                                   'plays': [{k: v for k, v in e.items() if k not in ('_reclaim', '_with')} for e, _ in others], 'alternatives': alternatives})
             del self.recent[8:]
             self._save()
             return True
@@ -288,16 +417,28 @@ class TableDuel:
             saved = list(self.duel.log); self._rollback(play['start']); self.recent.remove(play)
             if replacement:
                 p = play['pending']
-                event = {'type': replacement, 'player': p['player']}
-                if p.get('kind') == 'missing': event['copy_id'] = p['expected_copy']
-                elif replacement in ('change_position', 'flip'): event.update(copy_id=p['copy_id'], position=p.get('position'))
-                else: event.update(zone=p['zone'], copy_id=p.get('copy_id'), card_id=p.get('card_id'))
-                if replacement == 'special_summon': event['position'] = p['position'] if p.get('position') in ('attack', 'defense') else 'attack'
+                if replacement.startswith('play:'):
+                    event = dict(play['plays'][int(replacement[5:])])   # another summon that fit, with its materials
+                else:
+                    event = {'type': replacement, 'player': p['player']}
+                    if p.get('kind') == 'missing': event['copy_id'] = p['expected_copy']
+                    elif replacement in ('change_position', 'flip'): event.update(copy_id=p['copy_id'], position=p.get('position'))
+                    else: event.update(zone=p['zone'], copy_id=p.get('copy_id'), card_id=p.get('card_id'))
+                    if replacement == 'special_summon':
+                        event['position'] = p['position'] if p.get('position') in ('attack', 'defense') else 'attack'
+                        if any(w in (self._facts(p).get('line') or '') for w in EXTRA_DECK_WORDS): event['source'] = 'extra_deck'
+                unused = [m for m in play.get('materials') or [] if m not in (event.get('materials') or event.get('tributes') or [])]
                 try:
-                    if replacement in ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap', 'activate_spell_trap'): self._to_main_phase(p['player'])
+                    # The camera saw them leave the field: without the materials role they went to the Graveyard.
+                    for copy_id in unused: self.duel.send_to_graveyard(p['player'], copy_id=copy_id)
+                    if event['type'] in SUMMON_EVENTS: self._to_main_phase(p['player'])
                     self.act(event, record=False)
                 except DuelError:
                     self.duel = Duel.replay(saved); self.recent.append(play); self.recent.sort(key=lambda r: -r['start']); raise
+            else:
+                # Undone: the materials are back on the field, unseen, and may go to the Graveyard on their own again.
+                unused = set(play.get('materials') or [])
+                self.tried = {k for k in self.tried if not (k[1] == 'missing' and k[3] in unused)}
             self.observed.clear(); self._save()
             return {'revised': play_id}
 
@@ -456,8 +597,9 @@ class TableDuel:
             if kind == 'start_duel': self.observed.clear()
             else:
                 # Re-observe the zones the answer touched, so their questions clear at once.
+                # (kept as seen, so the card leaving before it is seen again still counts as missing).
                 for key, signature in list(self.observed.items()):
-                    if signature is not None and key[1] == event.get('zone'): del self.observed[key]
+                    if signature is not None and key[1] == event.get('zone'): self.observed[key] = ('resend',)
             self._save()
             return result
 

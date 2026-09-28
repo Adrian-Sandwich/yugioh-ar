@@ -11,7 +11,12 @@ ROOT = Path(__file__).resolve().parent
 NEAR = [[420, 610], [1500, 610], [1640, 1020], [280, 1020]]
 FAR = [[1430, 470], [490, 470], [560, 170], [1360, 170]]
 SHEETS = {'dm': {'name': 'Mago Oscuro', 'card_type': 'monster', 'line': 'Monstruo Normal', 'atk': 2500, 'def': 2100, 'level': 7},
-          'kuriboh': {'name': 'Kuriboh', 'card_type': 'monster', 'line': 'Monstruo Efecto', 'atk': 300, 'def': 200, 'level': 1}}
+          'kuriboh': {'name': 'Kuriboh', 'card_type': 'monster', 'line': 'Monstruo Efecto', 'atk': 300, 'def': 200, 'level': 1},
+          'tuner': {'name': 'Sincronón', 'card_type': 'monster', 'line': 'Monstruo Cantante / Efecto · Máquina · Nivel 2', 'atk': 500, 'def': 500, 'level': 2},
+          'warrior': {'name': 'Guerrero', 'card_type': 'monster', 'line': 'Monstruo Normal · Guerrero · Nivel 4', 'atk': 1800, 'def': 1000, 'level': 4},
+          'soldier': {'name': 'Soldado', 'card_type': 'monster', 'line': 'Monstruo Normal · Guerrero · Nivel 4', 'atk': 1600, 'def': 1200, 'level': 4},
+          'synchro': {'name': 'Dragón Sincro', 'card_type': 'monster', 'line': 'Monstruo Sincronía / Efecto · Dragón · Nivel 6', 'atk': 2400, 'def': 2000, 'level': 6},
+          'xyz': {'name': 'Caballero Xyz', 'card_type': 'monster', 'line': 'Monstruo Xyz / Efecto · Guerrero · Rango 4', 'atk': 2500, 'def': 1500, 'level': None, 'rank': 4}}
 
 
 def track(table, player, track_id, card_id, cx, cy, sideways=False):
@@ -21,6 +26,11 @@ def track(table, player, track_id, card_id, cx, cy, sideways=False):
 
 def feed(table, tracks, times=3):
     for _ in range(times): table.feed(tracks)
+
+
+def settle(table, tracks):
+    """As if MISSING_GRACE_S had passed since the current discrepancies were first seen."""
+    table.first_seen = {k: t - 5 for k, t in table.first_seen.items()}; table.feed(tracks)
 
 
 def main():
@@ -121,6 +131,9 @@ def main():
         # Level 7 with the Normal Summon used: Special Summon; then changed to... undone.
         dm = track(auto, 0, 2, 'dm', *center('monster:3'))
         feed(auto, [k1, dm])
+        # Level 7 with no tributes gone: it waits a moment for materials before deciding.
+        assert not any(c['name'] == 'Mago Oscuro' for c in auto.view()['board'])
+        settle(auto, [k1, dm])
         assert any(c['name'] == 'Mago Oscuro' for c in auto.view()['board'])
         play = auto.view()['recent'][0]; assert play['text'].startswith('Invocación Especial: Mago Oscuro'), play
         auto.act({'type': 'revise', 'id': play['id']})
@@ -159,7 +172,7 @@ def main():
         kb = track(battle, 0, 1, 'kuriboh', *center('monster:2'))
         feed(battle, [kb]); battle.act({'type': 'end_turn'})
         dm_home = track(battle, 1, 2, 'dm', *center('monster:2'))
-        feed(battle, [kb, dm_home])
+        feed(battle, [kb, dm_home]); settle(battle, [kb, dm_home])
         assert {c['name'] for c in battle.view()['board']} == {'Kuriboh', 'Mago Oscuro'}, battle.view()['board']
         battle.act({'type': 'goto_phase', 'phase': 'battle'})
         kb_center = np.float32(kb['corners']).mean(0); dm_center = np.float32(dm_home['corners']).mean(0)
@@ -179,6 +192,53 @@ def main():
         try: battle.act({'type': 'attack', 'attacker': 2, 'target': 3}); raise AssertionError('second attack of the same monster accepted')
         except Exception as error: assert 'ya atacó' in str(error), error
         checks.append('the engine refuses a second attack by the same monster')
+        # Summons with materials, deduced from the monsters that just left the field.
+        s = TableDuel(folder / 'summons', sheet=SHEETS.get)
+        s.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
+        s.act({'type': 'start_duel', 'names': ['Ana', 'Beto'], 'starting': 0, 'extra_deck_sizes': [15, 15]})
+        at = lambda tid, card, zone, player=0: track(s, player, tid, card, *center(zone))
+        names = lambda cards: sorted(c['name'] for c in cards)
+        tuner, warrior = at(10, 'tuner', 'monster:0'), at(11, 'warrior', 'monster:1')
+        feed(s, [tuner]); feed(s, [tuner, warrior])
+        assert [r['text'].split(':')[0] for r in s.view()['recent'][:2]] == ['Invocación Especial', 'Invocación Normal']
+        synchro = at(12, 'synchro', 'extra_monster:0')
+        feed(s, [synchro])   # materials taken away and the Synchro placed at once
+        view = s.view(); play = view['recent'][0]
+        assert play['text'].startswith('Invocación Sincronía: Dragón Sincro con ') and 'Sincronón' in play['text'] and 'Guerrero' in play['text'], play
+        assert names(view['players'][0]['graveyard_cards']) == ['Guerrero', 'Sincronón'] and view['questions'] == [], view
+        assert s.duel.state['players'][0]['extra_deck'] == 14
+        checks.append('Synchro Summon: Tuner + non-Tuner of the right Levels, materials to the Graveyard')
+        s1, s2 = at(13, 'soldier', 'monster:2'), at(14, 'soldier', 'monster:3')
+        feed(s, [synchro, s1]); feed(s, [synchro, s1, s2])
+        feed(s, [synchro]); settle(s, [synchro])   # both gone long enough: sent to the Graveyard on their own
+        assert names(s.view()['players'][0]['graveyard_cards']) == ['Guerrero', 'Sincronón', 'Soldado', 'Soldado']
+        xyz = at(15, 'xyz', 'monster:2')
+        feed(s, [synchro, xyz])
+        view = s.view(); play = view['recent'][0]; card = next(c for c in s.duel.state['players'][0]['monster'] if c)
+        assert play['text'].startswith('Invocación Xyz: Caballero Xyz con Soldado + Soldado'), play
+        assert [a['label'] for a in play['alternatives']] == ['Invocación Especial'], play['alternatives']
+        assert sorted(m['copy_id'] for m in card['materials']) == [13, 14] and names(view['players'][0]['graveyard_cards']) == ['Guerrero', 'Sincronón']
+        assert not any(r['text'].startswith('Al Cementerio') for r in view['recent']), 'the Graveyard plays became the materials'
+        checks.append('Xyz Summon from materials already sent to the Graveyard: those plays undone, materials attached')
+        plain = next(a for a in play['alternatives'] if a['label'] == 'Invocación Especial')
+        s.act({'type': 'revise', 'id': play['id'], 'replacement': plain['type']})
+        card = next(c for c in s.duel.state['players'][0]['monster'] if c and c['copy_id'] == 15)
+        assert not card.get('materials') and names(s.view()['players'][0]['graveyard_cards']) == ['Guerrero', 'Sincronón', 'Soldado', 'Soldado'], s.view()['players'][0]
+        settle(s, [synchro, xyz]); assert s.view()['questions'] == [], s.view()['questions']
+        checks.append('changed to a plain Special Summon: the unused materials go to the Graveyard')
+        s.act({'type': 'end_turn'}); s.act({'type': 'end_turn'})
+        dm = at(16, 'dm', 'monster:2')
+        feed(s, [dm])   # Draw Phase of turn 3: the Synchro and the Xyz leave, Dark Magician on the Xyz's zone
+        view = s.view(); play = view['recent'][0]
+        assert play['text'].startswith('Invocación por Tributo: Mago Oscuro') and view['phase'] == 'main1', play
+        assert {'Dragón Sincro', 'Caballero Xyz'} <= set(names(view['players'][0]['graveyard_cards'])) and view['questions'] == [], view
+        checks.append('Tribute Summon on top of a tribute\'s zone, Level 7 with two tributes')
+        again = at(30, 'tuner', 'monster:4')
+        feed(s, [dm, again])
+        view = s.view(); card = s.duel.state['players'][0]['monster'][4]
+        assert view['recent'][0]['text'].startswith('Invocación Especial desde el Cementerio: Sincronón') and card['copy_id'] == 30, view['recent'][0]
+        assert 'Sincronón' not in names(view['players'][0]['graveyard_cards'])
+        checks.append('the same card seen again while in the Graveyard: revived from it, followed under its new track')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'

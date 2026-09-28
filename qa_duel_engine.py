@@ -174,6 +174,30 @@ def equal_attack_and_tributes():
     check('field and pendulum zone flags, trap from hand rejected, graveyard/banish/hand moves')
 
 
+def summon_materials():
+    d=Duel();d.start_duel(opening_hand=6,extra_deck_sizes=(3,0));to_main1(d)
+    d.special_summon(0,monster('m1','tuner',1000,0,2),'monster:0');d.special_summon(0,monster('m2','body',1500,0,4),'monster:1')
+    rejected(d,{'type':'special_summon','player':0,'card':monster('sy','synchro',2500,2000,6),'zone':'extra_monster:0','source':'extra_deck','materials':['m1','m1']},'repetidos')
+    rejected(d,{'type':'special_summon','player':0,'card':monster('sy','synchro',2500,2000,6),'zone':'extra_monster:0','source':'extra_deck','materials':['m1','zz']},'no es un monstruo')
+    r=d.special_summon(0,monster('sy','synchro',2500,2000,6),'monster:0',source='extra_deck',materials=['m1','m2'])
+    p=d.state['players'][0]
+    assert r['materials']==['m1','m2'] and p['extra_deck']==2 and p['monster'][0]['copy_id']=='sy' and p['monster'][1] is None
+    assert [c['copy_id'] for c in p['graveyard']]==['m1','m2']
+    check('synchro/fusion/link: materials to the Graveyard, the new monster may take a material zone')
+    d.special_summon(0,{'copy_id':'m3','card_id':'m1'},'monster:1',source='graveyard',from_copy='m1')
+    d.special_summon(0,monster('m4','body',1500,0,4),'monster:2');p=d.state['players'][0]
+    assert p['monster'][1]['copy_id']=='m3' and p['monster'][1]['name']=='tuner' and [c['copy_id'] for c in p['graveyard']]==['m2']
+    rejected(d,{'type':'special_summon','player':0,'card':{'copy_id':'m4'},'zone':'monster:3','source':'graveyard','from_copy':'m2'},'ya está en el modelo')
+    check('revive from the Graveyard under the new track copy_id')
+    d.special_summon(0,monster('xz','xyz',2000,1000,4),'extra_monster:0',source='extra_deck',materials=['m3','m4'],attach=True)
+    x=d.state['shared']['extra_monster'][0];p=d.state['players'][0]
+    assert [c['copy_id'] for c in x['materials']]==['m3','m4'] and [c['copy_id'] for c in p['graveyard']]==['m2']
+    assert Duel.from_json(d.to_json()).snapshot()==d.snapshot()
+    d.send_to_graveyard(0,copy_id='xz');p=d.state['players'][0]
+    assert [c['copy_id'] for c in p['graveyard']]==['m2','m3','m4','xz'] and 'materials' not in p['graveyard'][-1]
+    check('xyz materials stay attached and go to the Graveyard when the monster leaves the field')
+
+
 def observation_reconciliation():
     d=Duel();d.start_duel();to_main1(d)
     r=d.observe(0,'monster:3',copy_id='x9',card_id='c9',position='attack')
@@ -211,6 +235,7 @@ def main():
     json_roundtrip(d)
     deck_out_and_surrender()
     equal_attack_and_tributes()
+    summon_materials()
     observation_reconciliation()
     final=d.snapshot()
     result={'status':'passed','date':'2026-09-26','engine':'duel_engine.py','events_supported':list(EVENTS),

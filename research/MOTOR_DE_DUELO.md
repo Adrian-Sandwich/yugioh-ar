@@ -185,10 +185,42 @@ lleva una flecha al objetivo. Pruebas: `qa_table_duel.py` (gesto, propuesta
 sin aplicar, aplicar, segundo ataque rechazado) y en Edge (clic, propuesta,
 LP intactos hasta aplicar, Cementerio).
 
-Siguiente, ya acordado: tipos de invocación con materiales deducidos de lo
-que acaba de salir del campo y propuestos (Tributo, Sincronía, Xyz, Link,
-revivir desde el Cementerio); boca abajo y Volteo (el reverso como identidad);
-datos de mecánicas desde BabelCDB, descargados fuera del repositorio.
+## Tipos de invocación con materiales (27/09/2026)
+
+Acordado: el sistema propone la invocación y sus materiales ("Invocación
+Sincronía: X con A + B"); los jugadores confirman o corrigen desde "Últimas
+jugadas". Motor: `special_summon` acepta `materials` (monstruos propios en el
+campo; salen primero, así el nuevo puede ocupar la zona de uno), `attach`
+(Xyz: quedan debajo en `materials` y van al Cementerio cuando el monstruo deja
+el campo) y `from_copy` (la carta del Cementerio o destierro que vuelve, cuando
+la cámara la sigue con otro `copy_id`).
+
+`TableDuel` deduce los materiales de lo que acaba de salir del campo: monstruos
+propios que la cámara ya no ve (aún en el modelo) y los que la jugada
+automática mandó al Cementerio hace menos de 20 s (`MATERIAL_WINDOW_S`), si
+después sólo hubo observaciones; esas jugadas se deshacen y se repiten las
+observaciones. Con los datos de la carta (`card_sheet`): Sincronía exige un
+Cantante y la suma de Niveles; Xyz, dos o más del Nivel igual al Rango; Link,
+tantos como su LINK; Fusión, dos o más (sin leer aún qué materiales pide);
+Tributo, 1 o 2 según el Nivel en una Zona de Monstruo principal. Una carta
+puesta encima de otra propia (`different_copy`) sólo se explica usándola de
+material. Un monstruo del Mazo Extra o de Nivel 5+ sin materiales disponibles
+espera `MISSING_GRACE_S` antes de decidir, por si los materiales salen justo
+después. Si la misma carta está en el Cementerio del jugador, se ofrece
+revivirla (primero si no cabe una Invocación Normal). Al cambiar a una
+Invocación Especial simple, los materiales que ya no se usan van al Cementerio
+(la cámara los vio salir); al deshacer, vuelven a esperar como salidas del
+campo. Corregido de paso: tras una jugada automática la zona se marca para
+reenviarse en vez de olvidarse, así una carta que sale antes de volver a verse
+cuenta como salida. Pruebas: `qa_duel_engine.py` (materiales, Xyz, revivir con
+otra copia) y `qa_table_duel.py` (Sincronía, Xyz desde el Cementerio, cambio a
+Especial simple, Tributo encima de una zona, revivir).
+
+Siguiente, ya acordado: boca abajo y Volteo (el reverso como identidad); datos
+de mecánicas desde BabelCDB, descargados fuera del repositorio. Para más
+adelante (pedido el 27/09/2026): seguir a dónde va una carta que sale de una
+zona (Cementerio, de vuelta al Mazo o a la mano) en vez de suponer siempre el
+Cementerio.
 
 ## ygopro-core (revisado el 27/09/2026)
 

@@ -123,7 +123,10 @@ def _take(st,copy_id):
     loc=_locate(st,copy_id);_need(loc is not None,f'El modelo no conoce la carta {copy_id!r}')
     player,zone,cont,i=loc;card=cont[i]
     if zone in ('graveyard','banished'): cont.pop(i)
-    else: cont[i]=None;_clear_pending(st,_key(player,zone))
+    else:
+        cont[i]=None;_clear_pending(st,_key(player,zone))
+        # Xyz materials stay under their monster; when it leaves the field they go to the Graveyard.
+        for material in card.pop('materials',None) or []: _to_graveyard(st,material)
     card.update(controller=None,position=None,summoned_turn=None,position_changed_turn=None,attacked_turn=None,set_turn=None)
     return card
 
@@ -215,18 +218,33 @@ def _h_normal_summon(st,player,card,zone,tributes=()): return _normal(st,player,
 def _h_set_monster(st,player,card,zone,tributes=()): return _normal(st,player,card,zone,tributes,'facedown_defense')
 
 
-def _h_special_summon(st,player,card,zone,source='hand',position='attack'):
+def _h_special_summon(st,player,card,zone,source='hand',position='attack',materials=(),attach=False,from_copy=None):
+    """`materials`: own monsters on the field used for the summon (Tribute-like costs, Fusion,
+    Synchro, Link: to the Graveyard; Xyz with `attach`: kept under the new monster).
+    `from_copy`: the card in the Graveyard/Banished that comes back, when the camera now
+    follows it under another copy_id (a new track)."""
     p=_player(st,player);_need(position in ('attack','defense'),'La Invocación Especial es boca arriba: attack o defense')
     _need(isinstance(zone,str) and _is_monster_zone(zone),'Zona de monstruo requerida (monster:0-4 o extra_monster:0-1)')
     _need(isinstance(card,dict) and card.get('copy_id') is not None,'La carta necesita copy_id')
+    materials=list(materials);_need(len(set(materials))==len(materials),'Materiales repetidos')
+    for copy_id in materials: _own_monster(st,player,copy_id)
     if source in ('hand','deck','extra_deck'):
-        _need(p[source]>0,f'No hay cartas en {source} del jugador {player}');new=_new_card(st,card,player);p[source]-=1
+        _need(p[source]>0,f'No hay cartas en {source} del jugador {player}')
     elif source in ('graveyard','banished'):
-        loc=_locate(st,card['copy_id']);_need(loc is not None and loc[1]==source,f'{card["copy_id"]!r} no está en {source}')
-        new=_take(st,card['copy_id']);_merge(new,card)
+        old=card['copy_id'] if from_copy is None else from_copy
+        loc=_locate(st,old);_need(loc is not None and loc[1]==source,f'{old!r} no está en {source}')
+        if from_copy is not None: _need(_locate(st,card['copy_id']) is None,f'copy_id {card["copy_id"]!r} ya está en el modelo')
     else: raise DuelError(f'Origen desconocido: {source!r}')
+    taken=[_take(st,copy_id) for copy_id in materials]   # materials leave first: the new monster may take their zone
+    if source in ('hand','deck','extra_deck'):
+        new=_new_card(st,card,player);p[source]-=1
+    else:
+        new=_take(st,old);new['copy_id']=card['copy_id'];_merge(new,card)
+    if attach: new['materials']=taken
+    else:
+        for material in taken: _to_graveyard(st,material)
     _place(st,player,zone,new,position);new['summoned_turn']=st['turn']
-    return {'copy_id':new['copy_id'],'zone':zone,'position':position,'source':source}
+    return {'copy_id':new['copy_id'],'zone':zone,'position':position,'source':source,'materials':materials,'attached':bool(attach)}
 
 
 def _h_flip(st,player,copy_id,reveal=None):
@@ -452,7 +470,9 @@ class Duel:
     def draw(self,player,count=1,effect=False): return self.apply({'type':'draw','player':player,'count':count,'effect':effect})
     def normal_summon(self,player,card,zone,tributes=()): return self.apply({'type':'normal_summon','player':player,'card':card,'zone':zone,'tributes':list(tributes)})
     def set_monster(self,player,card,zone,tributes=()): return self.apply({'type':'set_monster','player':player,'card':card,'zone':zone,'tributes':list(tributes)})
-    def special_summon(self,player,card,zone,source='hand',position='attack'): return self.apply({'type':'special_summon','player':player,'card':card,'zone':zone,'source':source,'position':position})
+    def special_summon(self,player,card,zone,source='hand',position='attack',materials=(),attach=False,from_copy=None):
+        return self.apply({'type':'special_summon','player':player,'card':card,'zone':zone,'source':source,'position':position,
+                           'materials':list(materials),'attach':attach,'from_copy':from_copy})
     def flip(self,player,copy_id,reveal=None): return self.apply({'type':'flip','player':player,'copy_id':copy_id,'reveal':reveal})
     def change_position(self,player,copy_id,position): return self.apply({'type':'change_position','player':player,'copy_id':copy_id,'position':position})
     def activate_spell_trap(self,player,card=None,copy_id=None,zone=None,as_pendulum=False): return self.apply({'type':'activate_spell_trap','player':player,'card':card,'copy_id':copy_id,'zone':zone,'as_pendulum':as_pendulum})

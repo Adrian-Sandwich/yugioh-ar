@@ -59,6 +59,9 @@
     "equal ATK: both destroyed, no damage",
     "tribute summon frees the zone it lands on and uses the shared extra monster zone",
     "field and pendulum zone flags, trap from hand rejected, graveyard/banish/hand moves",
+    "synchro/fusion/link: materials to the Graveyard, the new monster may take a material zone",
+    "revive from the Graveyard under the new track copy_id",
+    "xyz materials stay attached and go to the Graveyard when the monster leaves the field",
     "observation: unexplained card reported not summoned, per-zone latest discrepancy, identity never inferred face down"
   ],
   "limits": "Reglas estructurales sólo; sin efectos de cartas, cadenas ni prioridad. No probado en duelos reales ni conectado al reconocedor."
