@@ -75,7 +75,9 @@ EXTRA_DECK_WORDS = ('Sincronía', 'Xyz', 'Fusión', 'Link')
 # Monsters sent to the Graveyard automatically this recently can still turn out to be the
 # materials (or tributes) of the next monster placed.
 MATERIAL_WINDOW_S = 20.
-SUMMON_EVENTS = ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap', 'activate_spell_trap')
+# Analyses (~0.2 s each) a zone keeps its back's id without seeing it: a hand over a set card.
+BACK_HOLD = 20
+SUMMON_EVENTS = ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap', 'activate_spell_trap', 'flip')
 
 
 def zone_label(zone):
@@ -101,6 +103,8 @@ class TableDuel:
         # Automatic plays (a card placed counts as the obvious play); `recent` lets the
         # players change or undo them, `tried` keeps an undone play from coming back.
         self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
+        import time
+        self.back_ids = {}; self.back_age = {}; self.back_seq = 0; self.back_session = f'{time.time():.0f}'
         calibration = self.folder / 'calibration.json'
         if calibration.exists():
             data = json.loads(calibration.read_text(encoding='utf-8'))
@@ -165,6 +169,39 @@ class TableDuel:
             return [mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).tolist()
                     for mat in self.mats for name, x0, y0, x1, y1 in mat.layout if family(name) in ('monster', 'spell')]
 
+    def zone_polygon(self, player, zone):
+        with self.lock:
+            mat = next((m for m in self.mats if m.player == player), None)
+            rect = next((r for r in (mat.layout if mat else []) if r[0] == zone), None)
+            if rect is None: return None
+            _, x0, y0, x1, y1 = rect
+            return mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).tolist()
+
+    def back_zones(self):
+        """Zones where a face-down card can be (Main Monster, Spell & Trap, Field), for card_backs:
+        [{'id': 'player|zone', 'polygon'}]. None without a board or before the duel starts."""
+        with self.lock:
+            if not self.mats or not self.duel.state['started']: return None
+            return [{'id': f'{mat.player}|{name}', 'polygon': mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).tolist()}
+                    for mat in self.mats for name, x0, y0, x1, y1 in mat.layout if name.startswith(('monster:', 'spell:')) or name == 'field']
+
+    def _back_tracks(self, backs):
+        """Card backs seen this analysis as tracks: one id per zone while the back stays there
+        (a hand over it for a moment keeps the id), a new id when a back comes back later."""
+        self.back_age = {k: a + 1 for k, a in self.back_age.items()}
+        tracks = []
+        for back in backs or ():
+            player, zone = back['id'].split('|'); key = (int(player), zone)
+            polygon = self.zone_polygon(*key)
+            if polygon is None: continue
+            # Unique across restarts: a saved duel may hold older backs in its Graveyard.
+            if key not in self.back_ids: self.back_seq += 1; self.back_ids[key] = f'back-{self.back_session}-{self.back_seq}'
+            self.back_age[key] = 0
+            tracks.append({'track_id': self.back_ids[key], 'corners': polygon, 'card_id': None, 'facedown': True})
+        for key in [k for k, a in self.back_age.items() if a > BACK_HOLD]:
+            del self.back_age[key]; self.back_ids.pop(key, None)
+        return tracks
+
     def overlay(self, mats=None):
         """Zone outlines in image pixels, for drawing over the video (`mats`: a preview instead of the saved ones)."""
         with self.lock:
@@ -178,10 +215,12 @@ class TableDuel:
                     'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in (self.mats if mats is None else mats)]}
 
     # --- camera ----------------------------------------------------------------
-    def feed(self, tracks):
-        """Stable zone readings from this analysis; only changes are sent to the engine."""
+    def feed(self, tracks, backs=None):
+        """Stable zone readings from this analysis; only changes are sent to the engine.
+        `backs`: zones where card_backs saw a card back ([{'id': 'player|zone', ...}])."""
         with self.lock:
             if self.tracker is None: return []
+            tracks = list(tracks) + self._back_tracks(backs)
             observations = self.tracker.update(tracks)
             for track in tracks:
                 if track.get('card_id'): self.cards[track['track_id']] = track['card_id']
@@ -234,6 +273,16 @@ class TableDuel:
             source = p['known_at']['zone']   # the same tracked card came back from its pile
             return [({**base, 'type': 'special_summon', 'position': pos if pos in ('attack', 'defense') else 'attack', 'source': source},
                      'Invocación Especial desde el ' + ('Cementerio' if source == 'graveyard' else 'destierro'))]
+        if kind == 'different_copy' and p.get('known_at') is None and pos not in ('facedown_defense', 'facedown', None):
+            # The back was there and now its face: the same card turned face-up, under the face's track.
+            known = self._model_card(p['player'], p['zone'])
+            reveal = self.card_spec(p.get('copy_id'), p.get('card_id')); reveal.pop('copy_id', None)
+            flip = {'player': p['player'], 'copy_id': p['expected_copy'], 'reveal': reveal, 'as_copy': p.get('copy_id')}
+            if known and known['position'] == 'facedown_defense' and pos in ('attack', 'defense'):
+                label = 'Invocación por Volteo' if pos == 'attack' else 'Volteado por un efecto'
+                return [({**flip, 'type': 'flip', 'position': pos}, label)] + ([({**flip, 'type': 'flip', 'position': 'defense'}, 'Volteado por un efecto')] if pos == 'attack' else [])
+            if known and known['position'] == 'facedown' and fam == 'spell':
+                return [({**flip, 'type': 'activate_spell_trap'}, 'Activada')]
         if kind == 'different_copy' and fam == 'monster' and p.get('known_at') is None:
             # Placed on top of one of its own materials (or tributes): only a summon using it explains it.
             return self._material_plays(p, facts, pos, base, forced=p.get('expected_copy'))
@@ -262,6 +311,12 @@ class TableDuel:
             if pos in ('attack', 'defense'):
                 return [({'type': 'change_position', 'player': p['player'], 'copy_id': p['copy_id'], 'position': pos}, 'Cambio de posición')]
         return []
+
+    def _model_card(self, player, zone):
+        st = self.duel.state
+        if zone.startswith('extra_monster:'): return st['shared']['extra_monster'][int(zone[-1])]
+        kind, _, index = zone.partition(':')
+        return st['players'][player]['field'][0] if zone == 'field' else st['players'][player][kind][int(index)]
 
     # --- summons with materials -------------------------------------------------
     def _material_facts(self, card):
@@ -582,7 +637,7 @@ class TableDuel:
             if kind == 'auto': self.auto = bool(event.get('enabled')); return {'auto': self.auto}
             if kind == 'attack': return self.attack(event.get('attacker'), event.get('target'))
             if kind == 'cancel_attack': return self.cancel_attack()
-            if kind in ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap') or (kind == 'activate_spell_trap' and event.get('copy_id') is not None and 'card' not in event):
+            if kind in ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap') or (kind == 'activate_spell_trap' and event.get('copy_id') is not None and 'card' not in event and 'reveal' not in event):
                 spec = self.card_spec(event.pop('copy_id'), event.pop('card_id', None))
                 if kind in ('set_monster', 'set_spell_trap'): spec['card_id'] = None  # face-down: identity stays hidden
                 event['card'] = spec
@@ -673,4 +728,10 @@ class TableDuel:
                     'result': st['result'], 'players': players, 'board': board, 'questions': questions, 'pending_attack': st['pending_attack'],
                     'calibrated': self.mode is not None, 'mode': self.mode, 'mats_seen': [m.player for m in self.mats], 'events': len(self.duel.log),
                     'auto': self.auto, 'recent': [{k: r.get(k) for k in ('id', 'text', 'alternatives', 'card_id')} for r in self.recent],
-                    'battle_preview': self.battle_preview(), 'carrying': sorted(self.gestures)}
+                    'battle_preview': self.battle_preview(), 'carrying': sorted(self.gestures), 'card_backs': self._backs_summary()}
+
+    def _backs_summary(self):
+        try:
+            from card_backs import summary
+            return summary()
+        except (ImportError, OSError, ValueError): return None

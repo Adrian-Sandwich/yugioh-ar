@@ -216,8 +216,44 @@ cuenta como salida. Pruebas: `qa_duel_engine.py` (materiales, Xyz, revivir con
 otra copia) y `qa_table_duel.py` (Sincronía, Xyz desde el Cementerio, cambio a
 Especial simple, Tributo encima de una zona, revivir).
 
-Siguiente, ya acordado: boca abajo y Volteo (el reverso como identidad); datos
-de mecánicas desde BabelCDB, descargados fuera del repositorio. Para más
+## Boca abajo y Volteo (27/09/2026)
+
+El detector de cartas (`ygo_yolo.onnx`) se entrenó con caras: pegados en una
+captura en vivo, dos reversos no recibieron caja y cartas boca arriba en los
+mismos lugares sí (0.96 y 0.72). Acordado con el usuario: revisar zonas ahora
+e incluir reversos cuando se entrene YOLO11; reverso oficial más reversos
+enseñados (fundas).
+
+`card_backs.py`: cada zona de Monstruo principal, Magia/Trampa y Campo del
+tablero sin una carta reconocida se rectifica a 224x224 y se codifica con el
+mismo codificador del reconocedor; se compara con los reversos (umbral 0.45).
+Una caja del detector sin identidad aceptada no cuenta como ocupada (a veces
+enmarca un reverso). Referencias en `data/card-backs` (fuera del repositorio;
+`YUGIOH_CARD_BACKS` la cambia para pruebas): el reverso oficial, descargado
+la primera vez (YGOPRODeck y Yugipedia), y los enseñados con "Enseñar
+reverso" en /duelo (clic en la zona con la carta boca abajo; guarda ese
+recorte). Medido en GPU: 11 ms por 6 zonas, 17-19 ms por análisis con un
+tapete; reversos 0.75-0.94, zonas vacías, cartas boca arriba y una funda sin
+enseñar 0.07-0.13, la funda enseñada 0.999 (`qa_card_backs.py`, escena
+sintética; el umbral falta calibrarlo con capturas reales).
+
+`TableDuel` convierte cada zona con reverso en una pista `back-<sesión>-<n>`:
+el mismo id mientras el reverso siga ahí, aunque una mano lo tape hasta 20
+análisis; uno nuevo cuando vuelve después. Un reverso en Zona de Monstruo es
+"Colocado boca abajo"; en Magia/Trampa, "Colocada boca abajo". Cuando la cara
+de la carta aparece donde el modelo tenía un reverso (`different_copy`): en
+ataque, Invocación por Volteo; en defensa, volteado por un efecto; en
+Magia/Trampa, activada. El motor revela la carta (`reveal`) y la sigue con la
+pista de la cara (`as_copy`, en `flip` y `activate_spell_trap`); `flip` con
+`position='defense'` no tiene los límites de la Invocación por Volteo. En el
+vídeo, las cartas boca abajo del duelo se marcan en su zona con "Boca abajo".
+Pruebas: `qa_duel_engine.py` (Volteo con otra pista, por efecto, activar
+colocada), `qa_table_duel.py` (colocar por zona, mano encima, Volteo,
+activar) y en Edge (reverso de lado y de pie, carta boca arriba intacta,
+funda enseñada con clic).
+
+Siguiente, ya acordado: datos de mecánicas desde BabelCDB, descargados fuera
+del repositorio; al entrenar YOLO11, reversos (y fundas) como clase. Para más
 adelante (pedido el 27/09/2026): seguir a dónde va una carta que sale de una
 zona (Cementerio, de vuelta al Mazo o a la mano) en vez de suponer siempre el
 Cementerio.

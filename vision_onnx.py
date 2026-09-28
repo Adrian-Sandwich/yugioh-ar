@@ -459,11 +459,21 @@ class LiveRecognizer(ResearchRecognizer):
         return {**candidate,'id':matching.get('id','model:'+candidate['card_id']),'name':entry['name'],'artwork_id':matching.get('artwork_id'),
                 'sprite_ref':matching.get('sprite_ref'),'experimental':True}
 
-    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None):
+    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None,back_zones=None):
+        """`back_zones`: [{'id','polygon'}] of the duel board; those without a detected card are
+        checked for a card back (card_backs), reported in result['backs'] with their scores."""
         image=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR)
         if image is None: raise ValueError('Invalid JPEG')
         reloaded=self.refresh_pilot()
         result=self.detect(image,reuse=reuse,regions=regions)
+        if back_zones and self.mode=='embedding':
+            from card_backs import BackChecker,THRESHOLD
+            if getattr(self,'backs',None) is None: self.backs=BackChecker(self.encoder)
+            started=time.perf_counter()
+            # Only a recognised face counts as occupied: the detector sometimes boxes a back too, with no identity.
+            scores=self.backs.check(image,back_zones,occupied=[np.float32(d['corners']).mean(0) for d in result['detections'] if d.get('accepted')])
+            result['backs']=[s for s in scores if s['score']>=THRESHOLD];result['back_scores']=scores
+            result['backs_ms']=round((time.perf_counter()-started)*1000,1)
         result['pilot_reloaded']=reloaded
         result['candidates']=result['detections']
         result['art_promoted']=promote_by_art(result['candidates'],verified)

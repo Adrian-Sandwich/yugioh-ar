@@ -12,6 +12,7 @@ NEAR = [[420, 610], [1500, 610], [1640, 1020], [280, 1020]]
 FAR = [[1430, 470], [490, 470], [560, 170], [1360, 170]]
 SHEETS = {'dm': {'name': 'Mago Oscuro', 'card_type': 'monster', 'line': 'Monstruo Normal', 'atk': 2500, 'def': 2100, 'level': 7},
           'kuriboh': {'name': 'Kuriboh', 'card_type': 'monster', 'line': 'Monstruo Efecto', 'atk': 300, 'def': 200, 'level': 1},
+          'pot': {'name': 'Olla de la Codicia', 'card_type': 'spell', 'line': 'Magia Normal'},
           'tuner': {'name': 'Sincronón', 'card_type': 'monster', 'line': 'Monstruo Cantante / Efecto · Máquina · Nivel 2', 'atk': 500, 'def': 500, 'level': 2},
           'warrior': {'name': 'Guerrero', 'card_type': 'monster', 'line': 'Monstruo Normal · Guerrero · Nivel 4', 'atk': 1800, 'def': 1000, 'level': 4},
           'soldier': {'name': 'Soldado', 'card_type': 'monster', 'line': 'Monstruo Normal · Guerrero · Nivel 4', 'atk': 1600, 'def': 1200, 'level': 4},
@@ -239,6 +240,37 @@ def main():
         assert view['recent'][0]['text'].startswith('Invocación Especial desde el Cementerio: Sincronón') and card['copy_id'] == 30, view['recent'][0]
         assert 'Sincronón' not in names(view['players'][0]['graveyard_cards'])
         checks.append('the same card seen again while in the Graveyard: revived from it, followed under its new track')
+        # Face-down cards: card_backs reports zones with a back; the table follows them as tracks.
+        f = TableDuel(folder / 'facedown', sheet=SHEETS.get)
+        f.calibrate('two', [{'player': 0, 'corners': NEAR}, {'player': 1, 'corners': FAR}], [1920, 1080])
+        assert f.back_zones() is None, 'no back checks before the duel starts'
+        f.act({'type': 'start_duel', 'names': ['Ana', 'Beto'], 'starting': 0})
+        zones = f.back_zones(); ids = {z['id'] for z in zones}
+        assert len(zones) == 22 and '0|monster:0' in ids and '1|field' in ids and not any('extra_monster' in i or 'graveyard' in i for i in ids), sorted(ids)
+        backs = lambda *zs: [{'id': z, 'score': .8} for z in zs]
+        for _ in range(3): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
+        view = f.view(); down = {c['zone']: c for c in view['board']}
+        assert down['monster:0']['position'] == 'facedown_defense' and down['spell:1']['position'] == 'facedown' and view['questions'] == [], view
+        assert [r['text'].split(':')[0] for r in view['recent'][:2]] == ['Colocada boca abajo', 'Colocado boca abajo'], view['recent']
+        checks.append('card backs in zones: face-down monster and set Spell/Trap')
+        back_id = down['monster:0']['copy_id']
+        for _ in range(4): f.feed([], backs=backs('0|spell:1'))          # a hand over the set monster
+        assert any(q['kind'] == 'missing' for q in f.view()['questions'])
+        for _ in range(3): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
+        view = f.view(); assert view['questions'] == [] and {c['copy_id'] for c in view['board']} >= {back_id}, view
+        checks.append('a hand over a face-down card keeps it (same back id)')
+        f.act({'type': 'end_turn'}); f.act({'type': 'end_turn'})
+        face = track(f, 0, 40, 'kuriboh', *center('monster:0'))
+        for _ in range(3): f.feed([face], backs=backs('0|spell:1'))
+        view = f.view(); card = next(c for c in view['board'] if c['zone'] == 'monster:0')
+        assert card['copy_id'] == 40 and card['name'] == 'Kuriboh' and card['position'] == 'attack' and view['phase'] == 'main1', card
+        assert view['recent'][0]['text'].startswith('Invocación por Volteo: Kuriboh') and view['questions'] == [], view['recent'][0]
+        checks.append('the back replaced by its face: Flip Summon, revealed, followed under the face\'s track')
+        pot = track(f, 0, 41, 'pot', *center('spell:1'))
+        for _ in range(3): f.feed([face, pot])
+        view = f.view(); card = next(c for c in view['board'] if c['zone'] == 'spell:1')
+        assert card['copy_id'] == 41 and card['name'] == 'Olla de la Codicia' and card['position'] == 'faceup' and view['recent'][0]['text'].startswith('Activada: Olla'), view['recent'][0]
+        checks.append('a set Spell turned face-up: activated and revealed')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'

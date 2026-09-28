@@ -247,14 +247,28 @@ def _h_special_summon(st,player,card,zone,source='hand',position='attack',materi
     return {'copy_id':new['copy_id'],'zone':zone,'position':position,'source':source,'materials':materials,'attached':bool(attach)}
 
 
-def _h_flip(st,player,copy_id,reveal=None):
-    _player(st,player);_main_phase(st,player);card=_own_monster(st,player,copy_id)
+def _as_copy(st,card,as_copy):
+    """The camera follows the face-up side as a new track: the card keeps its history under that copy_id."""
+    if as_copy is None or as_copy==card['copy_id']: return
+    _need(isinstance(as_copy,(int,str)) and not isinstance(as_copy,bool),'copy_id debe ser entero o texto')
+    _need(_locate(st,as_copy) is None,f'copy_id {as_copy!r} ya está en el modelo')
+    card['copy_id']=as_copy
+
+
+def _h_flip(st,player,copy_id,reveal=None,as_copy=None,position='attack'):
+    """Flip Summon (attack, Main Phase), or `position='defense'`: turned face-up by an effect."""
+    _player(st,player);card=_own_monster(st,player,copy_id)
+    _need(position in ('attack','defense'),'position debe ser attack o defense')
     _need(card['position']=='facedown_defense','Sólo se voltea (Flip Summon) un monstruo boca abajo')
-    _need(card['summoned_turn']!=st['turn'],'No se voltea un monstruo el turno en que se colocó')
-    _need(card['position_changed_turn']!=st['turn'],'Ese monstruo ya cambió de posición este turno')
+    if position=='attack':
+        _main_phase(st,player)
+        _need(card['summoned_turn']!=st['turn'],'No se voltea un monstruo el turno en que se colocó')
+        _need(card['position_changed_turn']!=st['turn'],'Ese monstruo ya cambió de posición este turno')
+        card['position_changed_turn']=st['turn']
     if reveal is not None: _merge(card,reveal)
-    card['position']='attack';card['position_changed_turn']=st['turn']
-    return {'copy_id':copy_id,'position':'attack','card_id':card['card_id']}
+    _as_copy(st,card,as_copy);card['position']=position
+    _clear_pending(st,_key(player,_locate(st,card['copy_id'])[1]))
+    return {'copy_id':card['copy_id'],'position':position,'card_id':card['card_id']}
 
 
 def _h_change_position(st,player,copy_id,position):
@@ -269,15 +283,19 @@ def _h_change_position(st,player,copy_id,position):
     return {'copy_id':copy_id,'position':position}
 
 
-def _h_activate_spell_trap(st,player,card=None,copy_id=None,zone=None,as_pendulum=False):
+def _h_activate_spell_trap(st,player,card=None,copy_id=None,zone=None,as_pendulum=False,reveal=None,as_copy=None):
+    """From the hand (`card`) or a set card (`copy_id`; `reveal` completes its identity, `as_copy`
+    is the camera's track of its face-up side)."""
     p=_player(st,player)
     if copy_id is not None:
         _need(card is None,'Indica card (desde la mano) o copy_id (carta colocada), no ambos')
         loc=_locate(st,copy_id)
         _need(loc is not None and loc[0]==player and _is_spell_zone(loc[1]),f'{copy_id!r} no es una carta colocada del jugador {player}')
         c=loc[2][loc[3]];_need(c['position']=='facedown','La carta ya está boca arriba')
+        if reveal is not None: _merge(c,reveal)
         _need(c['type']!='trap' or c['set_turn']!=st['turn'],'Una trampa no se activa el turno en que se colocó')
-        c['position']='faceup';return {'copy_id':copy_id,'zone':loc[1],'position':'faceup'}
+        _as_copy(st,c,as_copy);c['position']='faceup';_clear_pending(st,_key(player,loc[1]))
+        return {'copy_id':c['copy_id'],'zone':loc[1],'position':'faceup'}
     _main_phase(st,player);_need(p['hand']>0,f'No hay cartas en la mano del jugador {player}')
     _need(isinstance(zone,str) and _is_spell_zone(zone),'Zona de magia/trampa requerida (spell:0-4 o field)')
     if as_pendulum:
@@ -473,9 +491,10 @@ class Duel:
     def special_summon(self,player,card,zone,source='hand',position='attack',materials=(),attach=False,from_copy=None):
         return self.apply({'type':'special_summon','player':player,'card':card,'zone':zone,'source':source,'position':position,
                            'materials':list(materials),'attach':attach,'from_copy':from_copy})
-    def flip(self,player,copy_id,reveal=None): return self.apply({'type':'flip','player':player,'copy_id':copy_id,'reveal':reveal})
+    def flip(self,player,copy_id,reveal=None,as_copy=None,position='attack'): return self.apply({'type':'flip','player':player,'copy_id':copy_id,'reveal':reveal,'as_copy':as_copy,'position':position})
     def change_position(self,player,copy_id,position): return self.apply({'type':'change_position','player':player,'copy_id':copy_id,'position':position})
-    def activate_spell_trap(self,player,card=None,copy_id=None,zone=None,as_pendulum=False): return self.apply({'type':'activate_spell_trap','player':player,'card':card,'copy_id':copy_id,'zone':zone,'as_pendulum':as_pendulum})
+    def activate_spell_trap(self,player,card=None,copy_id=None,zone=None,as_pendulum=False,reveal=None,as_copy=None):
+        return self.apply({'type':'activate_spell_trap','player':player,'card':card,'copy_id':copy_id,'zone':zone,'as_pendulum':as_pendulum,'reveal':reveal,'as_copy':as_copy})
     def set_spell_trap(self,player,card,zone): return self.apply({'type':'set_spell_trap','player':player,'card':card,'zone':zone})
     def send_to_graveyard(self,player,copy_id=None,card=None,source=None): return self.apply({'type':'send_to_graveyard','player':player,'copy_id':copy_id,'card':card,'source':source})
     def banish(self,player,copy_id=None,card=None,source=None): return self.apply({'type':'banish','player':player,'copy_id':copy_id,'card':card,'source':source})

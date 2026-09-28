@@ -62,6 +62,9 @@
     "synchro/fusion/link: materials to the Graveyard, the new monster may take a material zone",
     "revive from the Graveyard under the new track copy_id",
     "xyz materials stay attached and go to the Graveyard when the monster leaves the field",
+    "flip summon of a set monster, revealed and followed under the camera's new track",
+    "turned face-up by an effect: defense, no Flip Summon limits",
+    "set Spell/Trap activated, revealed under a new track",
     "observation: unexplained card reported not summoned, per-zone latest discrepancy, identity never inferred face down"
   ],
   "limits": "Reglas estructurales sólo; sin efectos de cartas, cadenas ni prioridad. No probado en duelos reales ni conectado al reconocedor."

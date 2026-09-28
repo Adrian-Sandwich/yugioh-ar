@@ -28,7 +28,7 @@ def _serve(conn,mode):
         try:
             # Test hook only: a deliberate stall to exercise the watchdog.
             if payload.get('_test_delay') and os.environ.get('YUGIOH_INFERENCE_TEST')=='1':time.sleep(payload['_test_delay'])
-            conn.send(('ok',recognizer.analyze_jpeg(payload['data'],reuse=payload.get('reuse',()),verified=payload.get('verified',()),regions=payload.get('regions'))))
+            conn.send(('ok',recognizer.analyze_jpeg(payload['data'],reuse=payload.get('reuse',()),verified=payload.get('verified',()),regions=payload.get('regions'),back_zones=payload.get('back_zones'))))
         except Exception:
             conn.send(('error',traceback.format_exc()))
 
@@ -64,10 +64,10 @@ class RemoteRecognizer:
     def restart(self):
         self._kill();self.restarts+=1;self._start()
 
-    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None,_test_delay=None):
+    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None,back_zones=None,_test_delay=None):
         with self.lock:
             if self.process is None or not self.process.is_alive():self.restart()
-            payload={'data':data,'reuse':list(reuse),'verified':list(verified),'regions':regions}
+            payload={'data':data,'reuse':list(reuse),'verified':list(verified),'regions':regions,'back_zones':back_zones}
             if _test_delay:payload['_test_delay']=_test_delay
             try:self.conn.send(('analyze',payload))
             except (OSError,EOFError,BrokenPipeError):

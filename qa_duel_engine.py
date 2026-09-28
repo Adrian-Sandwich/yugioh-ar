@@ -198,6 +198,29 @@ def summon_materials():
     check('xyz materials stay attached and go to the Graveyard when the monster leaves the field')
 
 
+def facedown_and_flip():
+    d=Duel();d.start_duel(opening_hand=6);to_main1(d)
+    d.set_monster(0,{'copy_id':'back1'},'monster:0');d.set_spell_trap(0,{'copy_id':'back2'},'spell:1');d.end_turn()
+    d.draw(1);to_main1(d);d.end_turn();d.draw(0);to_main1(d)
+    d.observe(0,'monster:0',copy_id='face1',card_id='m',position='attack')
+    assert d.discrepancies()[0]['kind']=='different_copy'
+    rejected(d,{'type':'flip','player':0,'copy_id':'back1','as_copy':'back2'},'ya está en el modelo')
+    r=d.flip(0,'back1',reveal={'card_id':'m','name':'Monstruo Volteo','atk':1200,'def':800,'level':3},as_copy='face1')
+    card=d.state['players'][0]['monster'][0]
+    assert r['copy_id']=='face1' and card['copy_id']=='face1' and card['card_id']=='m' and card['position']=='attack' and d.discrepancies()==[]
+    assert d.observe(0,'monster:0',copy_id='face1',card_id='m',position='attack')['status']=='consistent'
+    check('flip summon of a set monster, revealed and followed under the camera\'s new track')
+    d.set_monster(0,{'copy_id':'back3'},'monster:1')
+    rejected(d,{'type':'flip','player':0,'copy_id':'back3'},'el turno en que se colocó')
+    d.flip(0,'back3',reveal={'card_id':'n'},as_copy='face3',position='defense')
+    assert d.state['players'][0]['monster'][1]['position']=='defense'
+    check('turned face-up by an effect: defense, no Flip Summon limits')
+    d.activate_spell_trap(0,copy_id='back2',reveal={'card_id':'s','name':'Magia'},as_copy='face2')
+    c=d.state['players'][0]['spell'][1];assert c['copy_id']=='face2' and c['card_id']=='s' and c['position']=='faceup'
+    assert Duel.from_json(d.to_json()).snapshot()==d.snapshot()
+    check('set Spell/Trap activated, revealed under a new track')
+
+
 def observation_reconciliation():
     d=Duel();d.start_duel();to_main1(d)
     r=d.observe(0,'monster:3',copy_id='x9',card_id='c9',position='attack')
@@ -236,6 +259,7 @@ def main():
     deck_out_and_surrender()
     equal_attack_and_tributes()
     summon_materials()
+    facedown_and_flip()
     observation_reconciliation()
     final=d.snapshot()
     result={'status':'passed','date':'2026-09-26','engine':'duel_engine.py','events_supported':list(EVENTS),

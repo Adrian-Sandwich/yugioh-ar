@@ -38,7 +38,8 @@ function insideQuad([x,y],q){
   for(let i=0;i<4;i++){const [ax,ay]=q[i],[bx,by]=q[(i+1)%4],c=(bx-ax)*(y-ay)-(by-ay)*(x-ax);if(c!==0){if(sign&&Math.sign(c)!==sign)return false;sign=Math.sign(c);}}
   return true;
 }
-function zoneAt(point){const board=virtualPreview||playmat;return (board?.zones||[]).find(z=>insideQuad(point,z.polygon))?.zone||null;}
+function zoneHit(point){const board=virtualPreview||playmat;return (board?.zones||[]).find(z=>insideQuad(point,z.polygon))||null;}
+function zoneAt(point){return zoneHit(point)?.zone||null;}
 function fieldTracks(tracks){
   const board=virtualPreview||playmat;
   if(!board?.zones?.length)return tracks;   // no board yet: show everything while setting up
@@ -64,6 +65,24 @@ function drawCards(context,cards){
   }
 }
 
+// Face-down cards have no track (the detector does not see card backs): their zone gets the marks.
+let teachingBack=false,renderedDuel=null;
+function drawFacedown(context){
+  const board=virtualPreview||playmat;if(!board?.zones||calibration)return;
+  const size=Math.max(10,Math.round(frame.width/140));
+  context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='#c9a0ff';context.lineCap='round';
+  context.textAlign='center';context.font=`600 ${size}px system-ui`;
+  for(const card of duelView?.board||[]){
+    if(card.position!=='facedown'&&card.position!=='facedown_defense')continue;
+    const z=board.zones.find(z=>z.player===card.player&&z.zone===card.zone);if(!z)continue;
+    cornerMarks(context,z.polygon,.3);
+    const [cx,cy]=z.polygon.reduce(([a,b],[x,y])=>[a+x/4,b+y/4],[0,0]),label='Boca abajo',w=context.measureText(label).width+10;
+    context.fillStyle='rgba(10,14,22,.72)';context.fillRect(cx-w/2,cy-size*.8,w,size*1.5);
+    context.fillStyle='#e6d6ff';context.fillText(label,cx,cy+size*.35);
+  }
+  context.restore();
+}
+
 // "Carta en juego": which card is being played or looked at, and what it does.
 let spotlightId=null;
 async function spotlight(cardId){
@@ -83,6 +102,11 @@ async function spotlight(cardId){
 frame.addEventListener('click',event=>{
   if(calibration)return;
   const rect=frame.getBoundingClientRect(),p=[(event.clientX-rect.left)*frame.width/rect.width,(event.clientY-rect.top)*frame.height/rect.height];
+  if(teachingBack){   // "Enseñar reverso": the clicked zone holds a face-down card
+    const z=zoneHit(p);
+    if(!z||!/^(monster|spell):|^field$/.test(z.zone)){duelMessage('Haz clic en una Zona de Monstruo, de Magia/Trampa o de Campo con la carta boca abajo.',true);return;}
+    teachingBack=false;duelAct({type:'teach_back',player:z.player,zone:z.zone});return;
+  }
   if(battleClick(p))return;   // Battle Phase: choosing attacker and target
   const hit=fieldTracks(liveTracks).find(t=>insideQuad(p,t.corners));
   if(hit)spotlight(hit.card_id);
@@ -91,10 +115,11 @@ frame.addEventListener('click',event=>{
 function draw(now){
   const ar=document.querySelector('#ar').checked;
   // With AR on, monsters breathe and effects play: repaint every display frame.
-  if(currentBitmap&&(ar||renderedFrame!==frameNumber||renderedTracks!==liveTracks||renderedZones!==zonesVersion||renderedAR!==ar)){
+  if(currentBitmap&&(ar||renderedFrame!==frameNumber||renderedTracks!==liveTracks||renderedZones!==zonesVersion||renderedAR!==ar||renderedDuel!==duelView)){
     if(frame.width!==currentBitmap.width||frame.height!==currentBitmap.height){frame.width=currentBitmap.width;frame.height=currentBitmap.height;zonesVersion++;}
     ctx.drawImage(currentBitmap,0,0);
     drawTableOverlay(ctx);
+    drawFacedown(ctx);renderedDuel=duelView;
     const field=fieldTracks(liveTracks);
     if(ar)drawStage(ctx,field.filter(t=>t.stable),now||performance.now());
     drawCards(ctx,field);
@@ -384,6 +409,8 @@ function renderDuel(view){
   $d('#duelBoard').replaceChildren(...(board.length?[textNode('h3','En el campo')]:[textNode('p','Nada en el campo todavía.')]),...board.map(c=>textNode('p',`${view.players[c.player]?.name} · ${c.zone_label}: ${c.name||'carta boca abajo'} · ${POSITIONS[c.position]||c.position}${c.atk!=null?` · ATK ${c.atk}${c.def!=null?` / DEF ${c.def}`:''}`:''}`)));
   ['#lpPlayer'].forEach(s=>[...$d(s).options].forEach((o,i)=>o.textContent=view.players?.[i]?.name||o.textContent));
   renderBattle(view);
+  const backs=view.card_backs;
+  if(backs)$d('#backsStatus').textContent=`${backs.official?'Se reconoce el reverso oficial':'Sin reverso oficial (no se pudo descargar)'}${backs.taught?` y ${backs.taught} reverso${backs.taught===1?'':'s'} enseñado${backs.taught===1?'':'s'}`:''}. Si juegan con fundas, pon una carta boca abajo en una zona y enséñala.`;
 }
 
 // ---- Battle: click (or carry-and-return gesture) declares; the result is proposed, then applied
@@ -433,6 +460,8 @@ function drawBattle(context){
 
 // Extra Deck of 15 each, so Synchro/Xyz/Fusion/Link placed on the field come out of it.
 $d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value),extra_deck_sizes:[15,15]});
+$d('#teachBack').onclick=()=>{teachingBack=true;duelMessage('Pon una carta boca abajo en una zona y haz clic en esa zona en el vídeo.');};
+$d('#forgetBacks').onclick=()=>{if(confirm('¿Olvidar los reversos enseñados? El reverso oficial se sigue reconociendo.'))duelAct({type:'forget_backs'});};
 $d('#nextPhase').onclick=nextPhase;
 $d('#endTurn').onclick=()=>duelAct({type:'end_turn'});
 $d('#drawCard').onclick=()=>duelAct({type:'draw',player:duelView?.current??0});

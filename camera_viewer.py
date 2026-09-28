@@ -239,6 +239,18 @@ class Handler(BaseHTTPRequestHandler):
         # Socket writes happen after run_analysis released the inference lock (slow/disconnected tab).
         self.reply(200,json.dumps(result).encode(),'application/json')
 
+    def teach_back(self,table,payload):
+        """"Enseñar reverso": the newest frame's crop of the clicked zone becomes a card back
+        reference (a sleeve); the recognizer process picks it up on its next analysis."""
+        import card_backs,cv2,numpy as np
+        if payload['type']=='forget_backs': return {'forgotten':card_backs.forget_taught(),**card_backs.summary()}
+        polygon=table.zone_polygon(int(payload['player']),payload['zone'])
+        if polygon is None: raise ValueError('Esa zona no está en el tablero calibrado')
+        data=self.get_snapshot_record()[0]
+        image=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR) if data else None
+        if image is None: raise ValueError('No hay imagen de la cámara')
+        return {'taught':card_backs.teach(image,polygon,int(payload['player']),payload['zone'])['id'],**card_backs.summary()}
+
     def table_post(self,route):
         """Calibration (/playmat) or a player's decision (/duel); errors come back as 400 with the reason."""
         from duel_engine import DuelError
@@ -250,6 +262,7 @@ class Handler(BaseHTTPRequestHandler):
             payload=json.loads(self.rfile.read(length))
             if route=='/playmat' and payload.get('preview'): body=table.preview(payload['mode'],payload.get('virtual'),payload['image_size'])
             elif route=='/playmat': body=table.calibrate(payload['mode'],payload.get('mats',[]),payload.get('image_size'),payload.get('virtual'))
+            elif payload.get('type') in ('teach_back','forget_backs'): body={'result':self.teach_back(table,payload),'duel':table.view()}
             else: body={'result':table.act(payload),'duel':table.view()}
             self.reply(200,json.dumps(body,ensure_ascii=False).encode(),'application/json; charset=utf-8')
         except (DuelError,ValueError,KeyError,TypeError) as exc:
@@ -349,7 +362,9 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
             # With a duel board set, cards outside its field zones are not analysed at all.
             table=getattr(server,'table',None)
             regions=table.field_regions() if table is not None else None
-            result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified,regions=regions)
+            # Face-down cards: zones without a detected card are compared with the card back (card_backs).
+            back_zones=table.back_zones() if table is not None else None
+            result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified,regions=regions,back_zones=back_zones)
         else:
             result=recognizer.analyze_jpeg(data)
         result['detections']=[normalize_detection(d) for d in result['detections']]
@@ -382,7 +397,7 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
                         import cv2,numpy as np
                         grey=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_GRAYSCALE)
                         if grey is not None: table.see_markers(grey,captured_at)
-                    table.feed([t for t in live.snapshot() if t.get('stable')])
+                    table.feed([t for t in live.snapshot() if t.get('stable')],backs=result.get('backs'))
                 except Exception: traceback.print_exc()
         for d in result['detections']:
             if d.get('sprite_ref') and getattr(server,'overlay',None) is not None:
