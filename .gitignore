@@ -23,3 +23,7 @@ research/database-audit/sync-*/
 
 # Registros codificados de la calibración (6 MB, regenerables con calibrate_acceptance.py)
 research/qa/calibration*/acceptance-records.json
+
+# Salidas que qa_name_ocr.py reescribe en cada ejecucion
+research/qa/name-ocr/rendered-*.png
+research/qa/name-ocr/validation.json

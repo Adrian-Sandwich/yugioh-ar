@@ -292,9 +292,6 @@ class Handler(BaseHTTPRequestHandler):
         if body is None: return self.reply(204,b'','application/json')
         self.reply(200,body,'application/json')
 
-    def get_snapshot(self):
-        return self.get_snapshot_record()[0]
-
     def get_snapshot_record(self):
         return snapshot_record(self.server)
 

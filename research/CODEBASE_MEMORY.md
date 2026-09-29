@@ -56,3 +56,11 @@ contenido. También se confirmó en el fuente que aristas como
 son resoluciones heurísticas por nombre (`fetch`, `request`, `wait_for`) sin
 llamada real. Usar el grafo para orientarse y `get_code_snippet` o el fuente
 para afirmar dependencias.
+
+## 28/09/2026: PC con GPU
+
+Instalada la versión 0.11.0 (binario oficial de DeusData, checksum verificado)
+en `%LOCALAPPDATA%\Programs\codebase-memory-mcp`. `cbm_local.py` ya no fija la
+ruta del usuario: usa `CBM_EXE` o `%LOCALAPPDATA%`. Reindexado `yugioh` en modo
+`moderate` desde `C:/Users/USER/src/yugioh/yugioh`: 20,739 nodos y 30,600
+relaciones; 18 parseos parciales, todos en HTML descargado de la auditoría.

@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 
 from duel_engine import Duel, DuelError
-from playmat import Mat, ZoneTracker, tcg_layout
+from playmat import Mat, ZoneTracker
 
 ROOT = Path(__file__).resolve().parent
 FOLDER = ROOT / 'data/playmat'

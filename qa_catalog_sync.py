@@ -1,5 +1,5 @@
 """Additive catalog sync preserves two equal images and separate references."""
-import hashlib,json,sqlite3,uuid
+import hashlib,json,shutil,sqlite3,uuid
 from pathlib import Path
 from PIL import Image
 from sync_catalog import enrich,ROOT
@@ -27,7 +27,7 @@ def main():
         try:enrich(db,registry,assets,manifest)
         except ValueError as exc:assert 'hash mismatch' in str(exc)
         else:raise AssertionError('Modified image accepted')
-    db.close()
+    db.close();shutil.rmtree(folder)
     print('PASS: two duplicate images retained as two references; idempotence, identity links and hash validation')
 
 if __name__=='__main__':main()

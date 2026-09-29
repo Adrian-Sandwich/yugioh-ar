@@ -1,5 +1,5 @@
 """Asynchronous rectified passcode crops, conservative OCR and exact registry lookup."""
-import base64,hashlib,json,re,sqlite3,threading,time,unicodedata
+import base64,hashlib,re,sqlite3,threading,time,unicodedata
 from collections import deque
 from pathlib import Path
 import cv2

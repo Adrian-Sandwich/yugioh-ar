@@ -10,7 +10,6 @@ import copy
 import json
 
 PHASES=('draw','standby','main1','battle','main2','end')
-BATTLE_STEPS=('start','battle','damage','end')
 MONSTER_POSITIONS=('attack','defense','facedown_defense')
 SPELL_POSITIONS=('faceup','facedown')
 STATS=('name','atk','def','level','type')

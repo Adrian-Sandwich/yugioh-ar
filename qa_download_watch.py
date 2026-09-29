@@ -1,5 +1,5 @@
 """Completion requires expected identities in both cache and imported sources."""
-import json,sqlite3,sys,uuid
+import json,shutil,sqlite3,sys,uuid
 from pathlib import Path
 from unittest.mock import patch
 ROOT=Path(__file__).resolve().parent
@@ -20,5 +20,5 @@ with patch.object(watch_download,'ROOT',root),patch.object(watch_download,'statu
     assert watch_download.inspect()[0]['watch_state']=='finished_with_pending_work'
     db.execute("INSERT INTO sources VALUES ('neuron:card-en-2')");db.commit()
     assert watch_download.inspect()[0]['watch_state']=='complete_pending_content_audit'
-db.close()
+db.close();shutil.rmtree(root)
 print('PASS: equal file count cannot hide a missing expected card; cache and import must both cover index')

@@ -230,7 +230,6 @@ document.querySelector('#ar').onchange=()=>{renderedAR=null;};
 // ---- Duelo en la mesa: calibración del tapete y panel ------------------------------------
 const $d=s=>document.querySelector(s);
 const CORNERS=['arriba a la izquierda (lado del rival)','arriba a la derecha (lado del rival)','abajo a la derecha (su lado)','abajo a la izquierda (su lado)'];
-const PHASES={draw:'Fase de Robo',standby:'Fase de Espera',main1:'Fase Principal 1',battle:'Fase de Batalla',main2:'Fase Principal 2',end:'Fase Final'};
 const POSITIONS={attack:'ataque',defense:'defensa',facedown_defense:'defensa boca abajo',faceup:'boca arriba',facedown:'boca abajo'};
 let duelView=null;
 

@@ -1,6 +1,7 @@
 """Call the installed Codebase Memory CLI with JSON preserved on Windows."""
 import argparse
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -11,7 +12,7 @@ parser.add_argument('arguments', type=Path)
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 payload = json.loads(args.arguments.read_text(encoding='utf-8'))
-exe = 'C:/Users/Adrian/AppData/Local/Programs/codebase-memory-mcp/codebase-memory-mcp.exe'
+exe = os.environ.get('CBM_EXE') or str(Path(os.environ['LOCALAPPDATA']) / 'Programs/codebase-memory-mcp/codebase-memory-mcp.exe')
 args.output.parent.mkdir(parents=True, exist_ok=True)
 with args.output.open('w', encoding='utf-8') as output:
     result = subprocess.run([exe, 'cli', '--json', args.tool, '--args-file', str(args.arguments.resolve())],
