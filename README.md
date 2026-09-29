@@ -8,16 +8,18 @@ Spanish, German, French and Portuguese), tracks them across frames and draws
 the monster over the video. The goal is an **AR duel engine** that runs live,
 on ordinary hardware, with nothing sent to the cloud.
 
-![Live viewer with ten real cards on the table, all recognized and tracked between analyses, with AR sprites: two foil Odd-Eyes Pendulum Dragon, Dark Magician, three Blue-Eyes White Dragon, Red-Eyes B. Dragon, Number 39: Utopia, Solemn Judgment and Vanity's Emptiness](docs/img/mesa-cuatro-cartas.png)
+![Duel view over a live phone camera: a real Zombie deck on a cork table with sleeved cards, each recognized and labelled with its Spanish name and ATK/DEF, cut-out monsters standing on their cards, spells and traps in their zones, and the phase bar and life points on top](docs/img/mesa-duelo-ar.jpg)
 
-**Status, September 27, 2026:** working prototype. It recognizes several
-cards at once in saved captures and in live video from a phone. Sprites now
-follow each card at video rate between analyses, identities confirmed on the
-illustration are accepted even on foil cards, and the recognizer runs in a
-child process that restarts itself. A structural duel engine exists but is
-not wired to the camera yet. There are still no 3D models. A full analysis
-takes about 0.2 s live with an NVIDIA GPU (RTX 4070) and 1 to 4 seconds on a
-laptop CPU. The honest details are in
+**Status, September 28, 2026:** working prototype of an AR duel on a real
+table. The camera recognizes the cards across the full catalog (about 14,800
+cards), the duel view draws the zones, life points and phases over the video,
+and monsters, spells and traps get their own entrance, attack and destruction
+effects. Face-down cards are detected by their back, including sleeves the
+player teaches, and a spinning Millennium shield marks face-down defenders.
+The duel engine works as a notary: it records plays and warns about rule
+problems instead of blocking. Cards without a hand-made sprite get an
+automatic cut-out. A full analysis takes about 0.2 s live with an NVIDIA GPU
+(RTX 4070) and 1 to 4 seconds on a laptop CPU. The honest details are in
 [What works today and what does not](#what-works-today-and-what-does-not).
 
 This project needs help. Photos of real cards, tests on other cameras and
@@ -57,8 +59,8 @@ not exist yet:
 4. **Catalog.** A local registry with every card, its names in several
    languages, its printings and its artworks.
 5. **AR layer.** Draw over the video whatever belongs there, aligned to the card.
-6. **Duel engine.** Zones, phases, life points and rules. This piece does not
-   exist in the repository yet.
+6. **Duel engine.** Zones, phases, life points and plays, recorded from what
+   the camera sees and confirmed by the players.
 
 ## What works today and what does not
 
@@ -87,9 +89,26 @@ Works, verified with reproducible tests in this repository:
   codes, rarities and editions, with the provenance of every value.
 - A web viewer with a phone camera through IP Webcam, coordination between
   browser tabs, and saved captures for annotation.
-- A duel rules engine (zones, phases, life points, battle, event log, undo)
-  with reconciliation of camera observations. Structural rules only, no card
-  effects, and not yet connected to the recognizer.
+- A duel view connected to the camera (`/duel`): a printable mat with ArUco
+  markers or an adjustable virtual board, phase bar, life points, attacks by
+  click or gesture, and plays inferred from what appears on the table
+  (Normal, Tribute, Synchro, Xyz, Link, Fusion and Ritual summons with their
+  materials, sets and flips). The engine (`duel_engine.py`) keeps an event log
+  with undo; in notary mode rule problems become warnings, not blocks.
+- Face-down detection by comparing each zone with card backs: the official
+  back plus sleeves taught with one button, in four orientations.
+- The printed name as a second vote: when the artwork alone is ambiguous
+  (Ghost Rare, Starlight, glare), OCR of the title decides among the visual
+  top five.
+- AR effects per card type (summon, spell, trap, set, attack, destruction,
+  life points) with light, particles and camera shake; entrances start when
+  the camera sees the card arrive.
+- Automatic sprites: BiRefNet cut-outs of the artwork on the GPU (about 0.45 s
+  per card) with a critic that retries or rejects bad cut-outs; about 7,000
+  generated so far.
+- Card sheet in the duel view with effect categories and the text split into
+  cost, condition and effect, taken from EDOPro card scripts (the sibling
+  project `ygo-deckforge` builds that table).
 
 Does not work yet, or has not been measured:
 
@@ -104,8 +123,13 @@ Does not work yet, or has not been measured:
 - **Thresholds.** The ONNX methods accept or reject with experimental
   thresholds; a calibration against TCGplayer scans is documented in
   `research/CALIBRACION_ESCANEOS.md`.
-- **3D and rules.** No 3D models, no occlusion, no card effects, no multiplayer.
-- **GPU.** Everything has been tested on one laptop with integrated Intel graphics.
+- **3D and rules.** No 3D models and no occlusion. Card effects are shown and
+  categorized, but the players resolve them; the engine does not. No remote
+  duel yet (the plan is in `research/DUELO_REMOTO.md`).
+- **Where cards go.** A card leaving a zone is not yet followed to the
+  Graveyard, the hand or the deck; the view shows what the camera sees.
+- **Hardware.** Tested on one laptop with integrated Intel graphics and one PC
+  with an RTX 4070.
 
 ## How it works inside
 
@@ -139,7 +163,7 @@ Principles the code follows and that are worth keeping:
 
 ## Project history
 
-The repository is three intense days old. What follows is the timeline as it
+The repository is five intense days old. What follows is the timeline as it
 was recorded in the documents under `research/`.
 
 ### September 24, 2026: initial review
@@ -201,7 +225,42 @@ photographed cards, a first duel engine
 calibration against TCGplayer scans and continuous integration
 ([docs/CI.md](docs/CI.md)).
 
+### September 27, 2026: the GPU PC and the duel view
+
+The project moved to a PC with an RTX 4070 (`setup_gpu.ps1`,
+[docs/ARRANQUE_GPU.md](docs/ARRANQUE_GPU.md)). Recognition was opened to the
+full catalog, and a separate duel view appeared: a printable mat with ArUco
+markers or a virtual board over the video, a phase bar, life points, battle
+by click or gesture, summon types with inferred materials, face-down cards
+and flips.
+
+### September 28, 2026: effects, card backs and notary mode
+
+The duel engine became a notary: rule problems are warnings in the log, and
+the players decide ([MOTOR_DE_DUELO.md](research/MOTOR_DE_DUELO.md), plan for
+a remote duel in [DUELO_REMOTO.md](research/DUELO_REMOTO.md)). The view now
+follows the camera: entrances play when a card is seen arriving, and
+face-down figures appear where a back is seen. New today: an effects engine
+per card type, sleeves taught in four orientations, the printed name as a
+second vote for Ghost Rare cards, automatic BiRefNet cut-outs with a critic,
+effect categories and cost/effect text from EDOPro scripts, and a Millennium
+shield that turns over face-down defenders.
+
 ## Screenshots
+
+![A face-down defense monster with the Millennium shield turning over it: front, edge, back and front again](docs/img/escudo-milenio-giro.jpg)
+
+The Millennium shield turns slowly over face-down defense monsters. The turn
+is computed from one front view and one back view, with a gold rim at the edge.
+
+![Frames of the summon and attack effects: a magic circle and light column for Dark Magician, then a golden slash and impact on Blue-Eyes White Dragon](docs/img/efectos-invocacion-ataque.jpg)
+
+Summon and attack effects on a synthetic table, frame by frame.
+
+| | |
+|---|---|
+| ![Card sheet for Vampire Sucker in Spanish: type, ATK and Link rating, category chips Special Summon and Draw, and the effect split into target, what it does and condition](docs/img/ficha-costo-efecto.png) | ![Cut-out comparison: original artwork and four background removal models side by side; BiRefNet keeps the figure whole](docs/img/recortes-automaticos.jpg) |
+| Card sheet in the duel view: categories from EDOPro scripts and the text split into cost, target, effect and condition. | Automatic cut-outs: the artwork and four models compared. BiRefNet was chosen and runs on the GPU. |
 
 | | |
 |---|---|
@@ -310,8 +369,10 @@ aumentada sobre ellas en tiempo real. La meta a largo plazo es un motor de
 duelo en AR: sin marcadores, sin tapete especial, todo en local.
 
 Hoy funciona la detección, tres identificadores intercambiables, OCR local de
-passcode, nombre y código de set, seguimiento por instancia y sprites AR 2D.
-No funciona todavía la velocidad en tiempo real, la precisión calibrada sobre
-muchas cartas reales, el 3D ni las reglas de duelo. La versión completa en
+passcode, nombre y código de set, seguimiento por instancia, sprites AR 2D y
+una vista de duelo sobre la cámara en vivo con fases, puntos de vida, batalla,
+cartas boca abajo, efectos por tipo de carta y un motor de duelo en modo
+notario. No funciona todavía la precisión calibrada sobre muchas cartas
+reales, el 3D, la resolución de efectos ni el duelo remoto. La versión completa en
 español está en [README.es.md](README.es.md) y la guía para ayudar en
 [CONTRIBUTING.es.md](CONTRIBUTING.es.md).

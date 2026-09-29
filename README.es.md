@@ -8,17 +8,19 @@ idiomas (inglés, español, alemán, francés y portugués), las sigue entre
 fotogramas y dibuja el monstruo sobre el vídeo. La meta es un **motor de duelo
 en AR** que funcione en vivo, con hardware normal y sin depender de la nube.
 
-![Visor en vivo con diez cartas reales sobre la mesa, todas reconocidas y seguidas entre análisis, con sprites AR: dos Dragón de Péndulo de Ojos Anómalos foil, Mago Oscuro, tres Dragón Blanco de Ojos Azules, Dragón Negro de Ojos Rojos, Número 39: Utopía, Juicio Solemne y Todovano la Esencia de Vanidad](docs/img/mesa-cuatro-cartas.png)
+![Vista de duelo sobre la cámara del teléfono en vivo: un mazo Zombi real en una mesa de corcho con cartas enfundadas, cada una reconocida con su nombre en español y ATK/DEF, monstruos recortados de pie sobre su carta, magias y trampas en sus zonas, y arriba la barra de fases y los puntos de vida](docs/img/mesa-duelo-ar.jpg)
 
-**Estado, 27 de septiembre de 2026:** prototipo funcional. Reconoce varias
-cartas a la vez en capturas y en vídeo desde un teléfono. Los sprites siguen
-a cada carta a la velocidad del vídeo entre análisis, las identidades
-confirmadas por la ilustración se aceptan aunque la carta sea foil, y el
-reconocedor corre en un proceso aparte que se reinicia solo. Existe un motor
-de duelo estructural, todavía sin conectar a la cámara. Siguen sin haber
-modelos 3D. Un análisis completo tarda unos 0.2 s en vivo con una GPU NVIDIA
-(RTX 4070) y entre 1 y 4 segundos en el CPU de una laptop. Los
-detalles honestos están en [Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
+**Estado, 28 de septiembre de 2026:** prototipo funcional de un duelo AR sobre
+una mesa real. La cámara reconoce las cartas en todo el catálogo (unas 14,800),
+la vista de duelo dibuja zonas, puntos de vida y fases sobre el vídeo, y
+monstruos, magias y trampas tienen efectos propios de entrada, ataque y
+destrucción. Las cartas boca abajo se detectan por su reverso, incluidas las
+fundas que el jugador enseña, y un escudo del Milenio girando marca a los
+defensores boca abajo. El motor de duelo trabaja como notario: registra las
+jugadas y avisa de problemas de reglas en lugar de bloquearlas. Las cartas sin
+sprite hecho a mano reciben un recorte automático. Un análisis completo tarda
+unos 0.2 s en vivo con una GPU NVIDIA (RTX 4070) y entre 1 y 4 segundos en el
+CPU de una laptop. Los detalles honestos están en [Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
 
 Este proyecto necesita ayuda. Fotos de cartas reales, pruebas en otras cámaras
 y computadoras, modelos 3D, código o documentación: todo cuenta. Ver
@@ -56,8 +58,8 @@ Para llegar ahí hacen falta piezas que ya existen por separado y otras que no:
 4. **Catálogo.** Un registro local con todas las cartas, sus nombres en varios
    idiomas, sus impresiones y sus artes.
 5. **Capa AR.** Dibujar sobre el vídeo lo que corresponde, alineado con la carta.
-6. **Motor de duelo.** Zonas, fases, puntos de vida y reglas. Esta pieza aún
-   no existe en el repositorio.
+6. **Motor de duelo.** Zonas, fases, puntos de vida y jugadas, registradas a
+   partir de lo que ve la cámara y confirmadas por los jugadores.
 
 ## Qué funciona hoy y qué no
 
@@ -90,9 +92,27 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
   de set, rarezas y ediciones, con procedencia de cada dato.
 - Visor web con cámara de teléfono por IP Webcam, coordinación entre pestañas
   y capturas guardadas para anotar.
-- Motor de duelo (zonas, fases, puntos de vida, batalla, registro de eventos,
-  deshacer) con conciliación de lo que observa la cámara. Sólo reglas
-  estructurales, sin efectos de cartas, y aún sin conectar al reconocedor.
+- Vista de duelo conectada a la cámara (`/duel`): tapete imprimible con
+  marcadores ArUco o tablero virtual ajustable, barra de fases, puntos de vida,
+  ataques por clic o gesto, y jugadas deducidas de lo que aparece en la mesa
+  (invocaciones Normal, por Sacrificio, Sincronía, Xyz, Enlace, Fusión y
+  Ritual con sus materiales, colocar y voltear). El motor (`duel_engine.py`)
+  lleva un registro de eventos con deshacer; en modo notario los problemas de
+  reglas son avisos, no bloqueos.
+- Detección de cartas boca abajo comparando cada zona con reversos: el reverso
+  oficial y las fundas enseñadas con un botón, en cuatro orientaciones.
+- El nombre impreso como segundo voto: cuando el arte solo es ambiguo (Ghost
+  Rare, Starlight, reflejos), el OCR del título decide entre los cinco
+  primeros candidatos visuales.
+- Efectos AR por tipo de carta (invocación, magia, trampa, colocar, ataque,
+  destrucción, puntos de vida) con luz, partículas y sacudida; las entradas
+  empiezan cuando la cámara ve llegar la carta.
+- Sprites automáticos: recortes del arte con BiRefNet en la GPU (unos 0.45 s
+  por carta) y un crítico que reintenta o rechaza los malos; unos 7,000
+  generados hasta ahora.
+- Ficha de la carta en la vista de duelo con categorías de efecto y el texto
+  separado en costo, condición y efecto, tomadas de los scripts de EDOPro (el
+  proyecto hermano `ygo-deckforge` construye esa tabla).
 
 No funciona todavía, o no está medido:
 
@@ -108,9 +128,13 @@ No funciona todavía, o no está medido:
 - **Umbrales.** Los métodos ONNX aceptan o rechazan con umbrales
   experimentales; hay una calibración contra escaneos de TCGplayer en
   `research/CALIBRACION_ESCANEOS.md`.
-- **3D y reglas.** No hay modelos 3D, ni oclusión, ni efectos de cartas, ni
-  multijugador.
-- **GPU.** Todo se ha probado en una laptop con gráficos Intel integrados.
+- **3D y reglas.** No hay modelos 3D ni oclusión. Los efectos de cartas se
+  muestran y clasifican, pero los resuelven los jugadores, no el motor. Aún no
+  hay duelo remoto (el plan está en `research/DUELO_REMOTO.md`).
+- **A dónde van las cartas.** Todavía no se sigue una carta que sale de su zona
+  hacia el Cementerio, la mano o el mazo; la vista muestra lo que ve la cámara.
+- **Hardware.** Probado en una laptop con gráficos Intel integrados y una PC
+  con RTX 4070.
 
 ## Cómo funciona por dentro
 
@@ -144,7 +168,7 @@ Principios que el código respeta y que conviene conservar:
 
 ## Historia del proyecto
 
-El repositorio tiene tres días de vida intensa. Lo que sigue es la cronología
+El repositorio tiene cinco días de vida intensa. Lo que sigue es la cronología
 tal como quedó registrada en los documentos de `research/`.
 
 ### 24 de septiembre de 2026: revisión inicial
@@ -207,7 +231,44 @@ inscripción de cartas fotografiadas, un primer motor de duelo
 umbrales contra escaneos de TCGplayer e integración continua
 ([docs/CI.md](docs/CI.md)).
 
+### 27 de septiembre de 2026: la PC con GPU y la vista de duelo
+
+El proyecto pasó a una PC con RTX 4070 (`setup_gpu.ps1`,
+[docs/ARRANQUE_GPU.md](docs/ARRANQUE_GPU.md)). El reconocimiento se abrió al
+catálogo completo y apareció una vista de duelo aparte: tapete imprimible con
+marcadores ArUco o tablero virtual sobre el vídeo, barra de fases, puntos de
+vida, batalla por clic o gesto, tipos de invocación con materiales deducidos,
+cartas boca abajo y volteo.
+
+### 28 de septiembre de 2026: efectos, reversos y modo notario
+
+El motor de duelo pasó a ser notario: los problemas de reglas quedan como
+avisos en el registro y deciden los jugadores
+([MOTOR_DE_DUELO.md](research/MOTOR_DE_DUELO.md); plan de duelo remoto en
+[DUELO_REMOTO.md](research/DUELO_REMOTO.md)). La vista ahora sigue a la
+cámara: las entradas se disparan cuando se ve llegar la carta y las figuras
+boca abajo aparecen donde se ve un reverso. Nuevo hoy: motor de efectos por
+tipo de carta, fundas enseñadas en cuatro orientaciones, el nombre impreso
+como segundo voto para cartas Ghost Rare, recortes automáticos con BiRefNet y
+un crítico, categorías de efecto y texto de costo/efecto desde los scripts de
+EDOPro, y un escudo del Milenio que gira sobre los defensores boca abajo.
+
 ## Capturas
+
+![Un monstruo en defensa boca abajo con el escudo del Milenio girando encima: frente, canto, reverso y frente otra vez](docs/img/escudo-milenio-giro.jpg)
+
+El escudo del Milenio gira despacio sobre los monstruos en defensa boca abajo.
+El giro se calcula a partir de una vista de frente y una de reverso, con un
+canto dorado en el perfil.
+
+![Cuadros de los efectos de invocación y ataque: círculo mágico y columna de luz para Mago Oscuro, luego un tajo dorado e impacto sobre Dragón Blanco de Ojos Azules](docs/img/efectos-invocacion-ataque.jpg)
+
+Efectos de invocación y ataque sobre una mesa sintética, cuadro por cuadro.
+
+| | |
+|---|---|
+| ![Ficha de Vampira Chupasangre en español: tipo, ATK y rango Link, etiquetas de categoría Invocación Especial y Robar, y el efecto separado en objetivo, qué hace y condición](docs/img/ficha-costo-efecto.png) | ![Comparación de recortes: arte original y cuatro modelos de quitar fondo lado a lado; BiRefNet conserva la figura completa](docs/img/recortes-automaticos.jpg) |
+| Ficha de la carta en la vista de duelo: categorías desde los scripts de EDOPro y el texto separado en costo, objetivo, efecto y condición. | Recortes automáticos: el arte y cuatro modelos comparados. Se eligió BiRefNet, que corre en la GPU. |
 
 | | |
 |---|---|
@@ -322,9 +383,11 @@ per-instance tracking, and 2D AR sprites composited in the browser. The
 multilingual registry (EN/ES/DE/FR/PT) lives in SQLite and was built from
 YGOJSON, Konami's Neuron database and TCGplayer scans.
 
-What does not work yet: real-time speed (analysis takes 1 to 4 s on CPU),
-calibrated accuracy on a broad real-card set, 3D models, occlusion, and duel
-rules. Everything has been tested on one laptop with integrated graphics.
+Since September 27 it also has a duel view over the live camera: phases,
+life points, battle, inferred summons, face-down detection by card back,
+per-type AR effects, automatic cut-out sprites and a notary-mode duel engine.
+What does not work yet: calibrated accuracy on a broad real-card set, 3D
+models, occlusion, resolving card effects, and remote duels.
 
 Help wanted: photos of real cards in five languages, tests on other hardware,
 3D monster models with clear licenses, a duel rules engine, GPU training, and
