@@ -67,83 +67,42 @@ function drawCards(context,cards){
 
 // Face-down cards have no track (the detector does not see card backs): their zone gets the marks.
 let teachingBack=false,renderedDuel=null;
-// A face-down Defense Position monster gets a generic figure (never its identity). Three styles
-// to compare with the "Boca abajo" button: holographic shield, hooded silhouette, standing card back.
-const FD_STYLES=[['millennium','Escudo del Milenio'],['shield','Escudo'],['silhouette','Silueta'],['card','Carta de pie']];
-let fdStyle=(()=>{try{const s=localStorage.getItem('fdStyle');return FD_STYLES.some(f=>f[0]===s)?s:'millennium';}catch(e){return 'millennium';}})();
-// Millennium shield turning on its vertical axis: a strip of 15 poses (web/fx, made by
-// research/make_shield_strip.py). The 15th pose repeats the 1st, so the loop plays 14.
-const millennium={image:null,meta:null};
-(()=>{const img=new Image();img.onload=()=>{millennium.image=img;};img.src='/fx/shield-millennium.png';
-  fetch('/fx/shield-millennium.json').then(r=>r.ok?r.json():null).then(m=>{millennium.meta=m;}).catch(()=>{});})();
-const MILLENNIUM_TURN_MS=5200;
-function fdButtonLabel(){const b=$d('#fdStyle');if(b)b.textContent='Boca abajo: '+FD_STYLES.find(s=>s[0]===fdStyle)[1];}
-function hexPath(context,cx,cy,r){context.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*.9*Math.sin(a));}context.closePath();}
-function drawFacedownFigure(context,polygon,now,seed,appear=1){
-  const H=cardMap(polygon),[cx,cy]=H(.5,.5),l=H(0,.5),r=H(1,.5),w=Math.hypot(r[0]-l[0],r[1]-l[1]);
-  const g={H,center:[cx,cy],width:w*.72};
-  const pulse=.5+.5*Math.sin(now/700+seed),bob=Math.sin(now/900+seed)*w*.025,a=clamp(appear),pop=.6+.4*ease.back(a);
-  // Contact shadow and a warm pool of light, like every figure on the table.
-  context.save();const sh=context.createRadialGradient(cx,cy,0,cx,cy,w*.5);sh.addColorStop(0,`rgba(0,0,0,${.45*a})`);sh.addColorStop(1,'rgba(0,0,0,0)');
-  context.fillStyle=sh;planeEllipse(context,H,.95);context.fill();context.restore();
-  const tone=fdStyle==='silhouette'?[181,140,255]:RGB.back;
-  glow(context,cx,cy,w*.6,tone,(.18+.08*pulse)*a);
-  if(Math.random()<.04*a){const [x,y]=onPlane(g,Math.random()*6.28,Math.random()*.9);emit({x,y,vx:0,vy:-(.02+.03*Math.random())*w/100,life:1500,size:w*.02,color:tone,fadeIn:.3});}
-  context.save();context.globalAlpha=a;
-  if(fdStyle==='millennium'&&millennium.image&&millennium.meta){
-    // The shield floats over the card and turns slowly; a gold light behind it.
-    const m=millennium.meta,loop=m.frames-1,k=Math.floor(((now+seed*977)%MILLENNIUM_TURN_MS)/MILLENNIUM_TURN_MS*loop)%loop;
-    const hgt=w*.95*pop,wid=hgt*m.cell_width/m.height,y=Math.max(hgt/2,cy-w*.22)+bob;
-    glow(context,cx,y,w*.55,[255,200,90],(.2+.08*pulse)*a);
-    context.drawImage(millennium.image,k*m.cell_width,0,m.cell_width,m.height,cx-wid/2,y-hgt/2,wid,hgt);
-    // A faint light sweeping over it every turn.
-    context.globalCompositeOperation='lighter';context.globalAlpha=a*.25*Math.max(0,Math.sin((now+seed*977)/MILLENNIUM_TURN_MS*Math.PI*2));
-    context.drawImage(millennium.image,k*m.cell_width,0,m.cell_width,m.height,cx-wid/2,y-hgt/2,wid,hgt);
-  }else if(fdStyle==='shield'||fdStyle==='millennium'){
-    // A hexagonal crystal shield holding the back's swirl, a light sweeping across it.
-    const y=Math.max(w*.45,cy-w*.2)+bob,s=w*.36*pop;
-    const grad=context.createRadialGradient(cx,y-s*.2,s*.05,cx,y,s);grad.addColorStop(0,'rgba(10,4,1,.92)');grad.addColorStop(.55,'rgba(70,30,8,.85)');grad.addColorStop(1,'rgba(200,110,35,.7)');
-    hexPath(context,cx,y,s);context.fillStyle=grad;context.fill();
-    context.save();hexPath(context,cx,y,s);context.clip();
-    context.lineCap='round';
-    for(let k=0;k<4;k++){context.beginPath();context.ellipse(cx,y,s*(.18+.17*k),s*(.13+.13*k),now/(1300+k*300)+k,0,Math.PI*(1.1+.1*k));litStroke(context,RGB.back,.55+.2*pulse,Math.max(1.2,w/60));}
-    const sweep=((now/1800+seed)%1)*s*4-s*2,hl=context.createLinearGradient(cx+sweep-s*.35,0,cx+sweep+s*.35,0);
-    hl.addColorStop(0,'rgba(255,230,200,0)');hl.addColorStop(.5,'rgba(255,230,200,.45)');hl.addColorStop(1,'rgba(255,230,200,0)');
-    context.globalCompositeOperation='lighter';context.fillStyle=hl;context.fillRect(cx-s,y-s,s*2,s*2);context.restore();
-    hexPath(context,cx,y,s);litStroke(context,RGB.back,.9,Math.max(2,w/30));
-    hexPath(context,cx,y,s*.84);litStroke(context,RGB.back,.35,Math.max(1,w/70));
-    glow(context,cx,y,s*.35,[255,200,120],.25+.15*pulse);
-  }else if(fdStyle==='silhouette'){
-    // A hooded figure crouched behind a round shield: rim light, glowing eyes, mist at its feet.
-    const base=cy+w*.05,hgt=w*.95*pop,top=Math.max(w*.1,base-hgt)+bob;
-    glow(context,cx,top+hgt*.45,w*.55,[181,140,255],.22+.08*pulse);
-    const body=context.createLinearGradient(cx,top,cx,base);body.addColorStop(0,'rgba(34,22,58,.96)');body.addColorStop(1,'rgba(12,8,22,.96)');
-    context.beginPath();context.moveTo(cx-w*.3,base);context.quadraticCurveTo(cx-w*.27,top+hgt*.35,cx,top+hgt*.06);context.quadraticCurveTo(cx+w*.27,top+hgt*.35,cx+w*.3,base);context.closePath();
-    context.fillStyle=body;context.fill();litStroke(context,[181,140,255],.55,Math.max(1.5,w/50));
-    context.beginPath();context.ellipse(cx,top+hgt*.2,w*.12,w*.14,0,0,Math.PI*2);context.fillStyle='rgba(8,5,16,.97)';context.fill();litStroke(context,[181,140,255],.45,Math.max(1,w/60));
-    for(const ex of [-1,1]){glow(context,cx+ex*w*.042,top+hgt*.21,w*.05,[255,70,120],.8+.2*pulse);}
-    const sh2=context.createRadialGradient(cx+w*.05,top+hgt*.58,w*.02,cx+w*.05,top+hgt*.62,w*.24);sh2.addColorStop(0,'rgba(90,70,140,.95)');sh2.addColorStop(1,'rgba(40,28,70,.95)');
-    context.beginPath();context.ellipse(cx+w*.05,top+hgt*.62,w*.2,w*.24,0,0,Math.PI*2);context.fillStyle=sh2;context.fill();litStroke(context,[181,140,255],.9,Math.max(2,w/32));
-    context.beginPath();context.ellipse(cx+w*.05,top+hgt*.62,w*.1,w*.12,now/1200,0,Math.PI*1.3);litStroke(context,[181,140,255],.5,Math.max(1,w/60));
-  }else{
-    // The card back standing up, turned sideways (Defense Position), tilted toward the camera.
-    const cw=w*.64*pop,ch=cw*.69,y=Math.max(ch/2,cy-w*.24)+bob;
-    context.save();context.translate(cx,y);context.transform(1,0,Math.sin(now/1400+seed)*.08,1,0,0);
-    context.shadowColor='rgba(0,0,0,.5)';context.shadowBlur=w/12;context.shadowOffsetY=w/30;
-    const frameG=context.createLinearGradient(-cw/2,-ch/2,cw/2,ch/2);frameG.addColorStop(0,'#d98a3a');frameG.addColorStop(1,'#8a4312');
-    context.fillStyle=frameG;context.fillRect(-cw/2,-ch/2,cw,ch);context.shadowColor='transparent';
-    const inner=context.createRadialGradient(0,0,0,0,0,cw*.55);inner.addColorStop(0,'#040100');inner.addColorStop(.55,'#2a1206');inner.addColorStop(1,'#6a3210');
-    context.fillStyle=inner;context.fillRect(-cw/2+cw*.05,-ch/2+cw*.05,cw*.9,ch-cw*.1);
-    context.save();context.beginPath();context.rect(-cw/2+cw*.05,-ch/2+cw*.05,cw*.9,ch-cw*.1);context.clip();context.lineCap='round';
-    for(let k=0;k<5;k++){context.beginPath();context.ellipse(0,0,cw*(.08+.085*k),ch*(.08+.075*k),.6+now/(3200+k*400),0,Math.PI*1.5);litStroke(context,[255,150,60],.55,Math.max(1,w/70));}
-    const sweep=((now/2000+seed)%1)*cw*3-cw*1.5,hl=context.createLinearGradient(sweep-cw*.25,-ch/2,sweep+cw*.25,ch/2);
-    hl.addColorStop(0,'rgba(255,255,255,0)');hl.addColorStop(.5,'rgba(255,240,220,.35)');hl.addColorStop(1,'rgba(255,255,255,0)');
-    context.globalCompositeOperation='lighter';context.fillStyle=hl;context.fillRect(-cw/2,-ch/2,cw,ch);context.restore();
-    context.beginPath();context.rect(-cw/2,-ch/2,cw,ch);litStroke(context,RGB.back,.6+.3*pulse,Math.max(1.5,w/45));
-    context.restore();
-  }
+// A face-down Defense Position monster shows the Millennium shield turning (never its identity).
+// The user's sheet was not one steady turn (research/analyze_shield_sheet.py), so only its true
+// front and back views are used and the turn is computed here: width = |cos angle|, the gold rim
+// shows as the shield comes edge-on, shading follows the angle. Smooth at any speed.
+const millennium={front:null,back:null};
+for(const side of ['front','back']){const img=new Image();img.onload=()=>{millennium[side]=img;};img.src=`/fx/shield-millennium-${side}.png`;}
+const MILLENNIUM_TURN_MS=6000,RIM=[200,146,52];
+function drawMillennium(context,cx,cy,height,angle,alpha){
+  const {front,back}=millennium;if(!front||!back)return;
+  const c=Math.cos(angle),s=Math.sin(angle),face=c>=0?front:back,width=height*face.width/face.height;
+  const thick=height*.07*Math.abs(s),dir=Math.sign(s)*Math.sign(c||1),squash=Math.max(.02,Math.abs(c));
+  context.save();context.globalAlpha=alpha;context.translate(cx,cy);
+  // Rim: the gold silhouette pushed out sideways, so the shield has a thickness when it turns.
+  const rim=silhouette(face,rgba(RIM,1),0).canvas,steps=Math.max(1,Math.ceil(thick/2));
+  for(let i=steps;i>=1;i--){const off=-dir*thick*i/steps;context.save();context.translate(off,0);context.scale(squash,1);
+    context.globalAlpha=alpha*(.75+.25*(1-i/steps));context.drawImage(rim,-width/2,-height/2,width,height);context.restore();}
+  context.save();context.scale(squash,1);context.drawImage(face,-width/2,-height/2,width,height);
+  // Shading: darker as it turns away; a highlight as it faces the camera.
+  const dark=silhouette(face,'#000000',0).canvas;context.globalAlpha=alpha*.45*(1-Math.abs(c));context.drawImage(dark,-width/2,-height/2,width,height);
+  const white=silhouette(face,'#ffffff',0).canvas;context.globalCompositeOperation='lighter';context.globalAlpha=alpha*.22*Math.pow(Math.max(0,Math.abs(c)-.8)/.2,2);
+  context.drawImage(white,-width/2,-height/2,width,height);context.restore();
   context.restore();
 }
+function drawFacedownFigure(context,polygon,now,seed,appear=1){
+  const H=cardMap(polygon),[cx,cy]=H(.5,.5),l=H(0,.5),r=H(1,.5),w=Math.hypot(r[0]-l[0],r[1]-l[1]);
+  const pulse=.5+.5*Math.sin(now/700+seed),bob=Math.sin(now/900+seed)*w*.025,a=clamp(appear),pop=.6+.4*ease.back(a);
+  // Contact shadow, a warm pool of light and a few motes, like every figure on the table.
+  context.save();const sh=context.createRadialGradient(cx,cy,0,cx,cy,w*.5);sh.addColorStop(0,`rgba(0,0,0,${.45*a})`);sh.addColorStop(1,'rgba(0,0,0,0)');
+  context.fillStyle=sh;planeEllipse(context,H,.95);context.fill();context.restore();
+  glow(context,cx,cy,w*.6,RGB.back,(.18+.08*pulse)*a);
+  if(Math.random()<.04*a){const [x,y]=onPlane({H},Math.random()*6.28,Math.random()*.9);emit({x,y,vx:0,vy:-(.02+.03*Math.random())*w/100,life:1500,size:w*.02,color:RGB.back,fadeIn:.3});}
+  const hgt=w*.95*pop,y=Math.max(hgt/2,cy-w*.22)+bob,angle=((now+seed*977)%MILLENNIUM_TURN_MS)/MILLENNIUM_TURN_MS*Math.PI*2;
+  glow(context,cx,y,w*.55,[255,200,90],(.2+.08*pulse)*a);
+  drawMillennium(context,cx,y,hgt,angle,a);
+}
+function hexPath(context,cx,cy,r){context.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*.9*Math.sin(a));}context.closePath();}
 // Face-down figures and marks come from the backs the camera sees now (duel view `backs_seen`),
 // not from what the duel recorded. A back seen for the first time plays its entrance ('set').
 const backArrived=new Map(),pageStart=performance.now();
@@ -571,12 +530,6 @@ function drawBattle(context){
 
 // Extra Deck of 15 each, so Synchro/Xyz/Fusion/Link placed on the field come out of it.
 $d('#startDuel').onclick=()=>duelAct({type:'start_duel',names:[$d('#name0').value||'Jugador 1',$d('#name1').value||'Jugador 2'],starting:Number($d('#starting').value),extra_deck_sizes:[15,15]});
-$d('#fdStyle').onclick=()=>{
-  const i=FD_STYLES.findIndex(s=>s[0]===fdStyle);fdStyle=FD_STYLES[(i+1)%FD_STYLES.length][0];
-  try{localStorage.setItem('fdStyle',fdStyle);}catch(e){}
-  fdButtonLabel();renderedAR=null;
-};
-fdButtonLabel();
 $d('#teachBack').onclick=()=>{teachingBack=true;duelMessage('Pon una carta boca abajo en una zona y haz clic en esa zona en el vídeo.');};
 $d('#forgetBacks').onclick=()=>{if(confirm('¿Olvidar los reversos enseñados? El reverso oficial se sigue reconociendo.'))duelAct({type:'forget_backs'});};
 $d('#nextPhase').onclick=nextPhase;

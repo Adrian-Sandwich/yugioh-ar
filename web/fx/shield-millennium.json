@@ -1,23 +1,14 @@
 {
-  "frames": 15,
-  "cell_width": 200,
-  "height": 256,
-  "widths": [
-    185,
-    126,
-    105,
-    48,
-    68,
-    74,
-    68,
-    181,
-    96,
-    63,
-    44,
-    78,
-    133,
-    150,
-    196
-  ],
-  "source": "Hoja generada por el usuario con ChatGPT, 28/09/2026"
+  "front": {
+    "pose": 15,
+    "width": 196,
+    "height": 256
+  },
+  "back": {
+    "pose": 8,
+    "width": 181,
+    "height": 256
+  },
+  "source": "Hoja generada por el usuario con ChatGPT, 28/09/2026",
+  "note": "S\u00f3lo las vistas de frente y reverso; el giro lo calcula web/duel.js"
 }

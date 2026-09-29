@@ -1,11 +1,17 @@
-"""Millennium shield sprite sheet (black background, 15 poses of one turn) -> web/fx/shield-millennium.png.
+"""Millennium shield: the two usable views of the user's sheet -> web/fx/shield-millennium-{front,back}.png.
 
-The sheet is two rows (8 + 7 poses) of a shield turning 360 degrees on its vertical axis. Each
-pose is cut out, its black background made transparent without eating the dark wood of the back
-(the silhouette is the region connected to the pose, holes filled, not a brightness key), scaled
-to one height (the later poses are drawn larger) and centred in equal cells of one horizontal strip.
+The sheet (15 poses on black) is not one steady turn (research/analyze_shield_sheet.py,
+28/09/2026): steps of 35, 9 and 22 degrees, three poses stuck near 100 degrees (one going back),
+a jump of about 80 degrees, poses 2 and 3 turning opposite ways, pose 5 showing face and back at
+once, heights drifting from 295 to 314 px, and pose 1 not facing (about 22 degrees). Played in
+order it stutters. Only the true front (pose 15) and the full back (pose 8) are kept; the duel
+view turns them itself (width = |cos angle|, rim thickness at the edge, shading), which is smooth
+at any speed and needs two images instead of fifteen.
 
-    python research/make_shield_strip.py "<sheet.png>"  -> web/fx/shield-millennium.png + .json
+Each pose is cut out without eating the dark wood of the back (silhouette with holes filled,
+not a brightness key) and scaled to one height.
+
+    python research/make_shield_strip.py "<sheet.png>"
 """
 import json, sys
 from pathlib import Path
@@ -14,6 +20,7 @@ import cv2, numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'web/fx'
 HEIGHT = 256
+FRONT, BACK = 15, 8   # 1-based pose numbers in reading order (row 1 left to right, then row 2)
 
 
 def poses(sheet):
@@ -22,8 +29,7 @@ def poses(sheet):
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
     n, labels, stats, _ = cv2.connectedComponentsWithStats(mask, 8)
     boxes = [tuple(stats[i][:4]) for i in range(1, n) if stats[i][cv2.CC_STAT_AREA] > 3000]
-    rows = sorted(boxes, key=lambda b: b[1])
-    split = np.mean([b[1] for b in rows])
+    split = np.mean([b[1] for b in boxes])
     top = sorted([b for b in boxes if b[1] < split], key=lambda b: b[0]); bottom = sorted([b for b in boxes if b[1] >= split], key=lambda b: b[0])
     return top + bottom
 
@@ -31,8 +37,7 @@ def poses(sheet):
 def cutout(sheet, box):
     x, y, w, h = box; pad = 6
     crop = sheet[max(0, y - pad):y + h + pad, max(0, x - pad):x + w + pad]
-    bright = crop.max(axis=2)
-    solid = (bright > 18).astype(np.uint8)
+    solid = (crop.max(axis=2) > 18).astype(np.uint8)
     solid = cv2.morphologyEx(solid, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     # Fill holes: everything not reachable from the border through background belongs to the shield.
     flood = (1 - solid).copy(); ff = np.zeros((flood.shape[0] + 2, flood.shape[1] + 2), np.uint8)
@@ -48,19 +53,17 @@ def cutout(sheet, box):
 
 
 def main():
-    sheet = cv2.imread(sys.argv[1])
-    frames = [cutout(sheet, b) for b in poses(sheet)]
-    if len(frames) != 15: raise SystemExit(f'Se esperaban 15 poses, hay {len(frames)}')
-    scaled = [cv2.resize(f, (max(1, round(f.shape[1] * HEIGHT / f.shape[0])), HEIGHT), interpolation=cv2.INTER_AREA) for f in frames]
-    cell = max(f.shape[1] for f in scaled) + 4
-    strip = np.zeros((HEIGHT, cell * len(scaled), 4), np.uint8)
-    for i, f in enumerate(scaled):
-        x0 = i * cell + (cell - f.shape[1]) // 2; strip[:, x0:x0 + f.shape[1]] = f
-    OUT.mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(str(OUT / 'shield-millennium.png'), strip, [cv2.IMWRITE_PNG_COMPRESSION, 9])
-    (OUT / 'shield-millennium.json').write_text(json.dumps({'frames': len(scaled), 'cell_width': cell, 'height': HEIGHT,
-        'widths': [f.shape[1] for f in scaled], 'source': 'Hoja generada por el usuario con ChatGPT, 28/09/2026'}, indent=2), encoding='utf-8')
-    print('ok', len(scaled), 'cuadros; celda', cell, 'x', HEIGHT, '; anchos', [f.shape[1] for f in scaled])
+    sheet = cv2.imread(sys.argv[1]); found = poses(sheet)
+    if len(found) != 15: raise SystemExit(f'Se esperaban 15 poses, hay {len(found)}')
+    OUT.mkdir(parents=True, exist_ok=True); meta = {}
+    for name, number in (('front', FRONT), ('back', BACK)):
+        view = cutout(sheet, found[number - 1])
+        view = cv2.resize(view, (round(view.shape[1] * HEIGHT / view.shape[0]), HEIGHT), interpolation=cv2.INTER_AREA)
+        cv2.imwrite(str(OUT / f'shield-millennium-{name}.png'), view, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+        meta[name] = {'pose': number, 'width': view.shape[1], 'height': HEIGHT}
+    (OUT / 'shield-millennium.json').write_text(json.dumps({**meta, 'source': 'Hoja generada por el usuario con ChatGPT, 28/09/2026',
+        'note': 'Sólo las vistas de frente y reverso; el giro lo calcula web/duel.js'}, indent=2), encoding='utf-8')
+    print('ok', meta)
 
 
 if __name__ == '__main__':
