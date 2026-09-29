@@ -29,10 +29,10 @@ def main():
         calls = 0
         title_calls = 0
         fail_title = False
-        def read(self, image):
+        def read(self, image, **_):
             self.calls += 1
             return None, False, []
-        def read_name(self,image):
+        def read_name(self,image,**_):
             self.title_calls += 1
             if self.fail_title:raise RuntimeError('Controlled title OCR failure')
             return {'status':'unreadable','text':None,'matches':[]}

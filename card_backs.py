@@ -34,6 +34,10 @@ THRESHOLD = .45
 # face-up cards score <= 0.15 against the backs, taught and official backs 0.75-0.999.
 STRONG = .75
 SIZE = 224
+# A zone's score is reused while its 16x16 grey thumbnail stays within this mean difference (camera
+# noise is 1-2 levels; a card set or lifted changes it by tens), for at most REUSE_MAX_S.
+REUSE_MAX_DIFF = 4.0
+REUSE_MAX_S = 2.0
 
 
 def zone_crop(image, polygon):
@@ -109,6 +113,7 @@ class BackChecker:
     """Scores zones against the back references with the recognizer's encoder."""
     def __init__(self, encoder):
         self.encoder = encoder; self.signature = None; self.vectors = None; self.downloaded = False
+        self.recent = {}   # zone id -> (polygon, 16x16 grey thumbnail, score, time): unchanged zones skip the encoder
 
     def _load(self):
         if not self.downloaded: ensure_official(); self.downloaded = True
@@ -122,7 +127,7 @@ class BackChecker:
             # taught upright in a Spell & Trap Zone must still match sideways in a Monster Zone.
             crops += [np.ascontiguousarray(np.rot90(image, k)) for k in range(4)] if e.get('kind') == 'taught' else official_crops(image)
         self.vectors = np.stack([z for _, z in self.encoder.predict_batch(crops, classify=False)]) if crops else None
-        self.signature = signature
+        self.signature = signature; self.recent = {}
 
     def check(self, image, zones, occupied=()):
         """`zones`: [{'id', 'polygon'}]; zones whose polygon contains a point of `occupied` (centres of
@@ -131,8 +136,21 @@ class BackChecker:
         if self.vectors is None or not zones: return []
         todo = [z for z in zones if not any(cv2.pointPolygonTest(np.float32(z['polygon']).reshape(-1, 1, 2), (float(x), float(y)), False) >= 0 for x, y in occupied)]
         if not todo: return []
-        encoded = self.encoder.predict_batch([zone_crop(image, z['polygon']) for z in todo], classify=False)
-        return [{'id': z['id'], 'score': round(float((self.vectors @ v).max()), 3)} for z, (_, v) in zip(todo, encoded)]
+        # A zone whose picture has not changed keeps its score: the encoder ran on all 22 zones every
+        # analysis (27-40 ms live) though the table is still most of the time.
+        now = time.monotonic(); scores = {}; fresh = []
+        for z in todo:
+            crop = zone_crop(image, z['polygon'])
+            thumb = cv2.resize(cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY), (16, 16), interpolation=cv2.INTER_AREA).astype(np.float32)
+            key = np.round(np.float32(z['polygon']))
+            seen = self.recent.get(z['id'])
+            if seen and np.array_equal(seen[0], key) and now - seen[3] <= REUSE_MAX_S and float(np.abs(seen[1] - thumb).mean()) <= REUSE_MAX_DIFF:
+                scores[z['id']] = seen[2]
+            else: fresh.append((z, crop, thumb, key))
+        if fresh:
+            for (z, _, thumb, key), (_, v) in zip(fresh, self.encoder.predict_batch([c for _, c, _, _ in fresh], classify=False)):
+                scores[z['id']] = round(float((self.vectors @ v).max()), 3); self.recent[z['id']] = (key, thumb, scores[z['id']], now)
+        return [{'id': z['id'], 'score': scores[z['id']]} for z in todo]
 
 
 if __name__ == '__main__':

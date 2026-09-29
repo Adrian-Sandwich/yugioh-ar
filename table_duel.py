@@ -441,7 +441,7 @@ class TableDuel:
         return not self._material_pool(p['player'])[0]
 
     def _rollback(self, length):
-        while len(self.duel.log) > length: self.duel.undo()
+        if len(self.duel.log) > length: self.duel.truncate(length)
 
     def _to_main_phase(self, player):
         """Placing a card during your own Draw or Standby Phase means you are in your Main Phase:
@@ -462,7 +462,7 @@ class TableDuel:
         def attempt(n, allow_warnings):
             """Apply play n; None if the engine refuses it (or, first pass, only accepts it with warnings)."""
             event = dict(plays[n][0]); reclaim = event.pop('_reclaim', []); used = event.pop('_with', None)
-            saved = list(self.duel.log); start = len(saved)
+            saved = list(self.duel.log); start = len(saved); backup = self.duel.clone()
             try:
                 if reclaim:
                     # The materials had already gone to the Graveyard on their own: undo those plays and
@@ -475,9 +475,9 @@ class TableDuel:
                 if event['type'] in SUMMON_EVENTS: self._to_main_phase(event['player'])
                 self.act(event, record=False)
             except DuelError:
-                self.duel = Duel.replay(saved); return None
+                self.duel = backup; return None
             warnings = [w for e in self.duel.log[start:] for w in e.get('warnings', [])]
-            if warnings and not allow_warnings: self.duel = Duel.replay(saved); return None
+            if warnings and not allow_warnings: self.duel = backup; return None
             return event, reclaim, used, start, warnings
         # Notary mode accepts almost anything with a warning: prefer the first play that breaks no rule
         # (a second Normal Summon is more likely a Special Summon), then the first one at all.
@@ -517,7 +517,7 @@ class TableDuel:
             if play is None: raise ValueError('Esa jugada ya no se puede cambiar')
             later = [r for r in self.recent if r['start'] > play['start']]
             if later: raise ValueError('Hay jugadas posteriores: cámbialas primero o usa Deshacer')
-            saved = list(self.duel.log); self._rollback(play['start']); self.recent.remove(play)
+            backup = self.duel.clone(); self._rollback(play['start']); self.recent.remove(play)
             if replacement:
                 p = play['pending']
                 if replacement.startswith('play:'):
@@ -537,7 +537,7 @@ class TableDuel:
                     if event['type'] in SUMMON_EVENTS: self._to_main_phase(p['player'])
                     self.act(event, record=False)
                 except DuelError:
-                    self.duel = Duel.replay(saved); self.recent.append(play); self.recent.sort(key=lambda r: -r['start']); raise
+                    self.duel = backup; self.recent.append(play); self.recent.sort(key=lambda r: -r['start']); raise
             else:
                 # Undone: the materials are back on the field, unseen, and may go to the Graveyard on their own again.
                 unused = set(play.get('materials') or [])
@@ -601,7 +601,7 @@ class TableDuel:
         stats = lambda c: f"ATK {c['atk']}" if c['position'] == 'attack' else f"DEF {c['def'] if c['def'] is not None else '?'}"
         text = f"{a['name'] or 'Monstruo'} (ATK {a['atk']}) ataca " + (f"a {t['name'] or 'un monstruo boca abajo'} ({stats(t)})" if t else 'directamente')
         try:
-            result = Duel.replay(self.duel.log).resolve_battle()
+            result = self.duel.clone().resolve_battle()
         except DuelError as error:
             return {'text': text, 'outcome': None, 'problem': str(error)}
         parts = []

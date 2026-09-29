@@ -135,10 +135,10 @@ class TitleReader:
     def __init__(self,engine,registry=None):
         self.engine=engine;self.registry=registry if registry is not None else NameRegistry()
 
-    def read(self,rectified):
+    def read(self,rectified,turns=(0,2)):
         observations=[]
         available=self.registry.refresh()
-        for turns in (0,2):
+        for turns in turns:
             oriented=np.ascontiguousarray(np.rot90(rectified,turns));h,w=oriented.shape[:2]
             for variant,box in (('original',NAME_REGION),('tight_contrast',NAME_TIGHT_REGION)):
                 x0,y0,x1,y1=box;crop=oriented[round(y0*h):round(y1*h),round(x0*w):round(x1*w)].copy()

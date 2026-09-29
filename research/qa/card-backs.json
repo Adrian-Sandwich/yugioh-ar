@@ -1,21 +1,21 @@
 {
   "status": "passed",
   "date": "2026-09-28",
-  "encoder": "fp16",
+  "encoder": "int8",
   "threshold": 0.45,
   "scores": {
-    "back_up": 0.751,
-    "back_side": 0.864,
-    "empty_a": 0.113,
-    "empty_b": 0.072,
-    "face": 0.073,
-    "sleeve": 0.104,
-    "sleeve_up": 0.176
+    "back_up": 0.744,
+    "back_side": 0.85,
+    "empty_a": 0.111,
+    "empty_b": 0.089,
+    "face": 0.071,
+    "sleeve": 0.103,
+    "sleeve_up": 0.184
   },
-  "sleeve_after_teaching": 0.999,
-  "sleeve_turned_after_teaching": 0.744,
+  "sleeve_after_teaching": 0.991,
+  "sleeve_turned_after_teaching": 0.721,
   "zones_checked": 7,
-  "first_check_ms_with_reference_encoding": 372.8,
-  "check_ms": 13.5,
+  "first_check_ms_with_reference_encoding": 911.5,
+  "check_ms": 1.9,
   "limits": "Escena sintética: reversos pegados en una captura en vivo, sin reflejos ni manos. Falta calibrar el umbral con capturas reales."
 }

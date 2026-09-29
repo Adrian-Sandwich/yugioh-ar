@@ -75,6 +75,10 @@ class Server(ThreadingHTTPServer):
 
 
 class Handler(BaseHTTPRequestHandler):
+    # Keep-alive: a tab asks for /snapshot ~15 times a second; HTTP/1.0 opened a connection and a
+    # thread for each. Every reply carries Content-Length (reply()).
+    protocol_version = 'HTTP/1.1'
+
     def internal_error(self):
         traceback.print_exc()
         try:
@@ -87,6 +91,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        if status>=400:
+            # An error may leave a request body unread: close rather than misread it as the next request.
+            self.send_header("Connection","close");self.close_connection=True
         for key,value in (headers or {}).items():
             self.send_header(key,str(value))
         self.end_headers()
@@ -288,7 +295,8 @@ class Handler(BaseHTTPRequestHandler):
         # The duel view says so (view=duel); any other page is the diagnostic viewer, which must see
         # every card, so while it watches the analysis is not limited to the board's zones.
         if query.get('view')!='duel': self.server.diagnostic_seen=time.monotonic()
-        body=loop.wait_newer(after,timeout=2.)
+        # The duel view draws over its own video: it gets the result without the analysed JPEG (~330 KB).
+        body=loop.wait_newer(after,timeout=2.,lite=query.get('view')=='duel')
         if body is None: return self.reply(204,b'','application/json')
         self.reply(200,body,'application/json')
 
@@ -380,6 +388,7 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
         result['identity_resolution']=IDENTITIES.info()
         inference_finished=time.perf_counter()
         if worker:
+            worker.previews=diagnostic if getattr(recognizer,'supports_context',False) else True
             named={tuple(map(tuple,d['corners'])):d for d in result['detections']}
             boxes=[]
             for d in result.get('candidates',result['detections']):
@@ -435,11 +444,11 @@ class AnalysisLoop:
     """
     def __init__(self,server,idle_after=5.):
         self.server=server;self.idle_after=idle_after
-        self.condition=threading.Condition();self.sequence=0;self.body=None
+        self.condition=threading.Condition();self.sequence=0;self.body=None;self.body_lite=None
         self.last_client=0.;self.last_captured=0.;self.errors=0;self.closed=False
         self.thread=threading.Thread(target=self.run,name='analysis-loop',daemon=True);self.thread.start()
 
-    def wait_newer(self,after,timeout):
+    def wait_newer(self,after,timeout,lite=False):
         with self.condition:
             self.last_client=time.monotonic();self.condition.notify_all()
             # A tab that outlived a server restart asks for a sequence this process never
@@ -447,7 +456,7 @@ class AnalysisLoop:
             if after>self.sequence: after=-1
             ready=lambda:self.body is not None and self.sequence>after
             if not self.condition.wait_for(lambda:ready() or self.closed,timeout):return None
-            return self.body if ready() else None
+            return (self.body_lite if lite else self.body) if ready() else None
 
     def run(self):
         while not self.closed:
@@ -461,6 +470,8 @@ class AnalysisLoop:
                 self.last_captured=captured_at
                 result=run_analysis(self.server,data,captured_at)
                 result['capture_time_basis']=basis
+                # Only the diagnostic viewer paints the analysed JPEG: without it watching, skip the base64 copy.
+                if time.monotonic()-getattr(self.server,'diagnostic_seen',-1e9)>5: result.pop('image',None)
                 self.errors=0
             except Exception as exc:
                 # A camera or inference failure is reported to the tabs, then retried.
@@ -470,6 +481,7 @@ class AnalysisLoop:
             with self.condition:
                 self.sequence+=1;result['sequence']=self.sequence
                 self.body=json.dumps(result).encode()
+                self.body_lite=json.dumps({k:v for k,v in result.items() if k!='image'}).encode() if 'image' in result else self.body
                 self.condition.notify_all()
 
     def status(self):

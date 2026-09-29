@@ -68,6 +68,13 @@ def main():
         # A detected card's centre inside a zone skips it.
         occupied = checker.check(scene, items, occupied=[np.float32(zones['face']).mean(0)])
         assert 'face' not in {s['id'] for s in occupied} and len(occupied) == len(items) - 1
+        # Unchanged zones reuse their score; a card placed over the back is scored again at once.
+        calls = []; predict = encoder.predict_batch
+        encoder.predict_batch = lambda crops, **kw: calls.append(len(crops)) or predict(crops, **kw)
+        changed = scene.copy(); paste(changed, face, inset(zones['back_up'], False))
+        moved = {s['id']: s['score'] for s in checker.check(changed, items)}
+        encoder.predict_batch = predict
+        assert calls == [1] and moved['back_up'] < t and moved['back_side'] == scores['back_side'], (calls, moved)
         # Teaching the sleeve: the checker reloads the references and the sleeve counts as a back.
         card_backs.teach(scene, zones['sleeve'], 0, 'spell:2')
         after = {s['id']: s['score'] for s in checker.check(scene, items)}

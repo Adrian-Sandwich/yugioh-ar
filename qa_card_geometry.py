@@ -53,7 +53,7 @@ def main():
     shifted=loose-[0,190]
     assert GeometryRefiner(clipped).refine(shifted)['geometry_status']=='frame_edge'
     class Reader:
-        def read(self,image):raise AssertionError('OCR ran without observed geometry')
+        def read(self,image,**_):raise AssertionError('OCR ran without observed geometry')
     worker=PasscodeWorker(Reader)
     try:
         worker.submit(cv2.imencode('.jpg',blank)[1].tobytes(),[{'corners':loose.tolist()}])

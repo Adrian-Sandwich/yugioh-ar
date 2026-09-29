@@ -495,8 +495,10 @@ EVENTS=tuple(HANDLERS)
 class Duel:
     """Máquina de estados del duelo. El estado se deriva sólo del registro de eventos."""
 
+    CHECKPOINT=64   # a copy of the state every this many events: undo replays from the last one, not from the start
+
     def __init__(self):
-        self.state=_empty();self.log=[]
+        self.state=_empty();self.log=[];self._marks={}
 
     def apply(self,event):
         _need(isinstance(event,dict) and isinstance(event.get('type'),str),'El evento debe ser un dict con "type"')
@@ -516,6 +518,7 @@ class Duel:
         entry={'seq':len(self.log)+1,'type':kind,'params':params}
         if warnings: entry['warnings']=warnings
         self.log.append(entry);self.state=working
+        if len(self.log)%self.CHECKPOINT==0: self._marks[len(self.log)]=copy.deepcopy(working)
         return {'seq':entry['seq'],**(result or {}),**({'warnings':warnings} if warnings else {})}
 
     # Envolturas explícitas de cada evento.
@@ -561,8 +564,24 @@ class Duel:
         _need(duel.state==data['state'],'La reproducción del registro no coincide con el estado guardado')
         return duel
 
-    def undo(self):
-        """Deshace el último evento reproduciendo el registro sin él."""
-        _need(self.log,'No hay eventos que deshacer')
-        replay=Duel.replay(self.log[:-1]);self.state,self.log=replay.state,replay.log
+    def clone(self):
+        """An independent copy (to try events and throw them away), without replaying the log."""
+        other=Duel.__new__(Duel)
+        other.state=copy.deepcopy(self.state);other.log=list(self.log);other._marks=dict(self._marks)
+        return other
+
+    def truncate(self,length):
+        """Keep the first `length` events: replay from the nearest checkpoint, same state as a full replay."""
+        _need(0<=length<=len(self.log),'Longitud de registro fuera de rango')
+        if length==len(self.log): return length
+        base=max((n for n in self._marks if n<=length),default=0)
+        tail=self.log[base:length]
+        self._marks={n:s for n,s in self._marks.items() if n<=base}
+        self.state=copy.deepcopy(self._marks[base]) if base else _empty();self.log=self.log[:base]
+        for entry in tail: self.apply({'type':entry['type'],**entry['params']})
         return len(self.log)
+
+    def undo(self):
+        """Deshace el último evento reproduciendo el registro sin él (desde el último punto de control)."""
+        _need(self.log,'No hay eventos que deshacer')
+        return self.truncate(len(self.log)-1)

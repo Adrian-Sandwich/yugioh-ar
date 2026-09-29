@@ -27,9 +27,9 @@ def lookup_set(code,path=DB):
 class SetReader:
     def __init__(self,engine,path=DB):self.engine=engine;self.path=path
 
-    def read(self,image):
+    def read(self,image,turns=(0,2)):
         observations=[]
-        for turns in (0,2):
+        for turns in turns:
             oriented=np.ascontiguousarray(np.rot90(image,turns));h,w=oriented.shape[:2]
             for index,(x0,y0,x1,y1) in enumerate(SET_REGIONS):
                 crop=oriented[round(y0*h):round(y1*h),round(x0*w):round(x1*w)]

@@ -69,19 +69,20 @@ class NumberReader:
     def __init__(self):
         from rapidocr import RapidOCR
         self.engine=RapidOCR(params={'Global.log_level':'error','Global.use_det':False,'Global.use_cls':False,
-            'EngineConfig.onnxruntime.intra_op_num_threads':1,'EngineConfig.onnxruntime.inter_op_num_threads':1})
+            'EngineConfig.onnxruntime.intra_op_num_threads':4,'EngineConfig.onnxruntime.inter_op_num_threads':1})
         self.title_reader=TitleReader(self.engine)
         self.set_reader=SetReader(self.engine)
 
-    def read_set(self,rectified):
-        return self.set_reader.read(rectified)
+    def read_set(self,rectified,turns=(0,2)):
+        return self.set_reader.read(rectified,turns)
 
-    def read_name(self,rectified):
-        return self.title_reader.read(rectified)
+    def read_name(self,rectified,turns=(0,2)):
+        return self.title_reader.read(rectified,turns)
 
-    def read(self,rectified):
+    def read(self,rectified,turns=(0,2)):
+        """`turns`: quarter turns to try; (0,) when the recognizer already oriented the card."""
         observations=[]
-        for turns in (0,2):
+        for turns in turns:
             oriented=np.ascontiguousarray(np.rot90(rectified,turns))
             for name in ('tight','wide','contrast'):
                 crop=region(oriented,REGIONS['tight' if name=='tight' else 'wide'])
@@ -93,6 +94,9 @@ class NumberReader:
                 for text,score in zip(result.txts or [],result.scores or []):
                     observations.append({'text':text,'score':round(float(score),4),'variant':name,'orientation':turns*90,
                         'numbers':numbers(text)})
+                # A clear eight-digit reading ends the search: the other variants only rescue weak ones.
+                if any(o['score']>=.95 and o['numbers'] for o in observations):break
+            if any(o['score']>=.95 and o['numbers'] for o in observations):break
         choices={}
         for obs in observations:
             for code in obs['numbers']:
@@ -154,6 +158,8 @@ class PasscodeWorker:
             verifier_factory=ArtVerifier
         self.verifier_factory=verifier_factory if verifier_factory else None
         self.min_digit_height=min_digit_height;self.batch_offset=0;self.unavailable=False
+        # PNG crops for the diagnostic page (5 per card); camera_viewer turns them off while nobody watches.
+        self.previews=True
         self.evidence=EvidenceSession()
         self.thread=threading.Thread(target=self.run,name='passcode-ocr',daemon=True);self.thread.start()
 
@@ -260,7 +266,10 @@ class PasscodeWorker:
                         # Upscaling cannot create readable pixels. Keep the zoom,
                         # but avoid six OCR passes below the existing confirmation gate.
                         too_small=native_height*.015<self.min_digit_height
-                        best,ambiguous,observations=(None,False,[]) if too_small else reader.read(rectified)
+                        # A card the recognizer named comes rotated upright (its corners carry the rotation):
+                        # the 180-degree pass is only for unknown cards.
+                        turns={'turns':(0,)} if box.get('visual_card_id') else {}
+                        best,ambiguous,observations=(None,False,[]) if too_small else reader.read(rectified,**turns)
                         if best and registry is None: registry=open_registry()
                         # One connection per batch; the registry may still be absent.
                         serial_matches=lookup(best['passcode'],db=registry) if best and registry is not None else []
@@ -272,7 +281,7 @@ class PasscodeWorker:
                         elif not hasattr(reader,'read_name'):
                             title={'status':'skipped','reason':'reader_unavailable'}
                         else:
-                            try:title=reader.read_name(rectified)
+                            try:title=reader.read_name(rectified,**turns)
                             except Exception as exc:title={'status':'error','error':str(exc)}
                         title['processing_ms']=round((time.monotonic()-title_started)*1000)
                         serial_qualified=bool(best and best['score']>=.85 and not ambiguous)
@@ -286,7 +295,7 @@ class PasscodeWorker:
                         if native_height*.015<7:
                             item['set_ocr']={'status':'skipped','reason':'small_text'}
                         elif hasattr(reader,'read_set'):
-                            try:item['set_ocr']=reader.read_set(rectified)
+                            try:item['set_ocr']=reader.read_set(rectified,**turns)
                             except Exception as exc:item['set_ocr']={'status':'error','error':str(exc)}
                         else:item['set_ocr']={'status':'skipped','reason':'reader_unavailable'}
                         # Independent check of the illustration against the candidates
@@ -306,17 +315,19 @@ class PasscodeWorker:
                         name_roi=region(oriented,NAME_REGION)
                         orientation_uncertain=(not box.get('visual_card_id') or bool(best and (ambiguous or best['score']<.85))) and title['status']!='matched'
                         alternative_name=region(np.ascontiguousarray(np.rot90(oriented,2)),NAME_REGION) if orientation_uncertain else None
-                        preview=oriented.copy()
-                        x0,y0,x1,y1=REGIONS['wide']
-                        cv2.rectangle(preview,(int(x0*SIZE[0]),int(y0*SIZE[1])),(int(x1*SIZE[0]),int(y1*SIZE[1])),(30,220,255),3)
-                        nx0,ny0,nx1,ny1=NAME_REGION
-                        cv2.rectangle(preview,(int(nx0*SIZE[0]),int(ny0*SIZE[1])),(int(nx1*SIZE[0]),int(ny1*SIZE[1])),(200,180,60),3)
+                        show=self.previews
+                        if show:
+                            preview=oriented.copy()
+                            x0,y0,x1,y1=REGIONS['wide']
+                            cv2.rectangle(preview,(int(x0*SIZE[0]),int(y0*SIZE[1])),(int(x1*SIZE[0]),int(y1*SIZE[1])),(30,220,255),3)
+                            nx0,ny0,nx1,ny1=NAME_REGION
+                            cv2.rectangle(preview,(int(nx0*SIZE[0]),int(ny0*SIZE[1])),(int(nx1*SIZE[0]),int(ny1*SIZE[1])),(200,180,60),3)
                         item.update(passcode=best['passcode'] if best else None,ocr_score=best['score'] if best else None,
                             ambiguous=ambiguous,raw_observations=observations,orientation=orientation,
                             ocr_skipped='small_text' if too_small else None,
-                            crop=png(roi),rectified=png(cv2.resize(preview,(189,276))),
-                            crop_alternative=png(region(np.ascontiguousarray(np.rot90(oriented,2)),REGIONS['wide'])) if orientation_uncertain else None,
-                            name_crop=png(name_roi),name_crop_alternative=png(alternative_name) if alternative_name is not None else None,
+                            crop=png(roi) if show else None,rectified=png(cv2.resize(preview,(189,276))) if show else None,
+                            crop_alternative=png(region(np.ascontiguousarray(np.rot90(oriented,2)),REGIONS['wide'])) if show and orientation_uncertain else None,
+                            name_crop=png(name_roi) if show else None,name_crop_alternative=png(alternative_name) if show and alternative_name is not None else None,
                             name_orientation_uncertain=orientation_uncertain,
                             native_card_width=round(native_width),native_card_height=round(native_height),estimated_digit_height=round(native_height*.015,1),
                             matches=serial_matches)

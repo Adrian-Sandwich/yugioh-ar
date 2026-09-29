@@ -48,7 +48,7 @@ def main():
     started=threading.Event();release=threading.Event()
     class BlockingReader:
         calls=0
-        def read(self,image):
+        def read(self,image,**_):
             self.calls+=1
             if self.calls==1:started.set();release.wait(5)
             return None,False,[]

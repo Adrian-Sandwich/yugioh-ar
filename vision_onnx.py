@@ -15,7 +15,6 @@ import hashlib
 import json
 import os
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import cv2
@@ -56,8 +55,6 @@ NAME_MEMORY_S=20.
 TRACKED_GEOMETRY_MIN_IOU=.75
 UNRESOLVED_RETRY_S=2.
 UNRESOLVED_MIN_IOU=.85
-# Separate from card_geometry.POOL, whose workers this thread waits on.
-EVIDENCE=ThreadPoolExecutor(max_workers=1,thread_name_prefix='evidence')
 
 
 # Execution device: 'cpu' (default) or 'cuda' (needs onnxruntime-gpu, see
@@ -321,8 +318,6 @@ class ResearchRecognizer:
         """`regions`: image polygons of the duel board's field zones. Boxes whose centre falls
         outside all of them (a hand, the Graveyard, the table) skip geometry and encoding."""
         started=time.perf_counter();result=[]
-        # Frame-wide edge evidence does not depend on the boxes: extract it while the detector runs.
-        evidence=EVIDENCE.submit(GeometryRefiner,image)
         boxes=self.detector.detect(image);outside=0
         if regions:
             polygons=[np.float32(r).reshape(-1,1,2) for r in regions]
@@ -341,8 +336,9 @@ class ResearchRecognizer:
         pending=[i for i in range(len(boxes)) if i not in tracked]
         # Edge snapping just failed on (nearly) this box: skip only that fallback until the retry delay.
         snap=[not any(quad_iou(boxes[i]['corners'],q)>=UNRESOLVED_MIN_IOU for q,_ in self.unresolved) for i in pending]
-        refiner=evidence.result()
-        refined=dict(zip(pending,refiner.refine_all([boxes[i]['corners'] for i in pending],snap=snap))) if pending else {}
+        # Frame-wide edge evidence (~60 ms at 1080p) only when a box needs refining: with every card
+        # tracked (the usual live case) nothing would read it.
+        refined=dict(zip(pending,GeometryRefiner(image).refine_all([boxes[i]['corners'] for i in pending],snap=snap))) if pending else {}
         for i,s in zip(pending,snap):
             if s and refined[i]['geometry_status']=='unresolved': self.unresolved.append((np.float32(boxes[i]['corners']),now))
         # Track corners are in card order (rotation applied); undo it so the common path below rolls them once.
@@ -401,7 +397,7 @@ def promote_by_art(candidates,verified,now=None):
     now=time.time() if now is None else now
     promoted=0
     for candidate in candidates:
-        if candidate.get('accepted') or not candidate.get('card_id'): continue
+        if candidate.get('accepted') or not candidate.get('card_id') or candidate.get('rejected_as'): continue
         for item in verified:
             if item.get('evidence')=='name': continue   # title evidence: promote_by_name
             if canonical(item.get('card_id'))!=canonical(candidate['card_id']): continue
@@ -424,7 +420,7 @@ def promote_by_name(candidates,verified,now=None,max_age=ART_PROMOTION_MAX_AGE_S
     now=time.time() if now is None else now
     promoted=0
     for candidate in candidates:
-        if candidate.get('accepted') or not candidate.get('top5'): continue
+        if candidate.get('accepted') or not candidate.get('top5') or candidate.get('rejected_as'): continue
         for item in verified:
             if item.get('evidence')!='name': continue
             if not 0<=now-item.get('captured_at',0)<=max_age: continue
