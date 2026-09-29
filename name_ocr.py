@@ -4,6 +4,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 from identity_resolution import IDENTITIES,canonical
+try:from rapidfuzz import fuzz,process
+except ImportError:process=None
 
 DB=Path(__file__).resolve().parent/'data/registry/registry.sqlite'
 LANGUAGES=('en','es','de','fr','pt')
@@ -124,9 +126,15 @@ def pick_by_name(registry,text,candidate_ids,min_similarity=NAME_PICK_MIN,margin
     if scored[0][0]-runner_up<margin:return None
     # The title must also be closest to that card in the whole registry: "Aroma Gardening" misread
     # must not become "Aroma Garden" just because only the latter was among the candidates.
-    best,cid=scored[0]
-    for key in difflib.get_close_matches(query,getattr(registry,'all_keys',[]),n=5,cutoff=max(.5,best-.03)):
-        if cid not in registry.owners.get(key,()) and difflib.SequenceMatcher(None,query,key,autojunk=False).ratio()>=best-.03:
+    best,cid=scored[0];floor=best-.03
+    keys=getattr(registry,'all_keys',[])
+    if process is not None:
+        # rapidfuzz's ratio (longest common subsequence) is never below difflib's, so this C scan of
+        # 65k names (~2 ms instead of 100-170 ms) keeps every name difflib would accept; difflib decides.
+        close=[k for k,_,_ in process.extract(query,keys,scorer=fuzz.ratio,score_cutoff=max(.5,floor)*100,limit=None)]
+    else:close=difflib.get_close_matches(query,keys,n=5,cutoff=max(.5,floor))
+    for key in close:
+        if cid not in registry.owners.get(key,()) and difflib.SequenceMatcher(None,query,key,autojunk=False).ratio()>=floor:
             return None
     return {'card_id':cid,'similarity':round(best,3),'runner_up':round(runner_up,3)}
 

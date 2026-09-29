@@ -1,6 +1,7 @@
 # Install with: .venv-eval/Scripts/python.exe -m pip install -r requirements-ocr.txt
 # Then: .venv-eval/Scripts/python.exe -m pip install --no-deps rapidocr==3.9.2
 # Project already supplies cv2 through opencv-python-headless; do not install a second cv2 distribution.
+rapidfuzz==3.14.6
 pyclipper==1.4.0
 six==1.17.0
 shapely==2.1.2
