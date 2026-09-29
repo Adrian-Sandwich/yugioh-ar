@@ -69,8 +69,14 @@ function drawCards(context,cards){
 let teachingBack=false,renderedDuel=null;
 // A face-down Defense Position monster gets a generic figure (never its identity). Three styles
 // to compare with the "Boca abajo" button: holographic shield, hooded silhouette, standing card back.
-const FD_STYLES=[['shield','Escudo'],['silhouette','Silueta'],['card','Carta de pie']];
-let fdStyle=(()=>{try{return localStorage.getItem('fdStyle')||'shield';}catch(e){return 'shield';}})();
+const FD_STYLES=[['millennium','Escudo del Milenio'],['shield','Escudo'],['silhouette','Silueta'],['card','Carta de pie']];
+let fdStyle=(()=>{try{const s=localStorage.getItem('fdStyle');return FD_STYLES.some(f=>f[0]===s)?s:'millennium';}catch(e){return 'millennium';}})();
+// Millennium shield turning on its vertical axis: a strip of 15 poses (web/fx, made by
+// research/make_shield_strip.py). The 15th pose repeats the 1st, so the loop plays 14.
+const millennium={image:null,meta:null};
+(()=>{const img=new Image();img.onload=()=>{millennium.image=img;};img.src='/fx/shield-millennium.png';
+  fetch('/fx/shield-millennium.json').then(r=>r.ok?r.json():null).then(m=>{millennium.meta=m;}).catch(()=>{});})();
+const MILLENNIUM_TURN_MS=5200;
 function fdButtonLabel(){const b=$d('#fdStyle');if(b)b.textContent='Boca abajo: '+FD_STYLES.find(s=>s[0]===fdStyle)[1];}
 function hexPath(context,cx,cy,r){context.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*.9*Math.sin(a));}context.closePath();}
 function drawFacedownFigure(context,polygon,now,seed,appear=1){
@@ -84,7 +90,16 @@ function drawFacedownFigure(context,polygon,now,seed,appear=1){
   glow(context,cx,cy,w*.6,tone,(.18+.08*pulse)*a);
   if(Math.random()<.04*a){const [x,y]=onPlane(g,Math.random()*6.28,Math.random()*.9);emit({x,y,vx:0,vy:-(.02+.03*Math.random())*w/100,life:1500,size:w*.02,color:tone,fadeIn:.3});}
   context.save();context.globalAlpha=a;
-  if(fdStyle==='shield'){
+  if(fdStyle==='millennium'&&millennium.image&&millennium.meta){
+    // The shield floats over the card and turns slowly; a gold light behind it.
+    const m=millennium.meta,loop=m.frames-1,k=Math.floor(((now+seed*977)%MILLENNIUM_TURN_MS)/MILLENNIUM_TURN_MS*loop)%loop;
+    const hgt=w*.95*pop,wid=hgt*m.cell_width/m.height,y=Math.max(hgt/2,cy-w*.22)+bob;
+    glow(context,cx,y,w*.55,[255,200,90],(.2+.08*pulse)*a);
+    context.drawImage(millennium.image,k*m.cell_width,0,m.cell_width,m.height,cx-wid/2,y-hgt/2,wid,hgt);
+    // A faint light sweeping over it every turn.
+    context.globalCompositeOperation='lighter';context.globalAlpha=a*.25*Math.max(0,Math.sin((now+seed*977)/MILLENNIUM_TURN_MS*Math.PI*2));
+    context.drawImage(millennium.image,k*m.cell_width,0,m.cell_width,m.height,cx-wid/2,y-hgt/2,wid,hgt);
+  }else if(fdStyle==='shield'||fdStyle==='millennium'){
     // A hexagonal crystal shield holding the back's swirl, a light sweeping across it.
     const y=Math.max(w*.45,cy-w*.2)+bob,s=w*.36*pop;
     const grad=context.createRadialGradient(cx,y-s*.2,s*.05,cx,y,s);grad.addColorStop(0,'rgba(10,4,1,.92)');grad.addColorStop(.55,'rgba(70,30,8,.85)');grad.addColorStop(1,'rgba(200,110,35,.7)');

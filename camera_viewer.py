@@ -14,6 +14,7 @@ import argparse
 import base64
 import json
 import math
+import re
 import threading
 import time
 import traceback
@@ -98,6 +99,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.reply(200, (ROOT / "web" / "camera.html").read_bytes(), "text/html; charset=utf-8")
             elif route in ('/camera.js','/duel.js','/ar.js'):
                 self.reply(200,(ROOT/'web'/route[1:]).read_bytes(),'text/javascript; charset=utf-8')
+            elif route.startswith('/fx/') and re.fullmatch(r'/fx/[\w.-]+\.(png|json)',route) and (ROOT/'web'/route[1:]).is_file():
+                # Effect assets of the duel view (web/fx: sprite strips and their frame data).
+                self.reply(200,(ROOT/'web'/route[1:]).read_bytes(),'image/png' if route.endswith('.png') else 'application/json')
             elif route == '/duelo':
                 # Duel view: video, board and duel panel only; / stays the diagnostic viewer.
                 self.reply(200,(ROOT/'web/duel.html').read_bytes(),'text/html; charset=utf-8')
