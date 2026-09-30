@@ -1,0 +1,443 @@
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Revisión">
+<meta name="theme-color" content="#10151e">
+<title>Yu-Gi-Oh! · Revisión</title>
+<style>
+:root{color-scheme:dark;--ok:#4fd39a;--no:#ff6b6b;--skip:#c9b458;--add:#3ce678;--rem:#ff5050;--line:#344053;--btn:#202b3d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%}
+body{margin:0;background:#10151e;color:#eef3fb;font:16px system-ui;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);overscroll-behavior:none}
+header{display:flex;gap:18px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header b{font-size:18px}.meta{display:flex;gap:14px;flex-wrap:wrap;color:#adb9cf;font-size:14px}.meta b{color:#eef3fb;font-weight:600}
+.progress{margin-left:auto;display:flex;gap:12px;align-items:center;font-size:14px;color:#adb9cf}
+.bar{width:160px;height:6px;background:#263244;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+main{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;min-height:0;touch-action:none}
+img{-webkit-user-drag:none;-webkit-touch-callout:none;user-select:none}
+body{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input{-webkit-user-select:text;user-select:text}
+/* swipe feedback: the generated pane follows the finger */
+#rightpane.dragging{transition:none}
+#rightpane.settle{transition:transform .18s ease-out,border-color .12s}
+#swipehint{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:700;letter-spacing:.04em;pointer-events:none;opacity:0;z-index:2}
+#swipehint.approve{background:rgba(79,211,154,.28);color:var(--ok)}
+#swipehint.reject{background:rgba(255,107,107,.28);color:var(--no)}
+#swipehint.skip{background:rgba(201,180,88,.25);color:var(--skip)}
+#swipehint.back{background:rgba(122,167,255,.22);color:#9cc0ff}
+#swipehint.armed{outline:4px solid currentColor;outline-offset:-4px}
+/* quick reject after a swipe: big pills at the bottom, one tap saves */
+#reject.quick{align-items:flex-end}
+#reject.quick .panel{width:min(1000px,98vw);border-radius:18px 18px 0 0;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+#reject.quick .pill{min-height:64px;font-size:18px;padding:12px 20px}
+#reject.quick #note,#reject.quick [data-rj=save]{display:none}
+#reject:not(.quick) [data-rj=more]{display:none}
+.pane{position:relative;border:2px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0;transition:border-color .12s}
+.pane h2{margin:0;padding:8px 14px;font-size:13px;font-weight:600;color:#adb9cf;letter-spacing:.06em;text-transform:uppercase}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;border-radius:0 0 12px 12px;overflow:hidden;position:relative}
+.stage img,.stage canvas{max-width:100%;max-height:100%;object-fit:contain}
+.stage model-viewer{width:100%;height:100%}
+#draw{touch-action:none;cursor:crosshair}
+.bg-checker{background:repeating-conic-gradient(#263244 0% 25%,#1c2533 0% 50%) 0/22px 22px}
+.bg-dark{background:#0a0d12}.bg-light{background:#e9edf3}.bg-magenta{background:#ff00c8}
+.flash-ok{border-color:var(--ok)}.flash-no{border-color:var(--no)}
+.badge{position:absolute;top:8px;right:12px;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--btn);border:1px solid var(--line)}
+.badge.approve{color:var(--ok);border-color:var(--ok)}.badge.reject{color:var(--no);border-color:var(--no)}.badge.skip{color:var(--skip);border-color:var(--skip)}
+footer{display:flex;gap:10px;justify-content:center;align-items:center;padding:10px;border-top:1px solid var(--line);flex-wrap:wrap}
+button{font:inherit;color:inherit;background:var(--btn);border:1px solid #47556d;border-radius:12px;padding:12px 16px;min-height:52px;
+  display:inline-flex;gap:8px;align-items:center;cursor:pointer;touch-action:manipulation;user-select:none}
+button:active{transform:scale(.97)}button.on{border-color:#7aa7ff;background:#2a3a57}
+button.approve{border-color:var(--ok)}button.reject{border-color:var(--no)}button.big{min-width:150px;justify-content:center;font-size:17px}
+button.add.on{border-color:var(--add);background:#1f4a33}button.rem.on{border-color:var(--rem);background:#5a2330}
+kbd{display:inline-block;min-width:24px;padding:2px 7px;border:1px solid #47556d;border-bottom-width:3px;border-radius:6px;background:#172134;color:#eef3fb;font:13px ui-monospace,monospace;text-align:center}
+.status{color:#adb9cf;font-size:14px;min-width:110px}
+footer input{font:inherit;padding:12px;border-radius:12px;border:1px solid #47556d;background:var(--btn);color:inherit;min-width:220px;flex:1;max-width:360px}
+.overlay{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:5}
+.overlay.open{display:flex}
+.panel{width:min(780px,94vw);background:#172134;border:1px solid #536681;border-radius:14px;padding:20px 22px}
+.panel h3{margin:0 0 4px}.panel p{margin:0 0 14px;color:#adb9cf;font-size:14px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pill{display:flex;gap:8px;align-items:center;padding:10px 14px;min-height:48px;border-radius:999px;border:1px solid #47556d;background:var(--btn);font-size:15px;user-select:none;cursor:pointer}
+.pill.on{background:#5a2330;border-color:var(--no)}
+#drawpills{display:flex;flex-wrap:wrap;gap:6px;width:100%;justify-content:center}#drawpills .pill{min-height:40px;padding:6px 11px;font-size:14px}
+.panel input{width:100%;font:inherit;padding:12px;border-radius:10px;border:1px solid #47556d;background:var(--btn);color:inherit}
+.panel input:focus,footer input:focus{outline:2px solid #7aa7ff}
+.row{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.err{color:var(--no);min-height:22px;font-size:14px;margin-top:8px}
+.help dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0}.help dd{margin:0;color:#cfd8e6}
+.done{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#adb9cf}
+[hidden]{display:none!important}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}button.big{min-width:0;flex:1}}
+</style>
+
+<header>
+  <b id="title">Revisión</b>
+  <div class="meta" id="meta"></div>
+  <div class="progress"><span id="count">–</span><div class="bar"><i id="barfill" style="width:0"></i></div><span id="session"></span></div>
+</header>
+
+<main id="main">
+  <div class="done" id="done" hidden><h2>Terminaste la cola</h2><p id="donehint"></p><p><kbd>↑</kbd> vuelve a la última.</p></div>
+  <section class="pane" id="leftpane"><h2 id="lefttitle">Carta original</h2><div class="stage bg-dark" id="left"></div></section>
+  <section class="pane" id="rightpane"><div id="swipehint"></div><h2 id="righttitle">Generado</h2><span class="badge" id="badge" hidden></span><div class="stage bg-checker" id="right"></div></section>
+</main>
+
+<footer id="actions">
+  <button class="big reject" data-act="reject"><kbd>←</kbd> Rechazar</button>
+  <button data-act="back"><kbd>↑</kbd> Atrás</button>
+  <button data-act="skip"><kbd>↓</kbd> Saltar</button>
+  <button data-act="draw" id="drawbtn" hidden><kbd>D</kbd> ✏️ Corregir</button>
+  <button data-act="bg"><kbd>B</kbd> Fondo</button>
+  <button data-act="help"><kbd>?</kbd></button>
+  <button class="big approve" data-act="approve">Aprobar <kbd>→</kbd></button>
+</footer>
+
+<footer id="tools" hidden>
+  <div id="drawpills"></div>
+  <button class="add on" data-tool="add"><kbd>A</kbd> Le falta</button>
+  <button class="rem" data-tool="remove"><kbd>R</kbd> Sobra</button>
+  <button data-tool="thin"><kbd>[</kbd> −</button><button data-tool="thick">+ <kbd>]</kbd></button>
+  <button data-tool="undo"><kbd>Z</kbd> Deshacer</button>
+  <button data-tool="clear"><kbd>X</kbd> Limpiar</button>
+  <button data-tool="mask" class="on"><kbd>O</kbd> Máscara</button>
+  <input id="drawnote" placeholder="Nota: p. ej. se comió las alas (/)" maxlength="500" autocomplete="off">
+  <span class="status" id="drawstatus"></span>
+  <button data-tool="cancel"><kbd>Esc</kbd> Salir</button>
+  <button class="big reject" data-tool="save">Guardar corrección <kbd>Enter</kbd></button>
+</footer>
+
+<div class="overlay" id="reject"><div class="panel">
+  <h3>¿Por qué no sirve?</h3>
+  <p id="rjhelp">Toca o usa los números; <kbd>/</kbd> escribe una nota; <kbd>D</kbd> corrige dibujando; <kbd>Enter</kbd> guarda; <kbd>Esc</kbd> cancela.</p>
+  <div class="pills" id="pills"></div>
+  <input id="note" placeholder="Nota opcional (/ para escribir)" maxlength="500" autocomplete="off">
+  <div class="err" id="err"></div>
+  <div class="row"><button data-rj="cancel"><kbd>Esc</kbd> Cancelar</button><button data-rj="more">Varios motivos o nota…</button><button data-rj="draw" id="rjdraw"><kbd>D</kbd> ✏️ Corregir dibujando</button><button class="reject" data-rj="save">Guardar <kbd>Enter</kbd></button></div>
+</div></div>
+
+<div class="overlay help" id="help"><div class="panel">
+  <h3>Atajos</h3><p>Todo funciona con teclado, con el dedo o con el lápiz. <kbd>?</kbd> o <kbd>Esc</kbd> cierra.</p>
+  <dl>
+    <dt><kbd>→</kbd> / deslizar →</dt><dd>Aprobar y pasar a la siguiente</dd>
+    <dt><kbd>←</kbd> / deslizar ←</dt><dd>Rechazar. Con el dedo: toca el motivo y listo. Con teclado: <kbd>1</kbd>–<kbd>9</kbd>, <kbd>/</kbd> nota, <kbd>Enter</kbd> guarda</dd>
+    <dt>deslizar ↓ / ↑</dt><dd>Saltar / volver a la anterior. El sprite sigue al dedo; si sueltas antes de que se marque, no pasa nada. Empieza el gesto lejos del borde: desde el borde, Safari regresa de página.</dd>
+    <dt><kbd>D</kbd></dt><dd>Corregir dibujando sobre el arte: verde = el recorte se comió esto, rojo = esto sobra. Con lápiz, la goma cambia a rojo; con lápiz activo, la palma se ignora.</dd>
+    <dt><kbd>A</kbd> <kbd>R</kbd> <kbd>[</kbd> <kbd>]</kbd> <kbd>Z</kbd> <kbd>X</kbd> <kbd>O</kbd></dt><dd>Al dibujar: agregar, quitar, grosor, deshacer, limpiar, ver máscara. <kbd>1</kbd>–<kbd>9</kbd> marcan motivos también aquí; si no marcas ninguno se deducen del color.</dd>
+    <dt><kbd>↓</kbd> o <kbd>Espacio</kbd></dt><dd>Saltar (en una ya revisada, sólo avanza sin cambiarla)</dd>
+    <dt><kbd>↑</kbd> o <kbd>Retroceso</kbd></dt><dd>Volver; un veredicto nuevo corrige el anterior</dd>
+    <dt><kbd>B</kbd></dt><dd>Fondo del generado: cuadros, oscuro, claro, magenta (delata halos)</dd>
+  </dl>
+</div></div>
+
+<script>
+const $ = id => document.getElementById(id)
+let Q = null, at = 0, shownAt = 0, token = '', mode = 'view', picked = new Set(), started = Date.now()
+const sessionCount = {approve: 0, reject: 0, skip: 0}
+const BGS = ['bg-checker', 'bg-dark', 'bg-light', 'bg-magenta']; let bg = 0
+const LABEL = {approve: 'aprobada', reject: 'rechazada', skip: 'saltada'}
+// drawing state
+const D = {art: null, mask: null, strokes: [], cur: null, tool: 'add', width: 8, showMask: true, penSeen: false, seq: 0, canvas: null, preview: null}
+
+async function load() {
+  Q = await (await fetch('/api/queue')).json()
+  token = Q.token; at = Q.start
+  $('title').textContent = Q.control ? `Control · ronda «${Q.control}» (a ciegas)` : Q.kind === 'sprite' ? 'Revisión de sprites' : 'Revisión de modelos 3D'
+  $('drawbtn').hidden = !Q.can_draw; $('rjdraw').hidden = !Q.can_draw
+  if (Q.kind === 'gen3d') {
+    const s = document.createElement('script'); s.type = 'module'
+    s.src = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js'; document.head.append(s)
+  }
+  const pillHtml = Q.reasons.map((r, i) => `<span class="pill" data-id="${r.id}"><kbd>${i + 1}</kbd>${r.label}</span>`).join('')
+  $('pills').innerHTML = pillHtml; $('drawpills').innerHTML = pillHtml
+  show()
+}
+
+function rightTitle(it) {
+  if (Q.kind !== 'sprite') return 'Modelo 3D generado'
+  return it.meta['estado'] === 'candidato' ? 'Recorte que perdió contra el holograma' : it.meta['estado'] === 'hologram' ? 'Holograma (arte completo)' : 'Sprite generado'
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c])) }
+
+function show() {
+  const judged = Q.items.filter(i => i.verdict).length
+  $('count').textContent = `${judged} / ${Q.items.length}`
+  $('barfill').style.width = (Q.items.length ? 100 * judged / Q.items.length : 0) + '%'
+  const mins = (Date.now() - started) / 60000, n = sessionCount.approve + sessionCount.reject
+  $('session').textContent = n ? `sesión: ${sessionCount.approve}✓ ${sessionCount.reject}✗ · ${Math.round(n / Math.max(mins, .1))}/min` : ''
+  const finished = at >= Q.items.length
+  $('done').hidden = !finished; $('leftpane').hidden = finished; $('rightpane').hidden = finished
+  if (finished) {
+    $('donehint').innerHTML = `Corre <kbd>python review_server.py --stats${Q.kind === 'gen3d' ? ' --kind gen3d' : ''}</kbd> para ver el resumen.`
+    $('meta').innerHTML = ''; return
+  }
+  const it = Q.items[at]
+  // Blind repeats (sampling 'retest') cannot be corrected by drawing: they only measure consistency.
+  $('drawbtn').hidden = !Q.can_draw || !!it.no_draw; $('rjdraw').hidden = !Q.can_draw || !!it.no_draw
+  $('meta').innerHTML = Object.entries(it.meta).filter(([, v]) => v !== null && v !== undefined)
+    .map(([k, v]) => `<span>${esc(k)} <b>${esc(v)}</b></span>`).join('')
+  $('lefttitle').textContent = 'Carta original'
+  $('left').innerHTML = `<img src="${it.left}" alt="arte original" draggable="false">`
+  $('right').innerHTML = it.right_type === 'model'
+    ? `<model-viewer src="${it.right}" camera-controls auto-rotate rotation-per-second="40deg" shadow-intensity="1" exposure="1.1"></model-viewer>`
+    : `<img src="${it.right}" alt="generado" draggable="false">`
+  const b = $('badge'), v = it.verdict
+  b.hidden = !v; if (v) { b.className = 'badge ' + v.verdict; b.textContent = (v.corrected ? 'corregida' : LABEL[v.verdict]) + (v.reasons?.length ? ' · ' + v.reasons.join(', ') : '') }
+  $('righttitle').textContent = rightTitle(it)
+  shownAt = performance.now()
+  for (const n of Q.items.slice(at + 1, at + 4)) { if (n.right_type === 'image') new Image().src = n.right; new Image().src = n.left }
+}
+
+async function send(verdict, reasons = [], note = '', strokes = null) {
+  const it = Q.items[at]
+  const body = {id: it.id, verdict, reasons, note, ms: Math.round(performance.now() - shownAt)}
+  if (strokes) body.strokes = strokes
+  const r = await fetch('/api/verdict', {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Review-Token': token}, body: JSON.stringify(body)})
+  const res = await r.json().catch(() => ({}))
+  if (!r.ok) return res.error || 'error al guardar'
+  it.verdict = {verdict, reasons: res.reasons || reasons}; sessionCount[verdict]++
+  const pane = $('rightpane'), cls = verdict === 'approve' ? 'flash-ok' : verdict === 'reject' ? 'flash-no' : ''
+  if (cls) { pane.classList.add(cls); setTimeout(() => pane.classList.remove(cls), 160) }
+  at++; show(); return null
+}
+
+// ---------- view-mode actions (keyboard, buttons and swipes share these) ----------
+const act = {
+  async approve() { if (at < Q.items.length) { const e = await send('approve'); if (e) alert(e) } },
+  reject() { if (at < Q.items.length) openReject() },
+  async skip() {
+    if (at >= Q.items.length) return
+    if (Q.items[at].verdict) { at++; show(); return }  // revisiting: move on, keep the verdict
+    const e = await send('skip'); if (e) alert(e)
+  },
+  back() { if (at > 0) { at--; show() } },
+  bg() { const r = $('right'); r.classList.remove(BGS[bg]); bg = (bg + 1) % BGS.length; r.classList.add(BGS[bg]) },
+  help() { mode = 'help'; $('help').classList.add('open') },
+  draw() { if (Q.can_draw && at < Q.items.length && !Q.items[at].no_draw) enterDraw() },
+}
+document.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => { if (mode === 'view') act[b.dataset.act]() }))
+
+// ---------- swipes (finger only; the pen is for drawing) ----------
+// right = approve, left = reject (quick reasons), down = skip, up = back. The generated pane
+// follows the finger and says what will happen; released short of the threshold it snaps back.
+// Touches that start at the screen edge are left alone: Safari uses them to go back a page.
+const SW = {EDGE: 28, DIST: 120, FLICK: .6, s: null}
+const SWIPE_ACT = {approve: ['Aprobar', 'approve'], reject: ['Rechazar', 'reject'], skip: ['Saltar', 'skip'], back: ['Atrás', 'back']}
+function swipeDir(dx, dy, axis) {
+  if (axis === 'x') return dx > 0 ? 'approve' : 'reject'
+  return dy > 0 ? 'skip' : 'back'
+}
+function paintSwipe(dx, dy, axis, armed) {
+  const pane = $('rightpane'), hint = $('swipehint')
+  const dir = swipeDir(dx, dy, axis), d = axis === 'x' ? dx : dy
+  pane.style.transform = axis === 'x' ? `translateX(${dx}px) rotate(${dx / 25}deg)` : `translateY(${dy * .6}px)`
+  hint.className = dir + (armed ? ' armed' : ''); hint.textContent = SWIPE_ACT[dir][0]
+  hint.style.opacity = Math.min(1, Math.abs(d) / SW.DIST)
+}
+function resetSwipe(animate) {
+  const pane = $('rightpane'), hint = $('swipehint')
+  pane.classList.remove('dragging'); if (animate) pane.classList.add('settle')
+  pane.style.transform = ''; hint.style.opacity = 0
+  if (animate) setTimeout(() => pane.classList.remove('settle'), 200)
+}
+$('main').addEventListener('pointerdown', e => {
+  if (mode !== 'view' || e.pointerType !== 'touch' || at >= Q.items.length) return
+  if (e.clientX < SW.EDGE || e.clientX > innerWidth - SW.EDGE) return
+  SW.s = {x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId, axis: null}
+})
+$('main').addEventListener('pointermove', e => {
+  const g = SW.s; if (!g || e.pointerId !== g.id || mode !== 'view') return
+  const dx = e.clientX - g.x, dy = e.clientY - g.y
+  if (!g.axis) {
+    if (Math.hypot(dx, dy) < 12) return
+    g.axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y'; $('rightpane').classList.add('dragging')
+  }
+  const d = g.axis === 'x' ? dx : dy
+  paintSwipe(dx, dy, g.axis, Math.abs(d) >= SW.DIST)
+})
+function endSwipe(e) {
+  const g = SW.s; if (!g || e.pointerId !== g.id) return
+  SW.s = null
+  if (!g.axis || mode !== 'view') { resetSwipe(false); return }
+  const dx = e.clientX - g.x, dy = e.clientY - g.y, d = g.axis === 'x' ? dx : dy
+  const fast = Math.abs(d) / Math.max(performance.now() - g.t, 1) >= SW.FLICK && Math.abs(d) > 50
+  resetSwipe(true)
+  if (Math.abs(d) >= SW.DIST || fast) {
+    const dir = swipeDir(dx, dy, g.axis)
+    if (dir === 'reject') openReject(false, true); else act[SWIPE_ACT[dir][1]]()
+  }
+}
+$('main').addEventListener('pointerup', endSwipe)
+$('main').addEventListener('pointercancel', e => { if (SW.s && e.pointerId === SW.s.id) { SW.s = null; resetSwipe(true) } })
+
+// ---------- reject panel ----------
+function openReject(keep, quick) {
+  // quick (after a swipe): one tap on a reason saves and moves on; "Varios motivos o nota…"
+  // switches to the full panel. From the keyboard the full panel opens directly.
+  mode = 'reject'; if (!keep) { picked = new Set(); $('note').value = '' }
+  $('err').textContent = ''; syncPills()
+  $('reject').classList.toggle('quick', !!quick)
+  $('rjhelp').textContent = quick ? 'Toca el motivo principal: se guarda y pasa a la siguiente. Toca fuera para cancelar.'
+    : 'Toca o usa los números; / escribe una nota; D corrige dibujando; Enter guarda; Esc cancela.'
+  $('reject').classList.add('open')
+}
+function syncPills() { document.querySelectorAll('.pill').forEach(p => p.classList.toggle('on', picked.has(p.dataset.id))) }
+function togglePill(id) { picked.has(id) ? picked.delete(id) : picked.add(id); syncPills(); $('err').textContent = '' }
+for (const box of ['pills', 'drawpills']) $(box).addEventListener('click', e => {
+  const p = e.target.closest('.pill'); if (!p) return
+  if (box === 'pills' && $('reject').classList.contains('quick')) { picked = new Set([p.dataset.id]); syncPills(); submitReject(); return }
+  togglePill(p.dataset.id)
+})
+$('reject').addEventListener('click', e => { if (e.target === $('reject') && $('reject').classList.contains('quick')) closeOverlays() })
+document.querySelectorAll('[data-rj]').forEach(b => b.addEventListener('click', () => ({cancel: closeOverlays, save: submitReject,
+  more: () => openReject(true, false),
+  draw: () => { $('reject').classList.remove('open'); enterDraw(true) }})[b.dataset.rj]()))
+function closeOverlays() { mode = 'view'; $('reject').classList.remove('open'); $('help').classList.remove('open'); document.activeElement?.blur() }
+async function submitReject() {
+  const note = $('note').value.trim()
+  if (!picked.size && !note) { $('err').textContent = 'Marca al menos un motivo o escribe una nota.'; return }
+  const err = await send('reject', [...picked], note)
+  if (err) { $('err').textContent = err; return }
+  closeOverlays()
+}
+
+// ---------- drawing: green = the cut-out ate this, red = this is extra ----------
+async function enterDraw(fromReject) {
+  if (!fromReject) { picked = new Set(); $('note').value = '' }
+  syncPills(); mode = 'draw'; D.strokes = []; D.cur = null
+  $('drawnote').value = $('note').value
+  $('actions').hidden = true; $('tools').hidden = false
+  $('lefttitle').textContent = 'Dibuja sobre el arte'; $('righttitle').textContent = 'Resultado corregido'
+  const it = Q.items[at]
+  let art, mask
+  try { [art, mask] = await Promise.all([loadImg(it.left), fetchMask(`/api/mask/${encodeURIComponent(it.id)}`)]) }
+  catch (err) { status('no se pudo cargar la máscara: ' + (err.message || err)); return }
+  D.art = art; D.mask = mask
+  D.width = Math.max(3, Math.round(Math.max(art.width, art.height) * .012))
+  D.canvas = document.createElement('canvas'); D.canvas.id = 'draw'; D.canvas.width = art.width; D.canvas.height = art.height
+  D.preview = document.createElement('canvas'); D.preview.width = art.width; D.preview.height = art.height
+  $('left').innerHTML = ''; $('left').append(D.canvas); $('right').innerHTML = ''; $('right').append(D.preview)
+  bindCanvas(D.canvas); setTool('add'); render(); status('')
+}
+function exitDraw() {
+  mode = 'view'; $('tools').hidden = true; $('actions').hidden = false; $('drawnote').blur()
+  show()
+}
+function loadImg(src) { return new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('imagen ' + src)); i.src = src }) }
+async function fetchMask(url, body) {
+  const r = await fetch(url, body ? {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Review-Token': token}, body: JSON.stringify(body)} : {})
+  if (!r.ok) throw new Error('máscara')
+  return await createImageBitmap(await r.blob())
+}
+function status(t) { $('drawstatus').textContent = t }
+function setTool(t) { D.tool = t; document.querySelector('[data-tool="add"]').classList.toggle('on', t === 'add'); document.querySelector('[data-tool="remove"]').classList.toggle('on', t === 'remove') }
+
+function strokeWidth(w, p) { return Math.max(1, w * (0.4 + 1.2 * p)) }  // same formula as mask_refine.rasterize
+function drawStroke(ctx, s) {
+  ctx.strokeStyle = s.mode === 'add' ? 'rgba(60,230,120,.85)' : 'rgba(255,80,80,.85)'; ctx.lineCap = 'round'; ctx.lineJoin = 'round'
+  const p = s.pts
+  if (p.length === 1) { ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.arc(p[0][0], p[0][1], strokeWidth(s.w, p[0][2]) / 2, 0, 7); ctx.fill(); return }
+  for (let i = 1; i < p.length; i++) {
+    ctx.lineWidth = strokeWidth(s.w, (p[i - 1][2] + p[i][2]) / 2)
+    ctx.beginPath(); ctx.moveTo(p[i - 1][0], p[i - 1][1]); ctx.lineTo(p[i][0], p[i][1]); ctx.stroke()
+  }
+}
+function render() {
+  if (!D.canvas) return
+  const c = D.canvas.getContext('2d'), w = D.canvas.width, h = D.canvas.height
+  c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, w, h); c.drawImage(D.art, 0, 0)
+  if (D.showMask && D.mask) {  // dim everything outside the current figure
+    const o = document.createElement('canvas'); o.width = w; o.height = h; const oc = o.getContext('2d')
+    oc.fillStyle = 'rgba(8,10,16,.65)'; oc.fillRect(0, 0, w, h); oc.globalCompositeOperation = 'destination-out'; oc.drawImage(D.mask, 0, 0, w, h)
+    c.drawImage(o, 0, 0)
+  }
+  for (const s of D.strokes) drawStroke(c, s); if (D.cur) drawStroke(c, D.cur)
+  const p = D.preview.getContext('2d'); p.globalCompositeOperation = 'source-over'; p.clearRect(0, 0, w, h); p.drawImage(D.art, 0, 0)
+  if (D.mask) { p.globalCompositeOperation = 'destination-in'; p.drawImage(D.mask, 0, 0, w, h) }
+}
+function toArt(e) {
+  const r = D.canvas.getBoundingClientRect(), sx = D.canvas.width / r.width, sy = D.canvas.height / r.height
+  const pressure = e.pointerType === 'pen' ? (e.pressure || .5) : .5
+  return [Math.round((e.clientX - r.left) * sx * 10) / 10, Math.round((e.clientY - r.top) * sy * 10) / 10, Math.round(pressure * 100) / 100]
+}
+function bindCanvas(cv) {
+  cv.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'pen') D.penSeen = true
+    if (e.pointerType === 'touch' && D.penSeen) return      // palm rejection once a pen is in use
+    e.preventDefault(); cv.setPointerCapture(e.pointerId)
+    const eraser = e.pointerType === 'pen' && (e.button === 5 || (e.buttons & 32))
+    D.cur = {mode: eraser ? 'remove' : D.tool, w: D.width, pts: [toArt(e)], id: e.pointerId}; render()
+  })
+  cv.addEventListener('pointermove', e => {
+    if (!D.cur || e.pointerId !== D.cur.id) return
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]
+    for (const ev of (evs.length ? evs : [e])) D.cur.pts.push(toArt(ev))
+    render()
+  })
+  const end = e => {
+    if (!D.cur || e.pointerId !== D.cur.id) return
+    const {id, ...s} = D.cur; D.cur = null
+    if (s.pts.length > 400) s.pts = s.pts.filter((_, i) => i % Math.ceil(s.pts.length / 400) === 0 || i === s.pts.length - 1)
+    D.strokes.push(s); refine()
+  }
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end)
+}
+async function refine() {
+  const seq = ++D.seq; status('refinando…')
+  try {
+    const it = Q.items[at]
+    const m = await fetchMask('/api/refine', {id: it.id, strokes: D.strokes})
+    if (seq !== D.seq || mode !== 'draw') return
+    D.mask = m; render(); status(D.strokes.length ? `${D.strokes.length} trazo${D.strokes.length > 1 ? 's' : ''}` : '')
+  } catch { if (seq === D.seq) status('no se pudo refinar') }
+}
+const tool = {
+  add: () => setTool('add'), remove: () => setTool('remove'),
+  thin: () => { D.width = Math.max(2, Math.round(D.width / 1.3)); status(`grosor ${D.width}px`) },
+  thick: () => { D.width = Math.min(120, Math.round(D.width * 1.3)); status(`grosor ${D.width}px`) },
+  undo: () => { if (D.strokes.pop()) refine() }, clear: () => { if (D.strokes.length) { D.strokes = []; refine() } },
+  mask: () => { D.showMask = !D.showMask; document.querySelector('[data-tool="mask"]').classList.toggle('on', D.showMask); render() },
+  cancel: () => exitDraw(), save: () => saveCorrection(),
+}
+document.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', () => { if (mode === 'draw') tool[b.dataset.tool]() }))
+async function saveCorrection() {
+  if (!D.strokes.length) { status('dibuja al menos un trazo'); return }
+  const note = $('drawnote').value.trim()
+  const err = await send('reject', [...picked], note, D.strokes)
+  if (err) { status(err); return }
+  mode = 'view'; $('tools').hidden = true; $('actions').hidden = false; $('drawnote').blur()
+}
+
+// ---------- keyboard ----------
+document.addEventListener('keydown', async e => {
+  if (!Q || e.ctrlKey || e.metaKey || e.altKey) return
+  const k = e.key, typing = ['note', 'drawnote'].includes(document.activeElement?.id)
+  if (mode === 'help') { if (k === 'Escape' || k === '?') { e.preventDefault(); closeOverlays() } return }
+  if (mode === 'draw') {
+    if (k === 'Escape') { e.preventDefault(); typing ? $('drawnote').blur() : exitDraw(); return }
+    if (k === 'Enter') { e.preventDefault(); saveCorrection(); return }
+    if (typing) return
+    const map = {a: 'add', r: 'remove', '[': 'thin', ']': 'thick', z: 'undo', x: 'clear', o: 'mask'}
+    if (k === '/') { e.preventDefault(); $('drawnote').focus(); return }
+    if (map[k.toLowerCase()]) { e.preventDefault(); tool[map[k.toLowerCase()]]() ; return }
+    const n = parseInt(k, 10)
+    if (n >= 1 && n <= Q.reasons.length) { e.preventDefault(); togglePill(Q.reasons[n - 1].id) }
+    return
+  }
+  if (mode === 'reject') {
+    if (k === 'Escape') { e.preventDefault(); if (typing) $('note').blur(); else closeOverlays(); return }
+    if (k === 'Enter') { e.preventDefault(); submitReject(); return }
+    if (typing) return
+    if (k === '/') { e.preventDefault(); $('note').focus(); return }
+    if ((k === 'd' || k === 'D') && Q.can_draw && !Q.items[at].no_draw) { e.preventDefault(); $('reject').classList.remove('open'); enterDraw(true); return }
+    const n = parseInt(k, 10)
+    if (n >= 1 && n <= Q.reasons.length) { e.preventDefault(); togglePill(Q.reasons[n - 1].id) }
+    return
+  }
+  const keys = {ArrowRight: 'approve', ArrowLeft: 'reject', ArrowDown: 'skip', ' ': 'skip', ArrowUp: 'back', Backspace: 'back', b: 'bg', B: 'bg', '?': 'help', d: 'draw', D: 'draw'}
+  if (keys[k]) { e.preventDefault(); act[keys[k]]() }
+})
+load()
+</script>

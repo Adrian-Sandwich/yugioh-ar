@@ -38,10 +38,18 @@ class Tracker:
         return detections
 
 
+def auto_version():
+    """Changes whenever research/auto_cutout.py build or review_server.py --apply rewrites the
+    automatic sprites (both finish by replacing data/auto-sprites/index.json)."""
+    try: return (AUTO_SPRITES/'index.json').stat().st_mtime_ns
+    except OSError: return 0
+
+
 class SpriteOverlay:
     def __init__(self,prepared_limit=16):
         if prepared_limit<1: raise ValueError('prepared_limit must be positive')
         self.cache={}
+        self.auto_seen=auto_version();self.auto_checked=time.monotonic()
         # 16 portrait canvases use at most 16.4 MB of additional pixel storage.
         self.prepared=OrderedDict();self.prepared_limit=prepared_limit
         self.png_cache=OrderedDict()
@@ -57,6 +65,19 @@ class SpriteOverlay:
             self.cache.clear();self.prepared.clear();self.png_cache.clear()
         else:
             self.cache.pop(ref,None);self.prepared.pop(ref,None);self.png_cache.pop(ref,None)
+
+    def refresh_auto(self,every=1.0):
+        """Drop cached automatic sprites once they change on disk (checked at most every second),
+        so corrections and rebuilds show up without restarting the viewer. Returns the version."""
+        now=time.monotonic()
+        if now-self.auto_checked>=every:
+            self.auto_checked=now;version=auto_version()
+            if version!=self.auto_seen:
+                self.auto_seen=version
+                is_auto=lambda k:(k[1] if isinstance(k,tuple) else k).startswith('auto:')
+                for store in (self.cache,self.prepared,self.png_cache):
+                    for k in [k for k in store if is_auto(k)]: store.pop(k,None)
+        return self.auto_seen
 
     def prepared_canvas(self,ref,sprite):
         cached=self.prepared.get(ref)
@@ -77,6 +98,7 @@ class SpriteOverlay:
 
     def load(self,ref):
         """Decoded RGBA sprite for a reference id, or None (cached either way)."""
+        if ref.startswith('auto:'): self.refresh_auto()
         if ref not in self.cache:
             if ref.startswith('auto:'):
                 # Automatic cut-outs (research/auto_cutout.py) for cards without a TDOANE sprite.

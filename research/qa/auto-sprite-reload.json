@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "overlay drops changed automatic sprites",
+    "throttled disk check",
+    "hand-made sprites untouched",
+    "new automatic sprites mapped",
+    "removed ones unmapped",
+    "TDOANE sprites untouched",
+    "no remap without change",
+    "versioned URL for automatic sprites",
+    "new version after a change",
+    "hand-made sprite URLs unchanged"
+  ],
+  "not_covered": "the duel view (/duelo) caches /cutout/<ref> per page load: reload that page after --apply"
+}

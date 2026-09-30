@@ -79,6 +79,8 @@ El usuario indicó que hay más cosas por resolver; se irán anotando aquí.
 - **Magias de Campo que cambian el ambiente del tablero en AR** (idea del
   usuario, 28/09/2026): con una Magia de Campo activa, su escenario tiñe o
   envuelve el tablero de ese jugador (o de ambos). 334 en el registro.
+  Plan por fases y qué hacer con las que no se reconocen: `PLAN_3D_Y_REVISION.md`,
+  «Fase posterior: Magias de Campo» (29/09/2026).
 - Sprites que faltan: sólo 5,853 de 9,178 monstruos del catálogo completo
   (64 %) tienen recorte TDOANE; los más nuevos no. Y una figura genérica para
   los monstruos en defensa boca abajo.

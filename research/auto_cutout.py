@@ -6,8 +6,11 @@ match the artwork: each close-up is aligned onto its artwork (downloads/ygoprode
 with SIFT + a RANSAC similarity, its alpha is warped into the artwork frame and compared
 (IoU) with the mask a segmentation model predicts from the artwork alone.
 
-Models (rembg's ONNX exports, downloads/cutout-models, not versioned):
-isnet-anime, isnet-general-use, BiRefNet-general (full) and its swin-tiny variant.
+Models (ONNX, downloads/cutout-models, not versioned): rembg's exports of isnet-anime,
+isnet-general-use, BiRefNet-general (full) and its swin-tiny variant; and ToonOut, BiRefNet
+fine-tuned on 1,228 anime images (Muratori & Seytre 2025, arXiv 2509.06839, MIT), from the
+community ONNX export sprited/birefnet-toonout-onnx (file birefnet-toonout.onnx; the fp16 file
+also works and uses less memory). A model whose file is missing is skipped with a warning.
 
     python research/auto_cutout.py eval  [--n 60]      # IoU per model -> research/qa/auto-cutout-eval.json
     python research/auto_cutout.py sheet CODES...       # side-by-side sheet of every model's cut-out
@@ -33,7 +36,24 @@ VARIANTS = {
     'isnet-general': ('isnet-general-use.onnx', (.5, .5, .5), (1., 1., 1.), False),
     'birefnet-lite': ('BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx', (.485, .456, .406), (.229, .224, .225), True),
     'birefnet': ('BiRefNet-general-epoch_244.onnx', (.485, .456, .406), (.229, .224, .225), True),
+    # Output already through a sigmoid (0..1); same ImageNet normalisation as BiRefNet.
+    'toonout': ('birefnet-toonout.onnx', (.485, .456, .406), (.229, .224, .225), False),
 }
+
+
+def available(name):
+    """Is the model's ONNX file downloaded? Optional ones (ToonOut) may not be yet."""
+    return (MODELS / VARIANTS[name][0]).exists()
+
+
+_warned = set()
+
+
+def usable(names):
+    out = [n for n in names if available(n)]
+    for n in set(names) - set(out) - _warned:
+        print(f'aviso: falta {MODELS / VARIANTS[n][0]}; el modelo {n} no compite', flush=True); _warned.add(n)
+    return out
 
 
 class Cutter:
@@ -102,7 +122,7 @@ def evaluate(n):
         if len(pairs) >= n: break
     print('pares alineados', len(pairs), flush=True)
     result = {'date': time.strftime('%Y-%m-%d'), 'pairs': len(pairs), 'models': {}}
-    for name in VARIANTS:
+    for name in usable(list(VARIANTS)):
         cutter = Cutter(name); cutter.mask(pairs[0][1])   # warm-up
         scores = []; started = time.perf_counter()
         for code, art, gt in pairs: scores.append(iou(cutter.mask(art), gt))
@@ -230,16 +250,63 @@ def rgba(art, mask):
     return out[ys.min():ys.max() + 1, xs.min():xs.max() + 1] if len(ys) else out
 
 
+CANDIDATES = OUT / 'candidates'
+
+
+def load_candidates():
+    path = CANDIDATES / 'index.json'
+    return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+
+
+def save_candidate(cands, code, art, name, mask, score):
+    CANDIDATES.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(CANDIDATES / f'{code}.png'), rgba(art, mask), [cv2.IMWRITE_PNG_COMPRESSION, 6])
+    cands[code] = {'model': name, 'score': round(score, 3)}
+
+
+def write_candidates(cands):
+    if not cands and not CANDIDATES.exists(): return
+    CANDIDATES.mkdir(parents=True, exist_ok=True)
+    tmp = CANDIDATES / 'index.tmp'; tmp.write_text(json.dumps(cands), encoding='utf-8'); tmp.replace(CANDIDATES / 'index.json')
+
+
+REVIEWS = ROOT / 'research/reviews/sprite.jsonl'
+
+
+def rejected_models():
+    """Cut-outs a person rejected, per artwork: {code: {model, ...}}. The models are deterministic,
+    so the same model gives the same mask again; build() and hologram_candidates.py never offer
+    it again for that artwork. Latest verdict per judged sprite (a later approval of the same
+    sprite withdraws the rejection)."""
+    if not REVIEWS.exists(): return {}
+    last = {}
+    for line in REVIEWS.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            v = json.loads(line); last[(v['id'], v.get('fp'))] = v
+    out = {}
+    for v in last.values():
+        meta = v.get('meta', {})
+        if v['verdict'] == 'reject' and meta.get('estado') in ('ok', 'candidato') and meta.get('modelo') in CUTTERS:
+            out.setdefault(v['id'], set()).add(meta['modelo'])
+    return out
+
+
+CUTTERS = ('birefnet', 'birefnet-flip', 'isnet-anime', 'toonout')
+
+
 def build(limit=None):
     """Cut-outs for every target (resumable): BiRefNet, judged by the critic; when it rejects,
     the adversarial retries (flipped artwork averaged in, isnet-anime) compete and the best
-    score wins; below the threshold the card gets the artwork hologram, marked doubtful."""
+    score wins; below the threshold the card gets the artwork hologram, marked doubtful.
+    Cut-outs a person already rejected for an artwork (review_server.py) never compete again;
+    if all three were rejected, the card gets the hologram without a candidate."""
     model = json.loads(CRITIC.read_text(encoding='utf-8'))
     model.update(mean=np.float32(model['mean']), std=np.float32(model['std']))
     OUT.mkdir(parents=True, exist_ok=True); index_path = OUT / 'index.json'
     index = json.loads(index_path.read_text(encoding='utf-8')) if index_path.exists() else {}
     todo = [c for c in targets() if c not in index][:limit]
-    print('pendientes', len(todo), 'hechas', len(index), flush=True)
+    banned = rejected_models()
+    print('pendientes', len(todo), 'hechas', len(index), 'con recortes rechazados', sum(c in banned for c in todo), flush=True)
     started = time.time(); chunk = 200
     for at in range(0, len(todo), chunk):
         codes = []; arts = []
@@ -249,7 +316,16 @@ def build(limit=None):
             else: codes.append(code); arts.append(art)
         # One model at a time over the chunk (see masks()).
         main = masks('birefnet', arts); second = masks('birefnet-lite', arts)
-        best = [('birefnet', m, critic_score(features(a, m, s), model)) for a, m, s in zip(arts, main, second)]
+        allowed = lambda i, name: name not in banned.get(codes[i], ())
+        best = [('birefnet', m, critic_score(features(a, m, s), model) if allowed(i, 'birefnet') else float('-inf'))
+                for i, (a, m, s) in enumerate(zip(arts, main, second))]
+        if usable(['toonout']):
+            # ToonOut competes for every card, not only the weak ones: it is the model trained on
+            # anime-style art (ToonOut's "action" images: BiRefNet 76.8 % pixel accuracy, ToonOut 99.0 %).
+            for i, t in enumerate(masks('toonout', arts)):
+                if not allowed(i, 'toonout'): continue
+                score = critic_score(features(arts[i], t, second[i]), model)
+                if score > best[i][2]: best[i] = ('toonout', t, score)
         weak = [i for i, b in enumerate(best) if b[2] < model['retry_threshold']]
         if weak:
             # The adversarial round: the critic rejected these; other cut-outs compete for them.
@@ -257,12 +333,23 @@ def build(limit=None):
             anime = masks('isnet-anime', [arts[i] for i in weak])
             for i, f, a in zip(weak, flipped, anime):
                 for name, cand in (('birefnet-flip', (main[i] + f) / 2), ('isnet-anime', a)):
+                    if not allowed(i, name): continue
                     score = critic_score(features(arts[i], cand, second[i]), model)
                     if score > best[i][2]: best[i] = (name, cand, score)
+        cands = load_candidates()
         for code, art, (name, mask, score) in zip(codes, arts, best):
+            if score == float('-inf'):  # every cut-out was rejected by a person
+                cv2.imwrite(str(OUT / f'{code}.png'), rgba(art, hologram(art)), [cv2.IMWRITE_PNG_COMPRESSION, 6])
+                index[code] = {'status': 'hologram', 'model': None, 'score': None, 'all_rejected': True}
+                cands.pop(code, None); continue
             status = 'ok' if score >= model['threshold'] else 'hologram'
             cv2.imwrite(str(OUT / f'{code}.png'), rgba(art, hologram(art) if status == 'hologram' else mask), [cv2.IMWRITE_PNG_COMPRESSION, 6])
             index[code] = {'status': status, 'model': name, 'score': round(score, 3)}
+            if status == 'hologram':  # keep the cut-out that lost: a person may still approve it (review_server.py)
+                save_candidate(cands, code, art, name, mask, score)
+            else:
+                cands.pop(code, None)
+        write_candidates(cands)
         tmp = index_path.with_suffix('.tmp'); tmp.write_text(json.dumps(index), encoding='utf-8'); tmp.replace(index_path)
         ok = sum(v.get('status') == 'ok' for v in index.values())
         print(f'{min(at + chunk, len(todo))}/{len(todo)} {round(time.time() - started)} s · ok {ok} de {len(index)} · reintentos {len(weak)}', flush=True)
@@ -270,7 +357,7 @@ def build(limit=None):
 
 def sheet(path, codes):
     rows = []
-    cutters = [Cutter(n) for n in VARIANTS]
+    names = usable(list(VARIANTS)); cutters = [Cutter(n) for n in names]
     for code in codes:
         art = cv2.imread(str(ART / f'{code}.jpg')); tile = [cv2.resize(art, (256, 256))]
         for c in cutters:
@@ -279,7 +366,7 @@ def sheet(path, codes):
             tile.append(cv2.resize((art * m + bg * (1 - m)).astype(np.uint8), (256, 256)))
         rows.append(np.hstack(tile))
     header = np.full((30, rows[0].shape[1], 3), 255, np.uint8)
-    for i, t in enumerate(['ilustracion', *VARIANTS]): cv2.putText(header, t, (8 + 256 * i, 21), cv2.FONT_HERSHEY_SIMPLEX, .6, (0, 0, 0), 1)
+    for i, t in enumerate(['ilustracion', *names]): cv2.putText(header, t, (8 + 256 * i, 21), cv2.FONT_HERSHEY_SIMPLEX, .6, (0, 0, 0), 1)
     cv2.imwrite(path, np.vstack([header, *rows]), [cv2.IMWRITE_JPEG_QUALITY, 88])
 
 

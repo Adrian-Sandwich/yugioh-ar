@@ -54,12 +54,22 @@ def snapshot(base):
     return data
 
 
+def auto_sprite_url(ref):
+    """Automatic sprites can change while the viewer runs (review_server.py --apply, auto_cutout.py
+    build, both ending by replacing data/auto-sprites/index.json): the version in the URL makes the
+    page fetch the new picture instead of reusing the one it already holds."""
+    try: version=(ROOT/'data'/'auto-sprites'/'index.json').stat().st_mtime_ns
+    except OSError: version=0
+    return '/sprite/'+ref+'?v=%d'%version
+
+
 def track_payload(tracks):
     """Compact, ASCII-safe track list for a response header or JSON body."""
     out=[]
     for t in tracks:
         item={k:t.get(k) for k in TRACK_FIELDS if k in t}
         item['corners']=[[round(float(x),1),round(float(y),1)] for x,y in t['corners']]
+        if (item.get('sprite_ref') or '').startswith('auto:'): item['sprite_url']=auto_sprite_url(item['sprite_ref'])
         out.append(item)
     return out
 
@@ -134,6 +144,7 @@ class Handler(BaseHTTPRequestHandler):
                 else: self.reply(200,data,'image/png',{'Cache-Control':'max-age=3600'})
             elif route.startswith('/sprite/'):
                 overlay=getattr(self.server,'overlay',None)
+                if overlay: overlay.refresh_auto(every=0)  # a new ?v= must never get the old picture
                 data=overlay.sprite_png(route[len('/sprite/'):]) if overlay else None
                 if data is None: self.reply(404,b'No sprite','text/plain')
                 else: self.reply(200,data,'image/png',{'Cache-Control':'max-age=3600'})
@@ -418,7 +429,7 @@ def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
                 except Exception: traceback.print_exc()
         for d in result['detections']:
             if d.get('sprite_ref') and getattr(server,'overlay',None) is not None:
-                d['sprite_url']='/sprite/'+d['sprite_ref']
+                d['sprite_url']=auto_sprite_url(d['sprite_ref']) if d['sprite_ref'].startswith('auto:') else '/sprite/'+d['sprite_ref']
         result['image']='data:image/jpeg;base64,'+base64.b64encode(data).decode('ascii')
         result.update(captured_at=captured_at,capture_time_basis=capture_basis,
             received_at=received_at,completed_at=time.time())

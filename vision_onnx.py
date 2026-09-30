@@ -479,16 +479,29 @@ class LiveRecognizer(ResearchRecognizer):
         self.signature=self.pilot_signature()
         self.references=reference_entries()
         self.cards={};self.references_by_id={}
-        # Cards without a TDOANE sprite use their automatic cut-out when research/auto_cutout.py made one.
-        auto=ROOT/'data/auto-sprites'
-        made={p.name for p in auto.glob('*.png')} if auto.exists() else set()
-        for ref in self.references:
-            if not ref.get('sprite_ref') and ref.get('source'):
-                name=Path(ref['source']).stem+'.png'
-                if name in made: ref['sprite_ref']='auto:'+name
+        self.map_auto_sprites()
         for ref in self.references:
             self.cards.setdefault(ref['card_id'],ref)
             self.references_by_id.setdefault(ref['id'],ref)
+
+    def map_auto_sprites(self):
+        """Cards without a TDOANE sprite use their automatic cut-out when research/auto_cutout.py
+        made one. Re-run when data/auto-sprites changes: new cards gain a sprite, removed ones lose it."""
+        auto=ROOT/'data/auto-sprites'
+        try: self.auto_signature=(auto/'index.json').stat().st_mtime_ns
+        except OSError: self.auto_signature=None
+        made={p.name for p in auto.glob('*.png')} if auto.exists() else set()
+        for ref in self.references:
+            if (ref.get('sprite_ref') or '').startswith('auto:'): ref.pop('sprite_ref')
+            if not ref.get('sprite_ref') and ref.get('source'):
+                name=Path(ref['source']).stem+'.png'
+                if name in made: ref['sprite_ref']='auto:'+name
+
+    def refresh_auto_sprites(self):
+        try: signature=(ROOT/'data/auto-sprites'/'index.json').stat().st_mtime_ns
+        except OSError: signature=None
+        if signature==getattr(self,'auto_signature',None): return False
+        self.map_auto_sprites(); return True
 
     def refresh_pilot(self):
         """Pick up a pilot saved in the catalog (or new enrolled photos) without a restart."""
@@ -525,6 +538,7 @@ class LiveRecognizer(ResearchRecognizer):
         image=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR)
         if image is None: raise ValueError('Invalid JPEG')
         reloaded=self.refresh_pilot()
+        if not reloaded: self.refresh_auto_sprites()
         result=self.detect(image,reuse=reuse,regions=regions)
         if back_zones and self.mode=='embedding':
             from card_backs import BackChecker,THRESHOLD
