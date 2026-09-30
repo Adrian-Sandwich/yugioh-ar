@@ -27,6 +27,7 @@ onnxruntime y Pillow, con los mismos pins que `requirements-research.txt` y
 | `qa_catalog_sync.py`, `qa_curated_registry.py`, `qa_download_watch.py`, `qa_printing_art_links.py` | sincronización y registro curado sobre bases temporales |
 | `qa_table_duel.py` | duelo desde la mesa: jugadas deducidas, reversos, retrack, avisos del modo notario |
 | `qa_name_pick.py` | nombre impreso como segundo voto entre los candidatos visuales |
+| `qa_auto_sprite_reload.py` | el visor toma los sprites automáticos nuevos o corregidos sin reiniciar (carpeta temporal) |
 
 ## Qué no puede correr en CI y por qué
 

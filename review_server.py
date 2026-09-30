@@ -10,7 +10,7 @@
     python review_server.py --stats                  # summary -> research/qa/<kind>-review.json
     python review_server.py --apply                  # corrections and approved hologram candidates go into use
 
-Keys (also on-screen buttons for touch): -> approve, <- reject (1-9 toggle reasons, / writes a
+Keys (also on-screen buttons for touch): -> approve, <- reject (1-9 and 0 toggle reasons, / writes a
 note, Enter saves, Esc cancels), D corrects the mask by drawing (pen, finger or mouse), down skip,
 up/Backspace go back, B changes the background behind the asset.
 
@@ -60,6 +60,8 @@ REASONS = {
         ('ruido', 'Manchas o partes sueltas'),
         ('equivocado', 'Recortó otra cosa'),
         ('holograma', 'Mejor el arte completo'),
+        # A hologram's candidate that did not separate the figure: it is the artwork again.
+        ('igual', 'Candidato igual al holograma'),
         ('varios', 'Hay varias figuras y eligió mal'),
         ('otro', 'Otro (escribe la nota)'),
     ],
@@ -94,6 +96,34 @@ def control_codes():
     return set(json.loads(CONTROL.read_text(encoding='utf-8'))['codes']) if CONTROL.exists() else set()
 
 
+# Two or more tablets share the queue: whoever shows a pending card holds it for LEASE_S (released by
+# a verdict or by moving to another card), so two reviewers never judge the same card by accident.
+LEASE_S = 600
+# Verdicts saved before reviewers had names (29/09/2026) were all Adrian's.
+LEGACY_REVIEWER = 'Adrian'
+
+
+def reviewer_name(value):
+    """The name a tablet gave itself (review.html asks once): short, printable, or None."""
+    name = ' '.join(str(value or '').split())[:40]
+    return name if name and name.isprintable() else None
+
+
+def reviewer_of(v):
+    return v.get('reviewer') or LEGACY_REVIEWER
+
+
+def reviewer_counts(kind, control=None):
+    """Verdicts per reviewer: every approve/reject line (skips left out)."""
+    path = verdict_path(kind, control); out = Counter()
+    if path.exists():
+        for line in path.read_text(encoding='utf-8').splitlines():
+            if line.strip():
+                v = json.loads(line)
+                if v['verdict'] != 'skip': out[reviewer_of(v)] += 1
+    return dict(out.most_common())
+
+
 def verdict_path(kind, control=None):
     return REVIEWS / 'control' / f'{control}.jsonl' if control else REVIEWS / f'{kind}.jsonl'
 
@@ -116,6 +146,9 @@ def items_sprite(order, control=None):
     index = json.loads((SPRITES / 'index.json').read_text(encoding='utf-8'))
     cands = json.loads((CANDIDATES / 'index.json').read_text(encoding='utf-8')) if (CANDIDATES / 'index.json').exists() else {}
     held = control_codes()
+    # The candidate replaces a hologram only while nobody approved that hologram: on 29/09/2026 the
+    # candidates arrived after 540 holograms had been judged, and the approved ones came back to the queue.
+    judged = load_verdicts('sprite') if not control else {}
     threshold = json.loads(CRITIC.read_text(encoding='utf-8'))['threshold'] if CRITIC.exists() else .5
     out = []
     for code, e in index.items():
@@ -125,9 +158,13 @@ def items_sprite(order, control=None):
         if c and not (CANDIDATES / f'{code}.png').exists(): c = None
         if order == 'hologram' and e['status'] != 'hologram': continue
         if control: c = None  # control rounds judge what is in use, the hologram itself
+        before = judged.get(code) if e['status'] == 'hologram' else None
+        if before and before.get('fp') != sprite_fp(e): before = None  # it judged an earlier sprite
+        if before and before['verdict'] == 'approve': c = None  # the approved hologram stays
         if c:
             item = {'right': f'/img/candidate/{code}.png', '_png': CANDIDATES / f'{code}.png', 'fp': f"cand|{c['model']}|{c['score']}",
                     'meta': {'código': code, 'estado': 'candidato', 'modelo': c['model'], 'crítico': c['score']}, '_score': c['score']}
+            if before and before['verdict'] == 'reject': item['meta']['holograma'] = 'ya lo rechazaste'
         else:
             item = {'right': f'/img/sprite/{code}.png', '_png': SPRITES / f'{code}.png',
                     'fp': sprite_fp(e),
@@ -289,7 +326,13 @@ class Handler(BaseHTTPRequestHandler):
         if not key: return True
         q = parse_qs(urlsplit(self.path).query).get('k', [''])[0]
         cookie = SimpleCookie(self.headers.get('Cookie', '')).get('rk')
-        return secrets.compare_digest(q, key) or (cookie is not None and secrets.compare_digest(cookie.value, key))
+        ok = secrets.compare_digest(q, key) or (cookie is not None and secrets.compare_digest(cookie.value, key))
+        if not ok:  # which device, which path, and whether a key or cookie came at all (never the values)
+            hint = (f" largo={len(q)}/{len(key)} mayus={q.lower() == key.lower()} contiene={key in q}"
+                    f" extra={sorted({c for c in q if not (c.isalnum() or c in '-_')})!r}") if q else ''
+            print(f"403 {self.client_address[0]} {urlsplit(self.path).path} clave={'mal' if q else 'no'} cookie={'mal' if cookie else 'no'}{hint}"
+                  f" agente={self.headers.get('User-Agent', '')[:60]!r}", file=sys.stderr, flush=True)
+        return ok
 
     def do_GET(self):
         s = self.server; url = urlsplit(self.path); path = url.path
@@ -306,12 +349,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/':
             return self.reply(200, (ROOT / 'web/review.html').read_bytes(), 'text/html; charset=utf-8')
         if path == '/api/queue':
-            verdicts = load_verdicts(s.kind, s.control)
-            if s.kind == 'sprite' and not s.control: verdicts = {**verdicts, **load_retests()}
-            def current(i):
-                v = verdicts.get(i['id'])
-                if not v or not same_asset(v, i['fp']): return None  # it judged a sprite that was since redone
-                return {'verdict': v['verdict'], 'reasons': v['reasons'], 'corrected': bool(v.get('correction'))}
+            current = self.current_verdicts()
             items = [{k: x for k, x in dict(i, verdict=current(i)).items() if not k.startswith('_')} for i in s.items]
             if s.control:  # blind: the page never sees earlier rounds, only this round's own progress
                 items = [dict(i, meta={'código': i['meta']['código']}) for i in items]
@@ -350,15 +388,43 @@ class Handler(BaseHTTPRequestHandler):
             mask = r.refine(art, base, strokes, image_key=code) if r.name == 'sam2' else r.refine(art, base, strokes)
         return mask, r.name
 
+    def current_verdicts(self):
+        """item -> its standing verdict (None when unjudged, or when it judged a sprite since redone)."""
+        s = self.server
+        verdicts = load_verdicts(s.kind, s.control)
+        if s.kind == 'sprite' and not s.control: verdicts = {**verdicts, **load_retests()}
+        def current(i):
+            v = verdicts.get(i['id'])
+            if not v or not same_asset(v, i['fp']): return None
+            return {'verdict': v['verdict'], 'reasons': v['reasons'], 'corrected': bool(v.get('correction'))}
+        return current
+
+    def claim(self, body):
+        """Hold a pending card for this reviewer; say so when someone else holds or already judged it."""
+        s = self.server; who = reviewer_name(body.get('reviewer')) or LEGACY_REVIEWER
+        item = s.known.get(body.get('id'))
+        if item is None: return self.reply(400, {'error': 'id'})
+        verdict = self.current_verdicts()(item)
+        now = time.monotonic(); counts = reviewer_counts(s.kind, s.control)
+        with s.lock:
+            # One card per reviewer: showing another releases the previous one.
+            s.leases = {k: v for k, v in s.leases.items() if now - v[1] < LEASE_S and v[0] != who}
+            if verdict: return self.reply(200, {'ok': False, 'why': 'judged', 'verdict': verdict, 'counts': counts})
+            holder = s.leases.get(item['id'])
+            if holder: return self.reply(200, {'ok': False, 'why': 'taken', 'by': holder[0], 'counts': counts})
+            s.leases[item['id']] = (who, now)
+        return self.reply(200, {'ok': True, 'counts': counts})
+
     def do_POST(self):
         s = self.server; path = urlsplit(self.path).path
         if not self.allowed(): return self.reply(403, {'error': 'falta la clave de acceso'})
-        if path not in ('/api/verdict', '/api/refine'): return self.reply(404, {'error': 'ruta desconocida'})
+        if path not in ('/api/verdict', '/api/refine', '/api/claim'): return self.reply(404, {'error': 'ruta desconocida'})
         if self.headers.get('X-Review-Token') != s.token: return self.reply(403, {'error': 'token'})
         try:
             body = self.body(2_000_000)
         except ValueError:
             return self.reply(400, {'error': 'json'})
+        if path == '/api/claim': return self.claim(body)
         if path == '/api/refine':
             if s.kind != 'sprite' or s.control or body.get('id') not in s.known: return self.reply(400, {'error': 'id'})
             mask, _ = self.refined(body['id'], clean_strokes(body.get('strokes')))
@@ -383,6 +449,8 @@ class Handler(BaseHTTPRequestHandler):
                 'meta': {k: v for k, v in item['meta'].items() if k != 'carta'}, 'fp': item['fp'],
                 'sampling': item.get('sampling'), 'ms': int(body.get('ms', 0)),
                 'at': time.strftime('%Y-%m-%dT%H:%M:%S')}
+        who = reviewer_name(body.get('reviewer'))
+        if who: line['reviewer'] = who
         if strokes and body['verdict'] == 'reject':
             import cv2, hashlib
             mask, refiner = self.refined(item['id'], strokes)
@@ -401,7 +469,8 @@ class Handler(BaseHTTPRequestHandler):
         path_out.parent.mkdir(parents=True, exist_ok=True)
         with s.lock, open(path_out, 'a', encoding='utf-8') as f:
             f.write(json.dumps(line, ensure_ascii=False) + '\n')
-        self.reply(200, {'ok': True, 'reasons': reasons})
+            s.leases.pop(item['id'], None)
+        self.reply(200, {'ok': True, 'reasons': reasons, 'counts': reviewer_counts(s.kind, s.control)})
 
 
 def stats(kind):
@@ -415,6 +484,12 @@ def stats(kind):
               'reasons': Counter(r for v in judged for r in v['reasons']).most_common(),
               'median_ms': sorted(v.get('ms', 0) for v in judged)[len(judged) // 2] if judged else None}
     report['corrections'] = sum(1 for v in judged if v.get('correction'))
+    # Who did how many: every approve/reject line (changing a verdict later counts again), and the
+    # standing verdicts each one holds now, with their approval rate.
+    mine = lambda who: [v for v in judged if reviewer_of(v) == who]
+    report['by_reviewer'] = {who: {'verdicts': n, 'standing': len(mine(who)),
+                                   'approved': round(sum(v['verdict'] == 'approve' for v in mine(who)) / max(1, len(mine(who))), 3)}
+                             for who, n in reviewer_counts(kind).items()}
     if kind == 'sprite' and (REVIEWS / 'control').exists():
         # Same cards, judged blind in each round: the honest measure of improvement.
         report['control_rounds'] = {}; rounds = []
@@ -561,6 +636,7 @@ def main():
     import threading
     server = ThreadingHTTPServer(('0.0.0.0' if a.lan else '127.0.0.1', a.port), Handler)
     server.kind, server.revisit, server.token, server.lock = a.kind, a.revisit, secrets.token_urlsafe(24), threading.Lock()
+    server.leases = {}  # item id -> (reviewer, monotonic time): see LEASE_S
     server.control = a.control if a.kind == 'sprite' else None
     server.access_key = lan_key() if a.lan else None
     server.refiner, server.refiner_kind, server.refine_lock = None, a.refiner, threading.Lock()

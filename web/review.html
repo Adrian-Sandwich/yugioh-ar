@@ -40,7 +40,7 @@ input{-webkit-user-select:text;user-select:text}
 .stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;border-radius:0 0 12px 12px;overflow:hidden;position:relative}
 .stage img,.stage canvas{max-width:100%;max-height:100%;object-fit:contain}
 .stage model-viewer{width:100%;height:100%}
-#draw{touch-action:none;cursor:crosshair}
+#draw,#drawpreview{touch-action:none;cursor:crosshair}
 .bg-checker{background:repeating-conic-gradient(#263244 0% 25%,#1c2533 0% 50%) 0/22px 22px}
 .bg-dark{background:#0a0d12}.bg-light{background:#e9edf3}.bg-magenta{background:#ff00c8}
 .flash-ok{border-color:var(--ok)}.flash-no{border-color:var(--no)}
@@ -70,13 +70,14 @@ footer input{font:inherit;padding:12px;border-radius:12px;border:1px solid #4755
 .help dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0}.help dd{margin:0;color:#cfd8e6}
 .done{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#adb9cf}
 [hidden]{display:none!important}
+#who{min-height:36px;padding:6px 12px;font-size:14px}#team{color:#adb9cf;font-size:13px}
 @media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}button.big{min-width:0;flex:1}}
 </style>
 
 <header>
   <b id="title">Revisión</b>
   <div class="meta" id="meta"></div>
-  <div class="progress"><span id="count">–</span><div class="bar"><i id="barfill" style="width:0"></i></div><span id="session"></span></div>
+  <div class="progress"><button id="who" title="Cambiar de nombre"></button><span id="team"></span><span id="count">–</span><div class="bar"><i id="barfill" style="width:0"></i></div><span id="session"></span></div>
 </header>
 
 <main id="main">
@@ -139,6 +140,38 @@ const sessionCount = {approve: 0, reject: 0, skip: 0}
 const BGS = ['bg-checker', 'bg-dark', 'bg-light', 'bg-magenta']; let bg = 0
 const LABEL = {approve: 'aprobada', reject: 'rechazada', skip: 'saltada'}
 // drawing state
+// Who is reviewing: asked once per device and kept there. Several tablets share the queue: each card
+// is held by whoever shows it (/api/claim), so two people never judge the same one.
+let reviewer = ''
+function storedName() { try { return localStorage.getItem('reviewer') || '' } catch { return '' } }
+function askName() {
+  const n = (prompt('¿Quién revisa en este aparato? (tu nombre)', reviewer || '') || '').trim().slice(0, 40)
+  if (n) { reviewer = n; try { localStorage.setItem('reviewer', n) } catch {} }
+  $('who').textContent = '👤 ' + (reviewer || 'sin nombre')
+}
+function showCounts(c) {
+  if (c) $('team').textContent = Object.entries(c).map(([k, v]) => `${k} ${v}`).join(' · ')
+}
+async function claim(id) {
+  const r = await fetch('/api/claim', {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Review-Token': token},
+                                       body: JSON.stringify({id, reviewer})})
+  return r.ok ? r.json() : {ok: true}   // a failed claim never blocks the review
+}
+// Land on a card this reviewer may judge: pending cards are claimed first; one someone else holds, or
+// judged since this page loaded, is passed over in the direction of travel. Judged cards are free to revisit.
+async function settle(dir = 1) {
+  while (at >= 0 && at < Q.items.length) {
+    const it = Q.items[at]
+    if (it.verdict) break
+    const r = await claim(it.id); showCounts(r.counts)
+    if (r.ok) break
+    if (r.verdict) it.verdict = r.verdict
+    at += dir
+  }
+  if (at < 0) at = 0
+  show()
+}
+$('who').addEventListener('click', askName)
 const D = {art: null, mask: null, strokes: [], cur: null, tool: 'add', width: 8, showMask: true, penSeen: false, seq: 0, canvas: null, preview: null}
 
 async function load() {
@@ -150,9 +183,10 @@ async function load() {
     const s = document.createElement('script'); s.type = 'module'
     s.src = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js'; document.head.append(s)
   }
-  const pillHtml = Q.reasons.map((r, i) => `<span class="pill" data-id="${r.id}"><kbd>${i + 1}</kbd>${r.label}</span>`).join('')
+  const pillHtml = Q.reasons.map((r, i) => `<span class="pill" data-id="${r.id}"><kbd>${(i + 1) % 10}</kbd>${r.label}</span>`).join('')
   $('pills').innerHTML = pillHtml; $('drawpills').innerHTML = pillHtml
-  show()
+  reviewer = storedName(); if (!reviewer) askName(); else $('who').textContent = '👤 ' + reviewer
+  await settle(1)
 }
 
 function rightTitle(it) {
@@ -192,15 +226,15 @@ function show() {
 
 async function send(verdict, reasons = [], note = '', strokes = null) {
   const it = Q.items[at]
-  const body = {id: it.id, verdict, reasons, note, ms: Math.round(performance.now() - shownAt)}
+  const body = {id: it.id, verdict, reasons, note, reviewer, ms: Math.round(performance.now() - shownAt)}
   if (strokes) body.strokes = strokes
   const r = await fetch('/api/verdict', {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Review-Token': token}, body: JSON.stringify(body)})
   const res = await r.json().catch(() => ({}))
   if (!r.ok) return res.error || 'error al guardar'
-  it.verdict = {verdict, reasons: res.reasons || reasons}; sessionCount[verdict]++
+  it.verdict = {verdict, reasons: res.reasons || reasons}; sessionCount[verdict]++; showCounts(res.counts)
   const pane = $('rightpane'), cls = verdict === 'approve' ? 'flash-ok' : verdict === 'reject' ? 'flash-no' : ''
   if (cls) { pane.classList.add(cls); setTimeout(() => pane.classList.remove(cls), 160) }
-  at++; show(); return null
+  at++; await settle(1); return null
 }
 
 // ---------- view-mode actions (keyboard, buttons and swipes share these) ----------
@@ -209,10 +243,10 @@ const act = {
   reject() { if (at < Q.items.length) openReject() },
   async skip() {
     if (at >= Q.items.length) return
-    if (Q.items[at].verdict) { at++; show(); return }  // revisiting: move on, keep the verdict
+    if (Q.items[at].verdict) { at++; settle(1); return }  // revisiting: move on, keep the verdict
     const e = await send('skip'); if (e) alert(e)
   },
-  back() { if (at > 0) { at--; show() } },
+  back() { if (at > 0) { at--; settle(-1) } },
   bg() { const r = $('right'); r.classList.remove(BGS[bg]); bg = (bg + 1) % BGS.length; r.classList.add(BGS[bg]) },
   help() { mode = 'help'; $('help').classList.add('open') },
   draw() { if (Q.can_draw && at < Q.items.length && !Q.items[at].no_draw) enterDraw() },
@@ -317,9 +351,10 @@ async function enterDraw(fromReject) {
   D.art = art; D.mask = mask
   D.width = Math.max(3, Math.round(Math.max(art.width, art.height) * .012))
   D.canvas = document.createElement('canvas'); D.canvas.id = 'draw'; D.canvas.width = art.width; D.canvas.height = art.height
-  D.preview = document.createElement('canvas'); D.preview.width = art.width; D.preview.height = art.height
+  D.preview = document.createElement('canvas'); D.preview.id = 'drawpreview'; D.preview.width = art.width; D.preview.height = art.height
   $('left').innerHTML = ''; $('left').append(D.canvas); $('right').innerHTML = ''; $('right').append(D.preview)
-  bindCanvas(D.canvas); setTool('add'); render(); status('')
+  // Both panes take strokes: on the iPad the natural place to mark a missing wing is the figure itself.
+  bindCanvas(D.canvas); bindCanvas(D.preview); setTool('add'); render(); status('')
 }
 function exitDraw() {
   mode = 'view'; $('tools').hidden = true; $('actions').hidden = false; $('drawnote').blur()
@@ -356,9 +391,11 @@ function render() {
   for (const s of D.strokes) drawStroke(c, s); if (D.cur) drawStroke(c, D.cur)
   const p = D.preview.getContext('2d'); p.globalCompositeOperation = 'source-over'; p.clearRect(0, 0, w, h); p.drawImage(D.art, 0, 0)
   if (D.mask) { p.globalCompositeOperation = 'destination-in'; p.drawImage(D.mask, 0, 0, w, h) }
+  p.globalCompositeOperation = 'source-over'
+  for (const s of D.strokes) drawStroke(p, s); if (D.cur) drawStroke(p, D.cur)
 }
-function toArt(e) {
-  const r = D.canvas.getBoundingClientRect(), sx = D.canvas.width / r.width, sy = D.canvas.height / r.height
+function toArt(e, cv) {
+  const r = cv.getBoundingClientRect(), sx = cv.width / r.width, sy = cv.height / r.height
   const pressure = e.pointerType === 'pen' ? (e.pressure || .5) : .5
   return [Math.round((e.clientX - r.left) * sx * 10) / 10, Math.round((e.clientY - r.top) * sy * 10) / 10, Math.round(pressure * 100) / 100]
 }
@@ -368,12 +405,12 @@ function bindCanvas(cv) {
     if (e.pointerType === 'touch' && D.penSeen) return      // palm rejection once a pen is in use
     e.preventDefault(); cv.setPointerCapture(e.pointerId)
     const eraser = e.pointerType === 'pen' && (e.button === 5 || (e.buttons & 32))
-    D.cur = {mode: eraser ? 'remove' : D.tool, w: D.width, pts: [toArt(e)], id: e.pointerId}; render()
+    D.cur = {mode: eraser ? 'remove' : D.tool, w: D.width, pts: [toArt(e, cv)], id: e.pointerId}; render()
   })
   cv.addEventListener('pointermove', e => {
     if (!D.cur || e.pointerId !== D.cur.id) return
     const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]
-    for (const ev of (evs.length ? evs : [e])) D.cur.pts.push(toArt(ev))
+    for (const ev of (evs.length ? evs : [e])) D.cur.pts.push(toArt(ev, cv))
     render()
   })
   const end = e => {
@@ -422,7 +459,7 @@ document.addEventListener('keydown', async e => {
     const map = {a: 'add', r: 'remove', '[': 'thin', ']': 'thick', z: 'undo', x: 'clear', o: 'mask'}
     if (k === '/') { e.preventDefault(); $('drawnote').focus(); return }
     if (map[k.toLowerCase()]) { e.preventDefault(); tool[map[k.toLowerCase()]]() ; return }
-    const n = parseInt(k, 10)
+    const n = k === '0' ? 10 : parseInt(k, 10)   // 0 is the tenth reason
     if (n >= 1 && n <= Q.reasons.length) { e.preventDefault(); togglePill(Q.reasons[n - 1].id) }
     return
   }
@@ -432,7 +469,7 @@ document.addEventListener('keydown', async e => {
     if (typing) return
     if (k === '/') { e.preventDefault(); $('note').focus(); return }
     if ((k === 'd' || k === 'D') && Q.can_draw && !Q.items[at].no_draw) { e.preventDefault(); $('reject').classList.remove('open'); enterDraw(true); return }
-    const n = parseInt(k, 10)
+    const n = k === '0' ? 10 : parseInt(k, 10)   // 0 is the tenth reason
     if (n >= 1 && n <= Q.reasons.length) { e.preventDefault(); togglePill(Q.reasons[n - 1].id) }
     return
   }

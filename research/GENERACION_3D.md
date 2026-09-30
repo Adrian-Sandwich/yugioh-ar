@@ -60,7 +60,7 @@ foreach ($d in 'triposr','sf3d','hunyuan') {
 ```powershell
 .venv-gpu/Scripts/python.exe research/gen3d_bench.py run --sprites 6 --approved # 6 recortes aprobados al azar
 .venv-gpu/Scripts/python.exe research/gen3d_bench.py run --sprites 6 --only sf3d  # uno solo
-python -m http.server -d downloads/gen3d/out 8765                                 # hoja comparativa
+python -m http.server -d downloads/gen3d/out 8771                                 # hoja comparativa
 ```
 
 El banco corre cada generador dos veces, una con 1 imagen y otra con todas, para separar el tiempo de
