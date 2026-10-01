@@ -1,123 +1,164 @@
 {
   "date": "2026-09-30",
   "inputs": [
-    "44680819.png",
-    "98643358.png",
-    "29114773.png",
-    "50215517.png",
-    "71453557.png",
-    "15989522.png"
+    "65342096.png",
+    "38412161.png",
+    "74852810.png",
+    "21050476.png",
+    "26357901.png",
+    "97151365.png"
   ],
   "generators": {
     "triposr": {
       "cold": {
-        "seconds": 14.9,
+        "seconds": 14.4,
         "exit": 0,
         "peak_vram_mb": 3223
       },
       "batch": {
-        "seconds": 17.5,
+        "seconds": 17.9,
         "exit": 0,
         "peak_vram_mb": 3223
       },
-      "s_per_model": 0.5,
+      "s_per_model": 0.7,
       "models": {
-        "44680819": {
-          "triangles": 302380,
+        "65342096": {
+          "triangles": 120264,
           "textured": false,
           "vertex_colors": true,
-          "kb": 5908
+          "kb": 2350
         },
-        "98643358": {
-          "triangles": 79244,
+        "38412161": {
+          "triangles": 137212,
           "textured": false,
           "vertex_colors": true,
-          "kb": 1549
+          "kb": 2681
         },
-        "29114773": {
-          "triangles": 105884,
+        "74852810": {
+          "triangles": 118416,
           "textured": false,
           "vertex_colors": true,
-          "kb": 2069
+          "kb": 2314
         },
-        "50215517": {
-          "triangles": 104660,
+        "21050476": {
+          "triangles": 501788,
           "textured": false,
           "vertex_colors": true,
-          "kb": 2045
+          "kb": 9805
         },
-        "71453557": {
-          "triangles": 287400,
+        "26357901": {
+          "triangles": 507096,
           "textured": false,
           "vertex_colors": true,
-          "kb": 5614
+          "kb": 9911
         },
-        "15989522": {
-          "triangles": 178564,
+        "97151365": {
+          "triangles": 87280,
           "textured": false,
           "vertex_colors": true,
-          "kb": 3489
+          "kb": 1706
         }
       }
     },
     "sf3d": {
       "cold": {
-        "seconds": 6.3,
-        "exit": 1,
-        "peak_vram_mb": 0,
-        "oom": false,
-        "stderr_tail": "wnloads\\gen3d\\sf3d\\.venv\\Lib\\site-packages\\huggingface_hub\\utils\\_errors.py\", line 321, in hf_raise_for_status\n    raise GatedRepoError(message, response) from e\nhuggingface_hub.utils._errors.GatedRepoError: 403 Client Error. (Request ID: Root=1-6abdd513-6d11a20f3e99b53516c1b108;6e98d686-f800-4a55-ba65-8e7807b0f719)\n\nCannot access gated repo for url https://huggingface.co/stabilityai/stable-fast-3d/resolve/main/config.yaml.\nAccess to model stabilityai/stable-fast-3d is restricted and you are not in the authorized list. Visit https://huggingface.co/stabilityai/stable-fast-3d to ask for access.\n"
+        "seconds": 17.1,
+        "exit": 0,
+        "peak_vram_mb": 7371
       },
-      "batch": null
+      "batch": {
+        "seconds": 16.2,
+        "exit": 0,
+        "peak_vram_mb": 7369
+      },
+      "s_per_model": 0.0,
+      "models": {
+        "65342096": {
+          "triangles": 19880,
+          "textured": true,
+          "vertex_colors": false,
+          "kb": 903
+        },
+        "38412161": {
+          "triangles": 29884,
+          "textured": true,
+          "vertex_colors": false,
+          "kb": 1138
+        },
+        "74852810": {
+          "triangles": 25440,
+          "textured": true,
+          "vertex_colors": false,
+          "kb": 1313
+        },
+        "21050476": {
+          "triangles": 34428,
+          "textured": true,
+          "vertex_colors": false,
+          "kb": 1436
+        },
+        "26357901": {
+          "triangles": 31400,
+          "textured": true,
+          "vertex_colors": false,
+          "kb": 1129
+        },
+        "97151365": {
+          "triangles": 9316,
+          "textured": true,
+          "vertex_colors": false,
+          "kb": 455
+        }
+      }
     },
     "hunyuan": {
       "cold": {
-        "seconds": 22.4,
+        "seconds": 32.7,
         "exit": 0,
-        "peak_vram_mb": 5183
+        "peak_vram_mb": 5157
       },
       "batch": {
-        "seconds": 33.0,
+        "seconds": 38.4,
         "exit": 0,
-        "peak_vram_mb": 7037
+        "peak_vram_mb": 5743
       },
-      "s_per_model": 2.1,
+      "s_per_model": 1.1,
       "models": {
-        "44680819": {
-          "triangles": 465002,
+        "65342096": {
+          "triangles": 413498,
           "textured": false,
           "vertex_colors": false,
-          "kb": 8173
+          "kb": 7269
         },
-        "98643358": {
-          "triangles": 163464,
+        "38412161": {
+          "triangles": 582051,
           "textured": false,
           "vertex_colors": false,
-          "kb": 2874
+          "kb": 10232
         },
-        "29114773": {
-          "triangles": 271444,
+        "74852810": {
+          "triangles": 405864,
           "textured": false,
           "vertex_colors": false,
-          "kb": 4771
+          "kb": 7134
         },
-        "50215517": {
-          "triangles": 331746,
+        "21050476": {
+          "triangles": 547494,
           "textured": false,
           "vertex_colors": false,
-          "kb": 5829
+          "kb": 9624
         },
-        "71453557": {
-          "triangles": 794609,
+        "26357901": {
+          "triangles": 188962,
           "textured": false,
           "vertex_colors": false,
-          "kb": 13967
+          "kb": 3316
         },
-        "15989522": {
-          "triangles": 615146,
+        "97151365": {
+          "triangles": 157210,
           "textured": false,
           "vertex_colors": false,
-          "kb": 10812
+          "kb": 2767
         }
       }
     }

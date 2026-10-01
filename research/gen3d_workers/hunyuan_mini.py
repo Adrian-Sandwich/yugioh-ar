@@ -6,7 +6,7 @@ Shape: hunyuan3d-dit-v2-mini-turbo + FlashVDM (5 steps). Texture (optional): Hun
 turbo with CPU offload, since shape + texture need ~16 GB per the upstream README and the 4070
 has 12. The shape pipeline is freed before the texture one loads.
 """
-import argparse, gc, os
+import argparse, gc, os, sys
 
 import torch
 from PIL import Image
@@ -37,8 +37,12 @@ if a.texture:
     from hy3dgen.texgen import Hunyuan3DPaintPipeline
     paint = Hunyuan3DPaintPipeline.from_pretrained('tencent/Hunyuan3D-2')  # turbo subfolder by default
     paint.enable_model_cpu_offload()
-    meshes = [paint(m, image=img) for m, img in zip(meshes, images)]
+    meshes = [paint(m, image=img) if m is not None else None for m, img in zip(meshes, images)]
 
 for i, m in enumerate(meshes):
+    # Marching cubes finds no surface for some inputs ("Surface level not found"): that card gets no
+    # model, the rest of the batch still does (30/09/2026, 1 of 6 approved cut-outs).
+    if m is None:
+        print(f'sin malla: {a.images[i]}', file=sys.stderr, flush=True); continue
     os.makedirs(os.path.join(a.output_dir, str(i)), exist_ok=True)
     m.export(os.path.join(a.output_dir, str(i), 'mesh.glb'))

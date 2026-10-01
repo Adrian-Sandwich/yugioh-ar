@@ -131,10 +131,13 @@ def cmd_run(a):
         if full and full['exit'] == 0:
             r['s_per_model'] = round((full['seconds'] - cold['seconds']) / (len(imgs) - 1), 1)
             if r['s_per_model'] < 0:
-                # The first run ever downloads the weights inside the cold process (TripoSR: 111 s
-                # against 9.7 s afterwards): the difference means nothing until a second run.
-                r['s_per_model'] = None
-                print('  aviso: la corrida en frío descargó pesos; vuelve a correr el banco para medir', flush=True)
+                if cold['seconds'] - full['seconds'] > .3 * full['seconds']:
+                    # The first run ever downloads the weights inside the cold process (TripoSR: 111 s
+                    # against 9.7 s afterwards): the difference means nothing until a second run.
+                    r['s_per_model'] = None
+                    print('  aviso: la corrida en frío descargó pesos; vuelve a correr el banco para medir', flush=True)
+                else:  # timing noise around a near-zero cost per model (SF3D: 17.1 s cold, 16.2 s for six)
+                    r['s_per_model'] = 0.0
             r['models'] = {}
             (OUT / name).mkdir(parents=True, exist_ok=True)
             for i, img in enumerate(imgs):
