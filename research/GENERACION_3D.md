@@ -49,9 +49,13 @@ foreach ($d in 'triposr','sf3d','hunyuan') {
   & "$d/.venv/Scripts/python.exe" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 }
 # Después, en cada carpeta, los requirements según su README:
-#   triposr:  pip install -r requirements.txt
-#   sf3d:     pip install -r requirements.txt  (+ huggingface-cli login)
-#   hunyuan:  pip install -r requirements.txt; pip install -e .
+#   triposr:  pip install PyMCubes + requirements.txt sin torchmcubes; python research/gen3d_workers/patch_triposr_mcubes.py
+#             (torchmcubes no compila aquí; PyMCubes hace el marching cubes en CPU)
+#   sf3d:     python research/gen3d_workers/patch_sf3d_windows.py; requirements.txt sin ./texture_baker/ ./uv_unwrapper/;
+#             luego, en un prompt de VS x64 con CUDA 12.8: pip install wheel ninja;
+#             pip install --no-build-isolation ./texture_baker/ ./uv_unwrapper/  (+ huggingface-cli login con acceso al repo restringido)
+#   hunyuan:  pip install -r requirements.txt; pip install -e .; pip install transformers==4.46.3
+#             (transformers 5 renombró las capas de DINOv2 y los pesos de Hunyuan3D-2mini ya no cargan)
 #             y, solo para textura, compilar hy3dgen/texgen/custom_rasterizer y differentiable_renderer
 ```
 
