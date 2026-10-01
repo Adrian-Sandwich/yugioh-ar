@@ -354,7 +354,15 @@ class Handler(BaseHTTPRequestHandler):
             if s.control:  # blind: the page never sees earlier rounds, only this round's own progress
                 items = [dict(i, meta={'código': i['meta']['código']}) for i in items]
             if not s.revisit:  # pending first, then what is already judged (still reachable going back)
-                items = [i for i in items if i['verdict']] + [i for i in items if not i['verdict']]
+                pending = [i for i in items if not i['verdict']]
+                # Blind repeats spread evenly over what is pending: placed among the whole queue, they
+                # bunched at its front once the early cards were judged (290 in a row, no drawing).
+                repeats = [i for i in pending if i.get('retest_of')]; rest = [i for i in pending if not i.get('retest_of')]
+                step = max(1, len(rest) // (len(repeats) + 1)); spread = []
+                for n, item in enumerate(rest):
+                    spread.append(item)
+                    if repeats and (n + 1) % step == 0: spread.append(repeats.pop(0))
+                items = [i for i in items if i['verdict']] + spread + repeats
             start = sum(1 for i in items if i['verdict']) if not s.revisit else 0
             return self.reply(200, {'kind': s.kind, 'token': s.token, 'start': min(start, max(len(items) - 1, 0)),
                                     'control': s.control, 'can_draw': s.kind == 'sprite' and not s.control,

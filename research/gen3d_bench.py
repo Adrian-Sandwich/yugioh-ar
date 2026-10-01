@@ -12,7 +12,7 @@ Per generator it runs one process with 1 image (cold: load + one model) and one 
 so per-model time = (T_N - T_1) / (N - 1) without parsing each tool's logs. Peak VRAM is sampled
 from nvidia-smi over the process lifetime, minus the idle baseline (other apps included in it).
 Report: research/qa/gen3d-bench.json. Models and sheet: downloads/gen3d/out/ (serve that folder:
-python -m http.server -d downloads/gen3d/out 8765, then open http://localhost:8765/).
+python -m http.server -d downloads/gen3d/out 8771, then open http://localhost:8771/).
 """
 import argparse, json, os, random, shutil, struct, subprocess, sys, threading, time
 from datetime import date
@@ -102,7 +102,10 @@ def cmd_run(a):
     if a.images:
         imgs = [Path(p).resolve() for p in a.images]
     else:
-        pool = sorted(SPRITES.glob('*.png'))
+        # Only real cut-outs: a hologram is the whole artwork, and every generator turns that
+        # rectangle into a block (30/09/2026: two of three approved samples were holograms).
+        index = json.loads((SPRITES / 'index.json').read_text(encoding='utf-8')) if (SPRITES / 'index.json').exists() else {}
+        pool = [p for p in sorted(SPRITES.glob('*.png')) if index.get(p.stem, {}).get('status') == 'ok']
         if a.approved:  # only cut-outs a person approved in review_server.py
             last = {}
             for line in (ROOT / 'research/reviews/sprite.jsonl').read_text(encoding='utf-8').splitlines():
@@ -127,6 +130,11 @@ def cmd_run(a):
         r = {'cold': cold, 'batch': full}
         if full and full['exit'] == 0:
             r['s_per_model'] = round((full['seconds'] - cold['seconds']) / (len(imgs) - 1), 1)
+            if r['s_per_model'] < 0:
+                # The first run ever downloads the weights inside the cold process (TripoSR: 111 s
+                # against 9.7 s afterwards): the difference means nothing until a second run.
+                r['s_per_model'] = None
+                print('  aviso: la corrida en frío descargó pesos; vuelve a correr el banco para medir', flush=True)
             r['models'] = {}
             (OUT / name).mkdir(parents=True, exist_ok=True)
             for i, img in enumerate(imgs):

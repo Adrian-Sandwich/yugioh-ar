@@ -1,0 +1,64 @@
+{
+  "date": "2026-09-30",
+  "inputs": [
+    "56787189.png",
+    "35027493.png",
+    "65342096.png",
+    "96765646.png",
+    "19362568.png",
+    "24521754.png"
+  ],
+  "generators": {
+    "triposr": {
+      "cold": {
+        "seconds": 9.8,
+        "exit": 0,
+        "peak_vram_mb": 3223
+      },
+      "batch": {
+        "seconds": 17.3,
+        "exit": 0,
+        "peak_vram_mb": 3223
+      },
+      "s_per_model": 1.5,
+      "models": {
+        "56787189": {
+          "triangles": 114228,
+          "textured": false,
+          "vertex_colors": true,
+          "kb": 2232
+        },
+        "35027493": {
+          "triangles": 130048,
+          "textured": false,
+          "vertex_colors": true,
+          "kb": 2542
+        },
+        "65342096": {
+          "triangles": 120264,
+          "textured": false,
+          "vertex_colors": true,
+          "kb": 2350
+        },
+        "96765646": {
+          "triangles": 41212,
+          "textured": false,
+          "vertex_colors": true,
+          "kb": 806
+        },
+        "19362568": {
+          "triangles": 64040,
+          "textured": false,
+          "vertex_colors": true,
+          "kb": 1252
+        },
+        "24521754": {
+          "triangles": 202780,
+          "textured": false,
+          "vertex_colors": true,
+          "kb": 3963
+        }
+      }
+    }
+  }
+}
