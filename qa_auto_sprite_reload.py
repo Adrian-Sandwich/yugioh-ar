@@ -28,13 +28,13 @@ def write(folder, sprites, version):
 
 
 def main():
-    import ar_overlay, camera_viewer, vision_onnx
+    import ar_overlay, camera_viewer, pipeline, vision_onnx
     checks = []
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp); auto = root / 'data/auto-sprites'; auto.mkdir(parents=True)
         write(auto, {'a1': (0, 0, 255)}, 10**18)
         with patch.object(ar_overlay, 'AUTO_SPRITES', auto), patch.object(vision_onnx, 'ROOT', root), \
-             patch.object(camera_viewer, 'ROOT', root):
+             patch.object(pipeline, 'AUTO_SPRITES', auto):
             # Overlay: the cached picture is replaced once the index changes.
             overlay = ar_overlay.SpriteOverlay()
             assert overlay.load('auto:a1.png')[0, 0, 2] == 255

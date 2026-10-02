@@ -11,7 +11,6 @@ returns to browser-paced POST /analyze.
 """
 
 import argparse
-import base64
 import json
 import math
 import re
@@ -21,15 +20,15 @@ import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlsplit
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.parse import parse_qs, unquote, urlsplit
 from shared_snapshot import SharedSnapshots
-from identity_resolution import IDENTITIES,normalize_detection
+from identity_resolution import IDENTITIES
+from contracts import TRACK_FIELDS  # noqa: F401  (camera_viewer.TRACK_FIELDS)
+# The analysis path lives in pipeline.py; these names stay importable from here.
+from pipeline import (DIAGNOSTIC_HOLD_S, AnalysisLoop, auto_sprite_url, open_camera, run_analysis,  # noqa: F401
+                      snapshot, snapshot_record, track_payload)
 
 ROOT = Path(__file__).resolve().parent
-# Seconds after the diagnostic viewer's last poll during which the analysis covers the whole frame.
-DIAGNOSTIC_HOLD_S=5.
-from contracts import TRACK_FIELDS  # noqa: E402  (camera_viewer.TRACK_FIELDS)
 
 
 def camera_url(value):
@@ -41,47 +40,34 @@ def camera_url(value):
     return value.rstrip("/")
 
 
-def open_camera(base, endpoint):
-    # The phone is on the local network; do not route it through HTTP proxies.
-    return build_opener(ProxyHandler({})).open(Request(base + endpoint,headers={'Cache-Control':'no-cache'}), timeout=8)
-
-
-def snapshot(base):
-    with open_camera(base, "/shot.jpg?t="+str(time.time_ns())) as response:
-        data = response.read(16 * 1024 * 1024 + 1)
-    if len(data) > 16 * 1024 * 1024 or not data.startswith(b"\xff\xd8") or not data.endswith(b"\xff\xd9"):
-        raise ValueError("La camara no devolvio un JPEG completo")
-    return data
-
-
-def auto_sprite_url(ref):
-    """Automatic sprites can change while the viewer runs (review_server.py --apply, auto_cutout.py
-    build, both ending by replacing data/auto-sprites/index.json): the version in the URL makes the
-    page fetch the new picture instead of reusing the one it already holds."""
-    try: version=(ROOT/'data'/'auto-sprites'/'index.json').stat().st_mtime_ns
-    except OSError: version=0
-    return '/sprite/'+ref+'?v=%d'%version
-
-
-def track_payload(tracks):
-    """Compact, ASCII-safe track list for a response header or JSON body."""
-    out=[]
-    for t in tracks:
-        item={k:t.get(k) for k in TRACK_FIELDS if k in t}
-        item['corners']=[[round(float(x),1),round(float(y),1)] for x,y in t['corners']]
-        if (item.get('sprite_ref') or '').startswith('auto:'): item['sprite_url']=auto_sprite_url(item['sprite_ref'])
-        out.append(item)
-    return out
-
-
 class Server(ThreadingHTTPServer):
+    """The lab's state, shared by the HTTP handlers and pipeline.py. main() fills it from the command
+    line; tests set what they need. None means the feature is off."""
     daemon_threads = True
 
     def __init__(self,*args,**kwargs):
-        self.snapshots=SharedSnapshots()
-        self.tracker=None;self.live_tracker=None;self.stream=None;self.overlay=None;self.passcode_worker=None
-        self.recognizer=None;self.fixture=None;self.mode='single-reference';self.last_tracked_at=0.;self.analysis_loop=None;self.table=None
+        self.camera=None                      # phone base URL (IP Webcam), e.g. http://192.168.1.18:8080
+        self.fixture=None                     # Path of a saved JPEG served instead of the camera (demo)
+        self.snapshots=SharedSnapshots()      # one phone request shared by concurrent /snapshot calls
+        self.stream=None                      # camera_source.MjpegSource: newest frame of the MJPEG stream
+        self.recognizer=None                  # inference_host.RemoteRecognizer, vision_onnx.LiveRecognizer or recognition.*
+        self.recognition_lock=threading.Lock()  # one analysis at a time
+        self.mode='single-reference'          # backend name shown by /config
+        self.tracker=None                     # ar_overlay.Tracker: marks detections stable after two analyses
+        self.live_tracker=None                # live_tracking.LiveTracker: corners at video rate between analyses
+        self.last_tracked_at=0.               # capture time of the last frame given to live_tracker
+        self.overlay=None                     # ar_overlay.SpriteOverlay: /sprite and /cutout pictures
+        self.passcode_worker=None             # passcode_ocr.PasscodeWorker: passcode, title, set code, art check
+        self.analysis_loop=None               # pipeline.AnalysisLoop: server-paced analyses for /analysis
+        self.table=None                       # table_duel.TableDuel: playmat, zones and the duel
+        self.diagnostic_seen=-1e9             # monotonic time of the diagnostic page's last /analysis poll
         super().__init__(*args,**kwargs)
+
+    def handle_error(self,request,client_address):
+        # Keep-alive: a tab that closes or reloads drops its idle connection; not an error worth a traceback.
+        import sys
+        if isinstance(sys.exc_info()[1],(ConnectionResetError,ConnectionAbortedError,BrokenPipeError)):return
+        super().handle_error(request,client_address)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -109,102 +95,20 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    # GET routes: exact paths, then prefixes (first match). Each handler replies itself.
+    ROUTES = {'/': 'page_camera', '/duelo': 'page_duel', '/pose-annotator': 'page_pose', '/snapshot': 'get_snapshot',
+              '/tracks': 'get_tracks', '/config': 'get_config', '/passcodes': 'get_passcodes', '/download-status': 'get_download_status',
+              '/analyze': 'analyze', '/analysis': 'latest_analysis', '/duel/history': 'get_duel_history', '/card-image': 'get_card_image',
+              '/playmat': 'get_table', '/duel': 'get_table', '/card-info': 'get_card_info',
+              '/camera.js': 'get_script', '/duel.js': 'get_script', '/ar.js': 'get_script'}
+    PREFIXES = (('/fx/', 'get_fx'), ('/cutout/', 'get_cutout'), ('/sprite/', 'get_sprite'), ('/playmat/print/', 'get_print'))
+
     def do_GET(self):
         route = urlsplit(self.path).path
         try:
-            if route == "/":
-                self.reply(200, (ROOT / "web" / "camera.html").read_bytes(), "text/html; charset=utf-8")
-            elif route in ('/camera.js','/duel.js','/ar.js'):
-                self.reply(200,(ROOT/'web'/route[1:]).read_bytes(),'text/javascript; charset=utf-8')
-            elif route.startswith('/fx/') and re.fullmatch(r'/fx/[\w.-]+\.(png|json)',route) and (ROOT/'web'/route[1:]).is_file():
-                # Effect assets of the duel view (web/fx: sprite strips and their frame data).
-                self.reply(200,(ROOT/'web'/route[1:]).read_bytes(),'image/png' if route.endswith('.png') else 'application/json')
-            elif route == '/duelo':
-                # Duel view: video, board and duel panel only; / stays the diagnostic viewer.
-                self.reply(200,(ROOT/'web/duel.html').read_bytes(),'text/html; charset=utf-8')
-            elif route == '/pose-annotator':
-                self.reply(200,(ROOT/'web/pose_annotator.html').read_bytes(),'text/html; charset=utf-8')
-            elif route == "/snapshot":
-                data,captured_at,basis=self.get_snapshot_record()
-                headers={'X-Captured-At':captured_at,'X-Capture-Time-Basis':basis}
-                live=getattr(self.server,'live_tracker',None)
-                if live is not None:
-                    headers['X-Tracks']=json.dumps(track_payload(live.snapshot()),ensure_ascii=True,separators=(',',':'))
-                self.reply(200, data, "image/jpeg", headers)
-            elif route == '/tracks':
-                live=getattr(self.server,'live_tracker',None)
-                self.reply(200,json.dumps({'tracks':track_payload(live.snapshot()) if live else [],'now':time.time(),
-                    'tracking_ms':live.last_update_ms if live else None,'frames':live.frame_count if live else 0}).encode(),'application/json')
-            elif route.startswith('/cutout/'):
-                overlay=getattr(self.server,'overlay',None)
-                # The page URL-encodes the reference id (tdoane:sprite:...); decode it back.
-                from urllib.parse import unquote
-                data=overlay.cutout_png(unquote(route[len('/cutout/'):])) if overlay else None
-                if data is None: self.reply(404,b'No sprite','text/plain')
-                else: self.reply(200,data,'image/png',{'Cache-Control':'max-age=3600'})
-            elif route.startswith('/sprite/'):
-                overlay=getattr(self.server,'overlay',None)
-                if overlay: overlay.refresh_auto(every=0)  # a new ?v= must never get the old picture
-                data=overlay.sprite_png(route[len('/sprite/'):]) if overlay else None
-                if data is None: self.reply(404,b'No sprite','text/plain')
-                else: self.reply(200,data,'image/png',{'Cache-Control':'max-age=3600'})
-            elif route == "/config":
-                recognizer=self.server.recognizer
-                stream=getattr(self.server,'stream',None)
-                self.reply(200, json.dumps({"camera": self.server.camera, "recognition": recognizer is not None,
-                    "mode":getattr(self.server,'mode','single-reference'),"offline":bool(getattr(self.server,'fixture',None)),
-                    "experimental":getattr(self.server,'mode','') in ('draw2','embedding'),
-                    "ar":getattr(self.server,'overlay',None) is not None,
-                    "passcode_ocr":getattr(self.server,'passcode_worker',None) is not None,
-                    "identity_resolution":IDENTITIES.info(),
-                    "live_tracking":getattr(self.server,'live_tracker',None) is not None,
-                    "stream":stream.status() if stream else None,
-                    "server_loop":self.server.analysis_loop.status() if getattr(self.server,'analysis_loop',None) else None,
-                    "inference":recognizer.status() if hasattr(recognizer,'status') else {'isolated':False},
-                    "references":len(recognizer.references) if recognizer else 0}).encode(), "application/json")
-            elif route == '/passcodes':
-                worker=getattr(self.server,'passcode_worker',None)
-                self.reply(200,json.dumps(worker.snapshot() if worker else {'state':'disabled','items':[]}).encode(),'application/json')
-            elif route == '/download-status':
-                path=ROOT/'.runtime/download-watch.json'
-                payload=json.loads(path.read_text(encoding='utf-8')) if path.exists() else {'watch_state':'not_started'}
-                self.reply(200,json.dumps(payload).encode(),'application/json')
-            elif route == "/analyze":
-                self.analyze()
-            elif route == '/analysis':
-                self.latest_analysis()
-            elif route.startswith('/playmat/print/'):
-                # Printable templates; generated on first request. Only known names are served.
-                name=route.rsplit('/',1)[-1]
-                allowed={f'tapete-jugador{p}{s}' for p in (1,2) for s in ('.png','-una-pieza.pdf','-hojas-carta.pdf')}
-                if name not in allowed: return self.reply(404,b'Not found','text/plain')
-                path=ROOT/'data/playmat/print'/name
-                if not path.exists():
-                    import subprocess,sys
-                    subprocess.run([sys.executable,str(ROOT/'playmat_print.py')],cwd=ROOT,check=True,capture_output=True)
-                self.reply(200,path.read_bytes(),'application/pdf' if name.endswith('.pdf') else 'image/png')
-            elif route == '/duel/history':
-                table=getattr(self.server,'table',None)
-                self.reply(200,json.dumps(table.history() if table else [],ensure_ascii=False).encode(),'application/json; charset=utf-8')
-            elif route == '/card-image':
-                # Card picture for the duel view's "Carta en juego" panel (best linked image, 360 px wide).
-                query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
-                data=card_image(query.get('id',''))
-                if data is None: self.reply(404,b'No image','text/plain')
-                else: self.reply(200,data,'image/jpeg')
-            elif route in ('/playmat','/duel'):
-                table=getattr(self.server,'table',None)
-                if table is None: return self.reply(404,b'Duel disabled (live camera only)','text/plain')
-                body=table.overlay() if route=='/playmat' else table.view()
-                self.reply(200,json.dumps(body,ensure_ascii=False).encode(),'application/json; charset=utf-8')
-            elif route == '/card-info':
-                from card_info import card_sheet
-                query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
-                sheet=card_sheet(query.get('id',''))
-                if sheet is None: self.reply(404,b'Unknown card','text/plain')
-                else: self.reply(200,json.dumps(sheet,ensure_ascii=False).encode(),'application/json; charset=utf-8')
-            else:
-                self.reply(404, b"Not found", "text/plain")
+            name = self.ROUTES.get(route) or next((n for prefix, n in self.PREFIXES if route.startswith(prefix)), None)
+            if name is None: return self.reply(404, b"Not found", "text/plain")
+            getattr(self, name)(route) if name not in ('analyze', 'latest_analysis') else getattr(self, name)()
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             pass
         except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
@@ -214,6 +118,111 @@ class Handler(BaseHTTPRequestHandler):
                 pass
         except Exception:
             self.internal_error()
+
+    def query(self):
+        """Query string as {name: first value}, URL-decoded."""
+        return {k: v[0] for k, v in parse_qs(urlsplit(self.path).query).items()}
+
+    def json_reply(self, body, status=200):
+        self.reply(status, json.dumps(body, ensure_ascii=False).encode(), 'application/json; charset=utf-8')
+
+    # --- pages and static files
+    def page_camera(self, route): self.reply(200, (ROOT / 'web/camera.html').read_bytes(), 'text/html; charset=utf-8')
+    # Duel view: video, board and duel panel only; / stays the diagnostic viewer.
+    def page_duel(self, route): self.reply(200, (ROOT / 'web/duel.html').read_bytes(), 'text/html; charset=utf-8')
+    def page_pose(self, route): self.reply(200, (ROOT / 'web/pose_annotator.html').read_bytes(), 'text/html; charset=utf-8')
+    def get_script(self, route): self.reply(200, (ROOT / 'web' / route[1:]).read_bytes(), 'text/javascript; charset=utf-8')
+
+    def get_fx(self, route):
+        # Effect assets of the duel view (web/fx: sprite strips and their frame data).
+        if not re.fullmatch(r'/fx/[\w.-]+\.(png|json)', route) or not (ROOT / 'web' / route[1:]).is_file():
+            return self.reply(404, b"Not found", "text/plain")
+        self.reply(200, (ROOT / 'web' / route[1:]).read_bytes(), 'image/png' if route.endswith('.png') else 'application/json')
+
+    # --- camera, tracks and sprites
+    def get_snapshot(self, route):
+        data, captured_at, basis = self.get_snapshot_record()
+        headers = {'X-Captured-At': captured_at, 'X-Capture-Time-Basis': basis}
+        live = self.server.live_tracker
+        if live is not None:
+            headers['X-Tracks'] = json.dumps(track_payload(live.snapshot()), ensure_ascii=True, separators=(',', ':'))
+        self.reply(200, data, "image/jpeg", headers)
+
+    def get_tracks(self, route):
+        live = self.server.live_tracker
+        self.reply(200, json.dumps({'tracks': track_payload(live.snapshot()) if live else [], 'now': time.time(),
+                                    'tracking_ms': live.last_update_ms if live else None, 'frames': live.frame_count if live else 0}).encode(), 'application/json')
+
+    def get_cutout(self, route):
+        overlay = self.server.overlay
+        # The page URL-encodes the reference id (tdoane:sprite:...); decode it back.
+        data = overlay.cutout_png(unquote(route[len('/cutout/'):])) if overlay else None
+        if data is None: self.reply(404, b'No sprite', 'text/plain')
+        else: self.reply(200, data, 'image/png', {'Cache-Control': 'max-age=3600'})
+
+    def get_sprite(self, route):
+        overlay = self.server.overlay
+        if overlay: overlay.refresh_auto(every=0)  # a new ?v= must never get the old picture
+        data = overlay.sprite_png(route[len('/sprite/'):]) if overlay else None
+        if data is None: self.reply(404, b'No sprite', 'text/plain')
+        else: self.reply(200, data, 'image/png', {'Cache-Control': 'max-age=3600'})
+
+    # --- status
+    def get_config(self, route):
+        server = self.server; recognizer = server.recognizer; stream = server.stream
+        self.reply(200, json.dumps({"camera": server.camera, "recognition": recognizer is not None,
+            "mode": server.mode, "offline": bool(server.fixture),
+            "experimental": server.mode in ('draw2', 'embedding'),
+            "ar": server.overlay is not None,
+            "passcode_ocr": server.passcode_worker is not None,
+            "identity_resolution": IDENTITIES.info(),
+            "live_tracking": server.live_tracker is not None,
+            "stream": stream.status() if stream else None,
+            "server_loop": server.analysis_loop.status() if server.analysis_loop else None,
+            "inference": recognizer.status() if hasattr(recognizer, 'status') else {'isolated': False},
+            "references": len(recognizer.references) if recognizer else 0}).encode(), "application/json")
+
+    def get_passcodes(self, route):
+        worker = self.server.passcode_worker
+        self.reply(200, json.dumps(worker.snapshot() if worker else {'state': 'disabled', 'items': []}).encode(), 'application/json')
+
+    def get_download_status(self, route):
+        path = ROOT / '.runtime/download-watch.json'
+        payload = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {'watch_state': 'not_started'}
+        self.reply(200, json.dumps(payload).encode(), 'application/json')
+
+    # --- cards and duel
+    def get_card_image(self, route):
+        # Card picture for the duel view's "Carta en juego" panel (best linked image, 360 px wide).
+        data = card_image(self.query().get('id', ''))
+        if data is None: self.reply(404, b'No image', 'text/plain')
+        else: self.reply(200, data, 'image/jpeg')
+
+    def get_card_info(self, route):
+        from card_info import card_sheet
+        sheet = card_sheet(self.query().get('id', ''))
+        if sheet is None: self.reply(404, b'Unknown card', 'text/plain')
+        else: self.json_reply(sheet)
+
+    def get_table(self, route):
+        table = self.server.table
+        if table is None: return self.reply(404, b'Duel disabled (live camera only)', 'text/plain')
+        self.json_reply(table.overlay() if route == '/playmat' else table.view())
+
+    def get_duel_history(self, route):
+        table = self.server.table
+        self.json_reply(table.history() if table else [])
+
+    def get_print(self, route):
+        # Printable templates; generated on first request. Only known names are served.
+        name = route.rsplit('/', 1)[-1]
+        allowed = {f'tapete-jugador{p}{s}' for p in (1, 2) for s in ('.png', '-una-pieza.pdf', '-hojas-carta.pdf')}
+        if name not in allowed: return self.reply(404, b'Not found', 'text/plain')
+        path = ROOT / 'data/playmat/print' / name
+        if not path.exists():
+            import subprocess, sys
+            subprocess.run([sys.executable, str(ROOT / 'playmat_print.py')], cwd=ROOT, check=True, capture_output=True)
+        self.reply(200, path.read_bytes(), 'application/pdf' if name.endswith('.pdf') else 'image/png')
 
     def log_message(self, fmt, *args):
         if args and str(args[1] if len(args) > 1 else "") in ("200","503"):
@@ -278,7 +287,7 @@ class Handler(BaseHTTPRequestHandler):
     def table_post(self,route):
         """Calibration (/playmat) or a player's decision (/duel); errors come back as 400 with the reason."""
         from duel_engine import DuelError
-        table=getattr(self.server,'table',None)
+        table=self.server.table
         try:
             if table is None: return self.reply(404,b'Duel disabled (live camera only)','text/plain')
             length=int(self.headers.get('Content-Length','0'))
@@ -297,10 +306,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def latest_analysis(self):
         """Long poll: the first server-loop analysis newer than `after`, or 204 after two seconds."""
-        loop=getattr(self.server,'analysis_loop',None)
+        loop=self.server.analysis_loop
         if loop is None:
             return self.reply(404,b'Server loop disabled','text/plain')
-        query=dict(p.split('=',1) for p in urlsplit(self.path).query.split('&') if '=' in p)
+        query=self.query()
         try: after=int(query.get('after','-1'))
         except ValueError: return self.reply(400,b'Invalid sequence','text/plain')
         # The duel view says so (view=duel); any other page is the diagnostic viewer, which must see
@@ -331,176 +340,6 @@ def card_image(card_id):
     if image is None: return None
     image=cv2.resize(image,(360,round(image.shape[0]*360/image.shape[1])),interpolation=cv2.INTER_AREA)
     return cv2.imencode('.jpg',image,[cv2.IMWRITE_JPEG_QUALITY,88])[1].tobytes()
-
-
-def snapshot_record(server):
-    """(jpeg, captured_at, basis): fixture, MJPEG stream, or single-shot polling."""
-    fixture=getattr(server,'fixture',None)
-    stream=getattr(server,'stream',None)
-    if fixture is None and stream is not None:
-        try:
-            data,captured=stream.latest()
-            return data,captured,'stream_frame_receipt'
-        except OSError:
-            pass  # Stale or disconnected stream: poll a single frame instead.
-    data,captured=server.snapshots.get((server.camera,str(fixture)),
-        lambda:fixture.read_bytes() if fixture else snapshot(server.camera))
-    live=getattr(server,'live_tracker',None)
-    if live is not None and captured>server.last_tracked_at:
-        server.last_tracked_at=captured;live.update(data,captured)
-    return data,captured,'server_snapshot_request'
-
-
-def run_analysis(server,data=None,captured_at=None,lock_timeout=-1):
-    """One recognizer pass plus OCR submission and tracking; None if the lock was busy.
-
-    Shared by POST /analyze (a browser-chosen frame) and the server loop
-    (the newest stream frame).
-    """
-    started=time.perf_counter()
-    received_at=time.time()
-    capture_basis='client_snapshot_timestamp' if captured_at is not None else 'server_receive_time'
-    if data is not None and captured_at is None: captured_at=received_at
-    if not server.recognition_lock.acquire(timeout=lock_timeout):
-        return None
-    acquired=time.perf_counter()
-    def report_stall():
-        import faulthandler
-        path=ROOT/'.runtime'/f'camera-{server.server_port}-stall.log'
-        path.parent.mkdir(exist_ok=True)
-        with path.open('w') as log:
-            faulthandler.dump_traceback(file=log,all_threads=True)
-    watchdog=threading.Timer(20,report_stall)
-    watchdog.daemon=True
-    watchdog.start()
-    try:
-        if data is None:
-            data,captured_at,capture_basis=snapshot_record(server)
-        inference_started=time.perf_counter()
-        recognizer=server.recognizer
-        live=getattr(server,'live_tracker',None)
-        worker=getattr(server,'passcode_worker',None)
-        if getattr(recognizer,'supports_context',False):
-            from vision_onnx import REUSE_MAX_AGE_S
-            reuse=live.reuse_candidates(captured_at,REUSE_MAX_AGE_S) if live else ()
-            verified=worker.verified() if worker and hasattr(worker,'verified') else ()
-            # With a duel board set, cards outside its field zones are not analysed at all.
-            table=getattr(server,'table',None)
-            # Only while no diagnostic page is watching (it shows every card on the table).
-            diagnostic=time.monotonic()-getattr(server,'diagnostic_seen',-1e9)<DIAGNOSTIC_HOLD_S
-            regions=table.field_regions() if table is not None and not diagnostic else None
-            # Face-down cards: zones without a detected card are compared with the card back (card_backs).
-            back_zones=table.back_zones() if table is not None else None
-            result=recognizer.analyze_jpeg(data,reuse=reuse,verified=verified,regions=regions,back_zones=back_zones)
-        else:
-            result=recognizer.analyze_jpeg(data)
-        result['detections']=[normalize_detection(d) for d in result['detections']]
-        if 'candidates' in result:result['candidates']=[normalize_detection(d) for d in result['candidates']]
-        result['identity_resolution']=IDENTITIES.info()
-        inference_finished=time.perf_counter()
-        if worker:
-            worker.previews=diagnostic if getattr(recognizer,'supports_context',False) else True
-            named={tuple(map(tuple,d['corners'])):d for d in result['detections']}
-            boxes=[]
-            for d in result.get('candidates',result['detections']):
-                visual=named.get(tuple(map(tuple,d['corners'])),{})
-                boxes.append({'corners':d['corners'],'visual_card_id':visual.get('card_id'),'name':visual.get('name'),
-                              'source_visual_card_id':visual.get('source_card_id',visual.get('card_id')),
-                              'candidate_ids':[t['card_id'] for t in d.get('top5',[]) if t.get('card_id')][:5],
-                              'geometry_status':d.get('geometry_status'),'geometry_iou':d.get('geometry_iou')})
-            worker.submit(data,boxes,captured_at)
-        if getattr(server,'tracker',None):
-            result['detections']=server.tracker.update(result['detections'])
-        if live is not None:
-            # Sprites and names follow these corners at video rate from here on.
-            live.sync(result['detections'],captured_at)
-            result['tracks']=track_payload(live.snapshot())
-            table=getattr(server,'table',None)
-            if table is not None:
-                # Only confirmed tracks reach the duel; provisional identities could be wrong.
-                # A duel bug must never stop recognition: log it and carry on.
-                try:
-                    if table.mode=='printed':
-                        # Printed mats: find their markers in this very frame (~7 ms at 1080p).
-                        import cv2,numpy as np
-                        grey=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_GRAYSCALE)
-                        if grey is not None: table.see_markers(grey,captured_at)
-                    table.feed([t for t in live.snapshot() if t.get('stable')],backs=result.get('backs'))
-                except Exception: traceback.print_exc()
-        for d in result['detections']:
-            if d.get('sprite_ref') and getattr(server,'overlay',None) is not None:
-                d['sprite_url']=auto_sprite_url(d['sprite_ref']) if d['sprite_ref'].startswith('auto:') else '/sprite/'+d['sprite_ref']
-        result['image']='data:image/jpeg;base64,'+base64.b64encode(data).decode('ascii')
-        result.update(captured_at=captured_at,capture_time_basis=capture_basis,
-            received_at=received_at,completed_at=time.time())
-        result['pipeline_ms']={
-            'lock_wait':round((acquired-started)*1000,1),
-            'capture':round((inference_started-acquired)*1000,1),
-            'recognition':round((inference_finished-inference_started)*1000,1),
-            'postprocess':round((time.perf_counter()-inference_finished)*1000,1),
-            'total':round((time.perf_counter()-started)*1000,1)}
-        return result
-    finally:
-        watchdog.cancel()
-        server.recognition_lock.release()
-
-
-class AnalysisLoop:
-    """Analyze the newest stream frame as soon as the previous analysis ends.
-
-    The browser no longer paces recognition: every tab long-polls
-    /analysis?after=<seq> and receives the same result. The loop idles while no
-    tab has asked for an analysis in the last `idle_after` seconds, so an
-    unwatched viewer does not keep the GPU busy.
-    """
-    def __init__(self,server,idle_after=5.):
-        self.server=server;self.idle_after=idle_after
-        self.condition=threading.Condition();self.sequence=0;self.body=None;self.body_lite=None
-        self.last_client=0.;self.last_captured=0.;self.errors=0;self.closed=False
-        self.thread=threading.Thread(target=self.run,name='analysis-loop',daemon=True);self.thread.start()
-
-    def wait_newer(self,after,timeout,lite=False):
-        with self.condition:
-            self.last_client=time.monotonic();self.condition.notify_all()
-            # A tab that outlived a server restart asks for a sequence this process never
-            # reached: treat it as new instead of letting it wait forever.
-            if after>self.sequence: after=-1
-            ready=lambda:self.body is not None and self.sequence>after
-            if not self.condition.wait_for(lambda:ready() or self.closed,timeout):return None
-            return (self.body_lite if lite else self.body) if ready() else None
-
-    def run(self):
-        while not self.closed:
-            with self.condition:
-                if time.monotonic()-self.last_client>self.idle_after:
-                    self.condition.wait(.5);continue
-            try:
-                data,captured_at,basis=snapshot_record(self.server)
-                if captured_at<=self.last_captured:
-                    time.sleep(.005);continue  # same frame as the last analysis
-                self.last_captured=captured_at
-                result=run_analysis(self.server,data,captured_at)
-                result['capture_time_basis']=basis
-                # Only the diagnostic viewer paints the analysed JPEG: without it watching, skip the base64 copy.
-                if time.monotonic()-getattr(self.server,'diagnostic_seen',-1e9)>5: result.pop('image',None)
-                self.errors=0
-            except Exception as exc:
-                # A camera or inference failure is reported to the tabs, then retried.
-                self.errors+=1;traceback.print_exc()
-                result={'error':str(exc) or type(exc).__name__,'detections':[],'captured_at':time.time()}
-                time.sleep(min(2.,.2*self.errors))
-            with self.condition:
-                self.sequence+=1;result['sequence']=self.sequence
-                self.body=json.dumps(result).encode()
-                self.body_lite=json.dumps({k:v for k,v in result.items() if k!='image'}).encode() if 'image' in result else self.body
-                self.condition.notify_all()
-
-    def status(self):
-        return {'sequence':self.sequence,'watching':time.monotonic()-self.last_client<=self.idle_after,'errors':self.errors}
-
-    def close(self):
-        with self.condition:
-            self.closed=True;self.condition.notify_all()
 
 
 def main():
@@ -540,7 +379,6 @@ def main():
     server = Server(("127.0.0.1", args.port), Handler)
     server.camera = args.camera
     server.recognizer = recognizer
-    server.recognition_lock = threading.Lock()
     server.mode=args.backend if args.backend!='sift' else ('sift-pilot' if args.pilot else 'single-reference')
     server.fixture=args.image.resolve() if args.image else None
     if server.fixture:
