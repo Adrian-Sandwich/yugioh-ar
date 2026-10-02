@@ -11,6 +11,7 @@ import os
 import threading
 import time
 import traceback
+from contracts import ANALYZE_CONTEXT
 
 
 def _serve(conn,mode):
@@ -28,7 +29,8 @@ def _serve(conn,mode):
         try:
             # Test hook only: a deliberate stall to exercise the watchdog.
             if payload.get('_test_delay') and os.environ.get('YUGIOH_INFERENCE_TEST')=='1':time.sleep(payload['_test_delay'])
-            conn.send(('ok',recognizer.analyze_jpeg(payload['data'],reuse=payload.get('reuse',()),verified=payload.get('verified',()),regions=payload.get('regions'),back_zones=payload.get('back_zones'))))
+            context={k:payload[k] for k in ANALYZE_CONTEXT if k in payload}
+            conn.send(('ok',recognizer.analyze_jpeg(payload['data'],**context)))
         except Exception:
             conn.send(('error',traceback.format_exc()))
 
@@ -64,10 +66,13 @@ class RemoteRecognizer:
     def restart(self):
         self._kill();self.restarts+=1;self._start()
 
-    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None,back_zones=None,_test_delay=None):
+    def analyze_jpeg(self,data,_test_delay=None,**context):
+        """`context`: the keyword arguments of contracts.ANALYZE_CONTEXT, passed through to the child."""
+        unknown=set(context)-set(ANALYZE_CONTEXT)
+        if unknown:raise TypeError(f'analyze_jpeg: argumentos desconocidos {sorted(unknown)} (ver contracts.ANALYZE_CONTEXT)')
         with self.lock:
             if self.process is None or not self.process.is_alive():self.restart()
-            payload={'data':data,'reuse':list(reuse),'verified':list(verified),'regions':regions,'back_zones':back_zones}
+            payload={'data':data,**{k:(list(v) if k in ('reuse','verified') else v) for k,v in context.items()}}
             if _test_delay:payload['_test_delay']=_test_delay
             try:self.conn.send(('analyze',payload))
             except (OSError,EOFError,BrokenPipeError):

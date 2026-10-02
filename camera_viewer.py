@@ -29,7 +29,7 @@ from identity_resolution import IDENTITIES,normalize_detection
 ROOT = Path(__file__).resolve().parent
 # Seconds after the diagnostic viewer's last poll during which the analysis covers the whole frame.
 DIAGNOSTIC_HOLD_S=5.
-TRACK_FIELDS=('track_id','card_id','name','sprite_ref','corners','stable','verified_at','tracked_at','acceptance','inliers','frames')
+from contracts import TRACK_FIELDS  # noqa: E402  (camera_viewer.TRACK_FIELDS)
 
 
 def camera_url(value):

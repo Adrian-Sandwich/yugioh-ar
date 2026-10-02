@@ -32,6 +32,7 @@ onnxruntime y Pillow, con los mismos pins que `requirements-research.txt` y
 | `qa_server_loop.py` | bucle de análisis del servidor: inactivo sin clientes, siempre el fotograma más nuevo |
 | `qa_playmat.py` | zonas del tapete con perspectiva, dos tapetes enfrentados, orientación |
 | `qa_util.py` | `quad_iou` compartido, escritura atómica con reintento, rutas únicas de `settings.py` |
+| `qa_contracts.py` | `contracts.py`: campos de detecciones y pistas, contexto del análisis a través de `inference_host` |
 
 ## Qué no puede correr en CI y por qué
 

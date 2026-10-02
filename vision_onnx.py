@@ -384,30 +384,30 @@ class ResearchRecognizer:
                 iou,track=reused[index]
                 rotation=int(track.get('rotation',0))//90
                 top=track.get('top5') or [{'card_id':track['card_id'],'score':track.get('score',0.),'ref_id':track.get('ref_id'),'artwork_id':track.get('artwork_id')}]
-                result.append({'card_id':track['card_id'],'corners':np.roll(quad,-rotation,axis=0).tolist(),'score':float(track.get('score',0.)),
-                               'detector_corners':np.roll(box['corners'],-rotation,axis=0).tolist(),
-                               'geometry_status':geometry['geometry_status'],'geometry_iou':geometry.get('geometry_iou'),
-                               'margin':float(track.get('margin',0.)),'accepted':True,'top5':top,'rotation':rotation*90,'detector_score':box['score'],
-                               'identity_source':'track','reuse_iou':round(iou,3),'track_id':track.get('track_id')})
+                result.append(detection(box,geometry,quad,rotation,track['card_id'],float(track.get('score',0.)),float(track.get('margin',0.)),True,top,'track',
+                                        reuse_iou=round(iou,3),track_id=track.get('track_id')))
                 continue
             score,rotation,top=identified[index]
-            corners=np.roll(quad,-rotation,axis=0)
             if not top:
                 # Empty index or no classifier mapping: report the box, never an identity.
-                result.append({'card_id':None,'corners':corners.tolist(),'score':0.,'detector_corners':np.roll(box['corners'],-rotation,axis=0).tolist(),
-                               'geometry_status':geometry['geometry_status'],'geometry_iou':geometry.get('geometry_iou'),'margin':0.,
-                               'accepted':False,'top5':[],'rotation':rotation*90,'detector_score':box['score'],'identity_source':'none'})
+                result.append(detection(box,geometry,quad,rotation,None,0.,0.,False,[],'none'))
                 continue
             margin=top[0]['score']-(top[1]['score'] if len(top)>1 else 0)
             accepted=bool(top[0]['card_id']) and top[0]['score']>=minimum and margin>=margin_floor
-            result.append({'card_id':top[0]['card_id'],'corners':corners.tolist(),'score':top[0]['score'],
-                           'detector_corners':np.roll(box['corners'],-rotation,axis=0).tolist(),
-                           'geometry_status':geometry['geometry_status'],'geometry_iou':geometry.get('geometry_iou'),
-                           'margin':margin,'accepted':accepted,'top5':top,'rotation':rotation*90,'detector_score':box['score'],
-                           'identity_source':'embedding' if self.mode=='embedding' else 'classifier',
-                           'acceptance':'score' if accepted else None})
+            result.append(detection(box,geometry,quad,rotation,top[0]['card_id'],top[0]['score'],margin,accepted,top,
+                                    'embedding' if self.mode=='embedding' else 'classifier',acceptance='score' if accepted else None))
         return {'detections':result,'processing_ms':round((time.perf_counter()-started)*1000,1),'mode':self.mode,
                 'experimental_thresholds':True,'geometry_ms':geometry_ms,'encoded_cards':encoded,'reused_cards':len(reused),'outside_regions':outside}
+
+
+def detection(box,geometry,quad,rotation,card_id,score,margin,accepted,top5,source,**extra):
+    """One contracts.Detection: `quad` the refined corners and `rotation` the quarter turns that
+    make the card upright (both corner sets are rolled by it)."""
+    return {'card_id':card_id,'corners':np.roll(quad,-rotation,axis=0).tolist(),'score':score,
+            'detector_corners':np.roll(box['corners'],-rotation,axis=0).tolist(),
+            'geometry_status':geometry['geometry_status'],'geometry_iou':geometry.get('geometry_iou'),
+            'margin':margin,'accepted':accepted,'top5':top5,'rotation':rotation*90,'detector_score':box['score'],
+            'identity_source':source,**extra}
 
 
 def promote_by_art(candidates,verified,now=None):

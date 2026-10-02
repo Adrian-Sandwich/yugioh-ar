@@ -53,6 +53,8 @@ def main():
     tracks=[{'corners':boxes[0]['corners'].tolist(),'card_id':'reused-id','score':.91,'margin':.5,'rotation':0,'track_id':7,'top5':[{'card_id':'reused-id','score':.91}]}]
     model.encoder.predict_batch=counting;calls.clear()
     result=model.detect(image,reuse=tracks)
+    import contracts
+    assert all(not contracts.missing(d,contracts.DETECTION_REQUIRED) for d in result['detections']),'detection outside contracts.Detection'
     model.encoder.predict_batch=original
     reused=[d for d in result['detections'] if d.get('identity_source')=='track']
     assert len(reused)==1 and reused[0]['card_id']=='reused-id' and reused[0]['accepted'] and reused[0]['track_id']==7
@@ -71,7 +73,11 @@ def main():
         out=refine(self,corners,snap=snap);snaps.append((snap,out['geometry_status']));return out
     card_geometry.GeometryRefiner.refine=spy
     try:
-        model.unresolved=[];model.detect(image);first=list(snaps);snaps.clear();model.detect(image);second=list(snaps)
+        # The retry delay is wall time: on a loaded PC one analysis took longer than the 2 s window and
+        # the second pass retried legitimately. Widen it for this check; the rule itself is the same.
+        import vision_onnx as vo;window=vo.UNRESOLVED_RETRY_S;vo.UNRESOLVED_RETRY_S=3600
+        try:model.unresolved=[];model.detect(image);first=list(snaps);snaps.clear();model.detect(image);second=list(snaps)
+        finally:vo.UNRESOLVED_RETRY_S=window
     finally:
         card_geometry.GeometryRefiner.refine=refine
     failed=sum(s=='unresolved' for _,s in first)

@@ -19,7 +19,7 @@ from util import quad_iou  # noqa: F401  (live_tracking.quad_iou)
 
 GRID=(5,7)
 LK=dict(winSize=(21,21),maxLevel=3,criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,20,.03))
-IDENTITY_FIELDS=('card_id','name','sprite_ref','score','margin','rotation','top5','ref_id','artwork_id','id','acceptance','source_card_id')
+from contracts import IDENTITY_FIELDS  # noqa: E402  (live_tracking.IDENTITY_FIELDS)
 # Live measurement 27/09/2026: ten cards on a 1080p phone stream cost ~100 ms per
 # frame when each card ran its own Lucas-Kanade calls (pyramids rebuilt per
 # card). Now all cards share one forward and one backward call (~7 ms for 350
