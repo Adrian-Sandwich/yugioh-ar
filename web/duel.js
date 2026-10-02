@@ -3,15 +3,9 @@
 const frame=document.querySelector('#frame'),ctx=frame.getContext('2d');
 let currentBitmap=null,frameNumber=0,liveTracks=[],renderedFrame=-1,renderedTracks=null,renderedAR=null;
 let playmat=null,calibration=null,zonesVersion=0,renderedZones=-1,virtualPreview=null;
-function textNode(tag,text){const n=document.createElement(tag);n.textContent=text;return n;}
 
 // Card sheets (/card-info, local registry): labels under the cards and the "Carta en juego" panel.
-const cardSheets=new Map();
-function sheetOf(cardId){
-  if(!cardId)return null;
-  if(!cardSheets.has(cardId)){cardSheets.set(cardId,null);fetch('/card-info?id='+encodeURIComponent(cardId)).then(r=>r.ok?r.json():null).then(s=>{if(s){cardSheets.set(cardId,s);renderedTracks=null;}}).catch(()=>{});}
-  return cardSheets.get(cardId);
-}
+function sheetOf(cardId){return cardInfo.peek(cardId,()=>{renderedTracks=null;});}   // labels redraw once it arrives
 function statsLine(s){
   if(!s)return null;
   if(s.card_type!=='monster')return s.line?.split(' · ')[0]||null;   // "Magia Normal", "Trampa Continua"
@@ -130,8 +124,7 @@ function drawFacedown(context){
 let spotlightId=null;
 async function spotlight(cardId){
   if(!cardId)return;spotlightId=cardId;
-  let s=cardSheets.get(cardId);
-  if(!s){try{const r=await fetch('/card-info?id='+encodeURIComponent(cardId));s=r.ok?await r.json():null;if(s)cardSheets.set(cardId,s);}catch(e){}}
+  const s=cardInfo.cache.get(cardId)||await cardInfo.load(cardId);
   if(!s||spotlightId!==cardId)return;
   const box=document.querySelector('#spotlight');box.hidden=false;
   document.querySelector('#spotImage').src='/card-image?id='+encodeURIComponent(cardId);
@@ -198,19 +191,14 @@ function draw(now){
   requestAnimationFrame(draw);
 }
 
-// Hidden tab: polling waits until the page is shown again (a background tab kept pulling ~15 JPEG/s).
-function visible(){return document.hidden?new Promise(r=>document.addEventListener('visibilitychange',function f(){if(!document.hidden){document.removeEventListener('visibilitychange',f);r();}})):Promise.resolve();}
 // Video: the server's newest frame with the tracks of that exact frame (X-Tracks).
 async function refreshCamera(){
   await visible();
   let delay=66;const started=performance.now();
   try{
-    const r=await fetch('/snapshot?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(10000)});
-    if(!r.ok)throw Error();
-    const bitmap=await createImageBitmap(await r.blob());
-    let tracks=[];try{tracks=JSON.parse(r.headers.get('X-Tracks')||'[]');}catch(e){}
+    const {bitmap,tracks}=await fetchFrame();
     if(currentBitmap)currentBitmap.close();currentBitmap=bitmap;frameNumber++;
-    liveTracks=Array.isArray(tracks)?tracks.filter(t=>t.card_id&&t.corners?.length===4):[];
+    liveTracks=tracks;
     const onField=fieldTracks(liveTracks).length;
     document.querySelector('#videoStatus').textContent=`${onField} carta${onField===1?'':'s'} en el campo`;
   }catch(e){document.querySelector('#videoStatus').textContent='Sin señal de cámara; reintentando…';delay=1500;}
@@ -562,10 +550,7 @@ refreshDuel();
 // Sprites are YGOPro close-up cut-outs with transparency (/cutout/<ref>, trimmed so the
 // bottom row is the feet). Each card's homography gives its centre, size and the
 // perspective of its shadow; "up" is the image's up, as the camera looks down at the table.
-const cutouts={cache:new Map(),get(ref){
-  if(!ref)return null;let e=this.cache.get(ref);
-  if(!e){e={image:null};this.cache.set(ref,e);const img=new Image();img.onload=()=>{e.image=img;};img.src='/cutout/'+encodeURIComponent(ref);}
-  return e.image;}};
+const cutouts=imageCache(ref=>'/cutout/'+encodeURIComponent(ref));
 
 function cardMap(corners){
   // Unit square (card TL, TR, BR, BL) -> image quad, perspective-correct (Heckbert).

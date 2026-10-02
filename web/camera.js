@@ -1,6 +1,4 @@
 const frame=document.querySelector('#frame'),ctx=frame.getContext('2d');
-// Hidden tab: polling waits until the page is shown again (a background tab kept pulling ~15 JPEG/s).
-function visible(){return document.hidden?new Promise(r=>document.addEventListener('visibilitychange',function f(){if(!document.hidden){document.removeEventListener('visibilitychange',f);r();}})):Promise.resolve();}
 async function refreshDownloadWatch(){
   await visible();
   const label=document.querySelector('#downloadWatch');if(!label)return;
@@ -52,7 +50,7 @@ function drawCards(context,cards,options={}){
     context.save();context.setLineDash(approximate?[12,8]:[]);
     context.beginPath();card.corners.forEach(([x,y],i)=>i?context.lineTo(x,y):context.moveTo(x,y));context.closePath();context.strokeStyle=cut&&options.hints?'#ff8f8f':approximate?'#ffd166':'#80ffbc';context.lineWidth=5;context.stroke();context.restore();
     // Spanish name plus the English one when it differs (most TCG copies are printed in English).
-    const en=card.card_id&&typeof sheets!=='undefined'?sheets.get(card.card_id)?.name_en:null;
+    const en=card.card_id?cardInfo.cache.get(card.card_id)?.name_en:null;
     const label=card.name?(en&&en!==card.name?`${card.name} · ${en}`:card.name):(cut&&options.hints?'Carta cortada por el borde: muévela dentro del cuadro':null);
     if(!label)continue;
     const x=Math.max(0,Math.min(...card.corners.map(p=>p[0]))),y=Math.max(32,Math.min(...card.corners.map(p=>p[1]))-10);
@@ -126,17 +124,11 @@ async function refreshCamera(){
   let delay=66;const started=performance.now(),token=generation;
   try{
     if(!paused){
-      const response=await fetch('/snapshot?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(10000)});
-      if(!response.ok)throw Error('Cámara no disponible');
-      const blob=await response.blob(),bitmap=await createImageBitmap(blob);
+      const {bitmap,blob,tracks,capturedAt}=await fetchFrame();
       if(paused||token!==generation){bitmap.close();return;}
-      const timestamp=Number(response.headers.get('X-Captured-At'));
-      frameCapturedAt=timestamp>0&&Number.isFinite(timestamp)?timestamp:(performance.timeOrigin+started)/1000;
-      let tracks=[];
-      try{tracks=JSON.parse(response.headers.get('X-Tracks')||'[]');}catch(e){tracks=[];}
+      frameCapturedAt=capturedAt??(performance.timeOrigin+started)/1000;
       if(currentBitmap)currentBitmap.close();currentBitmap=bitmap;currentBlob=blob;
-      // Tracks belong to exactly this frame; identities in them were confirmed by an earlier analysis.
-      liveTracks=Array.isArray(tracks)?tracks.filter(t=>t.card_id&&t.corners?.length===4):[];
+      liveTracks=tracks;
       if(liveTracks.length)updateTable(liveTracks).catch(()=>{});
       frameAt=performance.now()-Math.max(0,Date.now()-frameCapturedAt*1000);frameNumber++;
       save.disabled=false;
@@ -168,7 +160,7 @@ async function acceptAnalysis(data,token,sourceAt){
 }
 
 // "Cartas en la mesa": one sheet per recognized identity, from /card-info (local registry).
-const sheets=new Map();let tableKey='';
+let tableKey='';   // sheets: cardInfo (common.js)
 const formats={tcg:'TCG',ocg:'OCG','ocg-kr':'OCG Corea',speed:'Speed Duel',masterduel:'Master Duel',genesys:'Genesys'};
 function sheetNode(info,count){
   const box=document.createElement('article');box.className='sheet';
@@ -186,11 +178,11 @@ async function updateTable(cards){
   for(const c of cards||[])if(c.card_id)counts.set(c.card_id,(counts.get(c.card_id)||0)+1);
   const key=[...counts].sort().map(([id,n])=>id+':'+n).join('|');
   if(key===tableKey)return;tableKey=key;
-  await Promise.all([...counts.keys()].filter(id=>!sheets.has(id)).map(async id=>{
-    try{const r=await fetch('/card-info?id='+encodeURIComponent(id));sheets.set(id,r.ok?await r.json():null);}catch(e){sheets.set(id,null);}
+  await Promise.all([...counts.keys()].filter(id=>!cardInfo.cache.has(id)).map(async id=>{
+    await cardInfo.load(id);
   }));
   if(key!==tableKey)return;  // a newer set arrived while fetching
-  const nodes=[...counts].filter(([id])=>sheets.get(id)).map(([id,n])=>sheetNode(sheets.get(id),n));
+  const nodes=[...counts].filter(([id])=>cardInfo.cache.get(id)).map(([id,n])=>sheetNode(cardInfo.cache.get(id),n));
   document.querySelector('#tableCards').replaceChildren(...nodes);
   document.querySelector('#tableStatus').textContent=nodes.length?`${nodes.length} carta${nodes.length>1?'s':''} distinta${nodes.length>1?'s':''} reconocida${nodes.length>1?'s':''} en la mesa.`:'Sin cartas reconocidas en este momento.';
 }
@@ -271,7 +263,6 @@ draw();refreshCamera();refreshRecognition();
 const passcodeStates={candidate:'Lectura candidata',repeated_match:'Lectura repetida y coincidencia en la base',unreadable:'Sin lectura fiable',not_in_registry:'Número leído; sin coincidencia en la base',ambiguous_reading:'Lecturas contradictorias',ambiguous_identity:'El número aparece en varias identidades',visual_conflict:'El número no coincide con la identificación visual'};
 const nameStates={matched:'Coincidencia por nombre en la base',conflict:'Conflicto: el nombre no coincide con la imagen o el serial',ambiguous:'Nombre ambiguo: varias identidades posibles',low_confidence:'Lectura de nombre poco fiable',too_short:'Texto demasiado corto para asociar una carta',not_in_registry:'Texto leído; sin coincidencia normalizada',registry_unavailable:'Texto leído; registro no disponible',unreadable:'Nombre sin lectura fiable',error:'No se pudo leer el nombre',skipped:'Lectura del nombre omitida'};
 let passcodeSequence=-1;
-function textNode(tag,text){const n=document.createElement(tag);n.textContent=text;return n;}
 async function refreshPasscodes(){
   await visible();
   const token=generation;

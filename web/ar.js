@@ -1,13 +1,7 @@
-// Shared by the camera viewer (/) and the duel view (/duelo): sprites warped over the
+// Camera viewer (/): sprites warped over the
 // video in the browser. A WebGL textured quad with perspective-correct texture
 // coordinates, so nothing but corners and a sprite id travel per frame.
-const sprites={cache:new Map(),
-  get(url){
-    if(!url)return null;
-    let entry=this.cache.get(url);
-    if(!entry){entry={image:null,failed:false};this.cache.set(url,entry);const img=new Image();img.onload=()=>{entry.image=img;};img.onerror=()=>{entry.failed=true;};img.src=url;}
-    return entry.image;
-  }};
+const sprites=imageCache();   // by URL (common.js)
 const spriteGL=(()=>{
   const canvas=document.createElement('canvas');const gl=canvas.getContext('webgl',{premultipliedAlpha:false,preserveDrawingBuffer:true});
   if(!gl)return null;

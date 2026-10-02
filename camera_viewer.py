@@ -100,7 +100,7 @@ class Handler(BaseHTTPRequestHandler):
               '/tracks': 'get_tracks', '/config': 'get_config', '/passcodes': 'get_passcodes', '/download-status': 'get_download_status',
               '/analyze': 'analyze', '/analysis': 'latest_analysis', '/duel/history': 'get_duel_history', '/card-image': 'get_card_image',
               '/playmat': 'get_table', '/duel': 'get_table', '/card-info': 'get_card_info',
-              '/camera.js': 'get_script', '/duel.js': 'get_script', '/ar.js': 'get_script'}
+              '/camera.js': 'get_script', '/duel.js': 'get_script', '/ar.js': 'get_script', '/common.js': 'get_script'}
     PREFIXES = (('/fx/', 'get_fx'), ('/cutout/', 'get_cutout'), ('/sprite/', 'get_sprite'), ('/playmat/print/', 'get_print'))
 
     def do_GET(self):
