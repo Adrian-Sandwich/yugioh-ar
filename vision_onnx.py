@@ -1,32 +1,30 @@
-"""Research backend: DRAW2 OBB, classifier and pre-classifier embeddings (CPU, or CUDA via YUGIOH_ONNX_DEVICE).
+"""The recognizer: detect card boxes, refine their corners, identify them against the reference index.
 
-Uses the downloaded DRAW2 Small weights. Thresholds are experimental, not
-calibrated confidence. No training or model weight updates are performed.
+Models and sessions: onnx_models.py. Reference index: reference_index.py. Second votes (art,
+title): promotions.py. Thresholds are experimental, not calibrated confidence.
 
-Inference budget (this PC, 8 logical cores, measured 26/09/2026): one 224x224
-encode costs ~624 ms with 2 threads, ~474 ms with 4, ~873 ms with 8; a batch of
-four costs ~395 ms per image with 4 threads. Hence 4 threads by default
-(`YUGIOH_ONNX_THREADS`) and one batched run per orientation. On 19 annotated
+One batched encoder run per orientation. On 19 annotated
 real crops the wrong (180°) orientation scored at most 0.815 while the right
 one always won by at least 0.122, so the second orientation is skipped only
 when the first already scores >= ORIENTATION_SKIP_SCORE.
 """
 import hashlib
 import json
-import os
 import time
 from pathlib import Path
 
 import cv2
 import numpy as np
-import onnxruntime as ort
 from card_geometry import GeometryRefiner
-from identity_resolution import canonical
 import settings
 from util import quad_iou  # noqa: F401  (vision_onnx.quad_iou, used here and by tests)
+# Split out on 02/10/2026; the names stay importable from here.
+from onnx_models import (DEVICE, ENCODER_VARIANT, IMAGENET_MEAN, IMAGENET_STD, MODELS, Detector, Encoder,  # noqa: F401
+                         crop, encoder_path, providers, session, tensor, with_features)
+from reference_index import build_index, index_paths, previous_index, reference_entries, references_digest  # noqa: F401
+from promotions import ART_PROMOTION_MAX_AGE_S, ART_PROMOTION_MIN_IOU, NAME_MEMORY_S, promote_by_art, promote_by_name  # noqa: F401
 
 ROOT=settings.ROOT
-MODELS=ROOT/'downloads/reference-assets/draw2/onnx'
 PILOT=settings.PILOT
 # Reference scope: 'pilot' (the <=50 cards chosen in the catalog, default) or
 # 'full' (every catalog identity with a usable image, catalog.export_full into
@@ -47,239 +45,11 @@ ORIENTATION_SKIP_SCORE=.90
 # substitution in the same place is noticed.
 REUSE_MAX_AGE_S=8.
 REUSE_MIN_IOU=.75
-ART_PROMOTION_MAX_AGE_S=4.
-ART_PROMOTION_MIN_IOU=.5
-# A title read on a card stays valid this long while the card stays where it was read (IoU).
-NAME_MEMORY_S=20.
 # Detector OBB against a tracked quadrilateral: an upright rectangle around a
 # card in mild perspective still overlaps it well above this.
 TRACKED_GEOMETRY_MIN_IOU=.75
 UNRESOLVED_RETRY_S=2.
 UNRESOLVED_MIN_IOU=.85
-
-
-# Execution device: 'cpu' (default) or 'cuda' (needs onnxruntime-gpu, see
-# requirements-gpu.txt). The int8 encoder only runs well on CPU; on CUDA the
-# default is the float model from research/dequantize_encoder.py, which has its
-# own index (embeddings-<variant>.npy) and must be calibrated separately.
-DEVICE=settings.ONNX_DEVICE
-ENCODER_VARIANT=settings.ENCODER_VARIANT
-
-
-def providers():
-    if DEVICE=='cpu': return ['CPUExecutionProvider']
-    if DEVICE!='cuda': raise ValueError(f'YUGIOH_ONNX_DEVICE={DEVICE!r}: use cpu or cuda')
-    if hasattr(ort,'preload_dlls'): ort.preload_dlls()  # CUDA/cuDNN from the nvidia-* wheels
-    # Heuristic cuDNN search: batch size changes with the number of cards and an
-    # exhaustive search per new shape stalls the first frames that see it.
-    return [('CUDAExecutionProvider',{'cudnn_conv_algo_search':'HEURISTIC'}),'CPUExecutionProvider']
-
-
-def session(path,threads=None):
-    options=ort.SessionOptions()
-    options.intra_op_num_threads=int(threads or settings.ONNX_THREADS)
-    options.inter_op_num_threads=1
-    result=ort.InferenceSession(str(path),sess_options=options,providers=providers())
-    if DEVICE=='cuda' and 'CUDAExecutionProvider' not in result.get_providers():
-        print(f'WARNING: CUDA unavailable for {Path(path).name}; running on CPU',flush=True)
-    return result
-
-
-def index_paths(variant=None):
-    """Index files of the current scope for an encoder variant; int8 keeps the historical names."""
-    variant=variant or ENCODER_VARIANT
-    stem='embeddings' if variant=='int8' else f'embeddings-{variant}'
-    return REFS/f'{stem}.npy',REFS/f'{stem}.json'
-
-
-IMAGENET_MEAN=np.float32([.485,.456,.406]);IMAGENET_STD=np.float32([.229,.224,.225])
-
-
-def tensor(image,size=224,normalization='draw2'):
-    rgb=cv2.cvtColor(cv2.resize(image,(size,size)),cv2.COLOR_BGR2RGB).astype(np.float32)
-    x=(rgb/255-IMAGENET_MEAN)/IMAGENET_STD if normalization=='imagenet' else rgb/127.5-1
-    return np.ascontiguousarray(x.transpose(2,0,1)[None])
-
-
-def with_features():
-    import onnx
-    from onnx import helper,TensorProto
-    source=MODELS/'vit_yugiscan_int8.onnx'
-    target=ROOT/'data/models/vit_small_features.onnx'
-    target.parent.mkdir(parents=True,exist_ok=True)
-    digest=hashlib.sha256(source.read_bytes()).hexdigest()
-    manifest=target.with_suffix('.json')
-    if target.exists() and manifest.exists() and json.loads(manifest.read_text())['source_sha256']==digest:
-        return target
-    model=onnx.load(source)
-    # Audited graph: Gather of the final normalized CLS token, before classifier quantization.
-    feature='/Gather_output_0'
-    assert any(n.op_type=='Gather' and feature in n.output for n in model.graph.node)
-    dimension=next(i.dims[0] for i in model.graph.initializer if i.name=='vit.layernorm.weight')
-    model.graph.output.append(helper.make_tensor_value_info(feature,TensorProto.FLOAT,['batch',dimension]))
-    onnx.checker.check_model(model)
-    onnx.save(model,target)
-    manifest.write_text(json.dumps({'source_sha256':digest,'feature':feature,'dimension':dimension,
-        'preprocessing':'BGR->RGB; resize224 square; x/127.5-1; NCHW; L2 features','trained_for_retrieval':False},indent=2))
-    return target
-
-
-def encoder_path(variant):
-    """int8/fp32/fp16: DRAW2 Small; any other name is a retrieval-only model in data/models (e.g. dinov2_vits14)."""
-    if variant=='int8': return with_features()
-    draw2=variant in ('fp32','fp16')
-    path=ROOT/(f'data/models/vit_small_features_{variant}.onnx' if draw2 else f'data/models/{variant}.onnx')
-    if not path.exists():
-        raise FileNotFoundError(f'{path} missing: run research/{"dequantize_encoder.py" if draw2 else "export_dinov2.py"}')
-    return path
-
-
-class Encoder:
-    def __init__(self,variant=None):
-        self.variant=variant or ENCODER_VARIANT
-        self.model_path=encoder_path(self.variant)
-        self.model=session(self.model_path)
-        manifest=self.model_path.with_suffix('.json')
-        self.normalization=json.loads(manifest.read_text()).get('preprocessing') if manifest.exists() else None
-        self.normalization='imagenet' if self.normalization=='imagenet' else 'draw2'
-        # Retrieval-only encoders have a single output and no classifier vocabulary.
-        self.retrieval_only=len(self.model.get_outputs())==1
-        self.labels=json.loads((MODELS/'card_labels_yugiscan.json').read_text(encoding='utf-8'))
-        self.mapping=json.loads((ROOT/'research/references-20260924/draw2-small-ygojson-map.json').read_text(encoding='utf-8'))
-
-    def predict(self,image,*,classify=True):
-        return self.predict_batch([image],classify=classify)[0]
-
-    def predict_batch(self,images,*,classify=True):
-        """One ONNX run for several crops; each result equals `predict` on that crop."""
-        if not images: return []
-        blob=np.concatenate([tensor(image,normalization=self.normalization) for image in images],axis=0)
-        outputs=self.model.run(None,{self.model.get_inputs()[0].name:blob})
-        logits,features=(None,outputs[0]) if self.retrieval_only else outputs
-        results=[]
-        for row in range(len(images)):
-            z=features[row].astype(np.float32);z/=max(np.linalg.norm(z),1e-12)
-            # Retrieval uses only z. Do not softmax/sort/map the entire classifier
-            # vocabulary when the caller will immediately discard that ranking.
-            if not classify or logits is None:
-                results.append(([],z));continue
-            scores=np.exp(logits[row]-np.max(logits[row]));scores/=scores.sum()
-            top=np.argsort(scores)[-5:][::-1]
-            predictions=[{'index':int(i),'label':self.labels[str(i)],'card_id':self.mapping.get(str(i),{}).get('ygojson_uuid'),
-                          'score':float(scores[i])} for i in top]
-            results.append((predictions,z))
-        return results
-
-
-class Detector:
-    def __init__(self):
-        self.model=session(MODELS/'ygo_yolo.onnx')
-
-    def detect(self,image,threshold=.2):
-        h,w=image.shape[:2];scale=min(640/w,640/h)
-        rw,rh=round(w*scale),round(h*scale);px,py=(640-rw)//2,(640-rh)//2
-        padded=np.zeros((640,640,3),np.uint8)
-        padded[py:py+rh,px:px+rw]=cv2.resize(image,(rw,rh))
-        blob=np.ascontiguousarray(cv2.cvtColor(padded,cv2.COLOR_BGR2RGB).transpose(2,0,1)[None].astype(np.float32)/255)
-        rows=self.model.run(None,{self.model.get_inputs()[0].name:blob})[0][0]
-        if rows.shape[0]<rows.shape[1]: rows=rows.T
-        if rows.shape[1]!=6: raise ValueError('Unexpected detector output shape')
-        boxes=[]
-        for x,y,bw,bh,score,angle in rows[rows[:,4]>=threshold]:
-            x,y=(x-px)/scale,(y-py)/scale;bw,bh=bw/scale,bh/scale
-            if bw>bh: bw,bh,angle=bh,bw,angle+np.pi/2
-            rotation=np.array([[np.cos(angle),-np.sin(angle)],[np.sin(angle),np.cos(angle)]])
-            corners=(np.array([[-bw/2,-bh/2],[bw/2,-bh/2],[bw/2,bh/2],[-bw/2,bh/2]])@rotation.T+[x,y]).astype(np.float32)
-            if bw<20 or bh<20 or not np.isfinite(corners).all(): continue
-            boxes.append({'corners':corners,'score':float(score)})
-        kept=[]
-        for candidate in sorted(boxes,key=lambda b:-b['score']):
-            if any(quad_iou(candidate['corners'],k['corners'])>.5 for k in kept): continue
-            kept.append(candidate)
-            if len(kept)>=20: break
-        return kept
-
-
-def crop(image,corners):
-    dst=np.float32([[0,0],[223,0],[223,223],[0,223]])
-    matrix=cv2.getPerspectiveTransform(np.float32(corners),dst)
-    return cv2.warpPerspective(image,matrix,(224,224))
-
-
-def reference_entries(catalog_path=REFS/'catalog.json',enrolled_path=PILOT/'enrolled.json'):
-    """Scope references plus photographs of the owner's physical cards (enroll_reference.py)."""
-    entries=json.loads(Path(catalog_path).read_text(encoding='utf-8'))
-    enrolled=json.loads(Path(enrolled_path).read_text(encoding='utf-8')) if Path(enrolled_path).exists() else []
-    for entry in enrolled:
-        # Enrolled sources are relative to the pilot folder, whatever the scope.
-        entry.setdefault('enrolled',True);entry['base']=str(Path(enrolled_path).parent)
-    return entries+enrolled
-
-
-def references_digest(catalog_path=REFS/'catalog.json',enrolled_path=PILOT/'enrolled.json'):
-    digest=hashlib.sha256(Path(catalog_path).read_bytes())
-    if Path(enrolled_path).exists(): digest.update(Path(enrolled_path).read_bytes())
-    return digest.hexdigest()
-
-
-def previous_index(catalog_path,encoder):
-    """ref_id -> (row, vector) of the index on disk, when it was made by this same encoder."""
-    vectors_path,metadata_path=index_paths(encoder.variant)
-    folder=Path(catalog_path).parent;vectors_path,metadata_path=folder/vectors_path.name,folder/metadata_path.name
-    try:
-        metadata=json.loads(metadata_path.read_text());vectors=np.load(vectors_path)
-        if metadata.get('model_sha256')!=hashlib.sha256(encoder.model_path.read_bytes()).hexdigest() or len(vectors)!=len(metadata['rows']): return {}
-        return {row['ref_id']:(row,vectors[i]) for i,row in enumerate(metadata['rows'])}
-    except (OSError,ValueError,KeyError): return {}
-
-
-def build_index(catalog_path=REFS/'catalog.json',encoder=None):
-    """Encode every reference; one whose file is unchanged since the index on disk keeps its vector.
-
-    Incremental on 28/09/2026: enrolling one photo re-encoded all 14,782 references of the full scope
-    (~3 min) inside an analysis, past the recognizer child's 25 s timeout, which then restarted in a
-    loop. Unchanged means same source, size and mtime (a 2 s stat), or failing that the same SHA-256.
-    """
-    entries=reference_entries(catalog_path)
-    encoder=encoder or Encoder();previous=previous_index(catalog_path,encoder)
-    vectors=[None]*len(entries);rows=[None]*len(entries);todo=[];reused=0
-    for n,entry in enumerate(entries):
-        path=(Path(entry.get('base') or Path(catalog_path).parent)/entry['source']).resolve()
-        st=path.stat();stamp=[st.st_size,st.st_mtime_ns]
-        row={'ref_id':entry['id'],'card_id':entry['card_id'],'artwork_id':entry.get('artwork_id'),
-             'enrolled':bool(entry.get('enrolled')),'source':entry['source'],'stamp':stamp}
-        old,vector=previous.get(entry['id'],(None,None))
-        if old is not None and old.get('source') in (None,entry['source']):
-            same=old.get('stamp')==stamp
-            if not same:
-                raw=path.read_bytes();row['image_sha256']=hashlib.sha256(raw).hexdigest();same=old.get('image_sha256')==row['image_sha256']
-            if same:
-                row.setdefault('image_sha256',old.get('image_sha256'));rows[n]=row;vectors[n]=vector;reused+=1;continue
-        rows[n]=row;todo.append((n,path))
-    # Float encoders batch 32 references per run (lote/imagen drift 0.0001); int8
-    # keeps one run per reference so the historical index reproduces exactly.
-    step=1 if encoder.variant=='int8' else 32
-    for start in range(0,len(todo),step):
-        chunk=todo[start:start+step];images=[];data=[]
-        for _,path in chunk:
-            data.append(path.read_bytes());images.append(cv2.imdecode(np.frombuffer(data[-1],np.uint8),cv2.IMREAD_COLOR))
-        for (n,_),raw,(_,z) in zip(chunk,data,encoder.predict_batch(images,classify=False)):
-            vectors[n]=z;rows[n]['image_sha256']=hashlib.sha256(raw).hexdigest()
-        done=start+len(chunk)
-        if done%(10 if len(todo)<1000 else 1024)<len(chunk) or done==len(todo): print('INDEX',done,'/',len(todo),'new;',reused,'reused',flush=True)
-    out=Path(catalog_path).parent
-    vectors_path,metadata_path=index_paths(encoder.variant)
-    # Atomic replace: two viewers may rebuild after the same pilot change, and a
-    # reader must never load half a file. Vectors first, metadata (the digest) last.
-    suffix=f'.{os.getpid()}.tmp'
-    with open(out/(vectors_path.name+suffix),'wb') as f: np.save(f,np.stack(vectors))
-    os.replace(out/(vectors_path.name+suffix),out/vectors_path.name)
-    (out/(metadata_path.name+suffix)).write_text(json.dumps({'rows':rows,'encoder_variant':encoder.variant,
-        'model_sha256':hashlib.sha256(encoder.model_path.read_bytes()).hexdigest(),
-        'catalog_sha256':references_digest(catalog_path),
-        'dimension':len(vectors[0]),'normalization':'L2','retrieval':'exact cosine','scope':f'{SCOPE} plus enrolled photos; thresholds not calibrated'},indent=2))
-    os.replace(out/(metadata_path.name+suffix),out/metadata_path.name)
-    print('INDEX DONE',len(rows),flush=True)
 
 
 class ResearchRecognizer:
@@ -408,57 +178,6 @@ def detection(box,geometry,quad,rotation,card_id,score,margin,accepted,top5,sour
             'geometry_status':geometry['geometry_status'],'geometry_iou':geometry.get('geometry_iou'),
             'margin':margin,'accepted':accepted,'top5':top5,'rotation':rotation*90,'detector_score':box['score'],
             'identity_source':source,**extra}
-
-
-def promote_by_art(candidates,verified,now=None):
-    """Accept a rejected candidate whose top-1 identity was verified on the illustration.
-
-    `verified` items come from the asynchronous art verifier: corners, card_id,
-    inliers and captured_at. Only the same identity, on an overlapping card,
-    within ART_PROMOTION_MAX_AGE_S, counts. The score itself is untouched.
-    """
-    now=time.time() if now is None else now
-    promoted=0
-    for candidate in candidates:
-        if candidate.get('accepted') or not candidate.get('card_id') or candidate.get('rejected_as'): continue
-        for item in verified:
-            if item.get('evidence')=='name': continue   # title evidence: promote_by_name
-            if canonical(item.get('card_id'))!=canonical(candidate['card_id']): continue
-            if not 0<=now-item.get('captured_at',0)<=ART_PROMOTION_MAX_AGE_S: continue
-            if quad_iou(candidate['corners'],item['corners'])<ART_PROMOTION_MIN_IOU: continue
-            candidate.update(accepted=True,acceptance='art_verified',art_inliers=item.get('inliers'),art_artwork_id=item.get('artwork_id'))
-            promoted+=1;break
-    return promoted
-
-
-def promote_by_name(candidates,verified,now=None,max_age=ART_PROMOTION_MAX_AGE_S):
-    """Accept a rejected candidate when the title OCR names one of its own top-5 identities.
-
-    Two independent weak votes: the card is among the recognizer's candidates, and its printed
-    name, read on the same card (overlapping corners, recent frame), resembles that candidate
-    more than any other name in the registry (name_ocr.pick_by_name). For printings whose
-    illustration no longer looks like the reference: Ghost, Starlight, glare. The chosen
-    identity moves to the front of top5 so sprite and name follow it.
-    """
-    now=time.time() if now is None else now
-    promoted=0
-    for candidate in candidates:
-        if candidate.get('accepted') or not candidate.get('top5') or candidate.get('rejected_as'): continue
-        for item in verified:
-            if item.get('evidence')!='name': continue
-            if not 0<=now-item.get('captured_at',0)<=max_age: continue
-            if quad_iou(candidate['corners'],item['corners'])<ART_PROMOTION_MIN_IOU: continue
-            chosen=next((t for t in candidate['top5'] if canonical(t.get('card_id'))==canonical(item['card_id'])),None)
-            if chosen is None:
-                # A title that won over the whole registry (name_ocr.pick_global) stands alone: the art
-                # gave no vote for it, so its score is 0 and the identity comes from the name only.
-                if item.get('scope')!='global': continue
-                chosen={'card_id':item['card_id'],'score':0.,'ref_id':None,'artwork_id':None}
-            candidate.update(accepted=True,acceptance='name_ocr',card_id=chosen['card_id'],score=chosen.get('score',candidate.get('score')),
-                             top5=[chosen]+[t for t in candidate['top5'] if t is not chosen],name_similarity=item.get('similarity'),name_text=item.get('text'),
-                             name_scope=item.get('scope','candidates'))
-            promoted+=1;break
-    return promoted
 
 
 class LiveRecognizer(ResearchRecognizer):
