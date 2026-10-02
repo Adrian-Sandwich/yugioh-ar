@@ -1,5 +1,5 @@
 """Multilingual title OCR and conservative registry evidence, independent of art IDs."""
-import difflib,sqlite3,time,unicodedata
+import difflib,sqlite3,time
 from pathlib import Path
 import cv2
 import numpy as np
@@ -15,11 +15,7 @@ NAME_TIGHT_REGION=(.035,.04,.86,.105)
 MIN_SCORE=.85
 
 
-def name_key(text,fold_accents=False):
-    text=unicodedata.normalize('NFKC',text).casefold()
-    if fold_accents:
-        text=''.join(c for c in unicodedata.normalize('NFKD',text) if not unicodedata.combining(c))
-    return ''.join(c for c in text if c.isalnum())
+from names import name_key  # noqa: E402,F401  (name_ocr.name_key)
 
 
 def groups(rows):

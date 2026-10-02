@@ -218,129 +218,158 @@ class PasscodeWorker:
                 self.condition.wait_for(lambda:self.pending is not None or self.closed)
                 if self.closed:return
                 sequence,jpeg,boxes,captured=self.pending;self.pending=None
-            started=time.monotonic();registry=None
-            try:
-                image=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_COLOR)
-                if image is None: raise ValueError('JPEG inválido')
-                items=[]
-                # Cards the recognizer could not name go first: title and art evidence is what they
-                # need. The rest rotate through the remaining slots rather than being excluded.
-                unknown=[b for b in boxes if not b.get('visual_card_id')];known=[b for b in boxes if b.get('visual_card_id')]
-                ordered=unknown+known
-                if len(unknown)>6:   # more unknown cards than slots: rotate among them
-                    offset=self.batch_offset%len(unknown);selected=(unknown[offset:]+unknown[:offset])[:6];self.batch_offset=offset+6
-                else:
-                    offset=self.batch_offset%len(known) if known and len(ordered)>6 else 0
-                    selected=unknown+(known[offset:]+known[:offset])[:6-len(unknown)];self.batch_offset=offset+len(selected)-len(unknown)
-                refiner=GeometryRefiner(image) if any(not b.get('geometry_status') for b in selected) else None
-                prepared=[]
-                for box in selected:
-                    item={'corners':box['corners'],'visual_card_id':canonical(box.get('visual_card_id')),'visual_name':box.get('name'),
-                          'source_visual_card_id':box.get('source_visual_card_id',box.get('visual_card_id')),
-                          'name_ocr':{'status':'skipped','reason':'uncertain_geometry'},
-                          'set_ocr':{'status':'skipped','reason':'uncertain_geometry'}}
-                    try:
-                        geometry=box if box.get('geometry_status') else refiner.refine(box['corners'])
-                        item.update(geometry_status=geometry['geometry_status'],geometry_iou=geometry.get('geometry_iou'))
-                        if geometry['geometry_status']=='contour_refined':
-                            item['corners']=geometry['corners']
-                            corrected,nw,nh=rectify(image,item['corners'])
-                            item['_rectified']=(corrected,nw,nh)
-                            item['ocr_image_hash']=hashlib.sha256(corrected.tobytes()).hexdigest()
-                            item['_appearance'],item['frame_quality']=describe(corrected,nh)
-                    except ValueError:pass
-                    prepared.append(item)
-                self.evidence.associate(prepared,captured)
-                frame_hash=hashlib.sha256(jpeg).hexdigest()
-                for box,item in zip(selected,prepared):
-                    with self.condition:
-                        if self.closed:return
-                    cached=self.evidence.cached(item,captured,frame_hash)
-                    if cached is not None:
-                        items.append(cached);continue
-                    try:
-                        if '_rectified' not in item:
-                            item['ocr_skipped']='uncertain_geometry'
-                            raise ValueError('No hay cuatro bordes fiables: muestra la carta completa y separada de las otras. Recorte y OCR omitidos.')
-                        rectified,native_width,native_height=item.pop('_rectified')
-                        # Upscaling cannot create readable pixels. Keep the zoom,
-                        # but avoid six OCR passes below the existing confirmation gate.
-                        too_small=native_height*.015<self.min_digit_height
-                        # A card the recognizer named comes rotated upright (its corners carry the rotation):
-                        # the 180-degree pass is only for unknown cards.
-                        turns={'turns':(0,)} if box.get('visual_card_id') else {}
-                        best,ambiguous,observations=(None,False,[]) if too_small else reader.read(rectified,**turns)
-                        if best and registry is None: registry=open_registry()
-                        # One connection per batch; the registry may still be absent.
-                        serial_matches=lookup(best['passcode'],db=registry) if best and registry is not None else []
-                        title_started=time.monotonic()
-                        # Titles from 240 px card height: a 308 px Ghost Rare Naturia Barkion read as
-                        # "NČHIRIA BARKION" (0.91). A misread small title cannot pass pick_by_name.
-                        if native_height*.025<6:
-                            title={'status':'skipped','reason':'small_text'}
-                        elif not hasattr(reader,'read_name'):
-                            title={'status':'skipped','reason':'reader_unavailable'}
-                        else:
-                            try:title=reader.read_name(rectified,**turns)
-                            except Exception as exc:title={'status':'error','error':str(exc)}
-                        title['processing_ms']=round((time.monotonic()-title_started)*1000)
-                        serial_qualified=bool(best and best['score']>=.85 and not ambiguous)
-                        item['name_ocr']=mark_conflicts(title,box.get('visual_card_id'),serial_matches,serial_qualified)
-                        # Second vote for cards the recognizer did not accept: the title names one of its
-                        # own candidates (name_ocr.pick_by_name). Evidence only; vision_onnx decides.
-                        title_reader=getattr(reader,'title_reader',None)
-                        if not box.get('visual_card_id') and title_reader is not None and title.get('text') and (title.get('score') or 0)>=.7:
-                            pick=pick_by_name(title_reader.registry,title['text'],box.get('candidate_ids') or [])
-                            # Not among the candidates: a confident title may still name it in the whole registry.
-                            if not pick and (title.get('score') or 0)>=NAME_GLOBAL_OCR:pick=pick_global(title_reader.registry,title['text'])
-                            if pick:item['name_pick']={**pick,'text':title['text'],'ocr_score':title.get('score')}
-                        if native_height*.015<7:
-                            item['set_ocr']={'status':'skipped','reason':'small_text'}
-                        elif hasattr(reader,'read_set'):
-                            try:item['set_ocr']=reader.read_set(rectified,**turns)
-                            except Exception as exc:item['set_ocr']={'status':'error','error':str(exc)}
-                        else:item['set_ocr']={'status':'skipped','reason':'reader_unavailable'}
-                        # Independent check of the illustration against the candidates
-                        # proposed by the recognizer (accepted identity first).
-                        proposals=[c for c in [box.get('visual_card_id'),*(box.get('candidate_ids') or [])[:3]] if c]
-                        if verifier is None:item['art_match']={'status':'skipped','reason':'verifier_unavailable'}
-                        elif native_height<120:item['art_match']={'status':'skipped','reason':'small_card'}
-                        else:
-                            try:item['art_match']=verifier.verify(rectified,proposals)
-                            except Exception as exc:item['art_match']={'status':'error','error':str(exc)}
-                        orientation=best['orientation'] if best else 0
-                        # Title orientation may orient the preview only when its
-                        # independent registry match is unambiguous and consistent.
-                        if not serial_qualified and title['status']=='matched':orientation=title['orientation']
-                        oriented=np.ascontiguousarray(np.rot90(rectified,orientation//90))
-                        roi=region(oriented,REGIONS['wide'])
-                        name_roi=region(oriented,NAME_REGION)
-                        orientation_uncertain=(not box.get('visual_card_id') or bool(best and (ambiguous or best['score']<.85))) and title['status']!='matched'
-                        alternative_name=region(np.ascontiguousarray(np.rot90(oriented,2)),NAME_REGION) if orientation_uncertain else None
-                        show=self.previews
-                        if show:
-                            preview=oriented.copy()
-                            x0,y0,x1,y1=REGIONS['wide']
-                            cv2.rectangle(preview,(int(x0*SIZE[0]),int(y0*SIZE[1])),(int(x1*SIZE[0]),int(y1*SIZE[1])),(30,220,255),3)
-                            nx0,ny0,nx1,ny1=NAME_REGION
-                            cv2.rectangle(preview,(int(nx0*SIZE[0]),int(ny0*SIZE[1])),(int(nx1*SIZE[0]),int(ny1*SIZE[1])),(200,180,60),3)
-                        item.update(passcode=best['passcode'] if best else None,ocr_score=best['score'] if best else None,
-                            ambiguous=ambiguous,raw_observations=observations,orientation=orientation,
-                            ocr_skipped='small_text' if too_small else None,
-                            crop=png(roi) if show else None,rectified=png(cv2.resize(preview,(189,276))) if show else None,
-                            crop_alternative=png(region(np.ascontiguousarray(np.rot90(oriented,2)),REGIONS['wide'])) if show and orientation_uncertain else None,
-                            name_crop=png(name_roi) if show else None,name_crop_alternative=png(alternative_name) if show and alternative_name is not None else None,
-                            name_orientation_uncertain=orientation_uncertain,
-                            native_card_width=round(native_width),native_card_height=round(native_height),estimated_digit_height=round(native_height*.015,1),
-                            matches=serial_matches)
-                        item['quality_hint']='OCR del serial omitido: acerca la carta; los dígitos tienen pocos píxeles reales.' if too_small else 'Mantén la carta quieta, completa y sin reflejos.'
-                    except ValueError as e:item.update(passcode=None,matches=[],quality_hint=str(e))
-                    items.append(item)
-                items=self.evidence.finish(items,captured,frame_hash)
-                items=self.consensus.update(items,frame_hash)
-                payload={'state':'ready','identity_resolution':IDENTITIES.info(),'sequence':sequence,'captured_at':captured,'completed_at':time.time(),
-                    'processing_ms':round((time.monotonic()-started)*1000),'items':items,'detected_cards':len(boxes),'processed_cards':len(items)}
-            except Exception as e:payload={'state':'error','sequence':sequence,'error':str(e),'items':[]}
-            finally:
-                if registry is not None: registry.close()
+            payload=self._batch(reader,verifier,sequence,jpeg,boxes,captured)
+            if payload is None:return   # closed in the middle of the batch
             with self.condition:self.result=payload
+
+    def _batch(self,reader,verifier,sequence,jpeg,boxes,captured):
+        """One submitted frame: up to six cards read; the payload served by /passcodes (None if closed)."""
+        started=time.monotonic();ctx={'registry':None}
+        try:
+            image=cv2.imdecode(np.frombuffer(jpeg,np.uint8),cv2.IMREAD_COLOR)
+            if image is None: raise ValueError('JPEG inválido')
+            selected=self._select(boxes)
+            prepared=self._prepare(image,selected)
+            self.evidence.associate(prepared,captured)
+            frame_hash=hashlib.sha256(jpeg).hexdigest();items=[]
+            for box,item in zip(selected,prepared):
+                with self.condition:
+                    if self.closed:return None
+                cached=self.evidence.cached(item,captured,frame_hash)
+                if cached is not None:
+                    items.append(cached);continue
+                try:self._read_card(reader,verifier,box,item,ctx)
+                except ValueError as e:item.update(passcode=None,matches=[],quality_hint=str(e))
+                items.append(item)
+            items=self.evidence.finish(items,captured,frame_hash)
+            items=self.consensus.update(items,frame_hash)
+            return {'state':'ready','identity_resolution':IDENTITIES.info(),'sequence':sequence,'captured_at':captured,'completed_at':time.time(),
+                'processing_ms':round((time.monotonic()-started)*1000),'items':items,'detected_cards':len(boxes),'processed_cards':len(items)}
+        except Exception as e:return {'state':'error','sequence':sequence,'error':str(e),'items':[]}
+        finally:
+            if ctx['registry'] is not None: ctx['registry'].close()
+
+    def _select(self,boxes):
+        """At most six cards per batch. Cards the recognizer could not name go first: title and art
+        evidence is what they need. The rest rotate through the remaining slots rather than being excluded."""
+        unknown=[b for b in boxes if not b.get('visual_card_id')];known=[b for b in boxes if b.get('visual_card_id')]
+        ordered=unknown+known
+        if len(unknown)>6:   # more unknown cards than slots: rotate among them
+            offset=self.batch_offset%len(unknown);selected=(unknown[offset:]+unknown[:offset])[:6];self.batch_offset=offset+6
+        else:
+            offset=self.batch_offset%len(known) if known and len(ordered)>6 else 0
+            selected=unknown+(known[offset:]+known[:offset])[:6-len(unknown)];self.batch_offset=offset+len(selected)-len(unknown)
+        return selected
+
+    def _prepare(self,image,selected):
+        """Each card's item: refined corners and, when four edges were found, its rectified crop."""
+        refiner=GeometryRefiner(image) if any(not b.get('geometry_status') for b in selected) else None
+        prepared=[]
+        for box in selected:
+            item={'corners':box['corners'],'visual_card_id':canonical(box.get('visual_card_id')),'visual_name':box.get('name'),
+                  'source_visual_card_id':box.get('source_visual_card_id',box.get('visual_card_id')),
+                  'name_ocr':{'status':'skipped','reason':'uncertain_geometry'},
+                  'set_ocr':{'status':'skipped','reason':'uncertain_geometry'}}
+            try:
+                geometry=box if box.get('geometry_status') else refiner.refine(box['corners'])
+                item.update(geometry_status=geometry['geometry_status'],geometry_iou=geometry.get('geometry_iou'))
+                if geometry['geometry_status']=='contour_refined':
+                    item['corners']=geometry['corners']
+                    corrected,nw,nh=rectify(image,item['corners'])
+                    item['_rectified']=(corrected,nw,nh)
+                    item['ocr_image_hash']=hashlib.sha256(corrected.tobytes()).hexdigest()
+                    item['_appearance'],item['frame_quality']=describe(corrected,nh)
+            except ValueError:pass
+            prepared.append(item)
+        return prepared
+
+    def _read_card(self,reader,verifier,box,item,ctx):
+        """Passcode, title (and the name vote), set code and art check for one card, into `item`."""
+        if '_rectified' not in item:
+            item['ocr_skipped']='uncertain_geometry'
+            raise ValueError('No hay cuatro bordes fiables: muestra la carta completa y separada de las otras. Recorte y OCR omitidos.')
+        rectified,native_width,native_height=item.pop('_rectified')
+        # Upscaling cannot create readable pixels. Keep the zoom,
+        # but avoid six OCR passes below the existing confirmation gate.
+        too_small=native_height*.015<self.min_digit_height
+        # A card the recognizer named comes rotated upright (its corners carry the rotation):
+        # the 180-degree pass is only for unknown cards.
+        turns={'turns':(0,)} if box.get('visual_card_id') else {}
+        best,ambiguous,observations=(None,False,[]) if too_small else reader.read(rectified,**turns)
+        if best and ctx['registry'] is None: ctx['registry']=open_registry()
+        # One connection per batch; the registry may still be absent.
+        serial_matches=lookup(best['passcode'],db=ctx['registry']) if best and ctx['registry'] is not None else []
+        title=self._read_title(reader,rectified,native_height,turns)
+        serial_qualified=bool(best and best['score']>=.85 and not ambiguous)
+        item['name_ocr']=mark_conflicts(title,box.get('visual_card_id'),serial_matches,serial_qualified)
+        pick=self._name_pick(reader,box,title)
+        if pick:item['name_pick']=pick
+        item['set_ocr']=self._read_set(reader,rectified,native_height,turns)
+        item['art_match']=self._verify_art(verifier,box,rectified,native_height)
+        orientation=best['orientation'] if best else 0
+        # Title orientation may orient the preview only when its
+        # independent registry match is unambiguous and consistent.
+        if not serial_qualified and title['status']=='matched':orientation=title['orientation']
+        orientation_uncertain=(not box.get('visual_card_id') or bool(best and (ambiguous or best['score']<.85))) and title['status']!='matched'
+        item.update(passcode=best['passcode'] if best else None,ocr_score=best['score'] if best else None,
+            ambiguous=ambiguous,raw_observations=observations,orientation=orientation,
+            ocr_skipped='small_text' if too_small else None,
+            name_orientation_uncertain=orientation_uncertain,
+            native_card_width=round(native_width),native_card_height=round(native_height),estimated_digit_height=round(native_height*.015,1),
+            matches=serial_matches,**self._previews(rectified,orientation,orientation_uncertain))
+        item['quality_hint']='OCR del serial omitido: acerca la carta; los dígitos tienen pocos píxeles reales.' if too_small else 'Mantén la carta quieta, completa y sin reflejos.'
+
+    def _read_title(self,reader,rectified,native_height,turns):
+        started=time.monotonic()
+        # Titles from 240 px card height: a 308 px Ghost Rare Naturia Barkion read as
+        # "NČHIRIA BARKION" (0.91). A misread small title cannot pass pick_by_name.
+        if native_height*.025<6:
+            title={'status':'skipped','reason':'small_text'}
+        elif not hasattr(reader,'read_name'):
+            title={'status':'skipped','reason':'reader_unavailable'}
+        else:
+            try:title=reader.read_name(rectified,**turns)
+            except Exception as exc:title={'status':'error','error':str(exc)}
+        title['processing_ms']=round((time.monotonic()-started)*1000)
+        return title
+
+    def _name_pick(self,reader,box,title):
+        """Second vote for cards the recognizer did not accept: the title names one of its own candidates
+        (name_ocr.pick_by_name) or, read confidently, one card in the whole registry (pick_global).
+        Evidence only; vision_onnx decides."""
+        title_reader=getattr(reader,'title_reader',None)
+        if box.get('visual_card_id') or title_reader is None or not title.get('text') or (title.get('score') or 0)<.7:return None
+        pick=pick_by_name(title_reader.registry,title['text'],box.get('candidate_ids') or [])
+        if not pick and (title.get('score') or 0)>=NAME_GLOBAL_OCR:pick=pick_global(title_reader.registry,title['text'])
+        return {**pick,'text':title['text'],'ocr_score':title.get('score')} if pick else None
+
+    def _read_set(self,reader,rectified,native_height,turns):
+        if native_height*.015<7:return {'status':'skipped','reason':'small_text'}
+        if not hasattr(reader,'read_set'):return {'status':'skipped','reason':'reader_unavailable'}
+        try:return reader.read_set(rectified,**turns)
+        except Exception as exc:return {'status':'error','error':str(exc)}
+
+    def _verify_art(self,verifier,box,rectified,native_height):
+        """Independent check of the illustration against the candidates proposed by the recognizer
+        (accepted identity first)."""
+        proposals=[c for c in [box.get('visual_card_id'),*(box.get('candidate_ids') or [])[:3]] if c]
+        if verifier is None:return {'status':'skipped','reason':'verifier_unavailable'}
+        if native_height<120:return {'status':'skipped','reason':'small_card'}
+        try:return verifier.verify(rectified,proposals)
+        except Exception as exc:return {'status':'error','error':str(exc)}
+
+    def _previews(self,rectified,orientation,orientation_uncertain):
+        """PNG crops for the diagnostic page (none while it is not watching: self.previews)."""
+        if not self.previews:
+            return {'crop':None,'rectified':None,'crop_alternative':None,'name_crop':None,'name_crop_alternative':None}
+        oriented=np.ascontiguousarray(np.rot90(rectified,orientation//90))
+        preview=oriented.copy()
+        x0,y0,x1,y1=REGIONS['wide']
+        cv2.rectangle(preview,(int(x0*SIZE[0]),int(y0*SIZE[1])),(int(x1*SIZE[0]),int(y1*SIZE[1])),(30,220,255),3)
+        nx0,ny0,nx1,ny1=NAME_REGION
+        cv2.rectangle(preview,(int(nx0*SIZE[0]),int(ny0*SIZE[1])),(int(nx1*SIZE[0]),int(ny1*SIZE[1])),(200,180,60),3)
+        turned=np.ascontiguousarray(np.rot90(oriented,2))
+        return {'crop':png(region(oriented,REGIONS['wide'])),'rectified':png(cv2.resize(preview,(189,276))),
+                'crop_alternative':png(region(turned,REGIONS['wide'])) if orientation_uncertain else None,
+                'name_crop':png(region(oriented,NAME_REGION)),
+                'name_crop_alternative':png(region(turned,NAME_REGION)) if orientation_uncertain else None}

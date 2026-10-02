@@ -1,7 +1,7 @@
 """Local canonical catalog, explicit candidate links, and durable human reviews."""
+from names import name_key
 import json
 import sqlite3
-import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -21,8 +21,8 @@ class ClosingConnection(sqlite3.Connection):
 
 
 def normalized(value):
-    text = unicodedata.normalize('NFKD', value).casefold()
-    return ''.join(c for c in text if c.isalnum())
+    """Search key: accents folded (names.name_key)."""
+    return name_key(value, True)
 
 
 def connect():

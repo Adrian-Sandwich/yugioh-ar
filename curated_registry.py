@@ -1,14 +1,15 @@
 """Versioned, reversible identity resolution over preserved source observations."""
-import hashlib,json,re,sqlite3,unicodedata
+from names import name_key
+import hashlib,json,re,sqlite3
 from collections import defaultdict
 from contextlib import closing
 from datetime import datetime,timezone
-from pathlib import Path
 from ygo_source import ROOT,ARCHIVE,records
 from printing_art_links import build_links,export_evidence
 
 def normalized(text):
-    return ''.join(c for c in unicodedata.normalize('NFKC',text).casefold() if c.isalnum())
+    """Evidence key: accents kept (names.name_key)."""
+    return name_key(text)
 
 def evaluate_pair(a,b):
     """Passcode alone never establishes identity. No fuzzy effect comparison."""

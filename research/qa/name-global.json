@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-02",
+  "min_similarity": 0.88,
+  "margin": 0.12,
+  "random": {
+    "0": {
+      "n": 300,
+      "found": 0.933,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "1": {
+      "n": 300,
+      "found": 0.887,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "2": {
+      "n": 300,
+      "found": 0.627,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "3": {
+      "n": 300,
+      "found": 0.34,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "4": {
+      "n": 300,
+      "found": 0.207,
+      "wrong": 0.0,
+      "wrong_examples": []
+    }
+  },
+  "near_twins": {
+    "0": {
+      "n": 77,
+      "found": 0.74,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "1": {
+      "n": 77,
+      "found": 0.649,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "2": {
+      "n": 77,
+      "found": 0.506,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "3": {
+      "n": 77,
+      "found": 0.286,
+      "wrong": 0.0,
+      "wrong_examples": []
+    },
+    "4": {
+      "n": 77,
+      "found": 0.091,
+      "wrong": 0.0,
+      "wrong_examples": []
+    }
+  }
+}
