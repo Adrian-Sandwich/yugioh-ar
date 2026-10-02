@@ -90,8 +90,9 @@ def main():
         'english_ids_without_card_image': sorted(set(english) - image_ids),
         'note': 'Equal strings do not by themselves prove missing translations. Alias is simulator metadata, not a verified artwork or rarity label. Images are not validated as multilingual or official printings.',
     }
-    for name, data in [('manifest.json', manifest), ('inspection.json', report), ('catalog-localized.json', catalog)]:
-        (REPORT / name).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+    # manifest and localized catalog are inputs of build_catalog.py (reference/tdoane); the inspection is a report.
+    for folder, name, data in [(ROOT / 'reference/tdoane', 'manifest.json', manifest), (REPORT, 'inspection.json', report), (ROOT / 'reference/tdoane', 'catalog-localized.json', catalog)]:
+        (folder / name).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps({k:v for k,v in report.items() if k not in ('image_dimensions','databases','card_image_ids_not_in_english','english_ids_without_card_image')}, ensure_ascii=True), flush=True)
     print('COMMON DIMENSIONS', {k:v.most_common(3) for k,v in dimensions.items()}, flush=True)
 

@@ -34,7 +34,7 @@ def main():
     for uid,c in raw.items():
         for p in c.get('passwords',[]):
             if re.fullmatch(r'[0-9]{8}',p):by_code[p].add(uid)
-    corrections=json.loads((ROOT/'research/database-audit/reviewed-corrections.json').read_text(encoding='utf-8'))
+    corrections=json.loads((ROOT/'reference/reviewed-corrections.json').read_text(encoding='utf-8'))
     reviewed={frozenset((r['alias'],r['canonical'])):r for r in corrections['aliases']}
     for r in corrections['aliases']:
         for uid,digest in r['record_sha256'].items():

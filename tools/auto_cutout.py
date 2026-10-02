@@ -12,10 +12,10 @@ fine-tuned on 1,228 anime images (Muratori & Seytre 2025, arXiv 2509.06839, MIT)
 community ONNX export sprited/birefnet-toonout-onnx (file birefnet-toonout.onnx; the fp16 file
 also works and uses less memory). A model whose file is missing is skipped with a warning.
 
-    python research/auto_cutout.py eval  [--n 60]      # IoU per model -> research/qa/auto-cutout-eval.json
-    python research/auto_cutout.py sheet CODES...       # side-by-side sheet of every model's cut-out
-    python research/auto_cutout.py calibrate [--n 600]  # train the critic -> research/auto_cutout_critic.json
-    python research/auto_cutout.py build [--limit N]    # data/auto-sprites/<code>.png + index.json (resumable)
+    python tools/auto_cutout.py eval  [--n 60]      # IoU per model -> research/qa/auto-cutout-eval.json
+    python tools/auto_cutout.py sheet CODES...       # side-by-side sheet of every model's cut-out
+    python tools/auto_cutout.py calibrate [--n 600]  # train the critic -> reference/auto_cutout_critic.json
+    python tools/auto_cutout.py build [--limit N]    # data/auto-sprites/<code>.png + index.json (resumable)
 
 The viewer uses data/auto-sprites for catalog references without a TDOANE sprite
 (sprite_ref 'auto:<code>.png', see vision_onnx.LiveRecognizer.load_references).
@@ -139,7 +139,7 @@ def evaluate(n):
 # unsure the mask is, how fragmented, how much of the artwork it keeps, whether it touches the
 # frame, and whether its outline follows real edges of the drawing.
 FEATURES = ('agree', 'fg', 'soft', 'main_part', 'parts', 'border', 'edge_ratio')
-CRITIC = ROOT / 'research/auto_cutout_critic.json'
+CRITIC = ROOT / 'reference/auto_cutout_critic.json'
 
 
 def features(art, mask, other):
@@ -270,7 +270,7 @@ def write_candidates(cands):
     tmp = CANDIDATES / 'index.tmp'; tmp.write_text(json.dumps(cands), encoding='utf-8'); tmp.replace(CANDIDATES / 'index.json')
 
 
-REVIEWS = ROOT / 'research/reviews/sprite.jsonl'
+REVIEWS = ROOT / 'reviews/sprite.jsonl'
 
 
 def rejected_models():

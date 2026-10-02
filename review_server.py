@@ -1,7 +1,7 @@
 """Keyboard review of generated assets: the card's artwork on the left, what we generated on the right.
 
     python review_server.py                          # automatic sprites (data/auto-sprites)
-    python review_server.py --kind gen3d             # models from research/gen3d_bench.py
+    python review_server.py --kind gen3d             # models from tools/gen3d_bench.py
     python review_server.py --order hologram         # uncertain (default) | hologram | random | all
     python review_server.py --lan                    # reachable from a tablet on the home network
     python review_server.py --refiner sam2           # mask corrections with SAM 2 (default: auto)
@@ -22,8 +22,8 @@ Control set: a fixed random sample, excluded from the normal queue and from trai
 blind in rounds (before and after retraining) to measure whether anything really improved.
 
 Verdicts are human decisions, so they live apart from the regenerable data and are versioned:
-research/reviews/<kind>.jsonl, append-only; the last line for an item wins (going back and
-judging again corrects it). research/auto_cutout.py calibrate can then learn from them.
+reviews/<kind>.jsonl, append-only; the last line for an item wins (going back and
+judging again corrects it). tools/auto_cutout.py calibrate can then learn from them.
 
 "uncertain" shows first the sprites whose critic score sits closest to its threshold: that is
 where a human label moves the critic most (and where the TDOANE ground truth never reaches).
@@ -38,10 +38,10 @@ from urllib.parse import parse_qs, urlsplit
 ROOT = Path(__file__).resolve().parent
 ART = ROOT / 'downloads/ygoprodeck-art/art'
 SPRITES = ROOT / 'data/auto-sprites'
-CRITIC = ROOT / 'research/auto_cutout_critic.json'
+CRITIC = ROOT / 'reference/auto_cutout_critic.json'
 GEN3D = ROOT / 'downloads/gen3d/out'
 GEN3D_REPORT = ROOT / 'research/qa/gen3d-bench.json'
-REVIEWS = ROOT / 'research/reviews'
+REVIEWS = ROOT / 'reviews'
 CONTROL = REVIEWS / 'control.json'
 RETEST = REVIEWS / 'sprite-retest.jsonl'
 RANDOM_SHARE = .25   # of the 'uncertain' queue, drawn at random (see items_sprite)
@@ -142,7 +142,7 @@ def items_sprite(order, control=None):
     """Each item carries a fingerprint of the exact sprite shown (status, model, score): a verdict
     only counts while the sprite it judged is still the one on disk, so whatever build() redoes
     comes back to the queue. For a hologram, the item is the best cut-out that lost to it
-    (research/hologram_candidates.py) when there is one: that is what the critic said no to."""
+    (tools/hologram_candidates.py) when there is one: that is what the critic said no to."""
     index = json.loads((SPRITES / 'index.json').read_text(encoding='utf-8'))
     cands = json.loads((CANDIDATES / 'index.json').read_text(encoding='utf-8')) if (CANDIDATES / 'index.json').exists() else {}
     held = control_codes()

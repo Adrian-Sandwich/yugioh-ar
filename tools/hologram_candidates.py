@@ -4,7 +4,7 @@ build() now keeps that cut-out (data/auto-sprites/candidates/); holograms built 
 This redoes the same competition build() runs (BiRefNet, flipped BiRefNet, isnet-anime and
 ToonOut when downloaded, judged by the current critic) only for them, and saves the winner as the candidate review_server.py shows.
 
-    python research/hologram_candidates.py [--limit N]      # ~1,000 holograms: some 10-15 min on the 4070
+    python tools/hologram_candidates.py [--limit N]      # ~1,000 holograms: some 10-15 min on the 4070
 
 Resumable: holograms that already have a candidate are skipped. Cut-outs a person rejected
 for an artwork are never offered again (auto_cutout.rejected_models).

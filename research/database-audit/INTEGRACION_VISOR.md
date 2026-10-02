@@ -28,7 +28,7 @@ observaciones originales; el cambio se aplica al pipeline del visor.
 
 ## Monitor
 
-`start_download_watch.ps1` inicia oculto `research/watch_download.py` y comprueba
+`start_download_watch.ps1` inicia oculto `tools/watch_download.py` y comprueba
 si ya existe uno. Consulta cada 60 segundos, escribe `.runtime/download-watch.json`
 y el visor consulta `/download-status` cada 30 segundos. El estado se ve al inicio
 de la página. Si el progreso envejece se indica expresamente, sin interpretar

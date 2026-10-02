@@ -4,9 +4,9 @@ Each generator lives in its own clone and venv under downloads/gen3d/<name> (not
 their PyTorch/CUDA pins conflict with each other and with .venv-gpu). See research/GENERACION_3D.md.
 This script only needs the standard library.
 
-    python research/gen3d_bench.py run --sprites 6 [--approved] [--only sf3d,hunyuan]  # random data/auto-sprites
-    python research/gen3d_bench.py run IMG.png ...                         # or explicit cut-outs
-    python research/gen3d_bench.py sheet                                    # rebuild the HTML sheet
+    python tools/gen3d_bench.py run --sprites 6 [--approved] [--only sf3d,hunyuan]  # random data/auto-sprites
+    python tools/gen3d_bench.py run IMG.png ...                         # or explicit cut-outs
+    python tools/gen3d_bench.py sheet                                    # rebuild the HTML sheet
 
 Per generator it runs one process with 1 image (cold: load + one model) and one with all N,
 so per-model time = (T_N - T_1) / (N - 1) without parsing each tool's logs. Peak VRAM is sampled
@@ -108,7 +108,7 @@ def cmd_run(a):
         pool = [p for p in sorted(SPRITES.glob('*.png')) if index.get(p.stem, {}).get('status') == 'ok']
         if a.approved:  # only cut-outs a person approved in review_server.py
             last = {}
-            for line in (ROOT / 'research/reviews/sprite.jsonl').read_text(encoding='utf-8').splitlines():
+            for line in (ROOT / 'reviews/sprite.jsonl').read_text(encoding='utf-8').splitlines():
                 if line.strip(): v = json.loads(line); last[v['id']] = v['verdict']
             pool = [p for p in pool if last.get(p.stem) == 'approve']
         if not pool: sys.exit(f'sin recortes en {SPRITES}; pasa imágenes explícitas')

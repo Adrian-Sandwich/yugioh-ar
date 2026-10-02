@@ -203,7 +203,7 @@ class LiveRecognizer(ResearchRecognizer):
             self.references_by_id.setdefault(ref['id'],ref)
 
     def map_auto_sprites(self):
-        """Cards without a TDOANE sprite use their automatic cut-out when research/auto_cutout.py
+        """Cards without a TDOANE sprite use their automatic cut-out when tools/auto_cutout.py
         made one. Re-run when data/auto-sprites changes: new cards gain a sprite, removed ones lose it."""
         auto=ROOT/'data/auto-sprites'
         try: self.auto_signature=(auto/'index.json').stat().st_mtime_ns

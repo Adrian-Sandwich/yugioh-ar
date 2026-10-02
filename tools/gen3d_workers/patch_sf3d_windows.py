@@ -4,7 +4,7 @@ Its CUDA file includes <torch/extension.h>, which pulls torch/csrc/dynamo/compil
 nvcc with this MSVC stops there with "error C2872: 'std': ambiguous symbol" (30/09/2026). The kernel
 only needs tensors and the operator registry: smaller headers and ATen factories are enough.
 
-    python research/gen3d_workers/patch_sf3d_windows.py      # idempotent
+    python tools/gen3d_workers/patch_sf3d_windows.py      # idempotent
     then, in a VS x64 prompt with CUDA 12.8: pip install wheel ninja; pip install --no-build-isolation ./texture_baker/ ./uv_unwrapper/
 
 Patches downloads/gen3d/sf3d/texture_baker/texture_baker/csrc/baker_kernel.cu (a clone, not versioned).
@@ -14,7 +14,7 @@ from pathlib import Path
 TARGET = Path(__file__).resolve().parents[2] / 'downloads/gen3d/sf3d/texture_baker/texture_baker/csrc/baker_kernel.cu'
 MARK = '// patched: no torch/extension.h'
 SWAPS = [('#include <torch/extension.h>\n',
-          f'{MARK} (research/gen3d_workers/patch_sf3d_windows.py)\n#include <torch/types.h>\n#include <torch/library.h>\n'),
+          f'{MARK} (tools/gen3d_workers/patch_sf3d_windows.py)\n#include <torch/types.h>\n#include <torch/library.h>\n'),
          ('torch::empty(', 'at::empty('), ('torch::TensorOptions()', 'at::TensorOptions()')]
 
 

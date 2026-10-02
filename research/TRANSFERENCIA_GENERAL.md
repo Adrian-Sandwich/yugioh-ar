@@ -79,8 +79,8 @@ reflejos en `.venv-glare`, según su guía. Los modelos y Python ya copiados no
 prueban disponibilidad de GPU.
 
 ```powershell
-.\.venv-eval\Scripts\python.exe research/doctor.py --output research/qa/destino-visores.json
-.\.venv-pose\Scripts\python.exe research/doctor.py --torch --output research/qa/destino-pose.json
+.\.venv-eval\Scripts\python.exe tools/doctor.py --output research/qa/destino-visores.json
+.\.venv-pose\Scripts\python.exe tools/doctor.py --torch --output research/qa/destino-pose.json
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start_lab.ps1 -Live
 ```
 
@@ -100,7 +100,7 @@ pestañas con Ctrl+F5 después de actualizar JavaScript.
 ## Descarga y recuperación
 
 ```powershell
-.\.venv-eval\Scripts\python.exe -X utf8 research/download_status.py
+.\.venv-eval\Scripts\python.exe -X utf8 tools/download_status.py
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start_registry_crawl.ps1
 ```
 

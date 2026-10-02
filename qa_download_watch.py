@@ -5,7 +5,7 @@ from unittest.mock import patch
 from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
 QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
-sys.path.insert(0,str(ROOT/'research'))
+sys.path.insert(0,str(ROOT/'tools'))
 import watch_download
 
 root=QA_OUT/('download-watch-'+uuid.uuid4().hex)

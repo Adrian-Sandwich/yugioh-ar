@@ -69,7 +69,7 @@ El lock corresponde a esta PC; si no es compatible con destino, registrar las
 versiones nuevas y repetir las pruebas. No copiar `.venv-pose` entre equipos.
 
 ```powershell
-.\.venv-pose\Scripts\python.exe research/doctor.py --torch --output research/qa/destino-pose.json
+.\.venv-pose\Scripts\python.exe tools/doctor.py --torch --output research/qa/destino-pose.json
 .\.venv-pose\Scripts\python.exe research/yolo11_pose/train.py --size n --data data/pose/real-v1/dataset.yaml --device 0 --epochs 100 --batch 8
 .\.venv-pose\Scripts\python.exe research/yolo11_pose/train.py --size s --data data/pose/real-v1/dataset.yaml --device 0 --epochs 100 --batch 8
 ```

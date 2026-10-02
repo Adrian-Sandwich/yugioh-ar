@@ -1,4 +1,4 @@
-"""Hunyuan3D-2mini worker for research/gen3d_bench.py (runs inside downloads/gen3d/hunyuan's venv).
+"""Hunyuan3D-2mini worker for tools/gen3d_bench.py (runs inside downloads/gen3d/hunyuan's venv).
 
     python hunyuan_mini.py --output-dir OUT [--texture] IMG...   # OUT/<i>/mesh.glb, like SF3D/TripoSR
 

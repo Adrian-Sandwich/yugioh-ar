@@ -99,7 +99,7 @@ class Encoder:
         # Retrieval-only encoders have a single output and no classifier vocabulary.
         self.retrieval_only=len(self.model.get_outputs())==1
         self.labels=json.loads((MODELS/'card_labels_yugiscan.json').read_text(encoding='utf-8'))
-        self.mapping=json.loads((ROOT/'research/references-20260924/draw2-small-ygojson-map.json').read_text(encoding='utf-8'))
+        self.mapping=json.loads((ROOT/'reference/draw2-small-ygojson-map.json').read_text(encoding='utf-8'))
 
     def predict(self,image,*,classify=True):
         return self.predict_batch([image],classify=classify)[0]

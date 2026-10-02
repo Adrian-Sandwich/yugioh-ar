@@ -40,7 +40,7 @@ class Tracker:
 
 
 def auto_version():
-    """Changes whenever research/auto_cutout.py build or review_server.py --apply rewrites the
+    """Changes whenever tools/auto_cutout.py build or review_server.py --apply rewrites the
     automatic sprites (both finish by replacing data/auto-sprites/index.json)."""
     try: return (AUTO_SPRITES/'index.json').stat().st_mtime_ns
     except OSError: return 0
@@ -109,7 +109,7 @@ class SpriteOverlay:
             if ref.startswith('auto:'): self.refresh_auto()
             if ref not in self.cache:
                 if ref.startswith('auto:'):
-                    # Automatic cut-outs (research/auto_cutout.py) for cards without a TDOANE sprite.
+                    # Automatic cut-outs (tools/auto_cutout.py) for cards without a TDOANE sprite.
                     path=AUTO_SPRITES/ref[5:]
                     self.cache[ref]=cv2.imread(str(path),cv2.IMREAD_UNCHANGED) if path.parent==AUTO_SPRITES and path.exists() else None
                 else:

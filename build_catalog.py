@@ -65,7 +65,7 @@ def main():
             candidates = names.get(normalized(row['name']),set())
         candidate = next(iter(candidates)) if len(candidates)==1 else None
         return candidate,None,'proposed' if candidates else 'unresolved','Alias/nombre requiere revisión',sorted(candidates)
-    manifest = json.loads((ROOT/'research/tdoane/manifest.json').read_text(encoding='utf-8'))
+    manifest = json.loads((ROOT/'reference/tdoane/manifest.json').read_text(encoding='utf-8'))
     resolutions = {}
     for item in manifest:
         path = item['path']
@@ -80,7 +80,7 @@ def main():
         db.execute('INSERT INTO refs VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                    (f'tdoane:{kind}:{p.name}','tdoane',sid,kind,'downloads/tdoane-reference/'+path,
                     sim.get(sid,{}).get('name',p.name),item['sha256'],item['width'],item['height'],uid,art,status,reason,json.dumps(candidates)))
-    localized = json.loads((ROOT/'research/tdoane/catalog-localized.json').read_text(encoding='utf-8'))
+    localized = json.loads((ROOT/'reference/tdoane/catalog-localized.json').read_text(encoding='utf-8'))
     langs = {'English':'en','Spanish':'es','German':'de','French':'fr'}
     for row in localized:
         uid,status = resolutions.get(str(row['source_id']),(None,None))

@@ -57,11 +57,15 @@ Actualizado el 02/10/2026.
 
 ## Dónde está cada cosa
 
-- Código del laboratorio: archivos `.py` de la raíz. Rutas y variables de entorno: `settings.py`.
+- Código del laboratorio: archivos `.py` de la raíz. Rutas y variables de entorno: `settings.py`;
+  qué viaja entre partes (detecciones, pistas): `contracts.py`; el análisis en vivo: `pipeline.py`;
+  el reconocedor: `vision_onnx.py` con `onnx_models.py`, `reference_index.py` y `promotions.py`.
+- `tools/`: herramientas que el laboratorio usa y se corren a mano: recortes automáticos
+  (`auto_cutout.py`, `run_auto_cutout.ps1`), crítico con veredictos (`critic_human.py`), candidatos
+  de holograma, banco 3D (`gen3d_bench.py`, `gen3d_workers/`), vigilancia de descargas y `doctor.py`.
+- `reference/`: entradas versionadas que el código lee: mapa de DRAW2, modelo del crítico de
+  recortes, catálogo de TDOANE (`tdoane/`) y correcciones revisadas del registro.
+- `reviews/`: veredictos humanos del revisor de recortes (datos, no se regeneran).
 - Pruebas: `qa_*.py` (escriben en `.runtime/qa/`, no versionado); `run_qa.py` las corre.
-- `research/`: estudios, experimentos y sus informes. Algunos scripts de aquí los usa el
-  laboratorio (`auto_cutout.py`, `critic_human.py`, `hologram_candidates.py`, `gen3d_bench.py`,
-  `watch_download.py`, `doctor.py`); sacarlos a un paquete propio es la fase 3 de la revisión de
-  arquitectura del 02/10/2026.
-- `research/reviews/`: veredictos humanos del revisor de recortes (datos, no se regeneran).
+- `research/`: estudios, experimentos y sus informes. Nada del laboratorio depende de aquí.
 - `data/`, `downloads/`: datos y modelos, fuera de git.

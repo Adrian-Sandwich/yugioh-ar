@@ -194,10 +194,10 @@ etiquetas, medir con todas daba AUC 0.56, con las 60 al azar 0.73, y el real en 
 **Repeticiones a ciegas (5 %).** Con un solo revisor, el techo de cualquier crítico es qué tan
 consistente eres tú. Cerca de una de cada veinte cartas pendientes es una que ya juzgaste, mostrada
 de nuevo sin veredicto, sin modelo ni puntaje, y sin poder dibujar. Van a
-`research/reviews/sprite-retest.jsonl` (nunca al entrenamiento), y `--stats` reporta el acuerdo
+`reviews/sprite-retest.jsonl` (nunca al entrenamiento), y `--stats` reporta el acuerdo
 contigo mismo y la kappa de Cohen. Si tu acuerdo es 85 %, ningún crítico va a parecer mejor que eso.
 
-**Dónde se guarda.** En `research/reviews/sprite.jsonl` (y `gen3d.jsonl`): sólo se agrega, nunca se
+**Dónde se guarda.** En `reviews/sprite.jsonl` (y `gen3d.jsonl`): sólo se agrega, nunca se
 borra, y la última línea de cada carta es la que vale. Son decisiones humanas y **se versionan en
 git**, siguiendo el principio del README de separar los datos regenerables de las decisiones
 humanas. Cada línea guarda el modelo y el puntaje del crítico del momento, el motivo, la nota y los
@@ -335,7 +335,7 @@ aprueba, es justo la etiqueta que el crítico necesita para aprender dónde es d
 
 - `build()` ahora guarda ese recorte perdedor en `data/auto-sprites/candidates/` (con su modelo y
   puntaje en `candidates/index.json`). Para los hologramas ya generados:
-  `research/hologram_candidates.py` repite la misma competencia (BiRefNet, BiRefNet volteado,
+  `tools/hologram_candidates.py` repite la misma competencia (BiRefNet, BiRefNet volteado,
   isnet-anime, con el crítico actual). Son unos 1,000 hologramas, del orden de 10 a 15 min.
 - El revisor muestra el candidato en lugar del holograma (título «Recorte que perdió contra el
   holograma»). **Aprobar** lo pone en uso con `--apply`, y es una etiqueta positiva para el
@@ -408,13 +408,13 @@ IoU. Con 100 a 200 se sabe si «IoU ≥ 0.8 = bueno», el criterio del crítico 
 lo que a ti te parece bueno; TDOANE repinta partes ocultas y el IoU puede castigar recortes
 correctos (tarea abierta).
 
-### Recalibrar el crítico (`research/critic_human.py`)
+### Recalibrar el crítico (`tools/critic_human.py`)
 
 ```powershell
-.venv-gpu/Scripts/python.exe research/critic_human.py              # evalúa el crítico actual y ajusta un candidato
-.venv-gpu/Scripts/python.exe research/critic_human.py --adopt      # lo adopta sólo si gana (AUC con validación cruzada)
-.venv-gpu/Scripts/python.exe research/critic_human.py --requeue    # saca de index.json las cartas rechazadas
-.venv-gpu/Scripts/python.exe research/auto_cutout.py build         # rehace exactamente lo que se sacó
+.venv-gpu/Scripts/python.exe tools/critic_human.py              # evalúa el crítico actual y ajusta un candidato
+.venv-gpu/Scripts/python.exe tools/critic_human.py --adopt      # lo adopta sólo si gana (AUC con validación cruzada)
+.venv-gpu/Scripts/python.exe tools/critic_human.py --requeue    # saca de index.json las cartas rechazadas
+.venv-gpu/Scripts/python.exe tools/auto_cutout.py build         # rehace exactamente lo que se sacó
 ```
 
 - Cuentan los recortes en uso y los candidatos de holograma. Un veredicto sobre un holograma juzga
@@ -476,7 +476,7 @@ sólo para personajes humanoides. Por eso: primero animaciones de cuerpo entero 
 cualquier modelo sin rig (aparecer, flotar, embestir al atacar, desintegrarse); el rig y las
 animaciones por hueso, para las cartas clave.
 
-**Banco de pruebas:** `research/gen3d_bench.py`. Mide tiempo por modelo, pico de VRAM, falta de
+**Banco de pruebas:** `tools/gen3d_bench.py`. Mide tiempo por modelo, pico de VRAM, falta de
 memoria, triángulos, textura y peso, y deja una hoja HTML comparativa.
 
 ### Fase posterior: Magias de Campo
@@ -574,7 +574,7 @@ Mientras revisas, la máquina puede ir adelantando:
 - Opcional: SAM 2 en `.venv-sam` y `--lan` para la tableta (ver [Tableta y red local](#tableta-y-red-local)).
 - `review_server.py`, unos 300 veredictos, dibujando en los rechazos con un error claro. El
   revisor muestra el ritmo en la barra superior.
-- `research/hologram_candidates.py` (10–15 min, GPU) y luego `review_server.py --order hologram`:
+- `tools/hologram_candidates.py` (10–15 min, GPU) y luego `review_server.py --order hologram`:
   aprobar los recortes que se salvan.
 - `review_server.py --apply` para usar ya en la mesa los sprites corregidos y los candidatos
   aprobados. El visor los toma solo; sólo `/duelo` necesita recargar la página.

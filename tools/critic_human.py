@@ -6,23 +6,23 @@ for cards that already have a hand-made sprite: exactly the cards that do not ne
 Every candidate is fit on all verdicts, but thresholds and AUC are measured on the ones drawn at
 random (review_server.py tags one in four as 'random'), since uncertainty-sampled cards bunch up
 near the old threshold and would bias both. Human
-verdicts (research/reviews/sprite.jsonl) are labels for those. Two candidates are compared on
+verdicts (reviews/sprite.jsonl) are labels for those. Two candidates are compared on
 held-out human verdicts: people only, and people plus the TDOANE pairs (so what the critic
 already learned is not thrown away); the better one is offered.
 
-    python research/critic_human.py                 # evaluate current critic, fit a candidate
-    python research/critic_human.py --adopt         # also replace the critic if the candidate wins
-    python research/critic_human.py --source combined --human-share .7   # people weigh 70 %
-    python research/critic_human.py --requeue       # drop human-rejected cards (hand-corrected ones stay) from data/auto-sprites/index.json
-    python research/critic_human.py --requeue-all   # also every unreviewed card (after --adopt)
-    (then: python research/auto_cutout.py build  -- redoes exactly what was dropped)
+    python tools/critic_human.py                 # evaluate current critic, fit a candidate
+    python tools/critic_human.py --adopt         # also replace the critic if the candidate wins
+    python tools/critic_human.py --source combined --human-share .7   # people weigh 70 %
+    python tools/critic_human.py --requeue       # drop human-rejected cards (hand-corrected ones stay) from data/auto-sprites/index.json
+    python tools/critic_human.py --requeue-all   # also every unreviewed card (after --adopt)
+    (then: python tools/auto_cutout.py build  -- redoes exactly what was dropped)
 
 Cut-outs in use and hologram candidates count; a verdict on a hologram itself judges the
-fallback, not a mask. The control set never enters (its verdicts live in research/reviews/control/).
+fallback, not a mask. The control set never enters (its verdicts live in reviews/control/).
 Masks are recomputed with the model recorded in each verdict, so this needs the GPU (.venv-gpu).
 Scores in data/auto-sprites/index.json stay those of the critic that built each card until
 --requeue-all redoes them.
-Report: research/qa/critic-human.json. Candidate: research/auto_cutout_critic.human.json.
+Report: research/qa/critic-human.json. Candidate: reference/auto_cutout_critic.human.json.
 The loop, one round at a time: review -> this script -> build -> review what changed.
 """
 import argparse, json, shutil, sys, time
@@ -36,8 +36,8 @@ sys.path.insert(0, str(HERE)); sys.path.insert(0, str(ROOT))
 import auto_cutout as ac  # noqa: E402
 import review_server as rs  # noqa: E402
 
-REVIEWS = ROOT / 'research/reviews/sprite.jsonl'
-CANDIDATE = ROOT / 'research/auto_cutout_critic.human.json'
+REVIEWS = ROOT / 'reviews/sprite.jsonl'
+CANDIDATE = ROOT / 'reference/auto_cutout_critic.human.json'
 REPORT = ROOT / 'research/qa/critic-human.json'
 
 

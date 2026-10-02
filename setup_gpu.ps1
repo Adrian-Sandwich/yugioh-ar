@@ -2,7 +2,7 @@
 Arranque del laboratorio en la computadora con GPU (Windows, Python 3.14).
 
 Crea los dos entornos, instala PyTorch para la GPU indicada y verifica con
-research/doctor.py. No descarga datos ni modelos: la carpeta data/ y downloads/
+tools/doctor.py. No descarga datos ni modelos: la carpeta data/ y downloads/
 llegan con el zip o por copia; las bases limpias están en transfer/<fecha>/.
 
   powershell -NoProfile -ExecutionPolicy Bypass -File .\setup_gpu.ps1
@@ -76,7 +76,7 @@ $eval = Venv '.venv-eval'
 & $eval -m playwright install msedge
 
 Step 'Verificación del entorno de visores'
-& $eval -X utf8 research/doctor.py --output research/qa/destino-visores.json; Need 'doctor de visores'
+& $eval -X utf8 tools/doctor.py --output research/qa/destino-visores.json; Need 'doctor de visores'
 
 if (-not $SkipPose) {
     Step ".venv-pose (YOLO11) con PyTorch desde $TorchIndexUrl"
@@ -88,7 +88,7 @@ if (-not $SkipPose) {
     & $pose -m pip install -r $tmp; Need 'lock de pose'
     & $pose -m pip check
     Step 'Verificación de la GPU'
-    & $pose -X utf8 research/doctor.py --torch --output research/qa/destino-pose.json
+    & $pose -X utf8 tools/doctor.py --torch --output research/qa/destino-pose.json
     & $pose -c "import sys,torch; sys.exit(0 if torch.cuda.is_available() else 1)"
     if ($LASTEXITCODE -ne 0) { throw "PyTorch no ve la GPU (ver research/qa/destino-pose.json). Revisar controlador e índice $TorchIndexUrl." }
 }

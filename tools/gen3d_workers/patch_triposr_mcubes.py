@@ -6,7 +6,7 @@ and the 12.8 folder holds no nvcc. PyMCubes ships wheels. Marching cubes runs on
 256^3 grid, so the CPU costs a second or two, not the minutes of a failed build.
 
     downloads/gen3d/triposr/.venv/Scripts/python.exe -m pip install PyMCubes
-    python research/gen3d_workers/patch_triposr_mcubes.py      # idempotent
+    python tools/gen3d_workers/patch_triposr_mcubes.py      # idempotent
 
 Patches downloads/gen3d/triposr/tsr/models/isosurface.py (a clone, not versioned): torchmcubes is
 still used when it imports.
@@ -17,7 +17,7 @@ TARGET = Path(__file__).resolve().parents[2] / 'downloads/gen3d/triposr/tsr/mode
 MARK = '# patched: PyMCubes fallback'
 
 IMPORT_OLD = 'from torchmcubes import marching_cubes\n'
-IMPORT_NEW = f'''{MARK} (research/gen3d_workers/patch_triposr_mcubes.py)
+IMPORT_NEW = f'''{MARK} (tools/gen3d_workers/patch_triposr_mcubes.py)
 try:
     from torchmcubes import marching_cubes
 except ImportError:

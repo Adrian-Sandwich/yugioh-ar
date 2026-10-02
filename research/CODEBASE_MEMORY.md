@@ -9,7 +9,7 @@ la CLI falla al crear su endpoint local de coordinación; fuera funciona.
 El proyecto está indexado con nombre **yugioh**, modo `fast`: 17,916 nodos y
 20,085 relaciones en la primera ejecución. `.cbmignore` excluye dependencias,
 modelos, imágenes descargadas, bases y clones externos. Se registró un parseo
-parcial en `research/tdoane/catalog-localized.json`, un catálogo de datos.
+parcial en `reference/tdoane/catalog-localized.json`, un catálogo de datos.
 Los resultados y cobertura exacta están en `research/qa/cbm-diagnostic/`.
 
 La consulta de los cinco archivos principales no registró errores de parseo,

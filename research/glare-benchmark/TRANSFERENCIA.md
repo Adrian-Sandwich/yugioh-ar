@@ -49,7 +49,7 @@ data/pilot/embeddings.npy
 data/models/vit_small_features.onnx
 data/models/vit_small_features.json
 downloads/reference-assets/draw2/onnx/            # detector, encoder base y etiquetas
-research/references-20260924/draw2-small-ygojson-map.json
+reference/draw2-small-ygojson-map.json
 requirements-research.txt
 requirements-ocr.txt
 research/OCR_PASSCODE.md
