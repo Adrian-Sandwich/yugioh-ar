@@ -68,9 +68,10 @@ Works, verified with reproducible tests in this repository:
 
 - Detection of up to 20 oriented cards per frame with an ONNX detector, plus
   edge-based corner refinement when the rectangle does not fit.
-- Three interchangeable identifiers: SIFT on the artwork, the DRAW2
-  classifier, and embedding search. All three identified the real test
-  captures and rejected an empty image.
+- Identification by embedding search over the reference index (the DRAW2
+  classifier is the other mode), backed by SIFT on the artwork and by the
+  printed name as second votes. The first prototype's single-reference SIFT
+  recognizer was retired on October 2, 2026.
 - Local OCR, no network, of the passcode, the card name and the set code, with
   exact registry lookup. It never guesses characters: a doubtful read stays
   doubtful.
@@ -370,7 +371,8 @@ físicas de Yu-Gi-Oh! con una cámara y una PC, y dibujar contenido de realidad
 aumentada sobre ellas en tiempo real. La meta a largo plazo es un motor de
 duelo en AR: sin marcadores, sin tapete especial, todo en local.
 
-Hoy funciona la detección, tres identificadores intercambiables, OCR local de
+Hoy funciona la detección, identificación por embeddings (con el arte y el
+nombre impreso como segundos votos), OCR local de
 passcode, nombre y código de set, seguimiento por instancia, sprites AR 2D y
 una vista de duelo sobre la cámara en vivo con fases, puntos de vida, batalla,
 cartas boca abajo, efectos por tipo de carta y un motor de duelo en modo

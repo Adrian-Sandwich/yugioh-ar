@@ -1,5 +1,5 @@
 """Actual HTTP viewer + local OCR, using an explicitly fixed reference photograph."""
-import json,threading,time
+import json,threading
 from urllib.request import urlopen
 from playwright.sync_api import sync_playwright
 from camera_viewer import Server,Handler,ROOT
@@ -10,7 +10,7 @@ ref=json.loads((ROOT/'data/references/catalog.json').read_text(encoding='utf-8')
 uid=lookup('89631139')[0]['card_id']
 class Recognizer:
     references=[ref]
-    def analyze_jpeg(self,jpeg):
+    def analyze_jpeg(self,jpeg,**context):
         return {'detections':[{'id':'fixture','card_id':uid,'name':'Dragón Blanco de Ojos Azules','corners':ref['corners']}],
                 'width':1920,'height':1080,'processing_ms':1}
 server=Server(('127.0.0.1',0),Handler)

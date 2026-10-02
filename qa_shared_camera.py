@@ -5,7 +5,7 @@ import time
 
 from playwright.sync_api import sync_playwright
 
-from camera_viewer import Handler, ROOT, Server
+from camera_viewer import Handler, Server
 from qa_live_camera import FakePhone
 from http.server import ThreadingHTTPServer
 
@@ -13,7 +13,7 @@ from http.server import ThreadingHTTPServer
 class Recognizer:
     references=[{}]
     def __init__(self): self.calls=0;self.active=0;self.maximum=0
-    def analyze_jpeg(self, data):
+    def analyze_jpeg(self, data,**context):
         self.calls+=1;self.active+=1;self.maximum=max(self.maximum,self.active)
         try:
             time.sleep(1.4)

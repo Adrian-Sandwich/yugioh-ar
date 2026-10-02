@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 
 from ar_overlay import Tracker
-from camera_viewer import Handler, ROOT, Server
+from camera_viewer import Handler, Server
 from passcode_ocr import PasscodeWorker
 
 
@@ -98,7 +98,7 @@ def main():
     class Recognizer:
         references = [{}]
         calls = 0
-        def analyze_jpeg(self, data):
+        def analyze_jpeg(self, data,**context):
             self.calls += 1
             if self.calls == 1:
                 raise RuntimeError('Controlled inference error')

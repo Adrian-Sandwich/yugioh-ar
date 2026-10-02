@@ -33,7 +33,7 @@ class Recognizer:
     """Stands in for LiveRecognizer: slow enough that frames pile up between analyses."""
     references=()
     def __init__(self):self.seen=[];self.fail_next=False;self.slow_next=False;self.lock=threading.Lock()
-    def analyze_jpeg(self,data):
+    def analyze_jpeg(self,data,**context):
         with self.lock:
             if self.fail_next:self.fail_next=False;raise RuntimeError('forced failure')
             slow=self.slow_next;self.slow_next=False

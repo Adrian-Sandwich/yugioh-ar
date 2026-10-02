@@ -52,7 +52,7 @@ class Server(ThreadingHTTPServer):
         self.stream=None                      # camera_source.MjpegSource: newest frame of the MJPEG stream
         self.recognizer=None                  # inference_host.RemoteRecognizer, vision_onnx.LiveRecognizer or recognition.*
         self.recognition_lock=threading.Lock()  # one analysis at a time
-        self.mode='single-reference'          # backend name shown by /config
+        self.mode='embedding'                 # recognizer mode shown by /config: embedding or classifier (draw2)
         self.tracker=None                     # ar_overlay.Tracker: marks detections stable after two analyses
         self.live_tracker=None                # live_tracking.LiveTracker: corners at video rate between analyses
         self.last_tracked_at=0.               # capture time of the last frame given to live_tracker
@@ -266,7 +266,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(503,b'Recognition disabled','text/plain')
         # A short bounded wait lets multiple tabs take turns instead of one
         # polling tab repeatedly missing the small gap between other requests.
-        result=run_analysis(self.server,data,captured_at,lock_timeout=2)
+        result=run_analysis(self.server,data,captured_at,lock_timeout=2,from_page=True)
         if result is None:
             return self.reply(503,b'Recognition busy','text/plain')
         # Socket writes happen after run_analysis released the inference lock (slow/disconnected tab).
@@ -347,11 +347,9 @@ def main():
     parser.add_argument("--camera", type=camera_url, default="http://192.168.1.18:8080")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--check", action="store_true", help="Fetch three JPEG frames and exit")
-    parser.add_argument("--recognize", action="store_true", help="Enable recognition from the local reference catalog")
-    parser.add_argument('--pilot',action='store_true',help='Use the reviewed pilot catalog with multi-card matching')
     parser.add_argument('--ar',action='store_true',help='Serve sprites for stable detections; the browser warps them')
     parser.add_argument('--image',type=Path,help='Offline fixture image; explicitly labelled in the viewer')
-    parser.add_argument('--backend',choices=['sift','draw2','embedding'],default='sift',help='ONNX choices are experimental and require .venv-eval')
+    parser.add_argument('--backend',choices=['draw2','embedding','none'],default='embedding',help='ONNX recognizer (embedding: reference index; draw2: classifier); none: camera only')
     parser.add_argument('--no-passcode',action='store_true',help='Disable asynchronous passcode crop/OCR')
     parser.add_argument('--no-stream',action='store_true',help='Poll /shot.jpg instead of reading the MJPEG /video stream')
     parser.add_argument('--no-isolate',action='store_true',help='Run the ONNX recognizer inside this process instead of a restartable child')
@@ -365,7 +363,9 @@ def main():
             print(f"Frame {i + 1}: JPEG completo, {len(data)} bytes, {(time.monotonic() - start) * 1000:.0f} ms", flush=True)
         return
     recognizer = None
-    if args.backend!='sift':
+    if args.backend!='none':
+        # The SIFT single-reference recognizer of the first prototype (recognition.py) was retired on
+        # 02/10/2026; the ONNX recognizer has replaced it since 26/09.
         mode='classifier' if args.backend=='draw2' else 'embedding'
         if args.no_isolate:
             from vision_onnx import LiveRecognizer
@@ -373,13 +373,10 @@ def main():
         else:
             from inference_host import RemoteRecognizer
             recognizer=RemoteRecognizer(mode)
-    elif args.recognize or args.pilot:
-        from recognition import Recognizer,PilotRecognizer
-        recognizer = PilotRecognizer() if args.pilot else Recognizer()
     server = Server(("127.0.0.1", args.port), Handler)
     server.camera = args.camera
     server.recognizer = recognizer
-    server.mode=args.backend if args.backend!='sift' else ('sift-pilot' if args.pilot else 'single-reference')
+    server.mode='classifier' if args.backend=='draw2' else args.backend
     server.fixture=args.image.resolve() if args.image else None
     if server.fixture:
         data=server.fixture.read_bytes()
@@ -388,7 +385,7 @@ def main():
     if recognizer:
         from ar_overlay import Tracker,SpriteOverlay
         server.tracker=Tracker()
-        server.overlay=SpriteOverlay() if args.ar and (args.pilot or args.backend!='sift') else None
+        server.overlay=SpriteOverlay() if args.ar else None
         if not args.no_passcode:
             from passcode_ocr import PasscodeWorker
             server.passcode_worker=PasscodeWorker()

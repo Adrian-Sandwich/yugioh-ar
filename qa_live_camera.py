@@ -1,5 +1,5 @@
 """Regression: slow/failed recognition must not freeze live camera acquisition."""
-import json,threading,time,urllib.request
+import json,threading,time
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 import cv2,numpy as np
@@ -26,7 +26,7 @@ class FakePhone(BaseHTTPRequestHandler):
 class SlowRecognizer:
     references=[{}]
     calls=0
-    def analyze_jpeg(self,data):
+    def analyze_jpeg(self,data,**context):
         self.calls+=1
         assert cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR).shape==(120,160,3)
         time.sleep(3 if self.calls==1 else .4)

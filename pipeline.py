@@ -97,10 +97,11 @@ def analysis_context(server, captured_at):
             'back_zones': table.back_zones() if table is not None else None}
 
 
-def submit_ocr(server, result, data, captured_at):
-    """Every candidate box to the OCR worker, with what the recognizer thought of it."""
+def submit_ocr(server, result, data, captured_at, previews):
+    """Every candidate box to the OCR worker, with what the recognizer thought of it. `previews`: PNG
+    crops for the diagnostic page (it is watching, or it asked for this very analysis)."""
     worker = server.passcode_worker
-    worker.previews = diagnostic_watching(server) if getattr(server.recognizer, 'supports_context', False) else True
+    worker.previews = previews
     named = {tuple(map(tuple, d['corners'])): d for d in result['detections']}
     boxes = []
     for d in result.get('candidates', result['detections']):
@@ -126,10 +127,10 @@ def feed_duel(server, result, data, captured_at):
     except Exception: traceback.print_exc()
 
 
-def run_analysis(server, data=None, captured_at=None, lock_timeout=-1):
+def run_analysis(server, data=None, captured_at=None, lock_timeout=-1, from_page=False):
     """One recognizer pass plus OCR submission, tracking and the duel; None if the lock was busy.
 
-    Shared by POST /analyze (a browser-chosen frame) and the server loop (the newest stream frame).
+    Shared by POST /analyze (a browser-chosen frame, `from_page`) and the server loop (the newest stream frame).
     """
     started = time.perf_counter()
     received_at = time.time()
@@ -153,15 +154,12 @@ def run_analysis(server, data=None, captured_at=None, lock_timeout=-1):
             data, captured_at, capture_basis = snapshot_record(server)
         inference_started = time.perf_counter()
         recognizer = server.recognizer
-        if getattr(recognizer, 'supports_context', False):
-            result = recognizer.analyze_jpeg(data, **analysis_context(server, captured_at))
-        else:
-            result = recognizer.analyze_jpeg(data)  # legacy SIFT recognizer (recognition.py)
+        result = recognizer.analyze_jpeg(data, **analysis_context(server, captured_at))
         result['detections'] = [normalize_detection(d) for d in result['detections']]
         if 'candidates' in result: result['candidates'] = [normalize_detection(d) for d in result['candidates']]
         result['identity_resolution'] = IDENTITIES.info()
         inference_finished = time.perf_counter()
-        if server.passcode_worker: submit_ocr(server, result, data, captured_at)
+        if server.passcode_worker: submit_ocr(server, result, data, captured_at, from_page or diagnostic_watching(server))
         if server.tracker: result['detections'] = server.tracker.update(result['detections'])
         live = server.live_tracker
         if live is not None:

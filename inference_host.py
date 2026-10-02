@@ -36,8 +36,6 @@ def _serve(conn,mode):
 
 
 class RemoteRecognizer:
-    supports_context=True
-
     def __init__(self,mode='embedding',timeout=25.,start_timeout=180.):
         self.mode=mode;self.timeout=timeout;self.start_timeout=start_timeout
         self.lock=threading.Lock();self.restarts=0;self.timeouts=0;self.process=None;self.conn=None

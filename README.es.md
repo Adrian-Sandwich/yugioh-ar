@@ -67,9 +67,10 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
 
 - Detección de hasta 20 cartas orientadas por fotograma con un detector ONNX,
   y ajuste de esquinas por bordes cuando el rectángulo no encaja.
-- Tres métodos de identificación intercambiables: SIFT sobre el arte,
-  clasificador DRAW2 y búsqueda por embeddings. Los tres identificaron las
-  capturas reales de prueba y rechazaron una imagen vacía.
+- Identificación por búsqueda de embeddings en el índice de referencias (el
+  clasificador DRAW2 es el otro modo), con SIFT sobre el arte y el nombre
+  impreso como segundos votos. El reconocedor SIFT de una sola referencia del
+  primer prototipo se retiró el 2 de octubre de 2026.
 - OCR local, sin red, del passcode, del nombre y del código de set, con
   consulta exacta al registro. No corrige caracteres a ciegas: una lectura
   dudosa se queda como dudosa.
@@ -379,8 +380,8 @@ with a camera and a PC, and overlaying augmented-reality content on them in
 real time. The long-term goal is an AR duel engine: no fiducial markers, no
 special playmat, everything running locally.
 
-What works today: an ONNX oriented-box detector, three interchangeable
-identifiers (SIFT on artwork, the DRAW2 classifier, and embedding search), local
+What works today: an ONNX oriented-box detector, identification by embedding
+search (with SIFT on the artwork and the printed name as second votes), local
 OCR of the passcode, card name and set code with exact registry lookup,
 per-instance tracking, and 2D AR sprites composited in the browser. The
 multilingual registry (EN/ES/DE/FR/PT) lives in SQLite and was built from
