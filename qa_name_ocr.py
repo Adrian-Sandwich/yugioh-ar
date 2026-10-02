@@ -7,12 +7,14 @@ from name_ocr import NameRegistry,mark_conflicts
 from passcode_ocr import ROOT,SIZE,NumberReader,rectify,GeometryRefiner,lookup
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def observation(text,score=.96,orientation=0):
     return {'text':text,'score':score,'orientation':orientation,'variant':'test'}
 
 
 def main():
-    out=ROOT/'research/qa/name-ocr';out.mkdir(parents=True,exist_ok=True)
+    out=QA_OUT/'name-ocr';out.mkdir(parents=True,exist_ok=True)
     # ignore_cleanup_errors: Windows may still hold the SQLite file a moment after it is closed.
     with tempfile.TemporaryDirectory(dir=ROOT/'.runtime',ignore_cleanup_errors=True) as temporary:
         path=Path(temporary)/'names.sqlite'

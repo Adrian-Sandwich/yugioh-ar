@@ -4,13 +4,15 @@ Compares the batched/skipping path against the plain per-crop, two-orientation
 path on the annotated real scene: same identities, same rotation, same scores
 within float tolerance, fewer encoder runs. Then exercises the paths that do
 not need the model: reuse of a fresh track, promotion by verified artwork,
-rejection when the index yields nothing. Writes research/qa/vision-pipeline.json.
+rejection when the index yields nothing. Writes .runtime/qa/vision-pipeline.json.
 """
 import json,time
 import cv2,numpy as np
 import vision_onnx
 from vision_onnx import ResearchRecognizer,ROOT,crop,promote_by_art,quad_iou
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 SCENE=ROOT/'research/qa/corner-refinement/current.jpg'
 
 def plain_identify(model,crops):
@@ -107,7 +109,7 @@ def main():
             'checks':['same identities as two-orientation path','orientation skip bounded','track reuse without encode','reused box keeps tracked corners',
                       'no double rotation of tracked corners','failed edge snapping not retried at once','no reuse without overlap',
                       'art promotion requires identity, overlap and freshness','promotion keeps score','empty index rejects','quad IoU']}
-    (ROOT/'research/qa/vision-pipeline.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (QA_OUT/'vision-pipeline.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report),flush=True)
 
 if __name__=='__main__':main()

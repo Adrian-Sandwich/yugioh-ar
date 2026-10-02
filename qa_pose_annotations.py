@@ -4,6 +4,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from research.yolo11_pose.import_annotations import collect,build
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 
 
@@ -37,7 +39,7 @@ def main():
         except ValueError as exc:assert 'Session leaks' in str(exc)
         else:raise AssertionError('Session leaked across train/val')
     result={'status':'passed','checks':['browser clicks/export','17-field label','partial corpus not train-ready','unreviewed rejected','same session split rejected']}
-    (ROOT/'research/qa/pose-annotations.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+    (QA_OUT/'pose-annotations.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
 
 
 if __name__=='__main__':main()

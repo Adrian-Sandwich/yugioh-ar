@@ -1,3 +1,5 @@
+> **Histórico.** Describe el estado de septiembre de 2026 y fue sustituido por [PLAN_3D_Y_REVISION](PLAN_3D_Y_REVISION.md) y [TIEMPO_REAL](TIEMPO_REAL.md). Índice de documentos: [docs/INDEX.md](../docs/INDEX.md).
+
 # Plan de mejora: reconocimiento con cámara variable y consultas eficientes
 
 Actualización de ejecución: [TRANSFERENCIA_GENERAL.md](TRANSFERENCIA_GENERAL.md)

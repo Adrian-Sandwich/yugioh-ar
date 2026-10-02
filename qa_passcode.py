@@ -4,8 +4,10 @@ from pathlib import Path
 import cv2,numpy as np
 from passcode_ocr import ROOT,SIZE,rectify,numbers,lookup,NumberReader,Consensus,PasscodeWorker
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def main():
-    out=ROOT/'research/qa/passcode';out.mkdir(parents=True,exist_ok=True)
+    out=QA_OUT/'passcode';out.mkdir(parents=True,exist_ok=True)
     assert numbers('00123456 1st Edition')==['00123456']
     assert numbers('0012 3456')==['00123456']
     assert numbers('1234567')==[] and numbers('123456789')==[] and numbers('O0123456')==[]

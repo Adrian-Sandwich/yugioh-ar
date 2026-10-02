@@ -3,6 +3,8 @@ import hashlib,json,shutil,sys,tempfile
 from pathlib import Path
 import cv2,numpy as np
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'research/yolo11_pose'))
 from from_captures import convert
@@ -43,7 +45,7 @@ def main():
         try:convert(captures,work/'again',['s_train','s_val','s_test']);convert(captures,work/'again',['s_train']);raise AssertionError('non-empty output accepted')
         except ValueError:pass
         report={'status':'passed','checks':['only certified sessions converted','validation mapped to val','one scene per image with all its cards','unknown identity kept as card','import_annotations accepts the output','YOLO pose label format','non-empty output refused']}
-        (ROOT/'research/qa/pose-from-captures.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+        (QA_OUT/'pose-from-captures.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
         print(json.dumps(report),flush=True)
     finally:
         shutil.rmtree(work,ignore_errors=True)

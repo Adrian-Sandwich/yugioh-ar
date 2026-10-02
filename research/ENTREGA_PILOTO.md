@@ -1,3 +1,5 @@
+> **Histórico.** Describe el estado de septiembre de 2026 y fue sustituido por [ARRANQUE_GPU](../docs/ARRANQUE_GPU.md); el piloto quedó como el alcance `pilot`. Índice de documentos: [docs/INDEX.md](../docs/INDEX.md).
+
 # Piloto operativo: catálogo, revisión, reconocimiento y AR
 
 Implementado el 25 de septiembre de 2026. No se entrenaron nuevos pesos. El ajuste intensivo permanece reservado para la otra computadora.

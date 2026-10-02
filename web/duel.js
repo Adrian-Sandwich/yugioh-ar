@@ -198,8 +198,11 @@ function draw(now){
   requestAnimationFrame(draw);
 }
 
+// Hidden tab: polling waits until the page is shown again (a background tab kept pulling ~15 JPEG/s).
+function visible(){return document.hidden?new Promise(r=>document.addEventListener('visibilitychange',function f(){if(!document.hidden){document.removeEventListener('visibilitychange',f);r();}})):Promise.resolve();}
 // Video: the server's newest frame with the tracks of that exact frame (X-Tracks).
 async function refreshCamera(){
+  await visible();
   let delay=66;const started=performance.now();
   try{
     const r=await fetch('/snapshot?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(10000)});
@@ -214,7 +217,8 @@ async function refreshCamera(){
   finally{setTimeout(refreshCamera,Math.max(30,delay-(performance.now()-started)));}
 }
 
-// The server analyses only while some page asks for results: keep asking.
+// The server analyses only while some page asks for results: keep asking, even from a hidden tab
+// (the duel keeps recording plays; the lite results are ~3.5 KB each).
 let analysisSequence=-1;
 async function followAnalysis(){
   let delay=0;
@@ -539,6 +543,7 @@ $d('#undo').onclick=()=>duelAct({type:'undo'});
 $d('#resetDuel').onclick=async()=>{if(confirm('¿Terminar este duelo y empezar otro? Queda guardado en el historial.')){await duelAct({type:'reset'});loadHistory();}};
 
 async function refreshDuel(){
+  await visible();
   try{
     const r=await fetch('/duel',{cache:'no-store'});
     if(r.status===404){$d('#duel').hidden=true;return;}   // demo with a saved capture: no duel

@@ -327,7 +327,9 @@ change says what was tested and what was not.
 ## Research documentation
 
 The `research/` directory is the project's lab notebook. It is written in
-Spanish. Main entries:
+Spanish. Start with the document index, [docs/INDEX.md](docs/INDEX.md): it
+separates current documents from historical ones. The current plan is
+[PLAN_3D_Y_REVISION.md](research/PLAN_3D_Y_REVISION.md). Main entries:
 
 - [Consolidated status and transfer to another PC](research/TRANSFERENCIA_GENERAL.md)
 - [Real-time loop without a GPU: tracking, stream, sprites, isolation](research/TIEMPO_REAL.md)

@@ -4,6 +4,8 @@ from urllib.request import urlopen
 from playwright.sync_api import sync_playwright
 from camera_viewer import Server,Handler,ROOT
 from passcode_ocr import PasscodeWorker,lookup
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ref=json.loads((ROOT/'data/references/catalog.json').read_text(encoding='utf-8'))[0]
 uid=lookup('89631139')[0]['card_id']
 class Recognizer:
@@ -34,7 +36,7 @@ try:
         first=int(page.locator('#frame').get_attribute('data-frame-number'))
         page.wait_for_function(f'frameNumber>{first+8}')
         page.locator('#passcodes').scroll_into_view_if_needed()
-        page.screenshot(path=str(ROOT/'research/qa/passcode/browser.png'))
+        page.screenshot(path=str(QA_OUT/'passcode/browser.png'))
         data=json.load(urlopen(f'http://127.0.0.1:{server.server_port}/passcodes'))
         config=json.load(urlopen(f'http://127.0.0.1:{server.server_port}/config'))
         assert data['identity_resolution']['version']==config['identity_resolution']['version']

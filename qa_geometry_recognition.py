@@ -12,6 +12,8 @@ class Unrefined:
     def refine_all(self,boxes,snap=None):return [self.refine(b) for b in boxes]
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def main():
     model=vision_onnx.ResearchRecognizer()
     report=[]
@@ -27,7 +29,8 @@ def main():
         report.append({'source':source,'before_ms':before['processing_ms'],'after_ms':after['processing_ms'],
                        'geometry_ms':after['geometry_ms'],'candidates':rows})
         print(json.dumps({**{k:v for k,v in report[-1].items() if k!='candidates'},'changes':[r for r in rows if r['geometry']=='contour_refined']}),flush=True)
-    (ROOT/'research/qa/corner-refinement/recognition-comparison.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (QA_OUT/'corner-refinement').mkdir(exist_ok=True)
+    (QA_OUT/'corner-refinement/recognition-comparison.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 
 
 if __name__=='__main__':main()

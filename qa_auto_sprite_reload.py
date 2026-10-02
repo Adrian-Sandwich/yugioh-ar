@@ -10,6 +10,8 @@ from unittest.mock import patch
 import cv2
 import numpy as np
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT = Path(__file__).resolve().parent
 
 
@@ -64,7 +66,7 @@ def main():
             checks += ['versioned URL for automatic sprites', 'new version after a change', 'hand-made sprite URLs unchanged']
     result = {'passed': True, 'checks': checks,
               'not_covered': 'the duel view (/duelo) caches /cutout/<ref> per page load: reload that page after --apply'}
-    (ROOT / 'research/qa/auto-sprite-reload.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+    (QA_OUT / 'auto-sprite-reload.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
     print(json.dumps(result))
 
 

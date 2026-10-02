@@ -13,6 +13,8 @@ from camera_viewer import Handler, ROOT, Server
 from passcode_ocr import PasscodeWorker
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def wait_for(predicate, seconds=6):
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
@@ -155,7 +157,7 @@ def main():
         'absent track loses confirmation', 'HTTP 500 recovery and lock release',
         'busy request bounded and not analyzed', 'pipeline timings',
         'capture time survives inference','invalid and expired capture times rejected']}
-    (ROOT/'research/qa/pipeline-core.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+    (QA_OUT/'pipeline-core.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
     print(json.dumps(result))
 
 

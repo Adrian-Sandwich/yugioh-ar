@@ -335,7 +335,10 @@ cambio dice qué se probó y qué no.
 
 ## Documentación de investigación
 
-El directorio `research/` es el cuaderno del proyecto. Entradas principales:
+El directorio `research/` es el cuaderno del proyecto. Empieza por el índice,
+[docs/INDEX.md](docs/INDEX.md), que separa los documentos vigentes de los
+históricos. El plan actual es [PLAN_3D_Y_REVISION.md](research/PLAN_3D_Y_REVISION.md).
+Entradas principales:
 
 - [Estado consolidado y traslado a otra PC](research/TRANSFERENCIA_GENERAL.md)
 - [Tiempo real sin GPU: seguimiento, stream, sprites, aislamiento](research/TIEMPO_REAL.md)

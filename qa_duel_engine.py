@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 from duel_engine import Duel,DuelError,EVENTS
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 CHECKS=[]
 
@@ -291,7 +293,7 @@ def main():
             'result':final['result'],'graveyards':[[c['copy_id'] for c in p['graveyard']] for p in final['players']]},
         'checks':CHECKS,
         'limits':'Reglas estructurales sólo; sin efectos de cartas, cadenas ni prioridad. No probado en duelos reales ni conectado al reconocedor.'}
-    (ROOT/'research/qa/duel-engine.json').write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding='utf-8')
+    (QA_OUT/'duel-engine.json').write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding='utf-8')
     print(json.dumps(result,ensure_ascii=False))
 
 

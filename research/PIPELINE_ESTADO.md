@@ -1,3 +1,5 @@
+> **Histórico.** Describe el estado de septiembre de 2026 y fue sustituido por [TIEMPO_REAL](TIEMPO_REAL.md). Índice de documentos: [docs/INDEX.md](../docs/INDEX.md).
+
 # Pipeline de cámara: revisión y mantenimiento
 
 Revisión del 25/09/2026 mientras continúa Neuron. No se cambiaron pesos,

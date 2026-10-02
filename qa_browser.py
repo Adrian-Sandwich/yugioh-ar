@@ -2,8 +2,10 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
-OUT=ROOT/'research/qa'
+OUT=QA_OUT
 OUT.mkdir(parents=True,exist_ok=True)
 with sync_playwright() as p:
     browser=p.chromium.launch(executable_path='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless=True)

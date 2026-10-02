@@ -1,6 +1,8 @@
 """Verify registry search and multilingual printing table in the actual browser."""
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 with sync_playwright() as p:
     browser=p.chromium.launch(executable_path='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless=True)
@@ -15,7 +17,7 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('#rows tr td:nth-child(2)')?.textContent.startsWith('pt')")
     assert page.locator('#rows tr').count()>10
     assert 'Dragão Branco de Olhos Azuis' in page.locator('#names').inner_text()
-    page.screenshot(path=str(ROOT/'research/qa/registry.png'),full_page=False)
+    page.screenshot(path=str(QA_OUT/'registry.png'),full_page=False)
     page.locator('#query').fill('LOB-EN001')
     page.locator('#searchMode').select_option('set')
     page.locator('#search button').click()
@@ -31,4 +33,4 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('#count').textContent.startsWith('0 cartas')")
     assert not errors,errors
     browser.close()
-print('Registry browser: pass; screenshot research/qa/registry.png')
+print('Registry browser: pass; screenshot .runtime/qa/registry.png')

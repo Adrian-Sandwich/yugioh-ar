@@ -9,6 +9,8 @@ import numpy as np
 
 from ar_overlay import SpriteOverlay
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 BASELINE=ROOT/'research/qa/sprite-cache-before.npz'
 
@@ -85,7 +87,7 @@ def main():
         'checks':['overlapping transparent sprites','opaque black pixels','no detections and unstable detections',
                   'one resize for repeated sprite','replacement invalidates canvas','bounded LRU eviction','explicit invalidation','composition limited to occupied region'],
         'timing':'Not benchmarked; warp unchanged, identical alpha arithmetic on bounded regions'}
-    (ROOT/'research/qa/sprite-cache.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+    (QA_OUT/'sprite-cache.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     print(json.dumps(result))
 
 

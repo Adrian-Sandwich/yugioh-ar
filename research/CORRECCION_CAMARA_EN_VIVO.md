@@ -1,3 +1,5 @@
+> **Histórico.** Describe el estado de septiembre de 2026 y fue sustituido por [TIEMPO_REAL](TIEMPO_REAL.md). Índice de documentos: [docs/INDEX.md](../docs/INDEX.md).
+
 # Corrección de cámara en vivo — 25/09/2026
 
 El visor anterior pedía un fotograma mediante `/analyze` y esperaba al análisis completo antes de actualizar la pantalla. Si el reconocimiento tardaba, devolvía 503 por concurrencia o fallaba, la pantalla conservaba la última imagen.

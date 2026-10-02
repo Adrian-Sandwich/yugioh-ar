@@ -25,6 +25,8 @@ CATALOG_DB = CATALOG_DIR / 'catalog.sqlite'
 PILOT = DATA / 'pilot'
 FULL = DATA / 'full'
 AUTO_SPRITES = DATA / 'auto-sprites'
+# Outputs of the qa_*.py checks (reports, screenshots, temporary folders): not versioned.
+QA_OUT = ROOT / '.runtime' / 'qa'
 
 SCOPE = os.environ.get('YUGIOH_SCOPE', 'pilot').lower()
 if SCOPE not in ('pilot', 'full'): raise ValueError(f'YUGIOH_SCOPE={SCOPE!r}: use pilot or full')

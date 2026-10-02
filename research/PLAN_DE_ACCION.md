@@ -1,3 +1,5 @@
+> **Histórico.** Describe el estado de septiembre de 2026 y fue sustituido por [docs/INDEX.md](../docs/INDEX.md) y [PLAN_3D_Y_REVISION](PLAN_3D_Y_REVISION.md). Índice de documentos: [docs/INDEX.md](../docs/INDEX.md).
+
 # Yu-Gi-Oh! AR con cámara y PC
 
 **Plan vigente:** [mejora integral con cámara variable](PLAN_MEJORA_INTEGRAL.md).

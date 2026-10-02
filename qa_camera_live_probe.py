@@ -2,6 +2,8 @@
 import json,time,urllib.request,urllib.error
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 for attempt in range(30):
     try:
@@ -23,7 +25,7 @@ with sync_playwright() as p:
         page.wait_for_function("Number(document.querySelector('#detection').dataset.completed)>=2",timeout=30000)
     except Exception:
         print(page.evaluate('({configured,paused,frameNumber,lastAnalyzed,generation,resultAt,status:status.textContent,detection:detection.textContent})'),flush=True)
-        page.screenshot(path=str(ROOT/'research/qa/camera-live-failure.png'))
+        page.screenshot(path=str(QA_OUT/'camera-live-failure.png'))
         raise
     page.wait_for_function(f'frameNumber>={first+10}',timeout=15000)
     last_hash=page.evaluate("async()=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await currentBlob.arrayBuffer()))).join(',')")
@@ -33,7 +35,7 @@ with sync_playwright() as p:
     result['quality_samples']=page.locator('.quality-card').count()
     assert 'No se pudo' not in result['quality_status'],result
     assert result['live'] and result['frames_received']>=13 and not errors,result
-    page.screenshot(path=str(ROOT/'research/qa/camera-live.png'))
-    (ROOT/'research/qa/camera-live-probe.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+    page.screenshot(path=str(QA_OUT/'camera-live.png'))
+    (QA_OUT/'camera-live-probe.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps(result,ensure_ascii=False),flush=True)
     browser.close()

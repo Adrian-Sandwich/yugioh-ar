@@ -9,6 +9,8 @@ import numpy as np
 from vision_onnx import Encoder, ROOT
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def main():
     encoder=Encoder()
     vectors=np.load(ROOT/'data/pilot/embeddings.npy')
@@ -32,7 +34,7 @@ def main():
         'classifier still returns five predictions','retrieval skips classifier softmax',
         'bit-identical normalized features','bit-identical pilot cosine scores'],
         'timing':'Not benchmarked; ONNX forward remains unchanged'}
-    (ROOT/'research/qa/embedding-fast.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+    (QA_OUT/'embedding-fast.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
 
 
 if __name__=='__main__':

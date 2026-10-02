@@ -4,8 +4,10 @@ from pathlib import Path
 from PIL import Image
 from sync_catalog import enrich,ROOT
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def main():
-    folder=ROOT/'research/qa'/('catalog-sync-'+uuid.uuid4().hex);folder.mkdir(parents=True)
+    folder=QA_OUT/('catalog-sync-'+uuid.uuid4().hex);folder.mkdir(parents=True)
     assets=folder/'assets';assets.mkdir()
     for filename in ('one.png','two.png'):Image.new('RGB',(32,48),'blue').save(assets/filename)
     digest=hashlib.sha256((assets/'one.png').read_bytes()).hexdigest()

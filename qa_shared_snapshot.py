@@ -4,6 +4,8 @@ from pathlib import Path
 from shared_snapshot import SharedSnapshots
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def main():
     cache=SharedSnapshots(ttl=.1,error_backoff=.1);calls=0;barrier=threading.Barrier(6)
     def fetch():
@@ -24,7 +26,7 @@ def main():
     time.sleep(.12);assert cache.get('different-phone',fetch)[0]==b'4'
     result={'status':'passed','concurrent_clients':6,'phone_requests':1,
             'checks':['original timestamp shared','expiry requests fresh frame','source change invalidates','failure does not serve stale image','recovery']}
-    Path('research/qa/shared-snapshot.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+    (QA_OUT/'shared-snapshot.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
 
 
 if __name__=='__main__':main()

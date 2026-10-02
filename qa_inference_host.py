@@ -3,6 +3,8 @@ import json,os,time
 from pathlib import Path
 from inference_host import RemoteRecognizer
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 SCENE=ROOT/'data/captures/carta-2026-09-25T04-13-54-278Z.jpg'  # one card: keeps the round trip well under the timeout on a loaded CPU
 
@@ -31,7 +33,7 @@ def main():
     finally:
         host.close()
     assert not host.status()['alive']
-    (ROOT/'research/qa/inference-host.json').write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding='utf-8')
+    (QA_OUT/'inference-host.json').write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding='utf-8')
     print(json.dumps(report,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()

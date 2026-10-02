@@ -53,7 +53,7 @@
   <button id="save" disabled>Guardar fotograma</button>
   <label><input type="checkbox" id="recognize" disabled> Reconocer carta</label>
   <label><input type="checkbox" id="ar" disabled> Mostrar sprites AR</label>
-  <p><a href="/duelo" style="color:#8de5ca;font-weight:700">Abrir la vista de duelo</a> · <a href="http://127.0.0.1:8768" style="color:#8de5ca">Revisar catálogo y piloto</a></p>
+  <p><a href="/duelo" style="color:#8de5ca;font-weight:700">Abrir la vista de duelo</a> · <a href="/" data-port="8768" style="color:#8de5ca">Revisar catálogo y piloto</a></p>
   <p id="method"></p>
   <p>Contorno verde: bordes ajustados. Contorno amarillo discontinuo: caja aproximada, sin recorte de texto. El ajuste de bordes es experimental.</p>
   <p id="detection">Preparando cámara…</p>
@@ -64,5 +64,6 @@
 </main>
 <script src="/ar.js"></script>
 <script src="/camera.js"></script>
+<script>/* Links to the lab's other services on this same host (whatever name the page was opened with). */document.querySelectorAll('a[data-port]').forEach(a=>{a.href=`${location.protocol}//${location.hostname}:${a.dataset.port}/`})</script>
 </html>
 

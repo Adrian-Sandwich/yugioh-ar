@@ -5,6 +5,8 @@ import cv2,numpy as np
 from enroll_reference import enroll,SIZE
 import vision_onnx
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 
 def main():
@@ -50,7 +52,7 @@ def main():
             proc=subprocess.run([sys.executable,'-X','utf8',str(ROOT/'enroll_reference.py'),'--splits','test'],capture_output=True,text=True)
             assert proc.returncode!=0 and 'test' in (proc.stderr+proc.stdout),'CLI must refuse the test split'
         report={'status':'passed','checks':['only identified training annotations enrolled','rectified to the render canvas','texture preserved','pilot metadata inherited','index merge and digest change','idempotent','CLI refuses test split']}
-        (ROOT/'research/qa/enroll-reference.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+        (QA_OUT/'enroll-reference.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
         print(json.dumps(report),flush=True)
     finally:
         shutil.rmtree(work,ignore_errors=True)

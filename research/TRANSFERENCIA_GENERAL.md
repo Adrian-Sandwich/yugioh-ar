@@ -1,3 +1,5 @@
+> **Histórico.** Describe el estado de septiembre de 2026 y fue sustituido por [ARRANQUE_GPU](../docs/ARRANQUE_GPU.md); el traslado a la PC con GPU ya se hizo. Índice de documentos: [docs/INDEX.md](../docs/INDEX.md).
+
 # Continuar en la otra PC — estado consolidado
 
 25/09/2026. Entrada principal para retomar el proyecto. Distingue lo probado

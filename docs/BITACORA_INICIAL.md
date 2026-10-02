@@ -1,3 +1,5 @@
+> **Histórico.** Las primeras 48 horas del proyecto; la historia completa está en el README. Índice: [INDEX.md](INDEX.md).
+
 # Bitácora inicial (24 y 25 de septiembre de 2026)
 
 Texto conservado del primer README del proyecto. Describe el visor de cámara

@@ -6,6 +6,8 @@ import cv2,numpy as np
 from camera_source import MjpegSource
 from camera_viewer import Server,Handler
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 
 def jpeg(n):
@@ -82,7 +84,7 @@ def main():
     source.close();viewer.shutdown();viewer.server_close();Phone.stop_stream=True;phone.shutdown();phone.server_close()
     report={'status':'passed','frames_received':source.frames,'reconnects_observed':Phone.streams-1,
             'checks':['frames parsed across chunk boundaries','EXIF thumbnail EOI does not cut the frame','callback per frame in order','stale stream raises','viewer falls back to polling and feeds tracker','X-Tracks header and /tracks','stream frames served without polling']}
-    (ROOT/'research/qa/camera-source.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (QA_OUT/'camera-source.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report),flush=True)
 
 if __name__=='__main__':main()

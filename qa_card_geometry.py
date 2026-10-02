@@ -12,8 +12,11 @@ import numpy as np
 from card_geometry import GeometryRefiner
 from passcode_ocr import rectify,region,REGIONS,PasscodeWorker
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
-OUT=ROOT/'research/qa/corner-refinement'
+FIXTURES=ROOT/'research/qa/corner-refinement'  # current.jpg and detected.json are inputs
+OUT=QA_OUT/'corner-refinement'
 
 
 def error(actual,expected):
@@ -62,8 +65,8 @@ def main():
         payload=worker.snapshot();item=payload['items'][0]
         assert item['ocr_skipped']=='uncertain_geometry' and 'crop' not in item and 'name_crop' not in item,payload
     finally:worker.close();worker.thread.join(3)
-    image=cv2.imread(str(OUT/'current.jpg'))
-    boxes=json.loads((OUT/'detected.json').read_text())
+    image=cv2.imread(str(FIXTURES/'current.jpg'))
+    boxes=json.loads((FIXTURES/'detected.json').read_text())
     # Visual manual approximation on this frozen image, in arbitrary start order.
     annotations={
         3:[[1488,219],[1767,497],[1577,682],[1294,419]],

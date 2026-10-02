@@ -7,6 +7,8 @@ from pathlib import Path
 from qa_playmat import card_in_mat, center
 from table_duel import TableDuel
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT = Path(__file__).resolve().parent
 NEAR = [[420, 610], [1500, 610], [1640, 1020], [280, 1020]]
 FAR = [[1430, 470], [490, 470], [560, 170], [1360, 170]]
@@ -35,7 +37,7 @@ def settle(table, tracks):
 
 
 def main():
-    folder = ROOT / 'research/qa/table-duel-tmp'
+    folder = QA_OUT / 'table-duel-tmp'
     shutil.rmtree(folder, ignore_errors=True)
     checks = []
     try:

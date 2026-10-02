@@ -4,6 +4,8 @@ from registry_server import connection,search
 from registry import ROOT,LANGS
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def previous(db,term,page):
     match='SELECT card_id FROM names WHERE name LIKE ? UNION SELECT card_id FROM identifiers WHERE value=? UNION SELECT card_id FROM printings WHERE set_code=? UNION SELECT id FROM cards WHERE id=?'
     args=('%'+term+'%',term,term,term)
@@ -52,7 +54,7 @@ def main():
     finally:db.rollback();db.close()
     result={'status':'passed','conditions':'5 warm samples on same read snapshot; active services, not hardware benchmark',
             'equivalent_cases':27,'typed_ids_and_leading_zeros':True,'measurements':results}
-    (ROOT/'research/qa/registry-search-optimized.json').write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))
+    (QA_OUT/'registry-search-optimized.json').write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))
 
 
 if __name__=='__main__':main()

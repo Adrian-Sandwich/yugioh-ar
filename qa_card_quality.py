@@ -5,6 +5,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from camera_viewer import Server, Handler
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT = Path(__file__).resolve().parent
 
 def main():
@@ -57,7 +59,7 @@ def main():
               return {duplicate_ids:ids,glare_fraction:measured,checks:8};
             }''')
             page.locator('#quality').scroll_into_view_if_needed()
-            out = ROOT / 'research/qa/card-quality'
+            out = QA_OUT / 'card-quality'
             out.mkdir(parents=True, exist_ok=True)
             page.screenshot(path=str(out/'browser.png'), full_page=True)
             assert not errors, errors

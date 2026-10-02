@@ -2,11 +2,13 @@
 import json,shutil,sqlite3,sys,uuid
 from pathlib import Path
 from unittest.mock import patch
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'research'))
 import watch_download
 
-root=ROOT/'research/qa'/('download-watch-'+uuid.uuid4().hex)
+root=QA_OUT/('download-watch-'+uuid.uuid4().hex)
 cache=root/'data/registry/neuron';cache.mkdir(parents=True)
 (cache/'index-en-1.json').write_text(json.dumps({'language':'en','cards':[{'cid':1},{'cid':2}]}))
 for name in ('card-en-1.json','card-en-99.json'):(cache/name).write_text('{}')

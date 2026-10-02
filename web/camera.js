@@ -1,5 +1,8 @@
 const frame=document.querySelector('#frame'),ctx=frame.getContext('2d');
+// Hidden tab: polling waits until the page is shown again (a background tab kept pulling ~15 JPEG/s).
+function visible(){return document.hidden?new Promise(r=>document.addEventListener('visibilitychange',function f(){if(!document.hidden){document.removeEventListener('visibilitychange',f);r();}})):Promise.resolve();}
 async function refreshDownloadWatch(){
+  await visible();
   const label=document.querySelector('#downloadWatch');if(!label)return;
   try{
     const response=await fetch('/download-status',{cache:'no-store'});if(!response.ok)throw new Error('status');
@@ -118,6 +121,7 @@ function draw(){
 }
 
 async function refreshCamera(){
+  await visible();
   // The server serves a cached stream frame, so polling can run faster than the old 200 ms.
   let delay=66;const started=performance.now(),token=generation;
   try{
@@ -236,6 +240,7 @@ async function followServerLoop(token){
 }
 
 async function refreshRecognition(){
+  await visible();
   let delay=200;const token=generation;
   try{
     if(!configured||paused||!recognize.checked)return;
@@ -268,6 +273,7 @@ const nameStates={matched:'Coincidencia por nombre en la base',conflict:'Conflic
 let passcodeSequence=-1;
 function textNode(tag,text){const n=document.createElement(tag);n.textContent=text;return n;}
 async function refreshPasscodes(){
+  await visible();
   const token=generation;
   try{
     if(paused||!configured||!recognize.checked)return;
@@ -290,7 +296,7 @@ async function refreshPasscodes(){
   finally{setTimeout(refreshPasscodes,750);}
 }
 function imageNode(src,alt,className){const img=document.createElement('img');img.src=src;img.alt=alt;img.className=className;return img;}
-function registryLink(text,query){const link=textNode('a',text);link.href='http://127.0.0.1:8769/?'+query;link.target='_blank';link.rel='noopener';return link;}
+function registryLink(text,query){const link=textNode('a',text);link.href=`${location.protocol}//${location.hostname}:8769/?`+query;link.target='_blank';link.rel='noopener';return link;}
 function alternateNode(summary,src,alt,className){
   const alternate=document.createElement('details');alternate.append(textNode('summary',summary),imageNode(src,alt,className));return alternate;
 }

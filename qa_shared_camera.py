@@ -21,6 +21,8 @@ class Recognizer:
         finally: self.active-=1
 
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 def main():
     FakePhone.offline=False
     phone=ThreadingHTTPServer(('127.0.0.1',0),FakePhone)
@@ -69,7 +71,7 @@ def main():
                 'max_concurrent_inference':viewer.recognizer.maximum,
                 'checks':['same analysis delivered to two tabs','capture age includes inference',
                           'pause is local','recognition toggle is local','owner close recovery','no busy responses','no JS errors']}
-            (ROOT/'research/qa/shared-camera.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+            (QA_OUT/'shared-camera.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
             print(json.dumps(result))
             browser.close()
     finally:

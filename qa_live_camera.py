@@ -7,6 +7,8 @@ from playwright.sync_api import sync_playwright
 from camera_viewer import Server,Handler
 from ar_overlay import SpriteOverlay
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 class FakePhone(BaseHTTPRequestHandler):
     count=0
@@ -101,7 +103,7 @@ def main():
         assert layer.shape==(120,160,4) and layer[0,0,3]==0 and layer[60,80,3]==255
         assert layer[60,80,:3].max()==0,'Black sprite must remain opaque'
         result={'status':'passed','frames_while_first_inference_running':frames_during_inference,'checks':['independent capture and inference','no repeated repaint of unchanged frame','slow result visible on analyzed frame after live-overlay expiry','POST JPEG analysis','recognition error recovery and lock release','busy response preserves session and reference image','pause/resume','camera reconnect','late image decode discarded after pause','transparent AR including black pixels','no browser JS errors']}
-        (ROOT/'research/qa/live-camera.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+        (QA_OUT/'live-camera.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
         print(json.dumps(result),flush=True)
     finally:
         for s in (viewer,phone):s.shutdown();s.server_close()

@@ -5,6 +5,8 @@ import cv2,numpy as np
 from live_tracking import LiveTracker,grid_points
 import vision_onnx
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT=Path(__file__).resolve().parent
 W,H=1280,720
 
@@ -62,7 +64,7 @@ def main():
             'last_update_ms':tracker.last_update_ms,'checks':['no tracks before analysis','late analysis replayed to newest frame','follows translation and rotation',
             'reuse freshness window','same track on re-confirmation','silent track dropped','track dies when card disappears','late sync after the card left does not crash','grid points inside quad'],
             'note':'Synthetic frames with a textured card on a smooth background; real cards, glare and hands are not covered.'}
-    (ROOT/'research/qa/live-tracking.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (QA_OUT/'live-tracking.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report),flush=True)
 
 if __name__=='__main__':main()

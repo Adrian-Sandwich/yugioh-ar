@@ -12,6 +12,8 @@ import numpy as np
 import card_backs
 import vision_onnx as v
 
+from settings import QA_OUT  # outputs of the checks: .runtime/qa, not versioned
+QA_OUT.mkdir(parents=True, exist_ok=True)
 ROOT = Path(__file__).resolve().parent
 
 
@@ -39,7 +41,7 @@ def inset(quad, sideways, fill=.86):
 
 def main():
     real = card_backs.FOLDER; card_backs.ensure_official()
-    tmp = ROOT / 'research/qa/card-backs-tmp'; shutil.rmtree(tmp, ignore_errors=True); tmp.mkdir(parents=True)
+    tmp = QA_OUT / 'card-backs-tmp'; shutil.rmtree(tmp, ignore_errors=True); tmp.mkdir(parents=True)
     for name, _ in card_backs.OFFICIAL: shutil.copy(real / name, tmp / name)
     # Only the official backs: the user's taught sleeves stay out of the test.
     official = [e for e in json.loads((real / 'backs.json').read_text(encoding='utf-8')) if e.get('kind') == 'official']
@@ -88,7 +90,7 @@ def main():
                   'scores': scores, 'sleeve_after_teaching': after['sleeve'], 'sleeve_turned_after_teaching': after['sleeve_up'], 'zones_checked': len(items),
                   'first_check_ms_with_reference_encoding': first_ms, 'check_ms': check_ms,
                   'limits': 'Escena sintética: reversos pegados en una captura en vivo, sin reflejos ni manos. Falta calibrar el umbral con capturas reales.'}
-        (ROOT / 'research/qa/card-backs.json').write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
+        (QA_OUT / 'card-backs.json').write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
         print(json.dumps(result, ensure_ascii=False))
     finally:
         card_backs.FOLDER, card_backs.INDEX = real, real / 'backs.json'
