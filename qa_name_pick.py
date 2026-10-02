@@ -1,7 +1,7 @@
 """Title OCR as a second vote: name_ocr.pick_by_name and vision_onnx.promote_by_name."""
 import json, time
 from pathlib import Path
-from name_ocr import name_key, pick_by_name
+from name_ocr import name_key, pick_by_name, pick_global
 from vision_onnx import promote_by_name
 
 ROOT = Path(__file__).resolve().parent
@@ -51,6 +51,18 @@ def main():
     other = [{**evidence[0], 'card_id': 'jasmine'}]
     assert all(promote_by_name([dict(candidate)], e, now) == 0 for e in (far, old, other))
     checks.append('no promotion from another card, an old frame, or an identity outside top5')
+    # Whole registry (pick_global): a clear title names the card even outside the candidates
+    # (Naturia Barkion on 02/10/2026); a near twin or a weak reading names nothing.
+    g = pick_global(REG, 'NATURIA BAIKION')
+    assert g and g['card_id'] == 'barkion' and g['scope'] == 'global', g
+    assert pick_global(REG, 'NČHIRIA BARKION') is None, 'below the global similarity'
+    assert pick_global(REG, 'AROMA GARDENI') is None, 'Aroma Garden and Aroma Gardening too close'
+    outside = dict(candidate, top5=[t for t in candidate['top5'] if t['card_id'] != 'barkion'])
+    assert promote_by_name([dict(outside)], evidence, now) == 0, 'in-candidates evidence never reaches outside top5'
+    glob = [{**evidence[0], 'scope': 'global', 'similarity': .929, 'text': 'NATURIA BAIKION'}]
+    got = dict(outside); assert promote_by_name([got], glob, now) == 1
+    assert got['card_id'] == 'barkion' and got['score'] == 0. and got['name_scope'] == 'global' and got['top5'][0]['card_id'] == 'barkion', got
+    checks.append('global title: picks a card outside the candidates, refuses twins and weak readings, promotes with score 0')
     sim = json.loads((ROOT / 'research/qa/name-pick.json').read_text(encoding='utf-8')) if (ROOT / 'research/qa/name-pick.json').exists() else None
     print(json.dumps({'status': 'passed', 'checks': checks, 'simulation': sim and {k: {x: v[x] for x in ('found', 'wrong')} for k, v in sim['by_errors'].items()}}, ensure_ascii=False))
 

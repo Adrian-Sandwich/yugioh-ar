@@ -449,9 +449,14 @@ def promote_by_name(candidates,verified,now=None,max_age=ART_PROMOTION_MAX_AGE_S
             if not 0<=now-item.get('captured_at',0)<=max_age: continue
             if quad_iou(candidate['corners'],item['corners'])<ART_PROMOTION_MIN_IOU: continue
             chosen=next((t for t in candidate['top5'] if canonical(t.get('card_id'))==canonical(item['card_id'])),None)
-            if chosen is None: continue
+            if chosen is None:
+                # A title that won over the whole registry (name_ocr.pick_global) stands alone: the art
+                # gave no vote for it, so its score is 0 and the identity comes from the name only.
+                if item.get('scope')!='global': continue
+                chosen={'card_id':item['card_id'],'score':0.,'ref_id':None,'artwork_id':None}
             candidate.update(accepted=True,acceptance='name_ocr',card_id=chosen['card_id'],score=chosen.get('score',candidate.get('score')),
-                             top5=[chosen]+[t for t in candidate['top5'] if t is not chosen],name_similarity=item.get('similarity'),name_text=item.get('text'))
+                             top5=[chosen]+[t for t in candidate['top5'] if t is not chosen],name_similarity=item.get('similarity'),name_text=item.get('text'),
+                             name_scope=item.get('scope','candidates'))
             promoted+=1;break
     return promoted
 

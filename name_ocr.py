@@ -140,6 +140,36 @@ def pick_by_name(registry,text,candidate_ids,min_similarity=NAME_PICK_MIN,margin
     return {'card_id':cid,'similarity':round(best,3),'runner_up':round(runner_up,3)}
 
 
+# A clear title names the card on its own: Ghost Rare art can fall out of the recognizer's top 5
+# altogether (Naturia Barkion on 02/10/2026: read "NATURIA BAIKION" at 0.89, nowhere among the
+# candidates). Stricter than the in-candidates pick: the card must win over every other name in
+# the registry by NAME_GLOBAL_MARGIN, and the OCR reading itself must be confident.
+NAME_GLOBAL_MIN=.88
+NAME_GLOBAL_MARGIN=.12
+NAME_GLOBAL_OCR=.85
+
+
+def pick_global(registry,text,min_similarity=NAME_GLOBAL_MIN,margin=NAME_GLOBAL_MARGIN):
+    """The one card whose name (any language) the title resembles, searched in the whole registry:
+    {'card_id', 'similarity', 'runner_up', 'scope': 'global'} or None when not clear enough."""
+    query=name_key(text or '',True)
+    if len(query)<6 or not registry.refresh():return None
+    keys=getattr(registry,'all_keys',[])
+    floor=max(.5,min_similarity-margin)*100
+    if process is not None:close=[k for k,_,_ in process.extract(query,keys,scorer=fuzz.ratio,score_cutoff=floor,limit=None)]
+    else:close=difflib.get_close_matches(query,keys,n=20,cutoff=floor/100)
+    best={}
+    for key in close:
+        sim=difflib.SequenceMatcher(None,query,key,autojunk=False).ratio()
+        for cid in registry.owners.get(key,()):
+            if sim>best.get(cid,0.):best[cid]=sim
+    ranked=sorted(best.items(),key=lambda kv:-kv[1])
+    if not ranked or ranked[0][1]<min_similarity:return None
+    runner_up=ranked[1][1] if len(ranked)>1 else 0.
+    if ranked[0][1]-runner_up<margin:return None
+    return {'card_id':ranked[0][0],'similarity':round(ranked[0][1],3),'runner_up':round(runner_up,3),'scope':'global'}
+
+
 class TitleReader:
     def __init__(self,engine,registry=None):
         self.engine=engine;self.registry=registry if registry is not None else NameRegistry()

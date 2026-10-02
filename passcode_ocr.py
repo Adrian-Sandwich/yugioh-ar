@@ -4,7 +4,7 @@ from collections import deque
 import cv2
 import numpy as np
 from card_geometry import GeometryRefiner
-from name_ocr import NAME_REGION,TitleReader,mark_conflicts,pick_by_name
+from name_ocr import NAME_GLOBAL_OCR,NAME_REGION,TitleReader,mark_conflicts,pick_by_name,pick_global
 from set_ocr import SetReader
 from card_evidence import EvidenceSession,describe
 from identity_resolution import IDENTITIES,canonical
@@ -189,7 +189,7 @@ class PasscodeWorker:
             pick=item.get('name_pick')
             if pick and item.get('corners'):
                 # Title evidence (vision_onnx.promote_by_name), kept apart from artwork evidence.
-                out.append({'corners':item['corners'],'card_id':pick['card_id'],'evidence':'name','similarity':pick['similarity'],
+                out.append({'corners':item['corners'],'card_id':pick['card_id'],'evidence':'name','similarity':pick['similarity'],'scope':pick.get('scope','candidates'),
                             'text':pick.get('text'),'captured_at':result.get('captured_at'),'evidence_track_id':item.get('evidence_track_id')})
             art=item.get('art_match') or {}
             if art.get('status')!='matched' or not art.get('card_id') or not item.get('corners'):continue
@@ -291,6 +291,8 @@ class PasscodeWorker:
                         title_reader=getattr(reader,'title_reader',None)
                         if not box.get('visual_card_id') and title_reader is not None and title.get('text') and (title.get('score') or 0)>=.7:
                             pick=pick_by_name(title_reader.registry,title['text'],box.get('candidate_ids') or [])
+                            # Not among the candidates: a confident title may still name it in the whole registry.
+                            if not pick and (title.get('score') or 0)>=NAME_GLOBAL_OCR:pick=pick_global(title_reader.registry,title['text'])
                             if pick:item['name_pick']={**pick,'text':title['text'],'ocr_score':title.get('score')}
                         if native_height*.015<7:
                             item['set_ocr']={'status':'skipped','reason':'small_text'}

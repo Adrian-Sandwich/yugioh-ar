@@ -42,6 +42,7 @@ class Detection(TypedDict, total=False):
     rejected_as: str                  # 'card_back': a strong back score in its zone overrode it
     art_inliers: int; art_artwork_id: str                 # acceptance == 'art_verified'
     name_similarity: float; name_text: str                # acceptance == 'name_ocr'
+    name_scope: str                   # 'candidates' (title named one of top5) | 'global' (whole registry, score 0)
     source_card_id: str               # card_id before canonicalisation
     # added by LiveRecognizer.describe (accepted detections only)
     id: str                           # reference id used for the sprite
