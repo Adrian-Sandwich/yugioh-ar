@@ -33,6 +33,7 @@ onnxruntime y Pillow, con los mismos pins que `requirements-research.txt` y
 | `qa_playmat.py` | zonas del tapete con perspectiva, dos tapetes enfrentados, orientación |
 | `qa_util.py` | `quad_iou` compartido, escritura atómica con reintento, rutas únicas de `settings.py` |
 | `qa_contracts.py` | `contracts.py`: campos de detecciones y pistas, contexto del análisis a través de `inference_host` |
+| `qa_zone_occupancy.py` | cartas boca abajo con cualquier funda, sin enseñar: zona distinta de su foto vacía, con forma de carta |
 
 ## Qué no puede correr en CI y por qué
 

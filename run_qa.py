@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent
 CI = ['qa_duel_engine.py', 'qa_shared_snapshot.py', 'qa_sprite_cache.py', 'qa_live_tracking.py', 'qa_camera_source.py',
       'qa_pipeline_core.py', 'qa_card_geometry.py', 'qa_card_evidence.py', 'qa_enroll_reference.py', 'qa_pose_from_captures.py',
       'qa_catalog_sync.py', 'qa_curated_registry.py', 'qa_download_watch.py', 'qa_printing_art_links.py',
-      'qa_table_duel.py', 'qa_name_pick.py', 'qa_auto_sprite_reload.py', 'qa_server_loop.py', 'qa_playmat.py', 'qa_util.py', 'qa_contracts.py']
+      'qa_table_duel.py', 'qa_name_pick.py', 'qa_auto_sprite_reload.py', 'qa_server_loop.py', 'qa_playmat.py', 'qa_util.py', 'qa_contracts.py', 'qa_zone_occupancy.py']
 
 
 def main():

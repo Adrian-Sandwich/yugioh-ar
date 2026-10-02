@@ -548,7 +548,8 @@ class LiveRecognizer(ResearchRecognizer):
             # score means a back even when the recogniser "accepted" a face there: on 28/09/2026 a
             # set card was read as Salamangreat Almiraj for seconds, the zone looked empty and the
             # duel sent the set monster to the Graveyard. Weak back scores still yield to a face.
-            scores=self.backs.check(image,back_zones)
+            faces=[tuple(np.float32(d['corners']).mean(0)) for d in result['detections']]
+            scores=self.backs.check(image,back_zones,faces=faces)
             polygons={z['id']:np.float32(z['polygon']).reshape(-1,1,2) for z in back_zones}
             inside=lambda d,zid:cv2.pointPolygonTest(polygons[zid],tuple(map(float,np.float32(d['corners']).mean(0))),False)>=0
             strong={s['id'] for s in scores if s['score']>=STRONG}
