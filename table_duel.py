@@ -735,8 +735,8 @@ class TableDuel:
 
     def _save(self):
         self.folder.mkdir(parents=True, exist_ok=True)
-        tmp = self.folder / 'duel.json.tmp'
-        tmp.write_text(self.duel.to_json(), encoding='utf-8'); tmp.replace(self.folder / 'duel.json')
+        from util import atomic_write
+        atomic_write(self.folder / 'duel.json', self.duel.to_json())
 
     def view(self):
         """Duel state for the panel: players, turn, phase, board and open questions with their answers."""

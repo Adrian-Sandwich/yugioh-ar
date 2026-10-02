@@ -1,11 +1,12 @@
 """Conservative temporal IDs and a planar sprite overlay using card geometry."""
+import threading
 import time
 from collections import OrderedDict
 import cv2
 import numpy as np
-from pathlib import Path
 from catalog import connect,asset_path
-AUTO_SPRITES=Path(__file__).resolve().parent/'data/auto-sprites'
+import settings
+AUTO_SPRITES=settings.AUTO_SPRITES
 
 
 class Tracker:
@@ -53,6 +54,9 @@ class SpriteOverlay:
         # 16 portrait canvases use at most 16.4 MB of additional pixel storage.
         self.prepared=OrderedDict();self.prepared_limit=prepared_limit
         self.png_cache=OrderedDict()
+        # ThreadingHTTPServer serves /sprite and /cutout from several threads at once: the
+        # OrderedDicts are reordered and trimmed on every hit, so all cache access holds this lock.
+        self.lock=threading.RLock()
 
     def clear_cache(self,ref=None):
         """Invalidate after an asset update; cached source arrays are immutable.
@@ -61,80 +65,86 @@ class SpriteOverlay:
         does not query the catalog on every frame; adding the asset later also
         requires clearing.
         """
-        if ref is None:
-            self.cache.clear();self.prepared.clear();self.png_cache.clear()
-        else:
-            self.cache.pop(ref,None);self.prepared.pop(ref,None);self.png_cache.pop(ref,None)
+        with self.lock:
+            if ref is None:
+                self.cache.clear();self.prepared.clear();self.png_cache.clear()
+            else:
+                self.cache.pop(ref,None);self.prepared.pop(ref,None);self.png_cache.pop(ref,None)
 
     def refresh_auto(self,every=1.0):
         """Drop cached automatic sprites once they change on disk (checked at most every second),
         so corrections and rebuilds show up without restarting the viewer. Returns the version."""
-        now=time.monotonic()
-        if now-self.auto_checked>=every:
-            self.auto_checked=now;version=auto_version()
-            if version!=self.auto_seen:
-                self.auto_seen=version
-                is_auto=lambda k:(k[1] if isinstance(k,tuple) else k).startswith('auto:')
-                for store in (self.cache,self.prepared,self.png_cache):
-                    for k in [k for k in store if is_auto(k)]: store.pop(k,None)
-        return self.auto_seen
+        with self.lock:
+            now=time.monotonic()
+            if now-self.auto_checked>=every:
+                self.auto_checked=now;version=auto_version()
+                if version!=self.auto_seen:
+                    self.auto_seen=version
+                    is_auto=lambda k:(k[1] if isinstance(k,tuple) else k).startswith('auto:')
+                    for store in (self.cache,self.prepared,self.png_cache):
+                        for k in [k for k in store if is_auto(k)]: store.pop(k,None)
+            return self.auto_seen
 
     def prepared_canvas(self,ref,sprite):
-        cached=self.prepared.get(ref)
-        if cached is not None and cached[0] is sprite:
+        with self.lock:
+            cached=self.prepared.get(ref)
+            if cached is not None and cached[0] is sprite:
+                self.prepared.move_to_end(ref)
+                return cached[1]
+            # Place the sprite within a portrait plane without stretching its aspect.
+            canvas=np.zeros((610,420,4),np.uint8)
+            h,w=sprite.shape[:2];scale=min(390/w,520/h)
+            sw,sh=round(w*scale),round(h*scale)
+            x,y=(420-sw)//2,(610-sh)//2
+            canvas[y:y+sh,x:x+sw]=cv2.resize(sprite,(sw,sh))
+            self.prepared[ref]=(sprite,canvas)
             self.prepared.move_to_end(ref)
-            return cached[1]
-        # Place the sprite within a portrait plane without stretching its aspect.
-        canvas=np.zeros((610,420,4),np.uint8)
-        h,w=sprite.shape[:2];scale=min(390/w,520/h)
-        sw,sh=round(w*scale),round(h*scale)
-        x,y=(420-sw)//2,(610-sh)//2
-        canvas[y:y+sh,x:x+sw]=cv2.resize(sprite,(sw,sh))
-        self.prepared[ref]=(sprite,canvas)
-        self.prepared.move_to_end(ref)
-        while len(self.prepared)>self.prepared_limit:
-            self.prepared.popitem(last=False)
-        return canvas
+            while len(self.prepared)>self.prepared_limit:
+                self.prepared.popitem(last=False)
+            return canvas
 
     def load(self,ref):
         """Decoded RGBA sprite for a reference id, or None (cached either way)."""
-        if ref.startswith('auto:'): self.refresh_auto()
-        if ref not in self.cache:
-            if ref.startswith('auto:'):
-                # Automatic cut-outs (research/auto_cutout.py) for cards without a TDOANE sprite.
-                path=AUTO_SPRITES/ref[5:]
-                self.cache[ref]=cv2.imread(str(path),cv2.IMREAD_UNCHANGED) if path.parent==AUTO_SPRITES and path.exists() else None
-            else:
-                with connect() as conn:
-                    row=conn.execute('SELECT * FROM refs WHERE ref_id=? AND kind=\'sprite\'',(ref,)).fetchone()
-                self.cache[ref]=None if row is None else cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_UNCHANGED)
-        sprite=self.cache[ref]
-        return sprite if sprite is not None and sprite.ndim==3 and sprite.shape[2]==4 else None
+        with self.lock:
+            if ref.startswith('auto:'): self.refresh_auto()
+            if ref not in self.cache:
+                if ref.startswith('auto:'):
+                    # Automatic cut-outs (research/auto_cutout.py) for cards without a TDOANE sprite.
+                    path=AUTO_SPRITES/ref[5:]
+                    self.cache[ref]=cv2.imread(str(path),cv2.IMREAD_UNCHANGED) if path.parent==AUTO_SPRITES and path.exists() else None
+                else:
+                    with connect() as conn:
+                        row=conn.execute('SELECT * FROM refs WHERE ref_id=? AND kind=\'sprite\'',(ref,)).fetchone()
+                    self.cache[ref]=None if row is None else cv2.imdecode(np.frombuffer(asset_path(row).read_bytes(),np.uint8),cv2.IMREAD_UNCHANGED)
+            sprite=self.cache[ref]
+            return sprite if sprite is not None and sprite.ndim==3 and sprite.shape[2]==4 else None
 
     def sprite_png(self,ref):
         """PNG bytes of the prepared portrait canvas, for the browser to warp itself."""
-        sprite=self.load(ref)
-        if sprite is None:return None
-        cached=self.png_cache.get(ref)
-        if cached is not None and cached[0] is sprite:return cached[1]
-        data=cv2.imencode('.png',self.prepared_canvas(ref,sprite))[1].tobytes()
-        self.png_cache[ref]=(sprite,data)
-        while len(self.png_cache)>self.prepared_limit:self.png_cache.popitem(last=False)
-        return data
+        with self.lock:
+            sprite=self.load(ref)
+            if sprite is None:return None
+            cached=self.png_cache.get(ref)
+            if cached is not None and cached[0] is sprite:return cached[1]
+            data=cv2.imencode('.png',self.prepared_canvas(ref,sprite))[1].tobytes()
+            self.png_cache[ref]=(sprite,data)
+            while len(self.png_cache)>self.prepared_limit:self.png_cache.popitem(last=False)
+            return data
 
     def cutout_png(self,ref):
         """PNG of the sprite trimmed to its visible pixels, for monsters standing on the card
         (duel view): with the transparent margin removed, the bottom row is where the feet are."""
-        sprite=self.load(ref)
-        if sprite is None:return None
-        key=('cutout',ref);cached=self.png_cache.get(key)
-        if cached is not None and cached[0] is sprite:return cached[1]
-        ys,xs=np.nonzero(sprite[...,3]>16)
-        trimmed=sprite[ys.min():ys.max()+1,xs.min():xs.max()+1] if len(ys) else sprite
-        data=cv2.imencode('.png',trimmed)[1].tobytes()
-        self.png_cache[key]=(sprite,data)
-        while len(self.png_cache)>self.prepared_limit*2:self.png_cache.popitem(last=False)
-        return data
+        with self.lock:
+            sprite=self.load(ref)
+            if sprite is None:return None
+            key=('cutout',ref);cached=self.png_cache.get(key)
+            if cached is not None and cached[0] is sprite:return cached[1]
+            ys,xs=np.nonzero(sprite[...,3]>16)
+            trimmed=sprite[ys.min():ys.max()+1,xs.min():xs.max()+1] if len(ys) else sprite
+            data=cv2.imencode('.png',trimmed)[1].tobytes()
+            self.png_cache[key]=(sprite,data)
+            while len(self.png_cache)>self.prepared_limit*2:self.png_cache.popitem(last=False)
+            return data
 
     def render(self,frame,detections,transparent=False):
         output=np.zeros((*frame.shape[:2],4),np.uint8) if transparent else frame.copy()

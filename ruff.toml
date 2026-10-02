@@ -1,0 +1,10 @@
+# Style check only, not a formatter: files are cleaned up as they are touched, never in one sweep
+# (that would bury the history of every line). Run: python -m ruff check
+target-version = "py311"
+line-length = 140
+extend-exclude = ["downloads", "data", "repos", "transfer", ".venv*", "research/glare-benchmark", "research/yolo11_pose"]
+
+[lint]
+# Real problems first: unused or undefined names, imports, bare excepts, mutable defaults.
+select = ["F", "E9", "E722", "B006", "B008"]
+# E701/E702/E703 (one-line ifs, ';') are the house style today; enable them once files are reformatted.

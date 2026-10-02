@@ -1,13 +1,13 @@
 """Local canonical catalog, explicit candidate links, and durable human reviews."""
 import json
-import re
 import sqlite3
 import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-DATA = ROOT / 'data/catalog'
-DB = DATA / 'catalog.sqlite'
+import settings
+DATA = settings.CATALOG_DIR
+DB = settings.CATALOG_DB
 REVIEWS = DATA / 'reviews.sqlite'
 LANGS = ('es', 'en', 'de', 'fr', 'pt')
 

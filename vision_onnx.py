@@ -22,17 +22,18 @@ import numpy as np
 import onnxruntime as ort
 from card_geometry import GeometryRefiner
 from identity_resolution import canonical
+import settings
+from util import quad_iou  # noqa: F401  (vision_onnx.quad_iou, used here and by tests)
 
-ROOT=Path(__file__).resolve().parent
+ROOT=settings.ROOT
 MODELS=ROOT/'downloads/reference-assets/draw2/onnx'
-PILOT=ROOT/'data/pilot'
+PILOT=settings.PILOT
 # Reference scope: 'pilot' (the <=50 cards chosen in the catalog, default) or
 # 'full' (every catalog identity with a usable image, catalog.export_full into
 # data/full). Photos enrolled with enroll_reference.py live in the pilot folder
 # and join either scope.
-SCOPE=os.environ.get('YUGIOH_SCOPE','pilot').lower()
-if SCOPE not in ('pilot','full'): raise ValueError(f'YUGIOH_SCOPE={SCOPE!r}: use pilot or full')
-REFS=PILOT if SCOPE=='pilot' else ROOT/'data/full'
+SCOPE=settings.SCOPE
+REFS=settings.REFS
 # Acceptance rules per mode: (minimum top-1 score, minimum margin to the best
 # different identity). Embedding rule calibrated on 26/09/2026 against 1,336
 # TCGplayer scans of cards outside the pilot (0 false accepts down to 0.48/0.24)
@@ -61,8 +62,8 @@ UNRESOLVED_MIN_IOU=.85
 # requirements-gpu.txt). The int8 encoder only runs well on CPU; on CUDA the
 # default is the float model from research/dequantize_encoder.py, which has its
 # own index (embeddings-<variant>.npy) and must be calibrated separately.
-DEVICE=os.environ.get('YUGIOH_ONNX_DEVICE','cpu').lower()
-ENCODER_VARIANT=os.environ.get('YUGIOH_ENCODER') or ('int8' if DEVICE=='cpu' else 'fp16')
+DEVICE=settings.ONNX_DEVICE
+ENCODER_VARIANT=settings.ENCODER_VARIANT
 
 
 def providers():
@@ -76,7 +77,7 @@ def providers():
 
 def session(path,threads=None):
     options=ort.SessionOptions()
-    options.intra_op_num_threads=int(threads or os.environ.get('YUGIOH_ONNX_THREADS') or 4)
+    options.intra_op_num_threads=int(threads or settings.ONNX_THREADS)
     options.inter_op_num_threads=1
     result=ort.InferenceSession(str(path),sess_options=options,providers=providers())
     if DEVICE=='cuda' and 'CUDAExecutionProvider' not in result.get_providers():
@@ -98,13 +99,6 @@ def tensor(image,size=224,normalization='draw2'):
     rgb=cv2.cvtColor(cv2.resize(image,(size,size)),cv2.COLOR_BGR2RGB).astype(np.float32)
     x=(rgb/255-IMAGENET_MEAN)/IMAGENET_STD if normalization=='imagenet' else rgb/127.5-1
     return np.ascontiguousarray(x.transpose(2,0,1)[None])
-
-
-def quad_iou(a,b):
-    a=np.float32(a);b=np.float32(b)
-    intersection=cv2.intersectConvexConvex(a,b)[0]
-    union=cv2.contourArea(a)+cv2.contourArea(b)-intersection
-    return float(intersection/union) if union>0 else 0.
 
 
 def with_features():

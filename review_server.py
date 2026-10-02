@@ -585,7 +585,8 @@ def apply_reviews():
             if not cand or v.get('fp') != f"cand|{cand['model']}|{cand['score']}" or not (CANDIDATES / f'{code}.png').exists(): continue
             shutil.copy(CANDIDATES / f'{code}.png', SPRITES / f'{code}.png')
             index[code] = {'status': 'ok', 'model': cand['model'], 'score': cand['score'], 'promoted': True}; promoted += 1
-    tmp = index_path.with_suffix('.tmp'); tmp.write_text(json.dumps(index), encoding='utf-8'); tmp.replace(index_path)
+    from util import atomic_write
+    atomic_write(index_path, json.dumps(index))
     print(f'{fixed} sprites reemplazados por su corrección · {promoted} hologramas pasan a recorte')
 
 

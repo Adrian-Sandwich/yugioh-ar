@@ -7,18 +7,17 @@ points) and Master Duel / Duel Links rarity. Names and effect texts come from
 The duel engine takes ATK, DEF and level from the same sheet.
 """
 import json
-import os
 import re
 import sqlite3
 import threading
 from functools import lru_cache
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-REGISTRY = ROOT / 'data/registry/registry.sqlite'
+import settings
+ROOT = settings.ROOT
+REGISTRY = settings.REGISTRY_DB
 # Effect categories per passcode, from the sibling project ygo-deckforge (tools.script_categories
 # + tools.text_categories): what the card does, what its costs are, and where each came from.
-CATEGORIES = Path(os.environ.get('YUGIOH_CARD_CATEGORIES') or ROOT.parents[1] / 'ygo-deckforge/artifacts/categories/card-categories.json')
+CATEGORIES = settings.CARD_CATEGORIES
 LANGS = ('es', 'en', 'de', 'fr', 'pt')
 
 ATTRIBUTES = {'dark': 'OSCURIDAD', 'light': 'LUZ', 'earth': 'TIERRA', 'water': 'AGUA', 'fire': 'FUEGO', 'wind': 'VIENTO', 'divine': 'DIVINIDAD'}

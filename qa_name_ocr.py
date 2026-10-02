@@ -13,7 +13,8 @@ def observation(text,score=.96,orientation=0):
 
 def main():
     out=ROOT/'research/qa/name-ocr';out.mkdir(parents=True,exist_ok=True)
-    with tempfile.TemporaryDirectory(dir=ROOT/'.runtime') as temporary:
+    # ignore_cleanup_errors: Windows may still hold the SQLite file a moment after it is closed.
+    with tempfile.TemporaryDirectory(dir=ROOT/'.runtime',ignore_cleanup_errors=True) as temporary:
         path=Path(temporary)/'names.sqlite'
         db=sqlite3.connect(path);db.execute('CREATE TABLE names(card_id TEXT,language TEXT,name TEXT)')
         db.executemany('INSERT INTO names VALUES (?,?,?)',[

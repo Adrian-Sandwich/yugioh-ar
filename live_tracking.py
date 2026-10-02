@@ -15,6 +15,7 @@ import threading,time
 from collections import deque
 import cv2
 import numpy as np
+from util import quad_iou  # noqa: F401  (live_tracking.quad_iou)
 
 GRID=(5,7)
 LK=dict(winSize=(21,21),maxLevel=3,criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,20,.03))
@@ -34,12 +35,6 @@ def grid_points(corners):
     u=np.linspace(.12,.88,GRID[0]);v=np.linspace(.1,.9,GRID[1])
     unit=np.float32([[x,y] for y in v for x in u]).reshape(-1,1,2)
     return cv2.perspectiveTransform(unit,matrix).reshape(-1,2)
-
-
-def quad_iou(a,b):
-    a=np.float32(a);b=np.float32(b)
-    inter=cv2.intersectConvexConvex(a,b)[0];union=cv2.contourArea(a)+cv2.contourArea(b)-inter
-    return float(inter/union) if union>0 else 0.
 
 
 class LiveTracker:

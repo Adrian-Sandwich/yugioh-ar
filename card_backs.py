@@ -15,17 +15,17 @@ what the camera sees). A monster zone with a back is a face-down Defense Positio
 monster; a Spell & Trap zone, a set card (playmat.battle_position).
 """
 import json
-import os
 import time
 import urllib.request
-from pathlib import Path
 
 import cv2
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent
+import settings
+from util import atomic_write
+ROOT = settings.ROOT
 # YUGIOH_CARD_BACKS: another folder (tests; inherited by the recognizer's child process).
-FOLDER = Path(os.environ.get('YUGIOH_CARD_BACKS') or ROOT / 'data/card-backs')
+FOLDER = settings.CARD_BACKS
 INDEX = FOLDER / 'backs.json'
 OFFICIAL = [('official-ygoprodeck.jpg', 'https://images.ygoprodeck.com/images/cards/back_high.jpg'),
             ('official-yugipedia.png', 'https://ms.yugipedia.com//e/e5/Back-EN.png')]
@@ -65,7 +65,7 @@ def entries():
 
 def _write(items):
     FOLDER.mkdir(parents=True, exist_ok=True)
-    tmp = INDEX.with_suffix('.tmp'); tmp.write_text(json.dumps(items, indent=2, ensure_ascii=False), encoding='utf-8'); tmp.replace(INDEX)
+    atomic_write(INDEX, json.dumps(items, indent=2, ensure_ascii=False))
 
 
 def ensure_official():

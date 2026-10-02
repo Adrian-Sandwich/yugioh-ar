@@ -3,7 +3,6 @@
 Contours are proposals, not a learned corner detector. Missing/occluded edges
 must remain unresolved; never manufacture a precise OCR crop from the OBB.
 """
-import os
 from concurrent.futures import ThreadPoolExecutor
 from itertools import product
 
@@ -12,7 +11,8 @@ import numpy as np
 
 # OpenCV releases the GIL, so the frame-wide extractions (contours, line
 # segments) run side by side in threads; per-card refinement stays serial.
-POOL=ThreadPoolExecutor(max_workers=int(os.environ.get('YUGIOH_GEOMETRY_THREADS') or 4),thread_name_prefix='geometry')
+import settings
+POOL=ThreadPoolExecutor(max_workers=settings.GEOMETRY_THREADS,thread_name_prefix='geometry')
 
 
 def visible_quads(image):

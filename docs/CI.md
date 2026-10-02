@@ -8,7 +8,8 @@ onnxruntime y Pillow, con los mismos pins que `requirements-research.txt` y
 ## Qué corre
 
 1. `python -m compileall -q .`: todos los módulos compilan.
-2. Las pruebas `qa_*.py` que pasan en un clon limpio sin `data/`, sin
+2. `python run_qa.py --ci`: las pruebas `qa_*.py` de la lista `CI` de `run_qa.py`,
+   que pasan en un clon limpio sin `data/`, sin
    `downloads/`, sin pesos ONNX y sin navegador (comprobado el 26/09/2026 en
    un clon temporal con esos tres paquetes):
 
@@ -28,6 +29,9 @@ onnxruntime y Pillow, con los mismos pins que `requirements-research.txt` y
 | `qa_table_duel.py` | duelo desde la mesa: jugadas deducidas, reversos, retrack, avisos del modo notario |
 | `qa_name_pick.py` | nombre impreso como segundo voto entre los candidatos visuales |
 | `qa_auto_sprite_reload.py` | el visor toma los sprites automáticos nuevos o corregidos sin reiniciar (carpeta temporal) |
+| `qa_server_loop.py` | bucle de análisis del servidor: inactivo sin clientes, siempre el fotograma más nuevo |
+| `qa_playmat.py` | zonas del tapete con perspectiva, dos tapetes enfrentados, orientación |
+| `qa_util.py` | `quad_iou` compartido, escritura atómica con reintento, rutas únicas de `settings.py` |
 
 ## Qué no puede correr en CI y por qué
 

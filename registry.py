@@ -2,8 +2,9 @@
 import argparse, csv, hashlib, json, re, sqlite3, uuid, zipfile
 from datetime import datetime, timezone
 from ygo_source import ROOT, ARCHIVE, records
-DATA=ROOT/'data/registry'
-DB=DATA/'registry.sqlite'
+import settings
+DATA=settings.REGISTRY_DIR
+DB=settings.REGISTRY_DB
 LANGS=('en','es','de','fr','pt')
 def now(): return datetime.now(timezone.utc).isoformat()
 def digest(path):

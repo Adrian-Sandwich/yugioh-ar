@@ -8,7 +8,8 @@ import cv2
 import numpy as np
 from identity_resolution import IDENTITIES
 
-DB=Path(__file__).resolve().parent/'data/registry/registry.sqlite'
+import settings
+DB=settings.REGISTRY_DB
 SET_REGIONS=((.52,.714,.96,.752),(.52,.742,.96,.785),(.52,.91,.96,.949))
 
 def codes(text):

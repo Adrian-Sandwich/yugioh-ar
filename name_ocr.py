@@ -7,7 +7,8 @@ from identity_resolution import IDENTITIES,canonical
 try:from rapidfuzz import fuzz,process
 except ImportError:process=None
 
-DB=Path(__file__).resolve().parent/'data/registry/registry.sqlite'
+import settings
+DB=settings.REGISTRY_DB
 LANGUAGES=('en','es','de','fr','pt')
 NAME_REGION=(.04,.035,.88,.14)
 NAME_TIGHT_REGION=(.035,.04,.86,.105)

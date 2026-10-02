@@ -1,7 +1,6 @@
 """Asynchronous rectified passcode crops, conservative OCR and exact registry lookup."""
 import base64,hashlib,re,sqlite3,threading,time,unicodedata
 from collections import deque
-from pathlib import Path
 import cv2
 import numpy as np
 from card_geometry import GeometryRefiner
@@ -10,8 +9,9 @@ from set_ocr import SetReader
 from card_evidence import EvidenceSession,describe
 from identity_resolution import IDENTITIES,canonical
 
-ROOT=Path(__file__).resolve().parent
-DB=ROOT/'data/registry/registry.sqlite'
+import settings
+ROOT=settings.ROOT
+DB=settings.REGISTRY_DB
 SIZE=(630,920)
 REGIONS={'tight':(0,.970,.28,1.0),'wide':(0,.948,.49,1.0)}
 
