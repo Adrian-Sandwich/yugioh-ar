@@ -8,19 +8,22 @@ idiomas (inglés, español, alemán, francés y portugués), las sigue entre
 fotogramas y dibuja el monstruo sobre el vídeo. La meta es un **motor de duelo
 en AR** que funcione en vivo, con hardware normal y sin depender de la nube.
 
-![Vista de duelo sobre la cámara del teléfono en vivo: un mazo Zombi real en una mesa de corcho con cartas enfundadas, cada una reconocida con su nombre en español y ATK/DEF, monstruos recortados de pie sobre su carta, magias y trampas en sus zonas, y arriba la barra de fases y los puntos de vida](docs/img/mesa-duelo-ar.jpg)
+![Vista de duelo sobre la cámara del teléfono en vivo el 2 de octubre de 2026: monstruos Naturia y dos monstruos del Deck Extra de pie sobre sus cartas con nombre y ATK/DEF, una carta boca abajo con funda verde en defensa bajo un escudo del Milenio que gira, una magia colocada al lado, y la barra de fases y los puntos de vida](docs/img/duelo-boca-abajo.jpg)
 
-**Estado, 28 de septiembre de 2026:** prototipo funcional de un duelo AR sobre
-una mesa real. La cámara reconoce las cartas en todo el catálogo (unas 14,800),
-la vista de duelo dibuja zonas, puntos de vida y fases sobre el vídeo, y
+**Estado, 2 de octubre de 2026:** prototipo funcional de un duelo AR sobre una
+mesa real. La cámara reconoce las cartas en todo el catálogo (unas 14,800), la
+vista de duelo dibuja zonas, puntos de vida y fases sobre el vídeo, y
 monstruos, magias y trampas tienen efectos propios de entrada, ataque y
-destrucción. Las cartas boca abajo se detectan por su reverso, incluidas las
-fundas que el jugador enseña, y un escudo del Milenio girando marca a los
-defensores boca abajo. El motor de duelo trabaja como notario: registra las
-jugadas y avisa de problemas de reglas en lugar de bloquearlas. Las cartas sin
-sprite hecho a mano reciben un recorte automático. Un análisis completo tarda
-unos 0.2 s en vivo con una GPU NVIDIA (RTX 4070) y entre 1 y 4 segundos en el
-CPU de una laptop. Los detalles honestos están en [Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
+destrucción. Las cartas boca abajo se detectan con cualquier funda sin enseñar
+nada, y un escudo del Milenio girando marca a los defensores boca abajo. Las
+cartas que el arte no resuelve (Ghost Rare, reflejos) se nombran por su título
+impreso. El motor de duelo trabaja como notario: registra las jugadas y avisa
+de problemas de reglas en lugar de bloquearlas. Las cartas sin sprite hecho a
+mano reciben un recorte automático, que las personas revisan en tableta o
+teléfono, y ya se compararon los primeros generadores de imagen a 3D. Con una
+GPU NVIDIA (RTX 4070) un análisis con la mesa quieta tarda unos 44 ms (12 por
+segundo); entre 1 y 4 segundos en el CPU de una laptop. Los detalles honestos
+están en [Qué funciona hoy](#qué-funciona-hoy-y-qué-no).
 
 Este proyecto necesita ayuda. Fotos de cartas reales, pruebas en otras cámaras
 y computadoras, modelos 3D, código o documentación: todo cuenta. Ver
@@ -100,11 +103,15 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
   Ritual con sus materiales, colocar y voltear). El motor (`duel_engine.py`)
   lleva un registro de eventos con deshacer; en modo notario los problemas de
   reglas son avisos, no bloqueos.
-- Detección de cartas boca abajo comparando cada zona con reversos: el reverso
-  oficial y las fundas enseñadas con un botón, en cuatro orientaciones.
+- Cartas boca abajo con cualquier funda y sin enseñar: una Zona de Monstruo o
+  de Magia/Trampa con una mancha con forma de carta en su centro que no es del
+  color de la mesa, sin carta boca arriba detectada ahí, tiene una carta boca
+  abajo; la orientación distingue defensa de carta colocada. El reverso
+  oficial y las fundas enseñadas siguen sumando evidencia.
 - El nombre impreso como segundo voto: cuando el arte solo es ambiguo (Ghost
   Rare, Starlight, reflejos), el OCR del título decide entre los cinco
-  primeros candidatos visuales.
+  primeros candidatos visuales o, si se lee claro, en todo el registro (0
+  cartas equivocadas en 1,885 lecturas erróneas simuladas).
 - Efectos AR por tipo de carta (invocación, magia, trampa, colocar, ataque,
   destrucción, puntos de vida) con luz, partículas y sacudida; las entradas
   empiezan cuando la cámara ve llegar la carta.
@@ -114,14 +121,25 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
 - Ficha de la carta en la vista de duelo con categorías de efecto y el texto
   separado en costo, condición y efecto, tomadas de los scripts de EDOPro (el
   proyecto hermano `ygo-deckforge` construye esa tabla).
+- Revisión humana de los recortes automáticos (`review_server.py`) en la PC,
+  un iPad o un teléfono por la red de casa, con el dedo o el lápiz: aprobar,
+  rechazar con motivo o corregir dibujando (refinado con SAM 2). Varias
+  personas a la vez, cada carta para una sola, con veredictos contados por
+  persona; los veredictos reentrenan al crítico de recortes.
+- Banco de imagen a 3D (`tools/gen3d_bench.py`): TripoSR, Stable Fast 3D y
+  Hunyuan3D-2mini sobre los mismos recortes aprobados. Stable Fast 3D da
+  modelos con textura y ligeros (9 mil a 34 mil triángulos) en menos de un
+  segundo cada uno.
+- Todo el laboratorio arranca solo al iniciar sesión en la PC (una tarea de
+  Windows corre `start_lab.ps1 -Live -Gpu -Full -Review`), cada servicio bajo
+  un supervisor que lo reinicia.
 
 No funciona todavía, o no está medido:
 
-- **Velocidad.** Con una RTX 4070 un análisis en vivo de 12 cartas tarda unos
-  0.2 s (p50; detector y encoder en la GPU, la geometría de las cartas sigue en
-  CPU); en el CPU de una laptop, entre 1 y 4 segundos. El seguimiento lo
-  disimula entre análisis, pero la primera identificación de una carta nueva
-  sigue esperando ese tiempo. Detalle en `research/TIEMPO_REAL.md`.
+- **Velocidad.** Con una RTX 4070 la mesa quieta cuesta unos 44 ms por análisis
+  (p50, 12 por segundo); una carta nueva, unos 165 ms (p90), porque se refinan
+  sus esquinas y se codifica. En el CPU de una laptop, entre 1 y 4 segundos.
+  Detalle en `research/TIEMPO_REAL.md`.
 - **Precisión general.** Las pruebas usan pocas cartas reales. No hay cifras
   de acierto sobre un conjunto amplio, ni en los cinco idiomas, ni con fundas,
   brillos o rarezas distintas. El seguidor sólo se probó con fotogramas
@@ -129,9 +147,12 @@ No funciona todavía, o no está medido:
 - **Umbrales.** Los métodos ONNX aceptan o rechazan con umbrales
   experimentales; hay una calibración contra escaneos de TCGplayer en
   `research/CALIBRACION_ESCANEOS.md`.
-- **3D y reglas.** No hay modelos 3D ni oclusión. Los efectos de cartas se
-  muestran y clasifican, pero los resuelven los jugadores, no el motor. Aún no
-  hay duelo remoto (el plan está en `research/DUELO_REMOTO.md`).
+- **3D y reglas.** Todavía no se dibuja ningún modelo 3D en la mesa (los
+  generadores sólo se compararon en un banco) y no hay oclusión. Los efectos de
+  cartas se muestran y clasifican, pero los resuelven los jugadores, no el
+  motor. Aún no hay duelo remoto (el plan está en `research/DUELO_REMOTO.md`).
+- **Cartas boca abajo.** Una funda del color de la mesa no se ve si no se
+  enseña.
 - **A dónde van las cartas.** Todavía no se sigue una carta que sale de su zona
   hacia el Cementerio, la mano o el mazo; la vista muestra lo que ve la cámara.
 - **Hardware.** Probado en una laptop con gráficos Intel integrados y una PC
@@ -155,6 +176,16 @@ teléfono (IP Webcam) --JPEG--> camera_viewer.py --/snapshot--> navegador (web/c
                      data/registry/registry.sqlite  <-  registry.py, build_catalog.py
 ```
 
+Dónde está cada cosa: `settings.py` (rutas y entorno), `contracts.py` (qué
+lleva una detección y una pista), `pipeline.py` (un análisis: reconocedor,
+OCR, seguimiento, duelo), `camera_viewer.py` (sólo HTTP), `vision_onnx.py` con
+`onnx_models.py`, `reference_index.py` y `promotions.py` (el reconocedor),
+`card_backs.py` (cartas boca abajo), `table_duel.py` y `duel_engine.py` (el
+duelo). `tools/` guarda los trabajos que se corren a mano (recortes, crítico,
+banco 3D), `reference/` las entradas versionadas que lee el código, `reviews/`
+los veredictos humanos y `research/` sólo estudios; el laboratorio no depende
+de él. Índice de documentos: [docs/INDEX.md](docs/INDEX.md).
+
 Principios que el código respeta y que conviene conservar:
 
 - Una sola cosa posee la cámara. El navegador pide fotogramas al servidor; el
@@ -165,11 +196,12 @@ Principios que el código respeta y que conviene conservar:
   ambigüedades y los conflictos se conservan y se muestran.
 - Los datos regenerables (catálogo, índices) viven aparte de las decisiones
   humanas (revisiones, anotaciones). Se pueden reconstruir sin perder trabajo.
-- Cada mejora tiene una prueba `qa_*.py` y un informe JSON en `research/qa/`.
+- Cada mejora tiene una prueba `qa_*.py`; su informe va a `.runtime/qa/` (no
+  versionado), y `python run_qa.py --ci` corre las que no necesitan datos.
 
 ## Historia del proyecto
 
-El repositorio tiene cinco días de vida intensa. Lo que sigue es la cronología
+El repositorio tiene nueve días de vida intensa. Lo que sigue es la cronología
 tal como quedó registrada en los documentos de `research/`.
 
 ### 24 de septiembre de 2026: revisión inicial
@@ -254,7 +286,38 @@ como segundo voto para cartas Ghost Rare, recortes automáticos con BiRefNet y
 un crítico, categorías de efecto y texto de costo/efecto desde los scripts de
 EDOPro, y un escudo del Milenio que gira sobre los defensores boca abajo.
 
+### 29 de septiembre al 2 de octubre de 2026: revisión, 3D, arquitectura
+
+- **Revisión humana** de los recortes automáticos en el iPad y el teléfono, con
+  el dedo o el lápiz, para varias personas a la vez; casi 4,000 veredictos en
+  los primeros días. Los hologramas muestran el mejor recorte que perdió contra
+  ellos.
+- **Banco 3D** en esta PC: TripoSR (con un parche de marching cubes en CPU),
+  Stable Fast 3D y Hunyuan3D-2mini compilados en Windows con CUDA 12.8 y
+  comparados.
+- **Velocidad:** el análisis pasa de 132 a 44 ms con la mesa quieta, el registro
+  del duelo ya no se reproduce para la vista previa y el deshacer (700 a 17
+  ms), y el OCR hace menos pasadas.
+- **Reconocimiento:** una Naturia Barkion Ghost Rare que el arte no ubicaba se
+  nombra por su título impreso, buscado en todo el registro.
+- **Cartas boca abajo con cualquier funda** sin enseñar: una mancha con forma
+  de carta que no es del color de la mesa.
+- **Revisión de arquitectura** en tres fases: configuración y contratos en un
+  solo lugar, el análisis fuera del servidor HTTP, el reconocedor dividido en
+  cuatro módulos, el código de producción fuera de `research/`, pruebas que ya
+  no escriben en el repositorio y retiro del reconocedor SIFT del primer
+  prototipo.
+
 ## Capturas
+
+![Vista de duelo sobre la cámara del teléfono en vivo: un mazo Zombi real en una mesa de corcho con cartas enfundadas, cada una reconocida con su nombre en español y ATK/DEF, monstruos recortados de pie sobre su carta, magias y trampas en sus zonas, y arriba la barra de fases y los puntos de vida](docs/img/mesa-duelo-ar.jpg)
+
+28 de septiembre: la misma vista con otro mazo. Las cartas se reconocen en todo el catálogo y se etiquetan en español.
+
+| | |
+|---|---|
+| ![El revisor de recortes en un teléfono: arriba el arte original, abajo el recorte candidato, y los botones rechazar, atrás, saltar, corregir y aprobar](docs/img/revisor-telefono.jpg) | ![Banco 3D: seis recortes aprobados convertidos en modelos 3D por TripoSR, Stable Fast 3D y Hunyuan3D-2mini, lado a lado](docs/img/banco-3d.jpg) |
+| El revisor de recortes en un teléfono: se desliza para aprobar o rechazar, o se corrige dibujando. | Banco de imagen a 3D: los mismos recortes en tres generadores; Stable Fast 3D conserva la textura. |
 
 ![Un monstruo en defensa boca abajo con el escudo del Milenio girando encima: frente, canto, reverso y frente otra vez](docs/img/escudo-milenio-giro.jpg)
 
@@ -295,6 +358,7 @@ python -m venv .venv-eval
 .\.venv-eval\Scripts\python.exe vision_onnx.py        # índice de vectores del piloto
 .\start_lab.ps1                                       # galería, foto de prueba, registro
 .\start_lab.ps1 -Live                                 # además, la cámara del teléfono
+.\start_lab.ps1 -Live -Gpu -Full -Review              # GPU, catálogo completo, revisor de recortes
 ```
 
 Servicios locales: cámara en http://127.0.0.1:8765, foto de prueba en
@@ -304,9 +368,9 @@ cambia con `--camera`. Guía completa de instalación, traslado y verificación:
 [ENTREGA_PILOTO.md](research/ENTREGA_PILOTO.md) y
 [TRANSFERENCIA_GENERAL.md](research/TRANSFERENCIA_GENERAL.md).
 
-Pruebas: cada `qa_*.py` en la raíz es una comprobación independiente. La lista
-que se ejecuta antes de cada entrega está en
-[PIPELINE_ESTADO.md](research/PIPELINE_ESTADO.md).
+Pruebas: cada `qa_*.py` en la raíz es una comprobación independiente. `python
+run_qa.py --ci` corre las que pasan en un clon limpio (también en GitHub, ver
+[docs/CI.md](docs/CI.md)); `python run_qa.py` las corre todas.
 
 ## Cómo ayudar
 

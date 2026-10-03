@@ -8,18 +8,21 @@ Spanish, German, French and Portuguese), tracks them across frames and draws
 the monster over the video. The goal is an **AR duel engine** that runs live,
 on ordinary hardware, with nothing sent to the cloud.
 
-![Duel view over a live phone camera: a real Zombie deck on a cork table with sleeved cards, each recognized and labelled with its Spanish name and ATK/DEF, cut-out monsters standing on their cards, spells and traps in their zones, and the phase bar and life points on top](docs/img/mesa-duelo-ar.jpg)
+![Duel view over the live phone camera on October 2, 2026: Naturia monsters and two Extra Deck monsters standing on their cards with names and ATK/DEF, a green-sleeved face-down card in defence under a turning Millennium shield, a set Spell card beside it, and the phase bar and life points](docs/img/duelo-boca-abajo.jpg)
 
-**Status, September 28, 2026:** working prototype of an AR duel on a real
+**Status, October 2, 2026:** working prototype of an AR duel on a real
 table. The camera recognizes the cards across the full catalog (about 14,800
 cards), the duel view draws the zones, life points and phases over the video,
 and monsters, spells and traps get their own entrance, attack and destruction
-effects. Face-down cards are detected by their back, including sleeves the
-player teaches, and a spinning Millennium shield marks face-down defenders.
-The duel engine works as a notary: it records plays and warns about rule
-problems instead of blocking. Cards without a hand-made sprite get an
-automatic cut-out. A full analysis takes about 0.2 s live with an NVIDIA GPU
-(RTX 4070) and 1 to 4 seconds on a laptop CPU. The honest details are in
+effects. Face-down cards are found in any sleeve without teaching anything,
+and a spinning Millennium shield marks face-down defenders. Cards the artwork
+cannot settle (Ghost Rare, glare) are named by their printed title. The duel
+engine works as a notary: it records plays and warns about rule problems
+instead of blocking. Cards without a hand-made sprite get an automatic
+cut-out, reviewed by people on a tablet or phone, and the first image-to-3D
+generators were compared. With an NVIDIA GPU (RTX 4070) an analysis of a
+still table takes about 44 ms (12 per second); 1 to 4 seconds on a laptop
+CPU. The honest details are in
 [What works today and what does not](#what-works-today-and-what-does-not).
 
 This project needs help. Photos of real cards, tests on other cameras and
@@ -96,11 +99,15 @@ Works, verified with reproducible tests in this repository:
   (Normal, Tribute, Synchro, Xyz, Link, Fusion and Ritual summons with their
   materials, sets and flips). The engine (`duel_engine.py`) keeps an event log
   with undo; in notary mode rule problems become warnings, not blocks.
-- Face-down detection by comparing each zone with card backs: the official
-  back plus sleeves taught with one button, in four orientations.
+- Face-down cards in any sleeve, without teaching: a Monster or Spell & Trap
+  Zone whose middle holds a card-shaped patch that is not the table's colour,
+  with no face-up card boxed there, holds a face-down card; its orientation
+  tells defence from a set card. The official back and taught sleeves still
+  add evidence.
 - The printed name as a second vote: when the artwork alone is ambiguous
   (Ghost Rare, Starlight, glare), OCR of the title decides among the visual
-  top five.
+  top five, or, read clearly, in the whole registry (0 wrong cards in 1,885
+  simulated misreadings).
 - AR effects per card type (summon, spell, trap, set, attack, destruction,
   life points) with light, particles and camera shake; entrances start when
   the camera sees the card arrive.
@@ -110,13 +117,23 @@ Works, verified with reproducible tests in this repository:
 - Card sheet in the duel view with effect categories and the text split into
   cost, condition and effect, taken from EDOPro card scripts (the sibling
   project `ygo-deckforge` builds that table).
+- Human review of the automatic cut-outs (`review_server.py`) on a PC, an
+  iPad or a phone over the home network, by finger or pen: approve, reject
+  with a reason, or correct by drawing (refined with SAM 2). Several reviewers
+  at once, each card handed to one of them, verdicts counted per person; the
+  verdicts retrain the cut-out critic.
+- An image-to-3D bench (`tools/gen3d_bench.py`): TripoSR, Stable Fast 3D and
+  Hunyuan3D-2mini on the same approved cut-outs. Stable Fast 3D gives
+  textured, light models (9k-34k triangles) in under a second each.
+- The whole lab starts by itself when the PC session starts (a Windows task
+  running `start_lab.ps1 -Live -Gpu -Full -Review`), each service under a
+  supervisor that restarts it.
 
 Does not work yet, or has not been measured:
 
-- **Speed.** With an RTX 4070 a live analysis of 12 cards takes about 0.2 s
-  (p50; detector and encoder on the GPU, card geometry still on the CPU); on
-  a laptop CPU, 1 to 4 seconds. Tracking hides it between analyses, but the
-  first identification of a new card still waits that long. Details in
+- **Speed.** With an RTX 4070 a still table takes about 44 ms per analysis
+  (p50, 12 per second); a new card costs about 165 ms (p90), since its corners
+  are refined and it is encoded. On a laptop CPU, 1 to 4 seconds. Details in
   `research/TIEMPO_REAL.md`.
 - **General accuracy.** The tests use few real cards. There are no accuracy
   figures over a broad set, nor across the five languages, nor with sleeves,
@@ -124,9 +141,12 @@ Does not work yet, or has not been measured:
 - **Thresholds.** The ONNX methods accept or reject with experimental
   thresholds; a calibration against TCGplayer scans is documented in
   `research/CALIBRACION_ESCANEOS.md`.
-- **3D and rules.** No 3D models and no occlusion. Card effects are shown and
-  categorized, but the players resolve them; the engine does not. No remote
-  duel yet (the plan is in `research/DUELO_REMOTO.md`).
+- **3D and rules.** No 3D model is drawn on the table yet (the generators are
+  only compared on a bench) and there is no occlusion. Card effects are shown
+  and categorized, but the players resolve them; the engine does not. No
+  remote duel yet (the plan is in `research/DUELO_REMOTO.md`).
+- **Face-down cards.** A sleeve the colour of the table is not seen unless it
+  is taught.
 - **Where cards go.** A card leaving a zone is not yet followed to the
   Graveyard, the hand or the deck; the view shows what the camera sees.
 - **Hardware.** Tested on one laptop with integrated Intel graphics and one PC
@@ -150,6 +170,16 @@ phone (IP Webcam) --JPEG--> camera_viewer.py --/snapshot--> browser (web/camera.
                   data/registry/registry.sqlite  <-  registry.py, build_catalog.py
 ```
 
+Where things live: `settings.py` (paths and environment), `contracts.py` (what
+a detection and a track carry), `pipeline.py` (one analysis: recognizer, OCR,
+tracking, duel), `camera_viewer.py` (HTTP only), `vision_onnx.py` with
+`onnx_models.py`, `reference_index.py` and `promotions.py` (the recognizer),
+`card_backs.py` (face-down cards), `table_duel.py` and `duel_engine.py` (the
+duel). `tools/` holds the jobs run by hand (cut-outs, critic, 3D bench),
+`reference/` the versioned inputs the code reads, `reviews/` the human
+verdicts, and `research/` studies only; the lab does not depend on it. Index of
+documents: [docs/INDEX.md](docs/INDEX.md).
+
 Principles the code follows and that are worth keeping:
 
 - One component owns the camera. The browser asks the server for frames; the
@@ -160,11 +190,12 @@ Principles the code follows and that are worth keeping:
   ambiguities and conflicts are kept and shown.
 - Regenerable data (catalog, indexes) lives apart from human decisions
   (reviews, annotations). Everything can be rebuilt without losing work.
-- Every improvement has a `qa_*.py` test and a JSON report in `research/qa/`.
+- Every improvement has a `qa_*.py` test; its report goes to `.runtime/qa/` (not
+  versioned), and `python run_qa.py --ci` runs the ones that need no data.
 
 ## Project history
 
-The repository is five intense days old. What follows is the timeline as it
+The repository is nine intense days old. What follows is the timeline as it
 was recorded in the documents under `research/`.
 
 ### September 24, 2026: initial review
@@ -247,7 +278,35 @@ second vote for Ghost Rare cards, automatic BiRefNet cut-outs with a critic,
 effect categories and cost/effect text from EDOPro scripts, and a Millennium
 shield that turns over face-down defenders.
 
+### September 29 - October 2, 2026: review, 3D, architecture
+
+- **Human review** of the automatic cut-outs on the iPad and the phone, by
+  finger or pen, for several reviewers at once; almost 4,000 verdicts in the
+  first days. Holograms now show the best cut-out that lost to them.
+- **3D bench** on this PC: TripoSR (after a CPU marching-cubes patch), Stable
+  Fast 3D and Hunyuan3D-2mini built on Windows with CUDA 12.8 and compared.
+- **Speed:** analysis from 132 to 44 ms with a still table, the duel log no
+  longer replayed for previews and undo (700 to 17 ms), OCR with fewer passes.
+- **Recognition:** a Ghost Rare Naturia Barkion the artwork could not place
+  is now named by its printed title, searched in the whole registry.
+- **Face-down cards in any sleeve** without teaching: a card-shaped patch that
+  is not the table's colour.
+- **Architecture review** in three phases: settings and contracts in one
+  place, the analysis path out of the HTTP server, the recognizer split in
+  four modules, production code out of `research/`, tests that no longer
+  write into the repository, and the first prototype's SIFT recognizer
+  retired.
+
 ## Screenshots
+
+![Duel view over a live phone camera: a real Zombie deck on a cork table with sleeved cards, each recognized and labelled with its Spanish name and ATK/DEF, cut-out monsters standing on their cards, spells and traps in their zones, and the phase bar and life points on top](docs/img/mesa-duelo-ar.jpg)
+
+September 28: the same view with another deck. Cards are recognized across the full catalog and labelled in Spanish.
+
+| | |
+|---|---|
+| ![The cut-out reviewer on a phone: the original artwork above, the candidate cut-out below, and reject, back, skip, correct and approve buttons](docs/img/revisor-telefono.jpg) | ![3D bench: six approved cut-outs turned into 3D models by TripoSR, Stable Fast 3D and Hunyuan3D-2mini, side by side](docs/img/banco-3d.jpg) |
+| The cut-out reviewer on a phone: swipe to approve or reject, or correct by drawing. | Image-to-3D bench: the same cut-outs through three generators; Stable Fast 3D keeps the texture. |
 
 ![A face-down defense monster with the Millennium shield turning over it: front, edge, back and front again](docs/img/escudo-milenio-giro.jpg)
 
@@ -287,6 +346,7 @@ python -m venv .venv-eval
 .\.venv-eval\Scripts\python.exe vision_onnx.py        # pilot vector index
 .\start_lab.ps1                                       # gallery, test photo, registry
 .\start_lab.ps1 -Live                                 # plus the phone camera
+.\start_lab.ps1 -Live -Gpu -Full -Review              # GPU, full catalog, cut-out reviewer
 ```
 
 Local services: camera at http://127.0.0.1:8765, test photo at
@@ -296,8 +356,9 @@ changed with `--camera`. Full guide to installation, transfer and verification:
 [ENTREGA_PILOTO.md](research/ENTREGA_PILOTO.md) and
 [TRANSFERENCIA_GENERAL.md](research/TRANSFERENCIA_GENERAL.md) (Spanish).
 
-Tests: every `qa_*.py` in the root is an independent check. The list that runs
-before each delivery is in [PIPELINE_ESTADO.md](research/PIPELINE_ESTADO.md).
+Tests: every `qa_*.py` in the root is an independent check. `python run_qa.py
+--ci` runs the ones that pass on a clean clone (also on GitHub, see
+[docs/CI.md](docs/CI.md)); `python run_qa.py` runs them all.
 
 ## How to help
 
