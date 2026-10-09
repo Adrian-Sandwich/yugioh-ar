@@ -336,7 +336,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         s = self.server; url = urlsplit(self.path); path = url.path
-        if not self.allowed(): return self.reply(403, {'error': 'falta la clave de acceso (?k=...)'})
+        if path == '/acceso':
+            # Links with the key and their QR codes: only for a browser on the PC itself, never over the LAN.
+            if self.client_address[0] != '127.0.0.1': return self.reply(404, {'error': 'no existe'})
+            links = [f'http://{ip}:{s.server_port}/?k={s.access_key}' for ip in lan_addresses()] if s.access_key else []
+            page = (ROOT / 'web/review-access.html').read_text(encoding='utf-8').replace('__LINKS__', json.dumps(links))
+            return self.reply(200, page.encode(), 'text/html; charset=utf-8')
+        if not self.allowed():
+            # A browser gets a page saying what to do (Safari would download the JSON); the API keeps JSON.
+            if path.startswith('/api/'): return self.reply(403, {'error': 'falta la clave de acceso (?k=...)'})
+            return self.reply(403, (ROOT / 'web/review-locked.html').read_bytes(), 'text/html; charset=utf-8')
         if path == '/' and s.access_key and 'k=' in url.query:
             # Serve the page here, no redirect: the address keeps its ?k=, so a Home Screen web app
             # on the iPad (which keeps its own cookies, apart from Safari's) still opens with it.
@@ -654,6 +663,7 @@ def main():
     print(f'{len(server.items)} elementos' + (f' · ronda de control «{a.control}» (a ciegas)' if server.control else ''), flush=True)
     if a.lan:
         for ip in lan_addresses(): print(f'  tableta: http://{ip}:{a.port}/?k={server.access_key}', flush=True)
+        print(f'  QR y enlaces en la PC: http://127.0.0.1:{a.port}/acceso', flush=True)
         print('  (misma red; si no conecta, revisa el firewall de Windows: ver PLAN_3D_Y_REVISION.md)', flush=True)
     else:
         print(f'  http://127.0.0.1:{a.port}/', flush=True)

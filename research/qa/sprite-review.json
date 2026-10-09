@@ -1,0 +1,45 @@
+{
+  "date": "2026-09-29",
+  "kind": "sprite",
+  "judged": 3,
+  "skipped": 1,
+  "approved_share": 0.667,
+  "reasons": [
+    [
+      "fondo",
+      1
+    ]
+  ],
+  "median_ms": 0,
+  "corrections": 0,
+  "by_reviewer": {
+    "Ana": {
+      "verdicts": 2,
+      "standing": 2,
+      "approved": 0.5
+    },
+    "Adrian": {
+      "verdicts": 1,
+      "standing": 1,
+      "approved": 1.0
+    }
+  },
+  "by_model": {
+    "birefnet": {
+      "n": 3,
+      "approved": 0.667
+    }
+  },
+  "by_status": {
+    "ok": {
+      "n": 3,
+      "approved": 0.667
+    }
+  },
+  "by_critic_band": {
+    "0.5": {
+      "n": 3,
+      "approved": 0.667
+    }
+  }
+}

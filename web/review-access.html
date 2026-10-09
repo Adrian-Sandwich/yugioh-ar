@@ -1,0 +1,31 @@
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisión · acceso desde la tableta</title>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#10151e;color:#eef3fb;font:16px/1.5 system-ui}
+main{max-width:52em;margin:0 auto;padding:28px 24px}h1{font-size:22px;margin:0 0 6px}p{color:#c6d0e2;margin:8px 0}
+.links{display:flex;flex-wrap:wrap;gap:22px;margin-top:18px}.link{background:#171f2c;border:1px solid #344053;border-radius:12px;padding:16px;text-align:center}
+.qr{background:#fff;padding:12px;border-radius:8px;display:inline-block}.qr canvas,.qr img{display:block}
+a{color:#9cc0ff;word-break:break-all;display:block;margin-top:10px;font-size:14px}small{color:#8e9bb3}
+</style>
+<main>
+<h1>Acceso desde la tableta</h1>
+<p>Escanea un QR con la cámara del iPad (el de la dirección de tu Wi-Fi, normalmente <code>192.168.…</code>).
+Abre la página con la clave y la deja en una cookie; luego agrégala a la pantalla de inicio.</p>
+<p><small>Esta página sólo se sirve en la PC (127.0.0.1). Si la PC cambia de dirección en la red, vuelve a escanear.</small></p>
+<div class="links" id="links"></div>
+<script id="data" type="application/json">__LINKS__</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const links = JSON.parse(document.getElementById('data').textContent), box = document.getElementById('links');
+for (const url of links) {
+  const card = document.createElement('div'); card.className = 'link';
+  const qr = document.createElement('div'); qr.className = 'qr'; card.appendChild(qr);
+  const a = document.createElement('a'); a.href = url; a.textContent = url; card.appendChild(a);
+  box.appendChild(card);
+  if (window.QRCode) new QRCode(qr, {text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M});
+  else qr.textContent = 'sin QR (no cargó la librería): teclea el enlace';
+}
+if (!links.length) box.textContent = 'El servidor no está en modo --lan: no hay enlaces para la red.';
+</script>
+</main>

@@ -265,7 +265,14 @@ $env:SAM2_BUILD_CUDA = "0"
 ```powershell
 .venv-gpu/Scripts/python.exe review_server.py --lan
 #   tableta: http://192.168.x.x:8770/?k=CLAVE     <- abrir esto en la tableta
+#   QR y enlaces en la PC: http://127.0.0.1:8770/acceso
 ```
+
+  Lo más cómodo es abrir `http://127.0.0.1:8770/acceso` en la PC y escanear el QR con la cámara
+  de la tableta (esa página sólo se sirve en la PC). Sin la clave, el navegador recibe una página
+  que explica qué hacer; sólo `/api/...` responde 403 en JSON. Si la PC cambia de dirección en la
+  red (DHCP), el marcador viejo deja de servir: vuelve a escanear, o reserva la IP de la PC en el
+  router.
 
   La clave se guarda en `.runtime/review-key` (fuera de git) y se mantiene entre reinicios, así
   que el marcador de la tableta sigue sirviendo. La dirección con `?k=` abre la página directamente
