@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-10",
+  "labelled_cutouts": 6952,
+  "from_hologram_candidates": 2003,
+  "approved_share": 0.609,
+  "evaluated_on": "1738 veredictos al azar",
+  "current": {
+    "auc_on_humans": 0.7303830227743271,
+    "approval_by_score": {
+      "0.0": {
+        "n": 147,
+        "approved": 0.211
+      },
+      "0.1": {
+        "n": 45,
+        "approved": 0.311
+      },
+      "0.2": {
+        "n": 5,
+        "approved": 0.6
+      },
+      "0.3": {
+        "n": 11,
+        "approved": 0.727
+      },
+      "0.4": {
+        "n": 34,
+        "approved": 0.794
+      },
+      "0.5": {
+        "n": 77,
+        "approved": 0.675
+      },
+      "0.6": {
+        "n": 187,
+        "approved": 0.717
+      },
+      "0.7": {
+        "n": 290,
+        "approved": 0.738
+      },
+      "0.8": {
+        "n": 565,
+        "approved": 0.832
+      },
+      "0.9": {
+        "n": 377,
+        "approved": 0.889
+      }
+    },
+    "kept_but_rejected": 1428,
+    "hologram_but_approved": 711
+  },
+  "tdoane_pairs": 600,
+  "options": {
+    "humanos": {
+      "auc_held_out": 0.7782781228433402
+    },
+    "humanos+tdoane": {
+      "auc_held_out": 0.769065734989648
+    }
+  },
+  "candidate": {
+    "source": "humanos",
+    "auc_held_out": 0.7782781228433402,
+    "threshold": 0.11926885694265366,
+    "retry_threshold": 0.27514609694480896,
+    "approval_by_score": {
+      "0.0": {
+        "n": 23,
+        "approved": 0.0
+      },
+      "0.1": {
+        "n": 50,
+        "approved": 0.02
+      },
+      "0.2": {
+        "n": 37,
+        "approved": 0.135
+      },
+      "0.3": {
+        "n": 33,
+        "approved": 0.303
+      },
+      "0.4": {
+        "n": 60,
+        "approved": 0.533
+      },
+      "0.5": {
+        "n": 114,
+        "approved": 0.64
+      },
+      "0.6": {
+        "n": 221,
+        "approved": 0.683
+      },
+      "0.7": {
+        "n": 493,
+        "approved": 0.761
+      },
+      "0.8": {
+        "n": 557,
+        "approved": 0.892
+      },
+      "0.9": {
+        "n": 150,
+        "approved": 0.96
+      }
+    },
+    "beats_current": true
+  },
+  "adopted": true
+}
