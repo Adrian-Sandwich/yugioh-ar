@@ -10,7 +10,10 @@ Models (ONNX, downloads/cutout-models, not versioned): rembg's exports of isnet-
 isnet-general-use, BiRefNet-general (full) and its swin-tiny variant; and ToonOut, BiRefNet
 fine-tuned on 1,228 anime images (Muratori & Seytre 2025, arXiv 2509.06839, MIT), from the
 community ONNX export sprited/birefnet-toonout-onnx (file birefnet-toonout.onnx; the fp16 file
-also works and uses less memory). A model whose file is missing is skipped with a warning.
+also works and uses less memory); and birefnet-ygo, BiRefNet fine-tuned on this project's
+reviewed cut-outs (tools/cutout_finetune.py, file BiRefNet-ygo.onnx). A model whose file is
+missing is skipped with a warning. CUTOUT_GPU_GB=<n> caps ONNX Runtime's GPU memory; the BiRefNet
+models need 7-9 GB, so the build waits for a free GPU rather than run beside another trainer.
 
     python tools/auto_cutout.py eval  [--n 60]      # IoU per model -> research/qa/auto-cutout-eval.json
     python tools/auto_cutout.py sheet CODES...       # side-by-side sheet of every model's cut-out
@@ -20,7 +23,7 @@ also works and uses less memory). A model whose file is missing is skipped with 
 The viewer uses data/auto-sprites for catalog references without a TDOANE sprite
 (sprite_ref 'auto:<code>.png', see vision_onnx.LiveRecognizer.load_references).
 """
-import argparse, json, random, sys, time
+import argparse, json, os, random, sys, time
 from pathlib import Path
 
 import cv2
@@ -38,6 +41,8 @@ VARIANTS = {
     'birefnet': ('BiRefNet-general-epoch_244.onnx', (.485, .456, .406), (.229, .224, .225), True),
     # Output already through a sigmoid (0..1); same ImageNet normalisation as BiRefNet.
     'toonout': ('birefnet-toonout.onnx', (.485, .456, .406), (.229, .224, .225), False),
+    # BiRefNet fine-tuned on this project's reviewed masks (tools/cutout_finetune.py): raw logits.
+    'birefnet-ygo': ('BiRefNet-ygo.onnx', (.485, .456, .406), (.229, .224, .225), True),
 }
 
 
@@ -66,6 +71,9 @@ class Cutter:
         # DEFAULT and exact-size arena growth also beat HEURISTIC (10 s) with the pattern on.
         so = ort.SessionOptions(); so.enable_mem_pattern = False; so.log_severity_level = 3
         cuda = {'cudnn_conv_algo_search': 'DEFAULT', 'arena_extend_strategy': 'kSameAsRequested'}
+        # Optional cap (GB) when the GPU is shared: past it a run fails instead of Windows spilling the
+        # GPU into system RAM (12/10/2026, next to deckforge's training, that got runs stopped).
+        if os.environ.get('CUTOUT_GPU_GB'): cuda['gpu_mem_limit'] = int(float(os.environ['CUTOUT_GPU_GB']) * 2**30)
         # CUDA only: on 28/09/2026 a failed CUDA session init fell back to CPU silently and the
         # build crawled for 30+ min; better to fail and let run_build.ps1 start a fresh process.
         self.name = name; self.model = ort.InferenceSession(str(MODELS / file), so, providers=[('CUDAExecutionProvider', cuda)])
@@ -291,22 +299,33 @@ def rejected_models():
     return out
 
 
-CUTTERS = ('birefnet', 'birefnet-flip', 'isnet-anime', 'toonout')
+CUTTERS = ('birefnet', 'birefnet-flip', 'isnet-anime', 'toonout', 'birefnet-ygo')
+# The first usable model cuts every card; the others only retry the cards the critic finds weak.
+# Measured 12/10/2026 on the 150 held-out corrections (tools/cutout_finetune.py compete): the
+# fine-tuned model alone 0.711 IoU; BiRefNet and ToonOut competing with it on every card 0.691 (the
+# critic tells two good cut-outs apart badly and picked the worse for 72 cards); production 0.632.
+# As retries for weak cards the old cutters give 0.711 and adding ToonOut 0.709 (13/10/2026), so it stays out.
+PRIMARY = ('birefnet-ygo', 'birefnet')
+RETRIES = ('birefnet', 'birefnet-flip', 'isnet-anime')
 
 
 def build(limit=None):
-    """Cut-outs for every target (resumable): BiRefNet, judged by the critic; when it rejects,
-    the adversarial retries (flipped artwork averaged in, isnet-anime) compete and the best
-    score wins; below the threshold the card gets the artwork hologram, marked doubtful.
+    """Cut-outs for every target (resumable): the primary model (the fine-tuned BiRefNet once
+    exported, else BiRefNet), judged by the critic; when it finds the cut-out weak, the retries
+    (BiRefNet, BiRefNet with the flipped artwork averaged in, isnet-anime) compete and the
+    best score wins; below the threshold the card gets the artwork hologram, marked doubtful.
     Cut-outs a person already rejected for an artwork (review_server.py) never compete again;
-    if all three were rejected, the card gets the hologram without a candidate."""
+    if every one was rejected, the card gets the hologram without a candidate."""
     model = json.loads(CRITIC.read_text(encoding='utf-8'))
     model.update(mean=np.float32(model['mean']), std=np.float32(model['std']))
     OUT.mkdir(parents=True, exist_ok=True); index_path = OUT / 'index.json'
     index = json.loads(index_path.read_text(encoding='utf-8')) if index_path.exists() else {}
     todo = [c for c in targets() if c not in index][:limit]
     banned = rejected_models()
-    print('pendientes', len(todo), 'hechas', len(index), 'con recortes rechazados', sum(c in banned for c in todo), flush=True)
+    primary = next(n for n in PRIMARY if n == PRIMARY[-1] or usable([n]))
+    retries = [n for n in RETRIES if n != primary and (n == 'birefnet-flip' or usable([n]))]
+    print('pendientes', len(todo), 'hechas', len(index), 'con recortes rechazados', sum(c in banned for c in todo),
+          '· principal', primary, '· reintentos', ', '.join(retries), flush=True)
     started = time.time(); chunk = 200
     for at in range(0, len(todo), chunk):
         codes = []; arts = []
@@ -315,24 +334,22 @@ def build(limit=None):
             if art is None: index[code] = {'status': 'unreadable'}
             else: codes.append(code); arts.append(art)
         # One model at a time over the chunk (see masks()).
-        main = masks('birefnet', arts); second = masks('birefnet-lite', arts)
+        main = masks(primary, arts); second = masks('birefnet-lite', arts)
         allowed = lambda i, name: name not in banned.get(codes[i], ())
-        best = [('birefnet', m, critic_score(features(a, m, s), model) if allowed(i, 'birefnet') else float('-inf'))
+        best = [(primary, m, critic_score(features(a, m, s), model) if allowed(i, primary) else float('-inf'))
                 for i, (a, m, s) in enumerate(zip(arts, main, second))]
-        if usable(['toonout']):
-            # ToonOut competes for every card, not only the weak ones: it is the model trained on
-            # anime-style art (ToonOut's "action" images: BiRefNet 76.8 % pixel accuracy, ToonOut 99.0 %).
-            for i, t in enumerate(masks('toonout', arts)):
-                if not allowed(i, 'toonout'): continue
-                score = critic_score(features(arts[i], t, second[i]), model)
-                if score > best[i][2]: best[i] = ('toonout', t, score)
         weak = [i for i, b in enumerate(best) if b[2] < model['retry_threshold']]
         if weak:
-            # The adversarial round: the critic rejected these; other cut-outs compete for them.
-            flipped = masks('birefnet', [arts[i] for i in weak], flip=True)
-            anime = masks('isnet-anime', [arts[i] for i in weak])
-            for i, f, a in zip(weak, flipped, anime):
-                for name, cand in (('birefnet-flip', (main[i] + f) / 2), ('isnet-anime', a)):
+            # The adversarial round: the critic finds these weak; the other models compete for them.
+            sub = [arts[i] for i in weak]; plain = [main[i] for i in weak] if primary == 'birefnet' else None
+            for name in retries:
+                if name == 'birefnet-flip':  # needs the plain BiRefNet cut-out: 'birefnet' comes first in RETRIES
+                    plain = plain if plain is not None else masks('birefnet', sub)
+                    cuts = [(m + f) / 2 for m, f in zip(plain, masks('birefnet', sub, flip=True))]
+                else:
+                    cuts = masks(name, sub)
+                    if name == 'birefnet': plain = cuts
+                for i, cand in zip(weak, cuts):
                     if not allowed(i, name): continue
                     score = critic_score(features(arts[i], cand, second[i]), model)
                     if score > best[i][2]: best[i] = (name, cand, score)

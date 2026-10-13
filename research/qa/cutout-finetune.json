@@ -1,0 +1,205 @@
+{
+ "baseline": {
+  "birefnet": 0.6483,
+  "birefnet-lite": 0.5797,
+  "isnet-anime": 0.4999
+ },
+ "date": "2026-10-13",
+ "train": {
+  "pairs": 6915,
+  "held_out": 150,
+  "freeze_backbone": true,
+  "lr": 5e-05,
+  "history": [
+   {
+    "epoch": 0,
+    "iou": 0.6454
+   },
+   {
+    "epoch": 1,
+    "loss": 2.7301,
+    "iou": 0.6916,
+    "minutes": 77.4
+   },
+   {
+    "epoch": 2,
+    "iou": 0.6916,
+    "resumed": true
+   },
+   {
+    "epoch": 2,
+    "loss": 2.6693,
+    "iou": 0.6964,
+    "minutes": 64.1
+   },
+   {
+    "epoch": 3,
+    "loss": 2.6518,
+    "iou": 0.7113,
+    "minutes": 82.3
+   }
+  ],
+  "best_iou": 0.7113
+ },
+ "export": {
+  "file": "BiRefNet-ygo.onnx",
+  "iou_onnx": 0.7118,
+  "iou_torch": 0.7113
+ },
+ "compete_held_v1": {
+  "cards": 150,
+  "threshold": 0.11926885694265366,
+  "iou_by_model": {
+   "birefnet": 0.6483,
+   "birefnet-lite": 0.5797,
+   "toonout": 0.6551,
+   "isnet-anime": 0.4999,
+   "birefnet-ygo": 0.7118,
+   "birefnet-flip": 0.6352
+  },
+  "birefnet": {
+   "iou_pick": 0.6315,
+   "ok": 143,
+   "iou_ok": 0.6427,
+   "ok_good": 28,
+   "ok_bad": 69,
+   "models": {
+    "isnet-anime": 6,
+    "birefnet-flip": 58,
+    "birefnet": 86
+   }
+  },
+  "+ toonout": {
+   "iou_pick": 0.6548,
+   "ok": 147,
+   "iou_ok": 0.6615,
+   "ok_good": 24,
+   "ok_bad": 66,
+   "models": {
+    "isnet-anime": 2,
+    "birefnet-flip": 10,
+    "toonout": 78,
+    "birefnet": 60
+   }
+  },
+  "+ toonout + birefnet-ygo": {
+   "iou_pick": 0.6911,
+   "ok": 150,
+   "iou_ok": 0.6911,
+   "ok_good": 33,
+   "ok_bad": 64,
+   "models": {
+    "birefnet-ygo": 78,
+    "toonout": 32,
+    "birefnet": 40
+   }
+  },
+  "birefnet-ygo solo": {
+   "iou_pick": 0.7108,
+   "ok": 150,
+   "iou_ok": 0.7108,
+   "ok_good": 41,
+   "ok_bad": 57,
+   "models": {
+    "birefnet-flip": 3,
+    "isnet-anime": 1,
+    "birefnet-ygo": 146
+   }
+  }
+ },
+ "regression_tdoane": {
+  "cards": 300,
+  "birefnet base": 0.8423,
+  "birefnet-ygo": 0.8816,
+  "better": 96,
+  "worse": 15,
+  "worst_drop": -0.6016,
+  "worse_codes": [
+   "32022366",
+   "37318031",
+   "72634965",
+   "74163487",
+   "31890399",
+   "23171610",
+   "16197610",
+   "11232355",
+   "16943770",
+   "39761138"
+  ]
+ },
+ "compete_held": {
+  "set": "held",
+  "cards": 150,
+  "threshold": 0.11926885694265366,
+  "iou_by_model": {
+   "birefnet": 0.6483,
+   "birefnet-flip": 0.6352,
+   "toonout": 0.6551,
+   "isnet-anime": 0.4999,
+   "birefnet-ygo": 0.7118
+  },
+  "iou_oracle": 0.782,
+  "produccion: birefnet": {
+   "iou_pick": 0.6315,
+   "ok": 143,
+   "iou_ok": 0.6427,
+   "ok_good": 28,
+   "ok_bad": 69,
+   "models": {
+    "birefnet": 86,
+    "birefnet-flip": 58,
+    "isnet-anime": 6
+   }
+  },
+  "+ toonout compite": {
+   "iou_pick": 0.6548,
+   "ok": 147,
+   "iou_ok": 0.6615,
+   "ok_good": 24,
+   "ok_bad": 66,
+   "models": {
+    "birefnet": 60,
+    "birefnet-flip": 10,
+    "isnet-anime": 2,
+    "toonout": 78
+   }
+  },
+  "+ toonout + ygo compiten": {
+   "iou_pick": 0.6911,
+   "ok": 150,
+   "iou_ok": 0.6911,
+   "ok_good": 33,
+   "ok_bad": 64,
+   "models": {
+    "birefnet": 40,
+    "birefnet-ygo": 78,
+    "toonout": 32
+   }
+  },
+  "ygo principal, reintentos viejos": {
+   "iou_pick": 0.7108,
+   "ok": 150,
+   "iou_ok": 0.7108,
+   "ok_good": 41,
+   "ok_bad": 57,
+   "models": {
+    "birefnet-flip": 3,
+    "birefnet-ygo": 146,
+    "isnet-anime": 1
+   }
+  },
+  "ygo principal, todos de reintento": {
+   "iou_pick": 0.7092,
+   "ok": 150,
+   "iou_ok": 0.7092,
+   "ok_good": 41,
+   "ok_bad": 58,
+   "models": {
+    "birefnet": 1,
+    "birefnet-flip": 1,
+    "birefnet-ygo": 146,
+    "toonout": 2
+   }
+  }
+ }
+}

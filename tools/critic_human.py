@@ -15,6 +15,7 @@ already learned is not thrown away); the better one is offered.
     python tools/critic_human.py --source combined --human-share .7   # people weigh 70 %
     python tools/critic_human.py --requeue       # drop human-rejected cards (hand-corrected ones stay) from data/auto-sprites/index.json
     python tools/critic_human.py --requeue-all   # also every unreviewed card (after --adopt)
+    python tools/critic_human.py --requeue-all --no-fit   # only that (a new primary cutter, same critic)
     (then: python tools/auto_cutout.py build  -- redoes exactly what was dropped)
 
 Cut-outs in use and hologram candidates count; a verdict on a hologram itself judges the
@@ -73,7 +74,7 @@ def human_features(labels):
     flip = [i for i, v in enumerate(rows) if v['meta']['modelo'] == 'birefnet-flip']
     if flip:
         for i, f in zip(flip, ac.masks('birefnet', [arts[i] for i in flip], flip=True)): chosen[i] = (main[i] + f) / 2
-    for name in ('isnet-anime', 'toonout'):
+    for name in ('isnet-anime', 'toonout', 'birefnet-ygo'):
         idx = [i for i, v in enumerate(rows) if v['meta']['modelo'] == name]
         if idx:
             for i, m in zip(idx, ac.masks(name, [arts[i] for i in idx])): chosen[i] = m
@@ -172,11 +173,34 @@ def by_band(s, y):
     return out
 
 
+def requeue(index, index_path, everything):
+    """Drop cards from the index so build() redoes them; returns how many.
+    Pinned, never redone: hand corrections, promoted candidates, and cut-outs approved as they are
+    now. A hologram approved as a fallback is not pinned: a better critic may find it a cut-out.
+    everything=False redoes rejected cut-outs; True every card not pinned (the scores stored in
+    the index come from the previous critic, or a new primary model cuts better).
+    A newer rejection of a pinned sprite (a correction or a promotion that looked wrong later)
+    unpins it: the latest verdict on the sprite in use always wins."""
+    cur = current_verdicts(index)
+    rejected = {c for c, v in cur.items() if v['verdict'] == 'reject'}
+    pinned = {c for c, e in index.items() if e.get('model') == 'human' or e.get('promoted')}
+    pinned |= {c for c, v in cur.items() if v['verdict'] == 'approve' and index[c].get('status') == 'ok'}
+    pinned -= rejected
+    if everything:
+        drop = set(index) - pinned
+    else:
+        drop = {c for c, v in cur.items() if v['verdict'] == 'reject' and v['meta'].get('estado') == 'ok'} - pinned
+    for c in drop: index.pop(c, None)
+    tmp = index_path.with_suffix('.tmp'); tmp.write_text(json.dumps(index), encoding='utf-8'); tmp.replace(index_path)
+    return len(drop)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--min', type=int, default=150, help='fewest labelled cut-outs to fit a candidate')
     ap.add_argument('--adopt', action='store_true'); ap.add_argument('--requeue', action='store_true')
     ap.add_argument('--requeue-all', action='store_true')
+    ap.add_argument('--no-fit', action='store_true', help='only requeue (with --requeue/--requeue-all): no features, no candidate, report untouched')
     ap.add_argument('--source', choices=('best', 'human', 'combined'), default='best',
                     help='fit on human verdicts, on those plus the TDOANE pairs, or try both (default)')
     ap.add_argument('--tdoane', type=int, default=600, help='TDOANE pairs, as auto_cutout.py calibrate')
@@ -185,6 +209,9 @@ def main():
     a = ap.parse_args()
     current = json.loads(ac.CRITIC.read_text(encoding='utf-8'))
     index_path = ac.OUT / 'index.json'; index = json.loads(index_path.read_text(encoding='utf-8'))
+    if a.no_fit:
+        if not (a.requeue or a.requeue_all): ap.error('--no-fit va con --requeue o --requeue-all')
+        print('reencoladas', requeue(index, index_path, a.requeue_all)); return
     labels = verdicts()
     rows, X, y = human_features(labels)
     report = {'date': time.strftime('%Y-%m-%d'), 'labelled_cutouts': len(rows),
@@ -238,25 +265,7 @@ def main():
         else:
             report['candidate'] = f'hacen falta {a.min} recortes con ambos veredictos (hay {len(rows)})'
     report['adopted'] = adopted
-    if a.requeue or a.requeue_all:
-        # Pinned, never redone: hand corrections, promoted candidates, and cut-outs approved as
-        # they are now. A hologram approved as a fallback is not pinned: a better critic may find
-        # it a cut-out. --requeue redoes rejected cut-outs; --requeue-all every card not pinned
-        # (the scores stored in the index come from the previous critic).
-        # A newer rejection of a pinned sprite (a correction or a promotion that looked wrong later)
-        # unpins it: the latest verdict on the sprite in use always wins.
-        cur = current_verdicts(index)
-        rejected = {c for c, v in cur.items() if v['verdict'] == 'reject'}
-        pinned = {c for c, e in index.items() if e.get('model') == 'human' or e.get('promoted')}
-        pinned |= {c for c, v in cur.items() if v['verdict'] == 'approve' and index[c].get('status') == 'ok'}
-        pinned -= rejected
-        if a.requeue_all:
-            drop = set(index) - pinned
-        else:
-            drop = {c for c, v in cur.items() if v['verdict'] == 'reject' and v['meta'].get('estado') == 'ok'} - pinned
-        for c in drop: index.pop(c, None)
-        tmp = index_path.with_suffix('.tmp'); tmp.write_text(json.dumps(index), encoding='utf-8'); tmp.replace(index_path)
-        report['requeued'] = len(drop)
+    if a.requeue or a.requeue_all: report['requeued'] = requeue(index, index_path, a.requeue_all)
     REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
     print(json.dumps(report, indent=2, ensure_ascii=False))
 
