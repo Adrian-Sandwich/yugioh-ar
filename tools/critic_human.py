@@ -182,7 +182,10 @@ def requeue(index, index_path, everything):
     A newer rejection of a pinned sprite (a correction or a promotion that looked wrong later)
     unpins it: the latest verdict on the sprite in use always wins."""
     cur = current_verdicts(index)
-    rejected = {c for c, v in cur.items() if v['verdict'] == 'reject'}
+    # A correction is a rejection of the cut-out it replaced, not of itself (same_asset matches it to
+    # the corrected sprite in use): only a later verdict on the corrected sprite unpins it.
+    rejected = {c for c, v in cur.items() if v['verdict'] == 'reject'
+                and not (v.get('correction') and index[c].get('correction') == v['correction']['mask_sha1'])}
     pinned = {c for c, e in index.items() if e.get('model') == 'human' or e.get('promoted')}
     pinned |= {c for c, v in cur.items() if v['verdict'] == 'approve' and index[c].get('status') == 'ok'}
     pinned -= rejected
