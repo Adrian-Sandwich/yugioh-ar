@@ -214,6 +214,12 @@ class TableDuel:
             return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones, 'virtual': self.virtual,
                     'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in (self.mats if mats is None else mats)]}
 
+    def scene(self):
+        """The camera's intrinsics and pose over the board, in mm, for a 3D engine (scene3d.py); None without a board."""
+        from scene3d import scene
+        with self.lock:
+            return scene(self.mats, self.image_size)
+
     # --- camera ----------------------------------------------------------------
     def feed(self, tracks, backs=None):
         """Stable zone readings from this analysis; only changes are sent to the engine.

@@ -83,6 +83,13 @@ def diagnostic_watching(server):
     return time.monotonic() - server.diagnostic_seen < DIAGNOSTIC_HOLD_S
 
 
+def all_cards_watching(server):
+    """A client that draws every card on the table polled recently (the diagnostic page, or the 3D view
+    with view=table): the whole frame is analysed, not only the board's zones. The zones still decide
+    what counts for the duel; a card between them gets its figure, not a place on the field."""
+    return diagnostic_watching(server) or time.monotonic() - server.all_cards_seen < DIAGNOSTIC_HOLD_S
+
+
 # --- one analysis --------------------------------------------------------------------------------
 def analysis_context(server, captured_at):
     """contracts.ANALYZE_CONTEXT for this frame: tracks to reuse, OCR/art evidence, duel zones."""
@@ -90,9 +97,9 @@ def analysis_context(server, captured_at):
     live, worker, table = server.live_tracker, server.passcode_worker, server.table
     return {'reuse': live.reuse_candidates(captured_at, REUSE_MAX_AGE_S) if live else (),
             'verified': worker.verified() if worker and hasattr(worker, 'verified') else (),
-            # With a duel board set, cards outside its field zones are not analysed at all, unless the
-            # diagnostic page is watching (it shows every card on the table).
-            'regions': table.field_regions() if table is not None and not diagnostic_watching(server) else None,
+            # With a duel board set, cards outside its field zones are not analysed at all, unless a
+            # client that shows every card on the table is watching.
+            'regions': table.field_regions() if table is not None and not all_cards_watching(server) else None,
             # Face-down cards: zones without a detected card are compared with the card back (card_backs).
             'back_zones': table.back_zones() if table is not None else None}
 
