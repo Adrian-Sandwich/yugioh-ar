@@ -152,7 +152,10 @@ No funciona todavía, o no está medido:
   cartas se muestran y clasifican, pero los resuelven los jugadores, no el
   motor. Aún no hay duelo remoto (el plan está en `research/DUELO_REMOTO.md`).
 - **Cartas boca abajo.** Una funda del color de la mesa no se ve si no se
-  enseña.
+  enseña. Desde el 12 de noviembre se dibujan pero el duelo no las anota (ni
+  colocar, ni voltear, ni mandarlas al Cementerio): una mano o un objeto en
+  una zona también parece una carta, y anotado llenaba el Cementerio de
+  cartas que nadie puso.
 - **A dónde van las cartas.** Todavía no se sigue una carta que sale de su zona
   hacia el Cementerio, la mano o el mazo; la vista muestra lo que ve la cámara.
 - **Hardware.** Probado en una laptop con gráficos Intel integrados y una PC

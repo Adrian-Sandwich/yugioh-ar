@@ -75,7 +75,7 @@ EXTRA_DECK_WORDS = ('Sincronía', 'Xyz', 'Fusión', 'Link')
 # Monsters sent to the Graveyard automatically this recently can still turn out to be the
 # materials (or tributes) of the next monster placed.
 MATERIAL_WINDOW_S = 20.
-# Analyses (~0.2 s each) a zone keeps its back's id without seeing it: a hand over a set card.
+# Analyses (~0.2 s each) a zone still counts as holding a back without seeing it: a hand over a set card.
 BACK_HOLD = 20
 SUMMON_EVENTS = ('normal_summon', 'set_monster', 'special_summon', 'set_spell_trap', 'activate_spell_trap', 'flip')
 
@@ -103,8 +103,7 @@ class TableDuel:
         # Automatic plays (a card placed counts as the obvious play); `recent` lets the
         # players change or undo them, `tried` keeps an undone play from coming back.
         self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
-        import time
-        self.back_ids = {}; self.back_age = {}; self.back_seq = 0; self.back_session = f'{time.time():.0f}'
+        self.back_age = {}  # zones where a card back is seen: analyses since it was last seen
         calibration = self.folder / 'calibration.json'
         if calibration.exists():
             data = json.loads(calibration.read_text(encoding='utf-8'))
@@ -185,22 +184,14 @@ class TableDuel:
             return [{'id': f'{mat.player}|{name}', 'polygon': mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).tolist()}
                     for mat in self.mats for name, x0, y0, x1, y1 in mat.layout if name.startswith(('monster:', 'spell:')) or name == 'field']
 
-    def _back_tracks(self, backs):
-        """Card backs seen this analysis as tracks: one id per zone while the back stays there
-        (a hand over it for a moment keeps the id), a new id when a back comes back later."""
-        self.back_age = {k: a + 1 for k, a in self.back_age.items()}
-        tracks = []
+    def _see_backs(self, backs):
+        """Remember the zones where a card back is seen now, for the views (`backs_seen`). They are drawn,
+        not recorded: anything shaped like a card in a zone looks like a back (a hand, an object), and
+        as plays those filled the Graveyard with cards nobody set. The duel only follows face-up cards."""
+        self.back_age = {k: a + 1 for k, a in self.back_age.items() if a < BACK_HOLD}
         for back in backs or ():
             player, zone = back['id'].split('|'); key = (int(player), zone)
-            polygon = self.zone_polygon(*key)
-            if polygon is None: continue
-            # Unique across restarts: a saved duel may hold older backs in its Graveyard.
-            if key not in self.back_ids: self.back_seq += 1; self.back_ids[key] = f'back-{self.back_session}-{self.back_seq}'
-            self.back_age[key] = 0
-            tracks.append({'track_id': self.back_ids[key], 'corners': polygon, 'card_id': None, 'facedown': True})
-        for key in [k for k, a in self.back_age.items() if a > BACK_HOLD]:
-            del self.back_age[key]; self.back_ids.pop(key, None)
-        return tracks
+            if self.zone_polygon(*key) is not None: self.back_age[key] = 0
 
     def overlay(self, mats=None):
         """Zone outlines in image pixels, for drawing over the video (`mats`: a preview instead of the saved ones)."""
@@ -226,7 +217,7 @@ class TableDuel:
         `backs`: zones where card_backs saw a card back ([{'id': 'player|zone', ...}])."""
         with self.lock:
             if self.tracker is None: return []
-            tracks = list(tracks) + self._back_tracks(backs)
+            tracks = list(tracks); self._see_backs(backs)
             observations = self.tracker.update(tracks)
             for track in tracks:
                 if track.get('card_id'): self.cards[track['track_id']] = track['card_id']
@@ -262,6 +253,8 @@ class TableDuel:
                     # A hand over a card also empties its zone for a moment: a card only
                     # "left the field" after MISSING_GRACE_S without it.
                     if pending.get('kind') == 'missing' and now - first < MISSING_GRACE_S: continue
+                    # Turned face-down where it was: a back is seen in its zone, so it did not leave.
+                    if pending.get('kind') == 'missing' and (pending['player'], pending['zone']) in self.back_age: continue
                     self.tried.add(key)
                     if not self._came_back(pending): self._auto_play(pending)
                 self.first_seen = {k: t for k, t in self.first_seen.items() if k in keys}

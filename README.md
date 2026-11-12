@@ -146,7 +146,10 @@ Does not work yet, or has not been measured:
   and categorized, but the players resolve them; the engine does not. No
   remote duel yet (the plan is in `research/DUELO_REMOTO.md`).
 - **Face-down cards.** A sleeve the colour of the table is not seen unless it
-  is taught.
+  is taught. Since November 12 they are drawn but the duel does not record
+  them (no set, no flip, no Graveyard): a hand or an object in a zone also
+  looks like a card, and recorded it filled the Graveyard with cards nobody
+  set.
 - **Where cards go.** A card leaving a zone is not yet followed to the
   Graveyard, the hand or the deck; the view shows what the camera sees.
 - **Hardware.** Tested on one laptop with integrated Intel graphics and one PC

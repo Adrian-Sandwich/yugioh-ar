@@ -31,9 +31,9 @@ def feed(table, tracks, times=3):
     for _ in range(times): table.feed(tracks)
 
 
-def settle(table, tracks):
+def settle(table, tracks, backs=None):
     """As if MISSING_GRACE_S had passed since the current discrepancies were first seen."""
-    table.first_seen = {k: t - 5 for k, t in table.first_seen.items()}; table.feed(tracks)
+    table.first_seen = {k: t - 5 for k, t in table.first_seen.items()}; table.feed(tracks, backs=backs)
 
 
 def main():
@@ -265,45 +265,35 @@ def main():
         zones = f.back_zones(); ids = {z['id'] for z in zones}
         assert len(zones) == 22 and '0|monster:0' in ids and '1|field' in ids and not any('extra_monster' in i or 'graveyard' in i for i in ids), sorted(ids)
         backs = lambda *zs: [{'id': z, 'score': .8} for z in zs]
+        seen = lambda: {(b['player'], b['zone']) for b in f.view()['backs_seen']}
+        quiet = lambda: (len(f.duel.log), f.view()['board'], f.view()['questions'], f.view()['recent'], f.view()['players'][0]['graveyard'])
+        before = quiet()
         for _ in range(3): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
-        view = f.view(); down = {c['zone']: c for c in view['board']}
-        assert down['monster:0']['position'] == 'facedown_defense' and down['spell:1']['position'] == 'facedown' and view['questions'] == [], view
-        assert [r['text'].split(':')[0] for r in view['recent'][:2]] == ['Colocada boca abajo', 'Colocado boca abajo'], view['recent']
-        checks.append('card backs in zones: face-down monster and set Spell/Trap')
-        back_id = down['monster:0']['copy_id']
-        for _ in range(4): f.feed([], backs=backs('0|spell:1'))          # a hand over the set monster
-        assert any(q['kind'] == 'missing' for q in f.view()['questions'])
-        for _ in range(3): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
-        view = f.view(); assert view['questions'] == [] and {c['copy_id'] for c in view['board']} >= {back_id}, view
-        checks.append('a hand over a face-down card keeps it (same back id)')
-        # Covered for longer than the grace (a misreading, a hand): it goes to the Graveyard on its own...
-        for _ in range(4): f.feed([], backs=backs('0|spell:1'))
-        settle(f, [])
-        assert f.view()['players'][0]['graveyard'] == 1, f.view()['players'][0]
-        # ...and when the same back is seen again, that play is undone: it never left.
-        for _ in range(4): f.feed([], backs=backs('0|monster:0', '0|spell:1'))
-        view = f.view(); card = next((c for c in view['board'] if c['zone'] == 'monster:0'), None)
-        assert card and card['position'] == 'facedown_defense' and card['copy_id'] == back_id and view['players'][0]['graveyard'] == 0, (card, view['players'][0])
-        assert view['questions'] == [], view['questions']
-        assert not any('desde el Cementerio' in r['text'] for r in view['recent']), view['recent']
-        checks.append('a face-down card sent to the Graveyard by mistake comes back face-down (the play is undone, not a revival)')
-        f.act({'type': 'end_turn'}); f.act({'type': 'end_turn'})
+        assert seen() == {(0, 'monster:0'), (0, 'spell:1')} and quiet() == before, f.view()
+        checks.append('card backs in zones are shown (backs_seen), not recorded: no play, no question')
+        # Something shaped like a card that comes and goes (a hand, an object) for a long time leaves no trace.
+        for _ in range(40):
+            for _ in range(4): f.feed([], backs=backs('0|monster:0'))
+            for _ in range(4): f.feed([])
+            settle(f, [])
+        assert quiet() == before, quiet()
+        for _ in range(30): f.feed([])
+        assert seen() == set(), seen()
+        checks.append('a back that flickers for a long time fills neither the log nor the Graveyard, and stops being shown')
         face = track(f, 0, 40, 'kuriboh', *center('monster:0'))
         for _ in range(3): f.feed([face], backs=backs('0|spell:1'))
         view = f.view(); card = next(c for c in view['board'] if c['zone'] == 'monster:0')
-        assert card['copy_id'] == 40 and card['name'] == 'Kuriboh' and card['position'] == 'attack' and view['phase'] == 'main1', card
-        assert view['recent'][0]['text'].startswith('Invocación por Volteo: Kuriboh') and view['questions'] == [], view['recent'][0]
-        checks.append('the back replaced by its face: Flip Summon, revealed, followed under the face\'s track')
-        pot = track(f, 0, 41, 'pot', *center('spell:1'))
-        for _ in range(3): f.feed([face, pot])
-        view = f.view(); card = next(c for c in view['board'] if c['zone'] == 'spell:1')
-        assert card['copy_id'] == 41 and card['name'] == 'Olla de la Codicia' and card['position'] == 'faceup' and view['recent'][0]['text'].startswith('Activada: Olla'), view['recent'][0]
-        checks.append('a set Spell turned face-up: activated and revealed')
-        for _ in range(3): f.feed([face, pot], backs=backs('0|monster:3'))
-        for _ in range(3): f.feed([face, pot], backs=backs('0|monster:3', '0|monster:4'))   # a second set this turn
-        view = f.view(); sets = {c['zone']: c['position'] for c in view['board'] if c['zone'] in ('monster:3', 'monster:4')}
-        assert sets == {'monster:3': 'facedown_defense', 'monster:4': 'facedown_defense'} and view['recent'][0]['warnings'] and not view['recent'][1]['warnings'], view['recent'][:2]
-        checks.append('notary: a second face-down monster in the same turn is still set, with a warning')
+        assert card['copy_id'] == 40 and card['name'] == 'Kuriboh' and card['position'] == 'attack' and view['questions'] == [], (card, view['questions'])
+        checks.append('the back replaced by its face: an ordinary summon of the face-up card')
+        # Turned face-down where it was: the back in its zone keeps it out of the Graveyard.
+        for _ in range(4): f.feed([], backs=backs('0|monster:0'))
+        settle(f, [], backs=backs('0|monster:0'))
+        view = f.view(); assert view['players'][0]['graveyard'] == 0 and any(c['copy_id'] == 40 for c in view['board']), view['players'][0]
+        # Really gone (no card, no back): to the Graveyard on its own, as before.
+        for _ in range(30): f.feed([])
+        settle(f, [])
+        assert f.view()['players'][0]['graveyard'] == 1, f.view()['players'][0]
+        checks.append('a face-up card turned face-down in place stays; gone without a back, it goes to the Graveyard')
         # One-mat mode: player 0 only.
         solo = TableDuel(folder / 'solo', sheet=SHEETS.get)
         assert solo.calibrate('one', [{'player': 0, 'corners': NEAR}], [1920, 1080])['mode'] == 'one'
