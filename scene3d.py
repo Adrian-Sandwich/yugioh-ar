@@ -145,23 +145,83 @@ def cards_pose(quads, image_size, f=None, rounds=4):
     return R, t, err
 
 
+def fit_error(quads, image_size, R, t, f=None):
+    """How well cards lie on a plane already known: RMS px between their corners and the nearest true
+    card rectangles on it (upright or on its side, whichever fits)."""
+    K = intrinsics(f or assumed_focal(image_size), image_size); rvec = cv2.Rodrigues(np.float64(R))[0]; total = []
+    for quad in quads:
+        quad = np.float64(quad); on_plane = unproject(quad, K, R, t); centre = on_plane.mean(axis=0); best = None
+        for w, h in ((CARD_W, CARD_H), (CARD_H, CARD_W)):
+            ideal = np.float64([[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]])
+            U, _, Vt = np.linalg.svd(ideal.T @ (on_plane - centre))
+            laid = ideal @ (U @ np.diag([1, np.sign(np.linalg.det(U @ Vt))]) @ Vt) + centre
+            seen = cv2.projectPoints(np.hstack([laid, np.zeros((4, 1))]), rvec, np.float64(t).reshape(3, 1), K, None)[0].reshape(-1, 2)
+            err = float(np.mean(np.sum((seen - quad) ** 2, axis=1)))
+            if best is None or err < best: best = err
+        total.append(best)
+    return math.sqrt(float(np.mean(total))) if total else None
+
+
 class CardPlane:
     """The table plane a fixed camera sees, from the cards that have lain on it: their corners are kept
     by where they are in the image (one card per cell, the newest reading), so a pose from two cards
-    grows steadier as cards are played in other places. A camera that moved shows as a pose its newest
-    cards no longer fit: then only they count."""
+    can be redone once with more of them.
+
+    A pose is held, not followed: corners are read to 4-6 px, and a pose solved again at every analysis
+    moved the camera by a centimetre each time, and every figure of the 3D view with it (13/11/2026).
+    It changes only when it was made from few cards and many more are known now, or when the cards
+    seen now stop fitting it for several analyses in a row: the camera moved, and only they count."""
     CELL = 48           # px: two readings this close are the same card
     MAX_AGE_S = 180.    # a card not seen for this long stops counting
     MIN_CARDS = 2
-    MAX_ERROR = 6.      # px: beyond this the cards do not lie on one plane the way they were read
+    # Errors are in card widths as seen (a card is 130-200 px wide on a table filmed at arm's length).
+    # Live corners are loose: a sleeve's edge, a tracker's drift; five real cards fitted to 12 px (0.08).
+    MAX_ERROR = .10     # beyond this the cards do not lie on one plane the way they were read
+    KEEP_ERROR = .16    # the held pose stands while the cards seen now fit it this well
+    MOVED_AFTER = 4     # checks in a row (one a second) the held pose must fail before it is dropped
+    ENOUGH = 6          # a pose from this many cards is not redone for having more
     GOOD = ('contour_refined', 'tracked')  # corners that follow the card's outline, not the detector's box
 
-    def __init__(self):
-        self.seen = {}; self.image_size = None; self.pose = None; self.solved_at = -1e9
+    def __init__(self, path=None):
+        """`path`: a file that keeps the pose across restarts; without the cards that made it, the
+        camera would be back at whatever the board says until two cards are played again."""
+        self.seen = {}; self.image_size = None; self.pose = None; self.solved_at = -1e9; self.misfits = 0; self.path = path
+        try:
+            import json
+            saved = json.loads(path.read_text(encoding='utf-8'))
+            self.image_size = tuple(saved['image_size'])
+            self.pose = (np.float64(saved['rotation']), np.float64(saved['translation']), float(saved['error']), int(saved['cards']))
+        except (AttributeError, OSError, KeyError, ValueError, TypeError): pass
+
+    @staticmethod
+    def width(quads):
+        """Median width of the cards as seen, px: their shorter side."""
+        return float(np.median([min(np.linalg.norm(q[1] - q[0]), np.linalg.norm(q[2] - q[1])) for q in map(np.float64, quads)]))
+
+    def solve(self, quads, image_size):
+        """A pose from these cards, leaving out one at a time the card that fits worst while the rest
+        do not agree (a hand over a corner, a card half on another): (pose, cards used) or None."""
+        quads = list(quads)
+        while len(quads) >= self.MIN_CARDS:
+            pose = cards_pose(quads, image_size)
+            if pose is None: return None
+            if pose[2] <= self.MAX_ERROR * self.width(quads): return pose + (len(quads),)
+            if len(quads) <= 3: return None
+            worst = max(range(len(quads)), key=lambda i: fit_error([quads[i]], image_size, pose[0], pose[1]))
+            quads.pop(worst)
+        return None
+
+    def keep(self, pose):
+        self.pose = pose; self.misfits = 0
+        if self.path is not None:
+            import json
+            try: self.path.write_text(json.dumps({'image_size': list(self.image_size), 'rotation': pose[0].tolist(), 'translation': pose[1].tolist(),
+                                                  'error': pose[2], 'cards': pose[3]}), encoding='utf-8')
+            except OSError: pass
 
     def see(self, detections, image_size, now):
         image_size = tuple(int(v) for v in image_size)
-        if image_size != self.image_size: self.seen.clear(); self.pose = None; self.image_size = image_size
+        if image_size != self.image_size: self.seen.clear(); self.pose = None; self.image_size = image_size  # another camera or resolution
         fresh = []
         for d in detections or ():
             quad = np.float64(d.get('corners') or [])
@@ -171,12 +231,21 @@ class CardPlane:
         self.seen = {k: v for k, v in self.seen.items() if now - v[1] <= self.MAX_AGE_S}
         if now - self.solved_at < 1. or len(self.seen) < self.MIN_CARDS: return
         self.solved_at = now
-        pose = cards_pose([q for q, _ in self.seen.values()], image_size)
-        if (pose is None or pose[2] > self.MAX_ERROR) and len(fresh) >= self.MIN_CARDS:
-            # The camera moved: what it saw before no longer lies on today's plane.
-            self.seen = {k: v for k, v in self.seen.items() if v[1] == now}
-            pose = cards_pose(fresh, image_size)
-        if pose is not None and pose[2] <= self.MAX_ERROR: self.pose = pose + (len(self.seen),)
+        if self.pose is not None:
+            if len(fresh) < self.MIN_CARDS: return  # too little in sight to doubt it
+            if fit_error(fresh, image_size, self.pose[0], self.pose[1]) <= self.KEEP_ERROR * self.width(fresh):
+                self.misfits = 0
+                if self.pose[3] >= self.ENOUGH or len(self.seen) < 2 * self.pose[3]: return
+            else:
+                self.misfits += 1
+                if self.misfits < self.MOVED_AFTER: return  # a hand, a card being moved
+                # The camera moved: what it saw before no longer lies on today's plane.
+                moved = self.solve(fresh, image_size)
+                if moved is None: return  # nothing better to offer yet: the old pose stays
+                self.seen = {k: v for k, v in self.seen.items() if v[1] == now}
+                return self.keep(moved)
+        pose = self.solve([q for q, _ in self.seen.values()], image_size)
+        if pose is not None and (self.pose is None or pose[3] > self.pose[3]): self.keep(pose)
 
 
 def scene(mats, image_size, cards=None):

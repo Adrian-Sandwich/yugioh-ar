@@ -104,7 +104,8 @@ class TableDuel:
         # players change or undo them, `tried` keeps an undone play from coming back.
         self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
         self.back_age = {}  # zones where a card back is seen: analyses since it was last seen
-        self.card_plane = None  # scene3d.CardPlane: the table plane from the cards seen on it
+        from scene3d import CardPlane
+        self.card_plane = CardPlane(self.folder / 'camera_pose.json')  # the table plane from the cards seen on it
         import deck_list
         self.deck = deck_list.load(self.folder)  # the decks on the table (deck_list.py); empty = no list
         calibration = self.folder / 'calibration.json'
@@ -225,11 +226,7 @@ class TableDuel:
     def see_cards(self, detections, now):
         """Every card outline of this analysis, named or not: the table plane comes from them (scene3d.CardPlane)."""
         with self.lock:
-            if self.image_size:
-                if self.card_plane is None:
-                    from scene3d import CardPlane
-                    self.card_plane = CardPlane()
-                self.card_plane.see(detections, self.image_size, now)
+            if self.image_size: self.card_plane.see(detections, self.image_size, now)
 
     # --- camera ----------------------------------------------------------------
     def feed(self, tracks, backs=None):

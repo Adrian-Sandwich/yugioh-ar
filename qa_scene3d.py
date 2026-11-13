@@ -66,13 +66,29 @@ def cards_checks():
     assert plane.pose is None and scene([board], size, plane)['camera']['source'] == 'mat'
     # The camera moves: the old cards no longer fit, and the plane follows the ones seen now.
     plane = CardPlane(); see = lambda qs, now: plane.see([{'corners': q.tolist(), 'geometry_status': 'tracked'} for q in qs], size, now)
-    see(quads, 10.)
+    R, t, centre = camera((0, 0, 0), 520, 32)
+    quads = [card_quad(x, y, turn, R, t, K2, 1., rng) for x, y, turn in spots]
+    see(quads, 10.); held = plane.pose
+    # The same cards read again and again, 4 px off each time: the pose is held, not followed.
+    R, t, centre = camera((0, 0, 0), 520, 32)
+    for i in range(12): see([card_quad(x, y, turn, R, t, K2, 4., rng) for x, y, turn in spots[:2]], 12. + i)
+    assert plane.pose is held, 'a pose that still fits must not change'
+    checks.append('cards, noisy readings for 12 s: the pose does not move')
+    # A pose from two cards is redone once four or more are known, and then stays.
+    plane2 = CardPlane(); see2 = lambda qs, now: plane2.see([{'corners': q.tolist(), 'geometry_status': 'tracked'} for q in qs], size, now)
+    see2(quads[:2], 10.); first = plane2.pose
+    see2(quads[:3], 12.); assert plane2.pose is first
+    see2(quads[:5], 14.); assert plane2.pose is not first and plane2.pose[3] == 5
+    see2(quads, 16.); assert plane2.pose[3] == 5, 'not again for one more card'
+    checks.append('cards: a pose from 2 cards redone once with 5')
     R, t, centre = camera((30, 10, 0), 600, 50)
     moved = [card_quad(x + 31, y + 17, turn, R, t, K2, 1., rng) for x, y, turn in spots[:4]]
-    see(moved, 20.)
+    see(moved, 30.); see(moved, 31.5); see(moved, 33.)
+    assert plane.pose is held, 'a few misfits (a hand, a card on its way) do not drop the pose'
+    see(moved, 34.5)
     tilt = math.degrees(math.acos(abs(plane.pose[0][2, 2])))
     assert abs(tilt - 50) < 4 and plane.pose[3] == 4, (tilt, plane.pose[2:])
-    checks.append(f'cards, camera moved to 50 degrees: {tilt:.1f} from the 4 cards seen now')
+    checks.append(f'cards, camera moved to 50 degrees: after 4 misfits, {tilt:.1f} from the 4 cards seen now')
     return checks
 
 
