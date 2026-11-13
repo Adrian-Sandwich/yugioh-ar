@@ -115,9 +115,10 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
   lejanas: a 30° el catálogo acertaba siempre la primera opción, pero sólo
   aceptaba tres de cuatro cartas; con la lista, las cuatro. Una carta fuera de
   la lista se sigue reconociendo con la regla de siempre.
-- Pose de la cámara desde las cartas (`scene3d.CardPlane`): cada carta es un
-  rectángulo de 59 × 86 mm, y con dos a la vista ya se sabe la inclinación de
-  la cámara sin calibrar nada.
+- La vista 3D en Unreal 5.8 (HUD, efectos, sonido, escudo del Milenio como
+  malla, pose de la cámara desde las cartas) se retiró el 13 de noviembre: con
+  los mismos recortes 2D no aportaba sobre `/duelo` y dependía de una pose de
+  cámara frágil. Queda en la etiqueta git `unreal-archivado`.
 - El nombre impreso como segundo voto: cuando el arte solo es ambiguo (Ghost
   Rare, Starlight, reflejos), el OCR del título decide entre los cinco
   primeros candidatos visuales o, si se lee claro, en todo el registro (0

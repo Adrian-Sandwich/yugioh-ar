@@ -104,8 +104,6 @@ class TableDuel:
         # players change or undo them, `tried` keeps an undone play from coming back.
         self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
         self.back_age = {}  # zones where a card back is seen: analyses since it was last seen
-        from scene3d import CardPlane
-        self.card_plane = CardPlane(self.folder / 'camera_pose.json')  # the table plane from the cards seen on it
         import deck_list
         self.deck = deck_list.load(self.folder)  # the decks on the table (deck_list.py); empty = no list
         calibration = self.folder / 'calibration.json'
@@ -209,12 +207,6 @@ class TableDuel:
             return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones, 'virtual': self.virtual,
                     'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in (self.mats if mats is None else mats)]}
 
-    def scene(self):
-        """The camera's intrinsics and pose over the board, in mm, for a 3D engine (scene3d.py); None without a board."""
-        from scene3d import scene
-        with self.lock:
-            return scene(self.mats, self.image_size, self.card_plane)
-
     def set_deck(self, text, references):
         """The decks on the table from a list in text (deck_list.parse); empty text removes the list."""
         import deck_list
@@ -222,11 +214,6 @@ class TableDuel:
         with self.lock:
             self.deck = deck; deck_list.save(self.folder, deck)
         return deck
-
-    def see_cards(self, detections, now):
-        """Every card outline of this analysis, named or not: the table plane comes from them (scene3d.CardPlane)."""
-        with self.lock:
-            if self.image_size: self.card_plane.see(detections, self.image_size, now)
 
     # --- camera ----------------------------------------------------------------
     def feed(self, tracks, backs=None):

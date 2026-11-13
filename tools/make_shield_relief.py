@@ -1,4 +1,4 @@
-"""Relief of the Millennium shield for the 3D view (unreal/YgoAR): from its two drawings in web/fx
+"""Relief of the Millennium shield for its 3D mesh (web/shield3d.js): from its two drawings in web/fx
 (front and back), a map per side that tells the 3D mesh how thick the shield is and the material how
 each point catches the light.
 
@@ -22,7 +22,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 FX = ROOT / 'web/fx'
 SCALE = 2
-# The mesh makes a height of 1 this many pixels of the map deep (AYgoStage: relief depth over the
+# The mesh makes a height of 1 this many pixels of the map deep (shield3d.js: relief depth over the
 # shield's height, times the map's height); the normals are baked for it, a little exaggerated.
 DEPTH_PX = {'front': .05 * 256 * SCALE, 'back': .025 * 256 * SCALE}
 EXAGGERATE = 1.6

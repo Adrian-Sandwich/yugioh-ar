@@ -100,7 +100,7 @@ class Handler(BaseHTTPRequestHandler):
     ROUTES = {'/': 'page_camera', '/duelo': 'page_duel', '/pose-annotator': 'page_pose', '/snapshot': 'get_snapshot',
               '/tracks': 'get_tracks', '/config': 'get_config', '/passcodes': 'get_passcodes', '/download-status': 'get_download_status',
               '/analyze': 'analyze', '/analysis': 'latest_analysis', '/duel/history': 'get_duel_history', '/card-image': 'get_card_image',
-              '/playmat': 'get_table', '/duel': 'get_table', '/scene': 'get_table', '/deck': 'get_table', '/card-info': 'get_card_info',
+              '/playmat': 'get_table', '/duel': 'get_table', '/deck': 'get_table', '/card-info': 'get_card_info',
               '/camera.js': 'get_script', '/duel.js': 'get_script', '/ar.js': 'get_script', '/common.js': 'get_script'}
     PREFIXES = (('/fx/', 'get_fx'), ('/cutout/', 'get_cutout'), ('/sprite/', 'get_sprite'), ('/playmat/print/', 'get_print'))
 
@@ -209,9 +209,6 @@ class Handler(BaseHTTPRequestHandler):
         table = self.server.table
         if table is None: return self.reply(404, b'Duel disabled (live camera only)', 'text/plain')
         if route == '/deck': return self.json_reply(table.deck)
-        if route == '/scene':
-            scene = table.scene()
-            return self.json_reply(scene) if scene else self.reply(404, b'No calibrated playmat', 'text/plain')
         self.json_reply(table.overlay() if route == '/playmat' else table.view())
 
     def get_duel_history(self, route):

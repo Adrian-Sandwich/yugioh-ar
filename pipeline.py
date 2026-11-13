@@ -131,7 +131,6 @@ def feed_duel(server, result, data, captured_at):
             import cv2, numpy as np
             grey = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_GRAYSCALE)
             if grey is not None: table.see_markers(grey, captured_at)
-        table.see_cards(result.get('candidates') or result['detections'], captured_at)
         # Only stable tracks: provisional identities could be wrong.
         table.feed([t for t in live.snapshot() if t.get('stable')], backs=result.get('backs'))
     except Exception: traceback.print_exc()
