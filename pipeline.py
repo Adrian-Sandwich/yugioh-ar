@@ -99,7 +99,8 @@ def analysis_context(server, captured_at):
             'verified': worker.verified() if worker and hasattr(worker, 'verified') else (),
             # With a duel board set, cards outside its field zones are not analysed at all, unless a
             # client that shows every card on the table is watching.
-            'regions': table.field_regions() if table is not None and not all_cards_watching(server) else None,
+            # Until the table plane has been measured every card counts: the board may be the very thing out of place.
+            'regions': table.field_regions() if table is not None and not all_cards_watching(server) and table.plane() is not None else None,
             # Face-down cards: zones without a detected card are compared with the card back (card_backs).
             'back_zones': table.back_zones() if table is not None else None,
             # The duel's deck list: its cards are accepted on weaker evidence (vision_onnx.DECK_ACCEPTANCE).
@@ -131,6 +132,7 @@ def feed_duel(server, result, data, captured_at):
             import cv2, numpy as np
             grey = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_GRAYSCALE)
             if grey is not None: table.see_markers(grey, captured_at)
+        table.see_cards(result.get('candidates') or result['detections'], captured_at)
         # Only stable tracks: provisional identities could be wrong.
         table.feed([t for t in live.snapshot() if t.get('stable')], backs=result.get('backs'))
     except Exception: traceback.print_exc()

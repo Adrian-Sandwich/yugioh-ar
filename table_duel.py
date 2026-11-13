@@ -39,7 +39,10 @@ ACTIONS = {
 # cx, cy: centre (fraction of the image); width: near edge (fraction of image width);
 # tilt: far edge / near edge (camera pitch); depth: height stretch; rotation: degrees;
 # gap: space between the two boards, in board heights.
-VIRTUAL_DEFAULT = {'cx': .5, 'cy': .55, 'width': .7, 'tilt': .75, 'depth': 1., 'rotation': 0., 'gap': .08}
+# metric: the board is laid out in real millimetres on the table plane measured from the cards
+# (table_plane.py): then cx, cy say where its centre goes in the image, width is its size (1 = a real
+# 60 x 35 cm mat), rotation turns it on the table, and tilt and depth are not used (they are measured).
+VIRTUAL_DEFAULT = {'cx': .5, 'cy': .55, 'width': .7, 'tilt': .75, 'depth': 1., 'rotation': 0., 'gap': .08, 'metric': False}
 
 
 def virtual_corners(mode, params, image_size):
@@ -104,6 +107,8 @@ class TableDuel:
         # players change or undo them, `tried` keeps an undone play from coming back.
         self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
         self.back_age = {}  # zones where a card back is seen: analyses since it was last seen
+        from table_plane import CardPlane
+        self.card_plane = CardPlane(self.folder / 'camera_pose.json')  # the table plane, measured from the cards seen on it
         import deck_list
         self.deck = deck_list.load(self.folder)  # the decks on the table (deck_list.py); empty = no list
         calibration = self.folder / 'calibration.json'
@@ -131,24 +136,43 @@ class TableDuel:
         self.mode = mode; self.image_size = image_size
         self.tracker = ZoneTracker(self.mats, stable=self.stable); self.observed.clear(); self.missing.clear()
 
+    def plane(self, image_size=None):
+        """The table plane measured from the cards (table_plane.CardPlane's pose) for this image size, or None."""
+        cards = self.card_plane
+        if cards.pose is None or (image_size and tuple(int(v) for v in image_size) != cards.image_size): return None
+        return cards.pose
+
+    def virtual_mats(self, mode, virtual, image_size):
+        """(virtual with `metric` as it was really done, [{player, corners}]): on the measured plane when
+        the board asks for it and two cards have been seen, by eye (tilt, depth) otherwise."""
+        virtual = {**VIRTUAL_DEFAULT, **(virtual or {})}; pose = self.plane(image_size) if virtual['metric'] else None
+        if pose is None: return virtual | {'metric': False}, virtual_corners(mode, virtual, image_size)
+        from table_plane import board_corners
+        return virtual, board_corners(mode, virtual, image_size, pose)
+
     def preview(self, mode, virtual, image_size):
         """Zone outlines for virtual-board sliders, without changing the saved calibration."""
         if mode not in ('one', 'two'): raise ValueError('El tablero virtual es de uno o dos jugadores')
-        mats = [Mat(m['player'], m['corners']) for m in virtual_corners(mode, virtual, image_size)]
-        return self.overlay(mats) | {'mode': mode, 'virtual': {**VIRTUAL_DEFAULT, **(virtual or {})}, 'preview': True}
+        with self.lock:
+            virtual, corners = self.virtual_mats(mode, virtual, image_size)
+            mats = [Mat(m['player'], m['corners']) for m in corners]
+            return self.overlay(mats) | {'mode': mode, 'virtual': virtual, 'preview': True}
 
     def calibrate(self, mode, mats, image_size, virtual=None):
         """Clicked corners (`mats`), a printed template, or a virtual board placed with sliders (`virtual`)."""
         with self.lock:
             if virtual is not None:
                 if mode not in ('one', 'two'): raise ValueError('El tablero virtual es de uno o dos jugadores')
-                virtual = {**VIRTUAL_DEFAULT, **virtual}; mats = virtual_corners(mode, virtual, image_size)
+                virtual, mats = self.virtual_mats(mode, virtual, image_size)
             self.virtual = virtual
             self._set_mats(mode, mats, image_size)
-            self.folder.mkdir(parents=True, exist_ok=True)
-            (self.folder / 'calibration.json').write_text(json.dumps({'mode': mode, 'image_size': image_size, 'layout': 'printed' if mode == 'printed' else 'tcg-single',
-                'virtual': virtual, 'mats': [] if mode == 'printed' else [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}, indent=2), encoding='utf-8')
+            self.save_calibration()
             return self.overlay()
+
+    def save_calibration(self):
+        self.folder.mkdir(parents=True, exist_ok=True)
+        (self.folder / 'calibration.json').write_text(json.dumps({'mode': self.mode, 'image_size': self.image_size, 'layout': 'printed' if self.mode == 'printed' else 'tcg-single',
+            'virtual': self.virtual, 'mats': [] if self.mode == 'printed' else [{'player': m.player, 'corners': m.corners.tolist()} for m in self.mats]}, indent=2), encoding='utf-8')
 
     def see_markers(self, image, now=None):
         """Printed mode: locate the mats in this frame; keep a mat MARKER_HOLD_S after its markers vanish."""
@@ -204,8 +228,37 @@ class TableDuel:
                     if name.startswith('extra_monster') and mat.player != 0: continue  # shared: drawn once
                     zones.append({'player': mat.player, 'zone': name, 'label': zone_label(name),
                                   'polygon': mat.image_points([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).round(1).tolist()})
-            return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones, 'virtual': self.virtual,
+            pose = self.plane(self.image_size)
+            if pose is not None:
+                from table_plane import tilt_deg
+                measured = {'tilt_deg': round(tilt_deg(pose), 1), 'distance_mm': round(float(np.linalg.norm(pose[1]))), 'cards': pose[3]}
+                shown = self.mats if mats is None else mats
+                if shown and self.image_size:
+                    # How far the board reaches past the picture, 1 = just fits: a camera that much farther
+                    # from the table (or a board that much smaller) holds all of it.
+                    W, H = self.image_size; corners = np.vstack([m.corners for m in shown]); middle = corners.mean(axis=0)
+                    reach = float(max(np.abs(corners[:, 0] - middle[0]).max() / (W / 2), np.abs(corners[:, 1] - middle[1]).max() / (H / 2)))
+                    inside = bool((corners[:, 0] >= 0).all() and (corners[:, 0] <= W).all() and (corners[:, 1] >= 0).all() and (corners[:, 1] <= H).all())
+                    measured |= {'fits': inside, 'reach': round(reach, 2), 'back_mm': round(max(0., reach - 1) * measured['distance_mm'])}
+            else: measured = None
+            # `plane`: what the cards say of the camera (None until two have been seen): a virtual board can be laid on it.
+            return {'mode': self.mode, 'modes': MODES, 'image_size': self.image_size, 'zones': zones, 'virtual': self.virtual, 'plane': measured,
                     'mats': [{'player': m.player, 'corners': m.corners.tolist(), 'markers': getattr(m, 'markers', None)} for m in (self.mats if mats is None else mats)]}
+
+    def see_cards(self, detections, now):
+        """Every card outline of this analysis, named or not: the table plane comes from them. When the
+        plane changes (the camera moved, or more cards made it better) a board laid on it follows."""
+        with self.lock:
+            if not self.image_size: return
+            before = self.card_plane.pose
+            self.card_plane.see(detections, self.image_size, now)
+            pose = self.plane(self.image_size)
+            if pose is None or pose is before or not (self.virtual or {}).get('metric') or self.mode not in ('one', 'two'): return
+            try:
+                from table_plane import board_corners
+                mats = [Mat(m['player'], m['corners']) for m in board_corners(self.mode, self.virtual, self.image_size, pose)]
+            except ValueError: return  # the board no longer fits in the picture: keep the one there was
+            self.mats = mats; self.tracker.mats = mats; self.save_calibration()
 
     def set_deck(self, text, references):
         """The decks on the table from a list in text (deck_list.parse); empty text removes the list."""

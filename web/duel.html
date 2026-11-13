@@ -28,11 +28,12 @@
   select, input { padding: 7px; border-radius: 7px; border: 1px solid #40526b; background: #0c1320; color: #e9eef7; margin: 4px 4px 0 0; }
   input[type=number] { width: 80px; } input[type=text] { width: 110px; }
   #deckText { width: 100%; box-sizing: border-box; resize: vertical; background: #0b111c; color: inherit; border: 1px solid #2a3950; border-radius: 8px; padding: 6px 8px; font: 13px/1.4 ui-monospace, Consolas, monospace; }
-  #deckStatus .missing { color: #ffb86b; }
+  #deckStatus .missing, #planeAdvice { color: #ffb86b; }
   button { margin: 6px 6px 0 0; padding: 8px 12px; border-radius: 8px; border: 0; cursor: pointer; background: #8de5ca; color: #11281f; font-weight: 650; }
   button:disabled { opacity: .45; cursor: default; }
   .secondary { background: #2a3950; color: #e9eef7; }
   #virtualControls label { display: block; margin: 4px 0; }
+  #virtualControls label[hidden] { display: none; }
   #virtualControls input[type=range] { width: 60%; vertical-align: middle; }
   #calibrationHelp { font-weight: 650; color: #ffd166; }
   #duelPlayers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
@@ -139,11 +140,13 @@
         <label>Horizontal <input type="range" id="v-cx" min="0.1" max="0.9" step="0.005"></label>
         <label>Vertical <input type="range" id="v-cy" min="0.1" max="0.9" step="0.005"></label>
         <label>Tamaño <input type="range" id="v-width" min="0.2" max="1.4" step="0.005"></label>
-        <label>Inclinación <input type="range" id="v-tilt" min="0.3" max="1" step="0.005"></label>
-        <label>Profundidad <input type="range" id="v-depth" min="0.3" max="2" step="0.01"></label>
+        <label id="v-tilt-label">Inclinación <input type="range" id="v-tilt" min="0.3" max="1" step="0.005"></label>
+        <label id="v-depth-label">Profundidad <input type="range" id="v-depth" min="0.3" max="2" step="0.01"></label>
         <label>Giro <input type="range" id="v-rotation" min="-45" max="45" step="0.5"></label>
         <label id="v-gap-label">Separación <input type="range" id="v-gap" min="0" max="0.6" step="0.01"></label>
-        <button id="fixBoard">Fijar tablero</button>
+        <label title="Mide con las cartas la inclinación y la distancia de la cámara, y dibuja las zonas a escala real"><input type="checkbox" id="v-metric" checked> Medir la mesa con las cartas</label>
+        <p id="planeNote"></p><p id="planeAdvice" role="status"></p>
+        <button id="fixBoard">Fijar tablero</button><button id="centerBoard" class="secondary">Centrar</button>
       </div>
       <p id="calibrationHelp"></p>
       <div id="backsBox"><h4>Cartas boca abajo</h4>
@@ -154,5 +157,6 @@
   </aside>
 </main>
 <script src="/common.js"></script>
+<script src="/shield3d.js"></script>
 <script src="/duel.js"></script>
 </html>

@@ -84,22 +84,30 @@ function drawMillennium(context,cx,cy,height,angle,alpha){
   context.drawImage(white,-width/2,-height/2,width,height);context.restore();
   context.restore();
 }
-function drawFacedownFigure(context,polygon,now,seed,appear=1){
+// `since`: ms since this back was first seen. The shield comes in with weight: it drops onto its
+// card turning fast, flashes gold as it lands, and slows into its steady turn.
+const SHIELD_SPIN_MS=2400,SHIELD_DROP_MS=550,SHIELD_FLASH_MS=600;
+function drawFacedownFigure(context,polygon,now,seed,appear=1,since=1e9){
   const H=cardMap(polygon),[cx,cy]=H(.5,.5),l=H(0,.5),r=H(1,.5),w=Math.hypot(r[0]-l[0],r[1]-l[1]);
   const pulse=.5+.5*Math.sin(now/700+seed),bob=Math.sin(now/900+seed)*w*.025,a=clamp(appear),pop=.6+.4*ease.back(a);
-  // Contact shadow, a warm pool of light and a few motes, like every figure on the table.
-  context.save();const sh=context.createRadialGradient(cx,cy,0,cx,cy,w*.5);sh.addColorStop(0,`rgba(0,0,0,${.45*a})`);sh.addColorStop(1,'rgba(0,0,0,0)');
-  context.fillStyle=sh;planeEllipse(context,H,.95);context.fill();context.restore();
+  const landed=ease.out(since/SHIELD_DROP_MS),spin=since<SHIELD_SPIN_MS?2.5*Math.PI*2*Math.pow(1-since/SHIELD_SPIN_MS,3):0;
+  const angle=((now+seed*977)%MILLENNIUM_TURN_MS)/MILLENNIUM_TURN_MS*Math.PI*2-spin,edgeOn=Math.abs(Math.sin(angle));
+  // Contact shadow (thinner as the shield comes edge-on, fainter while it is still in the air), a warm
+  // pool of light and a few motes, like every figure on the table.
+  context.save();const sh=context.createRadialGradient(cx,cy,0,cx,cy,w*.5);sh.addColorStop(0,`rgba(0,0,0,${.5*a*landed*(1-.35*edgeOn)})`);sh.addColorStop(1,'rgba(0,0,0,0)');
+  context.fillStyle=sh;planeEllipse(context,H,.95-.3*edgeOn);context.fill();context.restore();
   glow(context,cx,cy,w*.6,RGB.back,(.18+.08*pulse)*a);
   if(Math.random()<.04*a){const [x,y]=onPlane({H},Math.random()*6.28,Math.random()*.9);emit({x,y,vx:0,vy:-(.02+.03*Math.random())*w/100,life:1500,size:w*.02,color:RGB.back,fadeIn:.3});}
-  const hgt=w*.95*pop,y=Math.max(hgt/2,cy-w*.22)+bob,angle=((now+seed*977)%MILLENNIUM_TURN_MS)/MILLENNIUM_TURN_MS*Math.PI*2;
-  glow(context,cx,y,w*.55,[255,200,90],(.2+.08*pulse)*a);
-  drawMillennium(context,cx,y,hgt,angle,a);
+  const hgt=w*.95*pop,y=Math.max(hgt/2,cy-w*.22)+bob-(1-landed)*w*.45;
+  const flash=since<SHIELD_FLASH_MS?.9*Math.pow(1-since/SHIELD_FLASH_MS,2):0;
+  glow(context,cx,y,w*.55,[255,200,90],(.2+.08*pulse+.5*flash)*a);
+  // The solid shield (shield3d.js); the flat one while it loads or without WebGL.
+  if(!shield3d.draw(context,cx,y,hgt,angle,a,{nod:.11*Math.sin(now/1900+seed*1.7),flash}))drawMillennium(context,cx,y,hgt,angle,a);
 }
 function hexPath(context,cx,cy,r){context.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;context[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*.9*Math.sin(a));}context.closePath();}
 // Face-down figures and marks come from the backs the camera sees now (duel view `backs_seen`),
 // not from what the duel recorded. A back seen for the first time plays its entrance ('set').
-const backArrived=new Map(),pageStart=performance.now();
+const backArrived=new Map(),backSince=new Map(),pageStart=performance.now();
 function drawFacedown(context){
   const board=virtualPreview||playmat;if(!board?.zones||calibration)return;
   const now=performance.now(),ar=$d('#ar')?.checked,seen=duelView?.backs_seen||[];
@@ -107,9 +115,13 @@ function drawFacedown(context){
   for(const b of seen){
     const z=board.zones.find(z=>z.player===b.player&&z.zone===b.zone);if(!z)continue;
     const key=b.player+'|'+b.zone,last=backArrived.get(key);backArrived.set(key,now);
-    if((last===undefined||now-last>15000)&&now-pageStart>2500&&$d('#fx')?.checked){const g=zoneGeometry(b.player,b.zone);if(g)effects.push({kind:'set',g,key,start:now,duration:900});}
+    const isNew=last===undefined||now-last>15000;
+    // Backs already on the table when the page opens are just there: no entrance for them.
+    if(isNew)backSince.set(key,now-pageStart>2500&&$d('#fx')?.checked?now:-1e9);
+    if(isNew&&now-pageStart>2500&&$d('#fx')?.checked){const g=zoneGeometry(b.player,b.zone);if(g)effects.push({kind:'set',g,key,start:now,duration:900});}
     const entry=effects.find(e=>e.kind==='set'&&e.key===key&&now-e.start<e.duration),appear=entry?span((now-entry.start)/entry.duration,.35,.9):1;
-    if(ar&&/^monster:/.test(b.zone))drawFacedownFigure(context,z.polygon,now,b.zone.length+b.player*3,appear);
+    // The shield's own entrance starts when it shows (35 % into the 'set' effect).
+    if(ar&&/^monster:/.test(b.zone))drawFacedownFigure(context,z.polygon,now,b.zone.length+b.player*3,appear,now-backSince.get(key)-315);
     context.save();context.lineWidth=Math.max(3,frame.width/480);context.strokeStyle='rgba(255,176,90,.85)';context.lineCap='round';cornerMarks(context,z.polygon,.3);
     if(!ar||!/^monster:/.test(b.zone)){
       const [cx,cy]=z.polygon.reduce(([a,c],[x,y])=>[a+x/4,c+y/4],[0,0]),label='Boca abajo';context.font=`600 ${size}px system-ui`;context.textAlign='center';
@@ -256,6 +268,7 @@ function calibrationStep(){
   if(!calibration){
     const seen=(playmat?.mats||[]).map(m=>`jugador ${m.player+1} (${m.markers} marcadores)`).join(', ');
     $d('#calibrationHelp').textContent=playmat?.mode==='printed'?(seen?`Plantilla impresa: veo ${seen}. Puedes mover la cámara o el tapete.`:'Plantilla impresa: no veo ningún tapete. Deja a la vista al menos 2 de sus 4 marcadores.'):
+      playmat?.virtual?.metric?`Tablero virtual a escala (${playmat.mode==='two'?'2 jugadores':'1 jugador'}), sobre la mesa medida con las cartas. Si mueves la cámara se vuelve a medir solo.`:
       playmat?.virtual?`Tablero virtual fijado (${playmat.mode==='two'?'2 jugadores':'1 jugador'}). Si mueves la cámara, vuelve a elegirlo y ajústalo.`:
       playmat?.mode?`Tapetes calibrados (${playmat.modes[playmat.mode]}). Si mueves la cámara, vuelve a calibrar.`:'Sin tablero: elige "Tablero virtual" y ajústalo sobre la mesa.';
     return;}
@@ -268,8 +281,25 @@ const VKEYS=['cx','cy','width','tilt','depth','rotation','gap'];
 const VDEFAULT={cx:.5,cy:.55,width:.7,tilt:.75,depth:1,rotation:0,gap:.08};
 // Two boards stacked must fit a 16:9 frame: start narrower and centred.
 const VSTART={'virtual-two':{...VDEFAULT,width:.42,cy:.5},'virtual-one':VDEFAULT};
-function virtualParams(){return Object.fromEntries(VKEYS.map(k=>[k,Number($d('#v-'+k).value)]));}
+// `metric`: lay the board in real millimetres on the table plane the cards give (table_plane.py);
+// the server says in its answer whether it could (two cards seen), and then tilt and depth are measured.
+function virtualParams(){return {...Object.fromEntries(VKEYS.map(k=>[k,Number($d('#v-'+k).value)])),metric:$d('#v-metric').checked};}
 function setVirtualParams(v){for(const k of VKEYS)$d('#v-'+k).value=String((v||VDEFAULT)[k]??VDEFAULT[k]);}
+function showMeasured(board){
+  const wanted=$d('#v-metric').checked,done=!!board?.virtual?.metric,p=board?.plane;
+  $d('#v-tilt-label').hidden=$d('#v-depth-label').hidden=done;
+  $d('#planeNote').textContent=done&&p?`Mesa medida con ${p.cards} cartas: cámara a ${Math.round(p.tilt_deg)}° de la vertical y a ${Math.round(p.distance_mm/10)} cm. Las zonas salen a escala; «Tamaño» 1 es un tapete real (60 × 35 cm).`
+    :wanted?'Pon dos cartas boca arriba a la vista para medir la mesa. Mientras tanto el tablero se ajusta a ojo.':'';
+  // The board does not fit in the picture: say what would make it fit.
+  const advice=$d('#planeAdvice');advice.textContent='';
+  if(done&&p&&p.fits===false){
+    const size=Number($d('#v-width').value);
+    advice.textContent=p.back_mm>10?`El tablero no cabe en la imagen. Aleja la cámara unos ${Math.max(1,Math.round(p.back_mm/10))} cm (hasta unos ${Math.round((p.distance_mm+p.back_mm)/10)} cm de la mesa), o baja «Tamaño» a ${(size/p.reach).toFixed(2)}.`
+      :'El tablero cabe, pero está descentrado y se sale por un lado: muévelo o pulsa «Centrar».';
+  }
+  // Still waiting for the cards: ask again while the sliders are open.
+  if(wanted&&!done&&!$d('#virtualControls').hidden){clearTimeout(previewTimer);previewTimer=setTimeout(previewVirtual,1500);}
+}
 let previewTimer=0,previewSeq=0;
 async function previewVirtual(){
   const mode=$d('#matMode').value;if(!mode.startsWith('virtual-'))return;
@@ -278,7 +308,7 @@ async function previewVirtual(){
   const seq=++previewSeq;
   try{const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({preview:true,mode:mode.slice(8),virtual:virtualParams(),image_size:[frame.width,frame.height]})});
     const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo dibujar el tablero');
-    if(seq===previewSeq){virtualPreview=data;zonesVersion++;}}
+    if(seq===previewSeq){virtualPreview=data;zonesVersion++;showMeasured(data);}}
   catch(e){duelMessage(e.message,true);}
 }
 function showMode(adjust=false){
@@ -296,8 +326,13 @@ $d('#matMode').onchange=()=>{
   if(mode.startsWith('virtual-'))setVirtualParams(playmat?.virtual&&'virtual-'+playmat.mode===mode?playmat.virtual:VSTART[mode]);
   showMode(false);
 };
+// "Centrar": a board lost off the picture (after the camera moved, or the first time on a measured table) comes back to its middle.
+$d('#centerBoard').onclick=()=>{
+  setVirtualParams({...virtualParams(),cx:.5,cy:.5,rotation:0,width:$d('#v-metric').checked?1:virtualParams().width});previewVirtual();
+};
 setVirtualParams(VSTART['virtual-two']);
 for(const k of VKEYS)$d('#v-'+k).oninput=()=>{clearTimeout(previewTimer);previewTimer=setTimeout(previewVirtual,40);};
+$d('#v-metric').onchange=()=>previewVirtual();
 $d('#fixBoard').onclick=async()=>{
   try{const r=await fetch('/playmat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:$d('#matMode').value.slice(8),virtual:virtualParams(),image_size:[frame.width,frame.height]})});
     const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo fijar el tablero');

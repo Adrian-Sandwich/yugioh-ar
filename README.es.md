@@ -115,6 +115,17 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
   lejanas: a 30° el catálogo acertaba siempre la primera opción, pero sólo
   aceptaba tres de cuatro cartas; con la lista, las cuatro. Una carta fuera de
   la lista se sigue reconociendo con la regla de siempre.
+- Tablero virtual a escala (`table_plane.py`): con dos cartas boca arriba a la
+  vista se mide la inclinación y la distancia de la cámara (cada carta es un
+  rectángulo de 59 × 86 mm) y las zonas se dibujan en milímetros reales sobre
+  la mesa, así que salen del tamaño de las cartas con cualquier ángulo. Sólo
+  se elige dónde va, su giro y su tamaño; si no cabe en la imagen, dice cuánto
+  alejar la cámara. Si la cámara se mueve, se vuelve a medir solo.
+- El escudo del Milenio de `/duelo` es un sólido (`web/shield3d.js`): una malla
+  WebGL con sus dos caras y su canto, levantada del relieve de sus dos dibujos
+  (`tools/make_shield_relief.py`), con un sombreador de metal propio. Entra
+  cayendo y girando rápido, destella y se asienta. Sin WebGL queda el escudo
+  plano de antes.
 - La vista 3D en Unreal 5.8 (HUD, efectos, sonido, escudo del Milenio como
   malla, pose de la cámara desde las cartas) se retiró el 13 de noviembre: con
   los mismos recortes 2D no aportaba sobre `/duelo` y dependía de una pose de
