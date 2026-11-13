@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from playmat import Mat, tcg_layout
-from scene3d import scene
+from scene3d import CardPlane, assumed_focal, scene, unproject
 
 W, H, F, SIZE = 600., 350., 1400., (1920, 1080)
 K = np.float64([[F, 0, SIZE[0] / 2], [0, F, SIZE[1] / 2], [0, 0, 1]])
@@ -27,6 +27,53 @@ def project(points, R, t):
 
 NEAR = [[0, 0], [W, 0], [W, H], [0, H]]
 FAR = [[W, -80], [0, -80], [0, -80 - H], [W, -80 - H]]  # player 1 across the table: its TL is world (W, -gap)
+
+
+def card_quad(x, y, turn_deg, R, t, K2, noise, rng):
+    """Image corners of a 59 x 86 mm card centred at (x, y) mm on the table, turned `turn_deg`."""
+    a = math.radians(turn_deg); rot = np.float64([[math.cos(a), -math.sin(a)], [math.sin(a), math.cos(a)]])
+    pts = np.float64([[-29.5, -43], [29.5, -43], [29.5, 43], [-29.5, 43]]) @ rot.T + [x, y]
+    seen = cv2.projectPoints(np.hstack([pts, np.zeros((4, 1))]), cv2.Rodrigues(R)[0], t, K2, None)[0].reshape(-1, 2)
+    return seen + rng.normal(0, noise, seen.shape)
+
+
+def cards_checks():
+    """The table plane from the cards alone: a virtual board drawn wrong no longer bends the camera."""
+    checks = []; rng = np.random.default_rng(7); size = (1280, 720)
+    spots = [(-120, -60, 0), (60, -70, 0), (150, 40, 90), (-40, 60, 0), (-170, 70, 12), (20, -10, 0)]
+    for label, f, noise, count, tolerance in (('the assumed lens', assumed_focal(size), 1., 6, 2.), ('a lens 12 % longer', assumed_focal(size) * 1.12, 1., 6, 6.),
+                                              ('two cards', assumed_focal(size), 1., 2, 5.)):
+        K2 = np.float64([[f, 0, size[0] / 2], [0, f, size[1] / 2], [0, 0, 1]])
+        R, t, centre = camera((0, 0, 0), 520, 32)
+        quads = [card_quad(x, y, turn, R, t, K2, noise, rng) for x, y, turn in spots[:count]]
+        plane = CardPlane(); plane.see([{'corners': q.tolist(), 'geometry_status': 'contour_refined'} for q in quads], size, 10.)
+        assert plane.pose is not None, label
+        tilt = math.degrees(math.acos(abs(plane.pose[0][2, 2])))
+        assert abs(tilt - 32) < tolerance and plane.pose[2] < 3, (label, tilt, plane.pose[2])
+        # A board drawn by hand as a head-on rectangle: with the cards, the camera is still at 32 degrees,
+        # and a card's centre comes out at its true distance from another's.
+        board = Mat(0, [[100, 60], [1180, 60], [1180, 690], [100, 690]])
+        s = scene([board], size, plane)
+        assert s['camera']['source'] == 'cards' and abs(s['camera']['tilt_deg'] - tilt) < .01 and s['camera']['cards'] == count, s['camera']
+        Ks = np.float64([[s['intrinsics']['fx'], 0, size[0] / 2], [0, s['intrinsics']['fy'], size[1] / 2], [0, 0, 1]])
+        centres = unproject([q.mean(axis=0) for q in quads[:2]], Ks, np.float64(s['camera']['rotation']), np.float64(s['camera']['translation_mm']))
+        true = math.dist(spots[0][:2], spots[1][:2]); got = float(np.linalg.norm(centres[0] - centres[1]))
+        assert abs(got - true) / true < .08, (label, got, true)
+        assert np.allclose(s['mats'][0]['corners_mm'][0], [0, 0], atol=.5) and abs(s['mats'][0]['corners_mm'][1][1]) < .5  # the mat's top edge is the x axis
+        checks.append(f'cards, {label}: tilt {tilt:.1f} degrees (true 32), {plane.pose[2]:.1f} px, two cards {got:.0f} mm apart (true {true:.0f})')
+    # The detector's box (no outline) and a card cut by the frame do not count; without cards, the mat's pose.
+    plane = CardPlane(); plane.see([{'corners': q.tolist(), 'geometry_status': 'unresolved'} for q in quads], size, 10.)
+    assert plane.pose is None and scene([board], size, plane)['camera']['source'] == 'mat'
+    # The camera moves: the old cards no longer fit, and the plane follows the ones seen now.
+    plane = CardPlane(); see = lambda qs, now: plane.see([{'corners': q.tolist(), 'geometry_status': 'tracked'} for q in qs], size, now)
+    see(quads, 10.)
+    R, t, centre = camera((30, 10, 0), 600, 50)
+    moved = [card_quad(x + 31, y + 17, turn, R, t, K2, 1., rng) for x, y, turn in spots[:4]]
+    see(moved, 20.)
+    tilt = math.degrees(math.acos(abs(plane.pose[0][2, 2])))
+    assert abs(tilt - 50) < 4 and plane.pose[3] == 4, (tilt, plane.pose[2:])
+    checks.append(f'cards, camera moved to 50 degrees: {tilt:.1f} from the 4 cards seen now')
+    return checks
 
 
 def main():
@@ -70,6 +117,7 @@ def main():
     assert np.allclose(s['camera']['position_mm'], centre, atol=3) and np.allclose(s['mats'][0]['corners_mm'], NEAR, atol=.5), s['camera']
     checks.append('printed template: same pose from its mm homography')
     assert scene([], SIZE) is None and scene([printed], None) is None
+    checks += cards_checks()
     for c in checks: print('ok', c)
 
 
