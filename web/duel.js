@@ -447,6 +447,29 @@ async function loadHistory(){
 }
 $d('#historyBox').addEventListener('toggle',()=>{if($d('#historyBox').open)loadHistory();});
 
+// The deck list (deck_list.py): the cards on it are recognized on weaker evidence.
+function showDeck(deck,saved){
+  const count=deck.cards.length, status=$d('#deckStatus');
+  $d('#deckBox').querySelector('summary').textContent=`Mazo${count?` (${count} cartas)`:''}`;
+  status.replaceChildren(textNode('span',count?`${saved?'Guardada: ':''}${count} cartas distintas en la lista.`:'Sin lista: todas las cartas se reconocen con la regla del catálogo.'));
+  if(deck.unknown.length){const missing=textNode('span',` No encontré ${deck.unknown.length}: ${deck.unknown.slice(0,8).join(', ')}${deck.unknown.length>8?'…':''}`);missing.className='missing';status.append(missing);}
+}
+async function loadDeck(){
+  try{const deck=await (await fetch('/deck',{cache:'no-store'})).json();$d('#deckText').value=deck.text??Object.values(deck.names).join('\n');showDeck(deck,false);}catch(e){}
+}
+async function saveDeck(text){
+  const status=$d('#deckStatus');
+  try{
+    const reply=await fetch('/deck',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    const deck=await reply.json();
+    if(!reply.ok)throw new Error(deck.error||reply.statusText);
+    $d('#deckText').value=text;showDeck(deck,true);
+  }catch(e){status.textContent=`No se pudo guardar la lista: ${e.message}`;}
+}
+$d('#saveDeck').onclick=()=>saveDeck($d('#deckText').value);
+$d('#clearDeck').onclick=()=>{if(confirm('¿Quitar la lista de mazo?'))saveDeck('');};
+loadDeck();
+
 function renderDuel(view){
   stageEvents(duelView,view);   // summon, attack, destruction and LP effects from what changed
   renderPhaseBar(view);renderRecent(view);renderPiles(view);

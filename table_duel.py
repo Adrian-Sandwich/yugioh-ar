@@ -217,7 +217,7 @@ class TableDuel:
     def set_deck(self, text, references):
         """The decks on the table from a list in text (deck_list.parse); empty text removes the list."""
         import deck_list
-        deck = deck_list.parse(text or '', references)
+        deck = deck_list.parse(text or '', references) | {'text': text or ''}  # the text as written, for the page's box
         with self.lock:
             self.deck = deck; deck_list.save(self.folder, deck)
         return deck

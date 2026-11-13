@@ -27,6 +27,8 @@
   p { color: #aebbd0; margin: 6px 0; }
   select, input { padding: 7px; border-radius: 7px; border: 1px solid #40526b; background: #0c1320; color: #e9eef7; margin: 4px 4px 0 0; }
   input[type=number] { width: 80px; } input[type=text] { width: 110px; }
+  #deckText { width: 100%; box-sizing: border-box; resize: vertical; background: #0b111c; color: inherit; border: 1px solid #2a3950; border-radius: 8px; padding: 6px 8px; font: 13px/1.4 ui-monospace, Consolas, monospace; }
+  #deckStatus .missing { color: #ffb86b; }
   button { margin: 6px 6px 0 0; padding: 8px 12px; border-radius: 8px; border: 0; cursor: pointer; background: #8de5ca; color: #11281f; font-weight: 650; }
   button:disabled { opacity: .45; cursor: default; }
   .secondary { background: #2a3950; color: #e9eef7; }
@@ -124,6 +126,12 @@
       <div id="duelBoard"></div>
     </details>
     <details id="historyBox"><summary>Historial de duelos</summary><div id="historyBody"></div></details>
+    <details id="deckBox"><summary>Mazo</summary>
+      <p>Las cartas que hay en la mesa, de los dos jugadores: una por línea, por nombre («3 Sirviente de la Calavera») o un archivo .ydk pegado tal cual. Las de la lista se reconocen aunque se vean peor: lejos, con reflejo o con la cámara inclinada.</p>
+      <textarea id="deckText" rows="8" spellcheck="false" aria-label="Lista de mazo"></textarea>
+      <button id="saveDeck">Guardar lista</button><button id="clearDeck" class="secondary">Quitar lista</button>
+      <p id="deckStatus" role="status"></p>
+    </details>
     <details id="boardSettings" open><summary>Tablero</summary>
       <select id="matMode"><option value="virtual-two">Virtual · 2 jugadores</option><option value="virtual-one">Virtual · 1 jugador</option><option value="printed">Plantilla impresa (sigue a la cámara)</option><option value="two">Dos tapetes propios (clics)</option><option value="one">Un tapete propio (clics)</option></select>
       <button id="calibrate">Usar este modo</button><button id="cancelCalibration" class="secondary" hidden>Cancelar</button>
