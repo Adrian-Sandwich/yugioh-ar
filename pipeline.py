@@ -101,7 +101,9 @@ def analysis_context(server, captured_at):
             # client that shows every card on the table is watching.
             'regions': table.field_regions() if table is not None and not all_cards_watching(server) else None,
             # Face-down cards: zones without a detected card are compared with the card back (card_backs).
-            'back_zones': table.back_zones() if table is not None else None}
+            'back_zones': table.back_zones() if table is not None else None,
+            # The duel's deck list: its cards are accepted on weaker evidence (vision_onnx.DECK_ACCEPTANCE).
+            'deck': table.deck['cards'] or None if table is not None else None}
 
 
 def submit_ocr(server, result, data, captured_at, previews):

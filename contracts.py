@@ -83,9 +83,10 @@ TRACK_FIELDS = ('track_id', 'card_id', 'name', 'sprite_ref', 'corners', 'stable'
 
 # Context the viewer passes to a recognizer's analyze_jpeg (and inference_host forwards to the
 # child process): reuse = fresh stable tracks, verified = OCR/art evidence, regions = duel field
-# zones, back_zones = zones to check for card backs. A new one is added here, in camera_viewer
-# (producer) and in vision_onnx.analyze_jpeg (consumer); inference_host passes them through.
-ANALYZE_CONTEXT = ('reuse', 'verified', 'regions', 'back_zones')
+# zones, back_zones = zones to check for card backs, deck = card ids of the duel's deck list. A new
+# one is added here, in pipeline.analysis_context (producer) and in vision_onnx.analyze_jpeg
+# (consumer); inference_host passes them through.
+ANALYZE_CONTEXT = ('reuse', 'verified', 'regions', 'back_zones', 'deck')
 
 
 def missing(item, required):

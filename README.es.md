@@ -108,6 +108,16 @@ Funciona, verificado con pruebas reproducibles en este repositorio:
   color de la mesa, sin carta boca arriba detectada ahí, tiene una carta boca
   abajo; la orientación distingue defensa de carta colocada. El reverso
   oficial y las fundas enseñadas siguen sumando evidencia.
+- Lista de mazo (desde el 13 de noviembre): con la lista de las cartas que hay
+  en la mesa (`deck_list.py`: un `.ydk` o nombres, un `POST /deck`), una carta
+  de la lista se acepta con menos evidencia que una del catálogo entero. Es lo
+  que necesitan la cámara en ángulo, el reflejo de las fundas y las cartas
+  lejanas: a 30° el catálogo acertaba siempre la primera opción, pero sólo
+  aceptaba tres de cuatro cartas; con la lista, las cuatro. Una carta fuera de
+  la lista se sigue reconociendo con la regla de siempre.
+- Pose de la cámara desde las cartas (`scene3d.CardPlane`): cada carta es un
+  rectángulo de 59 × 86 mm, y con dos a la vista ya se sabe la inclinación de
+  la cámara sin calibrar nada.
 - El nombre impreso como segundo voto: cuando el arte solo es ambiguo (Ghost
   Rare, Starlight, reflejos), el OCR del título decide entre los cinco
   primeros candidatos visuales o, si se lee claro, en todo el registro (0

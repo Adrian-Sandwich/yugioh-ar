@@ -105,6 +105,8 @@ class TableDuel:
         self.auto = True; self.recent = []; self.tried = set(); self.first_seen = {}; self.gestures = {}
         self.back_age = {}  # zones where a card back is seen: analyses since it was last seen
         self.card_plane = None  # scene3d.CardPlane: the table plane from the cards seen on it
+        import deck_list
+        self.deck = deck_list.load(self.folder)  # the decks on the table (deck_list.py); empty = no list
         calibration = self.folder / 'calibration.json'
         if calibration.exists():
             data = json.loads(calibration.read_text(encoding='utf-8'))
@@ -211,6 +213,14 @@ class TableDuel:
         from scene3d import scene
         with self.lock:
             return scene(self.mats, self.image_size, self.card_plane)
+
+    def set_deck(self, text, references):
+        """The decks on the table from a list in text (deck_list.parse); empty text removes the list."""
+        import deck_list
+        deck = deck_list.parse(text or '', references)
+        with self.lock:
+            self.deck = deck; deck_list.save(self.folder, deck)
+        return deck
 
     def see_cards(self, detections, now):
         """Every card outline of this analysis, named or not: the table plane comes from them (scene3d.CardPlane)."""

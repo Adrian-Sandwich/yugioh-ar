@@ -100,7 +100,7 @@ class Handler(BaseHTTPRequestHandler):
     ROUTES = {'/': 'page_camera', '/duelo': 'page_duel', '/pose-annotator': 'page_pose', '/snapshot': 'get_snapshot',
               '/tracks': 'get_tracks', '/config': 'get_config', '/passcodes': 'get_passcodes', '/download-status': 'get_download_status',
               '/analyze': 'analyze', '/analysis': 'latest_analysis', '/duel/history': 'get_duel_history', '/card-image': 'get_card_image',
-              '/playmat': 'get_table', '/duel': 'get_table', '/scene': 'get_table', '/card-info': 'get_card_info',
+              '/playmat': 'get_table', '/duel': 'get_table', '/scene': 'get_table', '/deck': 'get_table', '/card-info': 'get_card_info',
               '/camera.js': 'get_script', '/duel.js': 'get_script', '/ar.js': 'get_script', '/common.js': 'get_script'}
     PREFIXES = (('/fx/', 'get_fx'), ('/cutout/', 'get_cutout'), ('/sprite/', 'get_sprite'), ('/playmat/print/', 'get_print'))
 
@@ -208,6 +208,7 @@ class Handler(BaseHTTPRequestHandler):
     def get_table(self, route):
         table = self.server.table
         if table is None: return self.reply(404, b'Duel disabled (live camera only)', 'text/plain')
+        if route == '/deck': return self.json_reply(table.deck)
         if route == '/scene':
             scene = table.scene()
             return self.json_reply(scene) if scene else self.reply(404, b'No calibrated playmat', 'text/plain')
@@ -235,7 +236,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         route=urlsplit(self.path).path
-        if route in ('/playmat','/duel'):
+        if route in ('/playmat','/duel','/deck'):
             return self.table_post(route)
         if route!='/analyze':
             return self.reply(404,b'Not found','text/plain')
@@ -297,7 +298,8 @@ class Handler(BaseHTTPRequestHandler):
             length=int(self.headers.get('Content-Length','0'))
             if not 0<length<=65536: return self.reply(413,b'Invalid body size','text/plain')
             payload=json.loads(self.rfile.read(length))
-            if route=='/playmat' and payload.get('preview'): body=table.preview(payload['mode'],payload.get('virtual'),payload['image_size'])
+            if route=='/deck': body=table.set_deck(payload.get('text',''),self.server.recognizer.references if self.server.recognizer else [])
+            elif route=='/playmat' and payload.get('preview'): body=table.preview(payload['mode'],payload.get('virtual'),payload['image_size'])
             elif route=='/playmat': body=table.calibrate(payload['mode'],payload.get('mats',[]),payload.get('image_size'),payload.get('virtual'))
             elif payload.get('type') in ('teach_back','forget_backs'): body={'result':self.teach_back(table,payload),'duel':table.view()}
             else: body={'result':table.act(payload),'duel':table.view()}

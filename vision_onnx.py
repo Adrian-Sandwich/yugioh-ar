@@ -39,6 +39,12 @@ REFS=settings.REFS
 # set a little above that frontier because scans are flatter than table photos.
 # See research/CALIBRACION_ESCANEOS.md.
 ACCEPTANCE={'embedding':(.50,.25),'classifier':(.50,.15)}
+# A card of the duel's deck list (deck_list.py) that is also the catalogue's first choice: (minimum
+# score, minimum margin to the best other card of the list). Measured on 13/11/2026 with the camera
+# at 30 degrees over four sleeved cards, 25 frames each: the catalogue's first choice was right every
+# time but its own rule accepted two of the four (scores 0.40-0.68, margins 0.11-0.46); against the
+# list the margins were 0.23-0.55, and a card left out of the list never scored above 0.16 against it.
+DECK_ACCEPTANCE=(.30,.15)
 ORIENTATION_SKIP_SCORE=.90
 # A track keeps its identity without re-encoding while it is this fresh and
 # still overlaps the new box; afterwards the card is identified again so a
@@ -92,8 +98,21 @@ class ResearchRecognizer:
             if len(grouped)==5: break
         return list(grouped.values())[:5]
 
-    def identify(self,rectified_crops):
-        """Best orientation per crop with as few encoder runs as the scores allow."""
+    def deck_margin(self,z,card_id,deck):
+        """Margin of `card_id` over the best other card of the deck list for one embedding; None when
+        the card is not on the list."""
+        deck=tuple(deck or ())
+        if getattr(self,'deck_key',None)!=deck:
+            wanted=set(deck);self.deck_key=deck
+            self.deck_index=np.flatnonzero([row['card_id'] in wanted for row in self.rows])
+            self.deck_ids=np.array([self.rows[i]['card_id'] for i in self.deck_index])
+        if not len(self.deck_index) or card_id not in self.deck_ids: return None
+        scores=self.vectors[self.deck_index]@z;own=self.deck_ids==card_id
+        return float(scores[own].max()-(scores[~own].max() if (~own).any() else 0.))
+
+    def identify(self,rectified_crops,embeddings=False):
+        """Best orientation per crop with as few encoder runs as the scores allow: (score, rotation,
+        predictions), and the embedding too with `embeddings`."""
         classify=self.mode!='embedding'
         options=[[] for _ in rectified_crops]
         pending=list(range(len(rectified_crops)))
@@ -102,14 +121,15 @@ class ResearchRecognizer:
             batch=[np.ascontiguousarray(np.rot90(rectified_crops[i],rotation)) for i in pending]
             for i,(predictions,z) in zip(pending,self.encoder.predict_batch(batch,classify=classify)):
                 if not classify: predictions=self.rank(z)
-                options[i].append((predictions[0]['score'] if predictions else 0.,rotation,predictions))
+                options[i].append((predictions[0]['score'] if predictions else 0.,rotation,predictions)+((z,) if embeddings else ()))
             # Only crops whose first orientation is not already convincing pay for the second.
             pending=[i for i in pending if options[i][0][0]<ORIENTATION_SKIP_SCORE]
         return [max(o,key=lambda x:x[0]) for o in options]
 
-    def detect(self,image,reuse=(),regions=None):
+    def detect(self,image,reuse=(),regions=None,deck=None):
         """`regions`: image polygons of the duel board's field zones. Boxes whose centre falls
-        outside all of them (a hand, the Graveyard, the table) skip geometry and encoding."""
+        outside all of them (a hand, the Graveyard, the table) skip geometry and encoding.
+        `deck`: card ids of the duel's deck list; one of them is accepted by DECK_ACCEPTANCE."""
         started=time.perf_counter();result=[]
         boxes=self.detector.detect(image);outside=0
         if regions:
@@ -146,7 +166,8 @@ class ResearchRecognizer:
             best=max(((quad_iou(quad,t['corners']),t) for t in reuse if t.get('card_id')),key=lambda x:x[0],default=(0.,None))
             if best[1] is not None and best[0]>=REUSE_MIN_IOU: reused[index]=(best[0],best[1])
         fresh=[i for i in range(len(boxes)) if i not in reused]
-        identified=dict(zip(fresh,self.identify([crop(image,points[i]) for i in fresh])))
+        by_deck=bool(deck) and self.mode=='embedding'
+        identified=dict(zip(fresh,self.identify([crop(image,points[i]) for i in fresh],embeddings=by_deck)))
         encoded=len(fresh)
         for index,(box,geometry) in enumerate(zip(boxes,geometries)):
             quad=points[index]
@@ -157,15 +178,21 @@ class ResearchRecognizer:
                 result.append(detection(box,geometry,quad,rotation,track['card_id'],float(track.get('score',0.)),float(track.get('margin',0.)),True,top,'track',
                                         reuse_iou=round(iou,3),track_id=track.get('track_id')))
                 continue
-            score,rotation,top=identified[index]
+            score,rotation,top=identified[index][:3]
             if not top:
                 # Empty index or no classifier mapping: report the box, never an identity.
                 result.append(detection(box,geometry,quad,rotation,None,0.,0.,False,[],'none'))
                 continue
             margin=top[0]['score']-(top[1]['score'] if len(top)>1 else 0)
             accepted=bool(top[0]['card_id']) and top[0]['score']>=minimum and margin>=margin_floor
+            acceptance='score' if accepted else None;extra={}
+            if by_deck and not accepted and top[0]['card_id']:
+                in_deck=self.deck_margin(identified[index][3],top[0]['card_id'],deck)
+                if in_deck is not None:
+                    extra['deck_margin']=round(in_deck,4)
+                    if top[0]['score']>=DECK_ACCEPTANCE[0] and in_deck>=DECK_ACCEPTANCE[1]: accepted=True;acceptance='deck'
             result.append(detection(box,geometry,quad,rotation,top[0]['card_id'],top[0]['score'],margin,accepted,top,
-                                    'embedding' if self.mode=='embedding' else 'classifier',acceptance='score' if accepted else None))
+                                    'embedding' if self.mode=='embedding' else 'classifier',acceptance=acceptance,**extra))
         return {'detections':result,'processing_ms':round((time.perf_counter()-started)*1000,1),'mode':self.mode,
                 'experimental_thresholds':True,'geometry_ms':geometry_ms,'encoded_cards':encoded,'reused_cards':len(reused),'outside_regions':outside}
 
@@ -250,14 +277,16 @@ class LiveRecognizer(ResearchRecognizer):
         return {**candidate,'id':matching.get('id','model:'+candidate['card_id']),'name':entry['name'],'artwork_id':matching.get('artwork_id'),
                 'sprite_ref':matching.get('sprite_ref'),'experimental':True}
 
-    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None,back_zones=None):
+    def analyze_jpeg(self,data,reuse=(),verified=(),regions=None,back_zones=None,deck=None):
         """`back_zones`: [{'id','polygon'}] of the duel board; those without a detected card are
-        checked for a card back (card_backs), reported in result['backs'] with their scores."""
+        checked for a card back (card_backs), reported in result['backs'] with their scores.
+        `deck`: card ids of the duel's deck list (deck_list.py)."""
         image=cv2.imdecode(np.frombuffer(data,np.uint8),cv2.IMREAD_COLOR)
         if image is None: raise ValueError('Invalid JPEG')
         reloaded=self.refresh_pilot()
+        if reloaded: self.deck_key=None  # the index changed: the list's rows are other rows now
         if not reloaded: self.refresh_auto_sprites()
-        result=self.detect(image,reuse=reuse,regions=regions)
+        result=self.detect(image,reuse=reuse,regions=regions,deck=deck)
         if back_zones and self.mode=='embedding':
             from card_backs import BackChecker,THRESHOLD
             if getattr(self,'backs',None) is None: self.backs=BackChecker(self.encoder)

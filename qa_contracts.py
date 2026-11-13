@@ -46,7 +46,7 @@ def main():
     with patch.object(vision_onnx, 'LiveRecognizer', Fake):
         server = threading.Thread(target=inference_host._serve, args=(child, 'embedding'), daemon=True); server.start()
         assert parent.recv()[0] == 'ready'
-        context = {'reuse': [{'card_id': 'a'}], 'verified': [], 'regions': [[[0, 0], [1, 0], [1, 1]]], 'back_zones': [{'id': 'z'}]}
+        context = {'reuse': [{'card_id': 'a'}], 'verified': [], 'regions': [[[0, 0], [1, 0], [1, 1]]], 'back_zones': [{'id': 'z'}], 'deck': ['a']}
         parent.send(('analyze', {'data': b'jpeg', **context}))
         kind, result = parent.recv(); parent.send(None); server.join(5)
     assert kind == 'ok' and result['context'] == sorted(contracts.ANALYZE_CONTEXT) and seen == context, (kind, result)
