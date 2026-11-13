@@ -43,6 +43,8 @@ AYgoTableView::AYgoTableView()
 	PP.bOverride_VignetteIntensity = true; PP.VignetteIntensity = 0.f;
 	PP.bOverride_LocalExposureHighlightContrastScale = true; PP.LocalExposureHighlightContrastScale = 1.f;
 	PP.bOverride_LocalExposureShadowContrastScale = true; PP.LocalExposureShadowContrastScale = 1.f;
+	// No motion blur: a solid that spins fast (the shield coming in) would smear over the video.
+	PP.bOverride_MotionBlurAmount = true; PP.MotionBlurAmount = 0.f;
 	PP.bOverride_BloomThreshold = true; PP.BloomThreshold = 1.f;
 	PP.bOverride_BloomIntensity = true; PP.BloomIntensity = 1.2f;
 }

@@ -26,6 +26,18 @@ public:
 
 DECLARE_MULTICAST_DELEGATE(FYgoFrameEvent);
 
+struct FYgoPixels
+{
+	int32 Width = 0, Height = 0;
+	TArray<uint8> Bgra;
+	// Channel C (0 blue .. 3 alpha) at a pixel, clamped to the image; 0..1.
+	float At(int32 X, int32 Y, int32 C) const
+	{
+		if (Width <= 0 || Height <= 0) return 0;
+		return Bgra[(FMath::Clamp(Y, 0, Height - 1) * Width + FMath::Clamp(X, 0, Width - 1)) * 4 + C] / 255.f;
+	}
+};
+
 UCLASS()
 class UYgoLab : public UGameInstanceSubsystem, public FTickableGameObject
 {
@@ -57,6 +69,10 @@ public:
 	UTexture2D* Sprite(const FYgoTrack& Track);
 	// Any PNG the lab serves (/fx/...), or null while it loads or if there is none.
 	UTexture2D* Image(const FString& Path);
+	// A PNG that holds numbers, not colour (a relief map): sampled as written, and its pixels are kept.
+	UTexture2D* DataImage(const FString& Path);
+	// A data image's pixels (BGRA, rows from the top), or null while it loads.
+	const FYgoPixels* Pixels(const FString& Path) const { return Kept.Find(Path); }
 	// A player's decision (POST /duel). Done gets the lab's reason if it refused, empty if it took it;
 	// the duel it answers with is already in GetDuel().
 	void Act(const TSharedRef<FJsonObject>& Event, TFunction<void(const FString& Error)> Done);
@@ -74,8 +90,8 @@ private:
 	void ParseDuel(const TSharedPtr<FJsonObject>& Json);
 	void UploadFrame(TArray<uint8>&& Bgra, int32 Width, int32 Height);
 	// A PNG at Path, cached under Key: null until it arrives.
-	UTexture2D* Png(const FString& Key, const FString& Path);
-	static UTexture2D* TextureFromPng(const TArray<uint8>& Png);
+	UTexture2D* Png(const FString& Key, const FString& Path, bool bData = false);
+	static UTexture2D* TextureFromPng(const TArray<uint8>& Png, bool bData, FYgoPixels* OutPixels);
 
 	FString BaseUrl;
 	double StartedAt = 0, LastFrameAt = -100, NextDuelAt = 0, NextSceneAt = 0, NextAnalysisAt = 0;
@@ -95,4 +111,5 @@ private:
 	UPROPERTY()
 	TMap<FString, TObjectPtr<UTexture2D>> Sprites;
 	TSet<FString> SpritesRequested;
+	TMap<FString, FYgoPixels> Kept;  // data images' pixels, by path
 };

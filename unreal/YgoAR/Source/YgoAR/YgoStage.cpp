@@ -10,6 +10,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Paths.h"
+#include "ProceduralMeshComponent.h"
 #include "UnrealClient.h"
 #include "YgoEase.h"
 #include "YgoFeel.h"
@@ -36,6 +37,93 @@ namespace
 	const FLinearColor BackGlow = FLinearColor::FromSRGBColor(FColor(255, 160, 70));  // RGB.back
 	const TCHAR* ShieldFront = TEXT("/fx/shield-millennium-front.png");
 	const TCHAR* ShieldBack = TEXT("/fx/shield-millennium-back.png");
+	// Their relief (tools/make_shield_relief.py): normal x and y, how metallic, and height in alpha.
+	const TCHAR* ShieldFrontRelief = TEXT("/fx/shield-millennium-front-relief.png");
+	const TCHAR* ShieldBackRelief = TEXT("/fx/shield-millennium-back-relief.png");
+
+	// The shield as a solid, in the engine plane's units (100 x 100 across X and Y, front toward +Z;
+	// Z in the same units as Y): a face per side, each raised by its relief, and the edge between them.
+	// One vertex per ShieldStep pixels of the front relief, whose alpha is also the silhouette.
+	// Vertex colour for M_FxMetal: red on the edge, green on the back face.
+	struct FShieldMesh
+	{
+		TArray<FVector> Vertices;
+		TArray<int32> Triangles;
+		TArray<FVector2D> UVs;
+		TArray<FLinearColor> Colors;
+	};
+	constexpr int32 ShieldStep = 2;
+	constexpr float ShieldRim = 1.7f;         // half the thickness at the edge
+	constexpr float ShieldFrontDepth = 5.f;   // a height of 1 on the front (make_shield_relief.py DEPTH_PX)
+	constexpr float ShieldBackDepth = 2.5f;
+
+	const FShieldMesh& ShieldMesh(const FYgoPixels& Front, const FYgoPixels& Rear)
+	{
+		static FShieldMesh M;
+		if (M.Vertices.Num()) return M;
+		const int32 S = ShieldStep, NX = Front.Width / S, NY = Front.Height / S, Row = NX + 1;
+		auto Inside = [&](int32 I, int32 J) { return I >= 0 && J >= 0 && I < NX && J < NY && Front.At(I * S + S / 2, J * S + S / 2, 3) > 0; };
+		// Height at a lattice corner: the mean of the pixels around it.
+		auto Mean = [](const FYgoPixels& P, int32 X, int32 Y) { return (P.At(X - 1, Y - 1, 3) + P.At(X, Y - 1, 3) + P.At(X - 1, Y, 3) + P.At(X, Y, 3)) / 4; };
+		// Where each lattice corner sits, in cells. The silhouette follows pixels, so its corners are
+		// eased toward their neighbours along it: an edge that curves instead of climbing in steps.
+		static const int32 Edges[4][6] = {  // neighbour (dx, dy), and the two corners of the side they share
+			{0, -1, 0, 0, 1, 0}, {1, 0, 1, 0, 1, 1}, {0, 1, 1, 1, 0, 1}, {-1, 0, 0, 1, 0, 0}};
+		TArray<FVector2f> At;
+		At.SetNumUninitialized(Row * (NY + 1));
+		for (int32 J = 0; J <= NY; ++J) for (int32 I = 0; I <= NX; ++I) At[J * Row + I] = FVector2f(I, J);
+		TArray<TPair<int32, int32>> Outline;
+		for (int32 J = 0; J < NY; ++J)
+			for (int32 I = 0; I < NX; ++I)
+				if (Inside(I, J))
+					for (const int32* E : Edges)
+						if (!Inside(I + E[0], J + E[1])) Outline.Emplace((J + E[3]) * Row + I + E[2], (J + E[5]) * Row + I + E[4]);
+		for (int32 Pass = 0; Pass < 4; ++Pass)
+		{
+			TMap<int32, TPair<FVector2f, int32>> Sum;
+			for (const TPair<int32, int32>& E : Outline)
+			{
+				TPair<FVector2f, int32>& A = Sum.FindOrAdd(E.Key, {FVector2f::ZeroVector, 0}); A.Key += At[E.Value]; ++A.Value;
+				TPair<FVector2f, int32>& B = Sum.FindOrAdd(E.Value, {FVector2f::ZeroVector, 0}); B.Key += At[E.Key]; ++B.Value;
+			}
+			for (const TPair<int32, TPair<FVector2f, int32>>& S2 : Sum) At[S2.Key] = (At[S2.Key] + S2.Value.Key / S2.Value.Value) / 2;
+		}
+		auto Place = [&](int32 I, int32 J, bool bRear)
+		{
+			const float U = At[J * Row + I].X / NX, V = At[J * Row + I].Y / NY;
+			// The back's drawing is read mirrored, so it shows the right way round from behind.
+			const float Z = bRear ? -(ShieldRim + ShieldBackDepth * Mean(Rear, FMath::RoundToInt32((1 - U) * Rear.Width), FMath::RoundToInt32(V * Rear.Height)))
+				: ShieldRim + ShieldFrontDepth * Mean(Front, I * S, J * S);
+			return FVector((U - .5f) * 100, (V - .5f) * 100, Z);
+		};
+		TArray<int32> Index[4];  // front, back, edge at the front, edge at the back: by lattice corner
+		for (TArray<int32>& A : Index) A.Init(-1, Row * (NY + 1));
+		auto Vertex = [&](int32 Kind, int32 I, int32 J)
+		{
+			int32& Slot = Index[Kind][J * Row + I];
+			if (Slot < 0)
+			{
+				Slot = M.Vertices.Add(Place(I, J, Kind == 1 || Kind == 3));
+				M.UVs.Add(FVector2D(At[J * Row + I].X / NX, At[J * Row + I].Y / NY));
+				M.Colors.Add(FLinearColor(Kind >= 2 ? 1 : 0, Kind == 1 ? 1 : 0, 0, 1));
+			}
+			return Slot;
+		};
+		auto Quad = [&](int32 A, int32 B, int32 C, int32 D) { M.Triangles.Append({A, B, C, A, C, D}); };
+		for (int32 J = 0; J < NY; ++J)
+			for (int32 I = 0; I < NX; ++I)
+			{
+				if (!Inside(I, J)) continue;
+				Quad(Vertex(0, I, J), Vertex(0, I + 1, J), Vertex(0, I + 1, J + 1), Vertex(0, I, J + 1));
+				Quad(Vertex(1, I, J), Vertex(1, I, J + 1), Vertex(1, I + 1, J + 1), Vertex(1, I + 1, J));
+				for (const int32* E : Edges)
+				{
+					if (Inside(I + E[0], J + E[1])) continue;
+					Quad(Vertex(2, I + E[2], J + E[3]), Vertex(2, I + E[4], J + E[5]), Vertex(3, I + E[4], J + E[5]), Vertex(3, I + E[2], J + E[3]));
+				}
+			}
+		return M;
+	}
 
 	UStaticMesh* PlaneMesh() { return LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane")); }
 	void Param(UMaterialInstanceDynamic* M, const TCHAR* Name, float Value) { if (M) M->SetScalarParameterValue(Name, Value); }
@@ -63,6 +151,18 @@ void AYgoStage::Setup(AYgoTableView* InView, TSharedPtr<SYgoHud> InHud)
 	{
 		Lab->OnFrame.AddUObject(this, &AYgoStage::OnFrame);
 		Lab->OnDuel.AddUObject(this, &AYgoStage::OnDuel);
+	}
+	if (UMaterialInterface* Metal = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/YgoAR/M_FxMetal.M_FxMetal")))
+	{
+		Warm = NewObject<UProceduralMeshComponent>(this);
+		Warm->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Warm->CastShadow = false;
+		Warm->SetupAttachment(GetRootComponent());
+		Warm->RegisterComponent();
+		Warm->CreateMeshSection_LinearColor(0, {FVector(0, 0, 0), FVector(1, 0, 0), FVector(0, 1, 0)}, {0, 1, 2}, TArray<FVector>(),
+			{FVector2D(0, 0), FVector2D(1, 0), FVector2D(0, 1)}, {FLinearColor::Black, FLinearColor::Black, FLinearColor::Black}, TArray<FProcMeshTangent>(), false);
+		Warm->SetMaterial(0, Metal);
+		Warm->SetWorldScale3D(FVector(1e-3f));
 	}
 	FParse::Value(FCommandLine::Get(), TEXT("YgoReplay="), ReplayAt);
 	FParse::Value(FCommandLine::Get(), TEXT("YgoDemo="), DemoAt);
@@ -255,12 +355,14 @@ void AYgoStage::SeeBacks(const FYgoDuel& Duel, double Now)
 			if (Z.Zone.StartsWith(TEXT("monster")) || Z.Zone.StartsWith(TEXT("extra_monster")))
 			{
 				B->Shadow = NewPlane(TEXT("/Game/YgoAR/M_FxShadow.M_FxShadow"), Fx, 0); B->ShadowFx = Fx;
-				for (int32 i = 0; i < 3; ++i)
-				{
-					B->Rims[i] = NewPlane(TEXT("/Game/YgoAR/M_FxCoin.M_FxCoin"), Fx, 4); B->RimFx[i] = Fx;
-					Param(Fx, TEXT("Rim"), 1.f);
-				}
-				B->Coin = NewPlane(TEXT("/Game/YgoAR/M_FxCoin.M_FxCoin"), Fx, 5); B->CoinFx = Fx;
+				B->Solid = NewObject<UProceduralMeshComponent>(this);
+				B->Solid->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				B->Solid->CastShadow = false;
+				B->Solid->SetupAttachment(GetRootComponent());
+				B->Solid->RegisterComponent();
+				B->Solid->SetVisibility(false);
+				if (UMaterialInterface* M = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/YgoAR/M_FxMetal.M_FxMetal")))
+					B->SolidFx = UMaterialInstanceDynamic::Create(M, this);
 			}
 		}
 		B->Centre = FYgoScene::TableToUnreal(Centre); B->Width = CardWidth / 10.f; B->LastSeen = Now;
@@ -323,7 +425,7 @@ void AYgoStage::DropFigure(FFigure& F)
 
 void AYgoStage::DropBack(FBack& B)
 {
-	for (UStaticMeshComponent* C : {B.Glow.Get(), B.Shadow.Get(), B.Coin.Get(), B.Rims[0].Get(), B.Rims[1].Get(), B.Rims[2].Get()})
+	for (USceneComponent* C : {(USceneComponent*)B.Glow.Get(), (USceneComponent*)B.Shadow.Get(), (USceneComponent*)B.Solid.Get()})
 		if (C) C->DestroyComponent();
 }
 
@@ -542,54 +644,77 @@ void AYgoStage::UpdateBack(FBack& B, float Dt, double Now)
 	const float ZoneWidth = B.Width / .72f;
 	Lay(B.Glow, B.Centre, .6f * ZoneWidth, .03f);
 	Param(B.GlowFx, TEXT("Alpha"), (.18f + .08f * Pulse) * A);
-	if (!B.Coin) return;  // a Spell & Trap Zone: only the warm light
-	Lay(B.Shadow, B.Centre, .5f * ZoneWidth, .02f);
-	Param(B.ShadowFx, TEXT("Alpha"), .45f * A);
+	if (!B.Solid) return;  // a Spell & Trap Zone: only the warm light
 	FVector Up; float Lean;
 	Upright(Up, Lean);
 	Motes(B.Centre, B.Width, BackGlow, 2.4f * A, Dt, Up);
 
-	// The Millennium shield of a face-down Defense Position monster, turning once every 6 s: never its identity.
+	// The Millennium shield of a face-down Defense Position monster: never its identity. A solid of
+	// gold and lacquer, built once its drawings and their relief have arrived from the lab.
 	UTexture2D* Front = Lab->Image(ShieldFront);
 	UTexture2D* Rear = Lab->Image(ShieldBack);
-	const bool bShown = Front && Rear && A > 0;
-	B.Coin->SetVisibility(bShown);
-	for (UStaticMeshComponent* R : B.Rims) R->SetVisibility(bShown);
-	if (!bShown) return;
-	const float Height = .95f * ZoneWidth * (.6f + .4f * Back(A));
+	UTexture2D* FrontRelief = Lab->DataImage(ShieldFrontRelief);
+	UTexture2D* RearRelief = Lab->DataImage(ShieldBackRelief);
+	const FYgoPixels* FrontPixels = Lab->Pixels(ShieldFrontRelief);
+	const FYgoPixels* RearPixels = Lab->Pixels(ShieldBackRelief);
+	if (!B.bSolidBuilt && Front && Rear && FrontRelief && RearRelief && FrontPixels && RearPixels && B.SolidFx)
+	{
+		const FShieldMesh& Mesh = ShieldMesh(*FrontPixels, *RearPixels);
+		B.Solid->CreateMeshSection_LinearColor(0, Mesh.Vertices, Mesh.Triangles, TArray<FVector>(), Mesh.UVs, Mesh.Colors, TArray<FProcMeshTangent>(), false);
+		B.Solid->SetMaterial(0, B.SolidFx);
+		B.SolidFx->SetTextureParameterValue(TEXT("ArtFront"), Front);
+		B.SolidFx->SetTextureParameterValue(TEXT("ArtBack"), Rear);
+		B.SolidFx->SetTextureParameterValue(TEXT("ReliefFront"), FrontRelief);
+		B.SolidFx->SetTextureParameterValue(TEXT("ReliefBack"), RearRelief);
+		B.bSolidBuilt = true;
+	}
+	// It comes in as the set's spiral closes: it drops into place growing, spinning fast, and the spin
+	// runs down to one turn every 6 s. A solid cannot fade in, so it appears small in a flash of gold.
+	const float Since = float(Now - B.SetAt) - .35f * AYgoFx::Duration(EYgoFx::Set);
+	const bool bShown = B.bSolidBuilt && Since > 0;
+	// Until then it is drawn as a speck under its card: its shaders load on first use, and a solid
+	// whose shaders are not there yet comes out black.
+	B.Solid->SetVisibility(B.bSolidBuilt);
+	B.Shadow->SetVisibility(bShown);
+	if (!bShown)
+	{
+		B.Solid->SetWorldLocation(B.Centre - FVector(0, 0, .5f));
+		B.Solid->SetWorldScale3D(FVector(1e-4f));
+		return;
+	}
+	const float Pop = Clamp01(Since / .55f), Size = FMath::Max(.02f, Back(Pop));
+	const float Height = .95f * ZoneWidth * Size;
 	const float Width = Height * Front->GetSizeX() / FMath::Max(1, Front->GetSizeY());
 	const float Bob = FMath::Sin(Now / .9 + B.Seed) * .025f * ZoneWidth;
-	const FVector Feet = B.Centre + TableDown() * (.38f * Height * Lean) + FVector(0, 0, .3f);
-	const FVector Centre = Feet + Up * (Height / 2 + Bob);
+	const float Drop = (1 - Out(Pop)) * .45f * ZoneWidth;
+	// Seen from above it turns lying over the table: high enough that its edge never dips into it
+	// (the glow and the shadow on the table would be drawn over the part below).
+	const FVector Feet = B.Centre + TableDown() * (.38f * Height * Lean) + FVector(0, 0, .3f + .56f * Width * Lean);
+	const FVector Centre = Feet + Up * (Height / 2 + Bob + Drop);
 	const FVector ToCamera = (V->CameraLocation() - Centre).GetSafeNormal();
-	const float Angle = FMath::Fmod(Now / 6.0 + B.Seed, 1.0) * 2 * PI;
-	const FQuat Turn = FQuat(Up, Angle) * FRotationMatrix::MakeFromYZ(-Up, ToCamera).ToQuat();
-	const FVector Normal = Turn.GetAxisZ();
-	const float C = FVector::DotProduct(Normal, ToCamera);  // 1 facing the camera, 0 edge-on
-	const FVector Scale(Width / 100.f, Height / 100.f, 1);
-	B.Coin->SetWorldLocationAndRotation(Centre, Turn);
-	B.Coin->SetWorldScale3D(Scale);
-	if (UMaterialInstanceDynamic* M = B.CoinFx)
+	const float SpinUp = FMath::Pow(1 - Clamp01(Since / 2.4f), 3.f) * 2.5f;  // turns still to shed
+	const float Angle = (FMath::Fmod(Now / 6.0 + B.Seed, 1.0) - SpinUp) * 2 * PI;
+	// It does not turn like a sign on a pole: its axis nods a little, slowly.
+	const FQuat Facing = FRotationMatrix::MakeFromYZ(-Up, ToCamera).ToQuat();
+	const float Nod = .11f * FMath::Sin(Now / 1.9 + B.Seed * 1.7f);
+	const FQuat Turn = FQuat(Up, Angle) * FQuat(Facing.GetAxisX(), Nod) * Facing;
+	const float C = FVector::DotProduct(Turn.GetAxisZ(), ToCamera);  // 1 facing the camera, 0 edge-on
+	B.Solid->SetWorldLocationAndRotation(Centre, Turn);
+	B.Solid->SetWorldScale3D(FVector(Width / 100.f, Height / 100.f, Height / 100.f));
+	if (UMaterialInstanceDynamic* M = B.SolidFx)
 	{
-		M->SetTextureParameterValue(TEXT("Front"), Front);
-		M->SetTextureParameterValue(TEXT("Back"), Rear);
-		Param(M, TEXT("Alpha"), A);
-		Param(M, TEXT("Shade"), .45f * (1 - FMath::Abs(C)));
-		Param(M, TEXT("Shine"), .22f * FMath::Square(FMath::Max(0.f, FMath::Abs(C) - .8f) / .2f));
+		auto Axis = [](const FVector& A) { return FLinearColor(A.X, A.Y, A.Z, 0); };
+		M->SetVectorParameterValue(TEXT("AxisX"), Axis(Turn.GetAxisX()));
+		M->SetVectorParameterValue(TEXT("AxisY"), Axis(Turn.GetAxisY()));
+		M->SetVectorParameterValue(TEXT("AxisZ"), Axis(Turn.GetAxisZ()));
+		// The key light: over the camera's left shoulder, where the drawings' own light comes from.
+		const UCameraComponent* Cam = V->GetCamera();
+		M->SetVectorParameterValue(TEXT("Light"), Axis((ToCamera * .75f + Cam->GetUpVector() * .5f - Cam->GetRightVector() * .42f).GetSafeNormal()));
+		Param(M, TEXT("Flash"), .9f * FMath::Square(1 - Clamp01(Since / .6f)));
 	}
-	// Its gold edge: the silhouette layered behind it, so it has a thickness when it turns.
-	const float Thick = .07f * Height;
-	for (int32 i = 0; i < 3; ++i)
-	{
-		B.Rims[i]->SetWorldLocationAndRotation(Centre - Normal * FMath::Sign(C) * Thick * (i + 1) / 3.f, Turn);
-		B.Rims[i]->SetWorldScale3D(Scale);
-		if (UMaterialInstanceDynamic* M = B.RimFx[i])
-		{
-			M->SetTextureParameterValue(TEXT("Front"), Front);
-			M->SetTextureParameterValue(TEXT("Back"), Rear);
-			Param(M, TEXT("Alpha"), A * (.75f + .25f * (1 - (i + 1) / 3.f)));
-		}
-	}
+	// Its shadow on the card: narrower as it turns edge-on, fainter while it is still in the air.
+	Lay(B.Shadow, B.Centre, .5f * ZoneWidth * Size * (.7f + .3f * FMath::Abs(C)), .02f);
+	Param(B.ShadowFx, TEXT("Alpha"), .5f * Out(Pop));
 }
 
 void AYgoStage::Tick(float Dt)
@@ -619,7 +744,11 @@ void AYgoStage::Tick(float Dt)
 	UpdateAskMark(Wall);
 	UpdateZoneMarks();
 	PickWithMouse();
-	if (const AYgoTableView* V = View.Get()) Particles->Step(FxDt, V->CameraLocation());
+	if (const AYgoTableView* V = View.Get())
+	{
+		Particles->Step(FxDt, V->CameraLocation());
+		if (Warm) Warm->SetWorldLocation(V->CameraLocation() + V->GetCamera()->GetForwardVector() * 20.f);
+	}
 	Capture(Wall);
 }
 

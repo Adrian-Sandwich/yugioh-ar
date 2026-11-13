@@ -1,7 +1,7 @@
 // The stage: what the camera sees, turned into 3D, with web/duel.js's rules so both views agree.
 // Every card on the field gets its figure on its card: a monster its approved cut-out sprite over a
 // light ring, a spell or a trap its own (hovering, or restless) over its kind's emblem, a card back
-// in a Monster Zone the Millennium shield turning. The camera drives the entrances (noticeArrivals):
+// in a Monster Zone the Millennium shield turning (a solid of gold and lacquer). The camera drives the entrances (noticeArrivals):
 // a card new in its zone is summoned or activated, a new back is set. From the duel only the
 // players' decisions (stageEvents): attacks, destruction, life points.
 #pragma once
@@ -14,6 +14,7 @@
 class AYgoTableView;
 class SYgoHud;
 class UMaterialInstanceDynamic;
+class UProceduralMeshComponent;
 class UStaticMeshComponent;
 class UTexture2D;
 class UYgoParticles;
@@ -65,10 +66,10 @@ private:
 		float Width = 5.9f;                    // a card's, cm
 		double LastSeen = 0, SetAt = -100;
 		float Seed = 0;
-		TObjectPtr<UStaticMeshComponent> Glow, Shadow, Coin;  // the shield only in a Monster Zone
-		TObjectPtr<UMaterialInstanceDynamic> GlowFx, ShadowFx, CoinFx;
-		TObjectPtr<UStaticMeshComponent> Rims[3];  // its gold edge, layered behind it
-		TObjectPtr<UMaterialInstanceDynamic> RimFx[3];
+		TObjectPtr<UStaticMeshComponent> Glow, Shadow;  // the shadow and the shield only in a Monster Zone
+		TObjectPtr<UMaterialInstanceDynamic> GlowFx, ShadowFx, SolidFx;
+		TObjectPtr<UProceduralMeshComponent> Solid;     // the shield: a solid mesh built from its relief maps
+		bool bSolidBuilt = false;
 	};
 
 	void OnFrame();
@@ -99,6 +100,9 @@ private:
 	void Capture(double Now);
 
 	UPROPERTY() TObjectPtr<UYgoParticles> Particles;
+	// A speck in front of the camera with the shield's material, from the start: its shaders load on
+	// first use, and the first shield of a session would come in black while they do.
+	UPROPERTY() TObjectPtr<UProceduralMeshComponent> Warm;
 	UPROPERTY() TObjectPtr<UStaticMeshComponent> AskMark;
 	UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> AskMarkFx;
 	UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> ZoneMarks;

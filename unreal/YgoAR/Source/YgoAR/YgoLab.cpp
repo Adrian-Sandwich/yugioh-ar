@@ -408,7 +408,12 @@ UTexture2D* UYgoLab::Image(const FString& Path)
 	return Png(Path, Path);
 }
 
-UTexture2D* UYgoLab::Png(const FString& Key, const FString& Path)
+UTexture2D* UYgoLab::DataImage(const FString& Path)
+{
+	return Png(Path, Path, true);
+}
+
+UTexture2D* UYgoLab::Png(const FString& Key, const FString& Path, bool bData)
 {
 	if (TObjectPtr<UTexture2D>* T = Sprites.Find(Key)) return *T;
 	if (SpritesRequested.Contains(Key)) return nullptr;
@@ -417,17 +422,21 @@ UTexture2D* UYgoLab::Png(const FString& Key, const FString& Path)
 	Req->SetURL(BaseUrl + Path);
 	Req->SetVerb(TEXT("GET"));
 	TWeakObjectPtr<UYgoLab> Weak(this);
-	Req->OnProcessRequestComplete().BindLambda([Weak, Key](FHttpRequestPtr, FHttpResponsePtr Response, bool bOk)
+	Req->OnProcessRequestComplete().BindLambda([Weak, Key, bData](FHttpRequestPtr, FHttpResponsePtr Response, bool bOk)
 	{
 		UYgoLab* Self = Weak.Get();
 		if (!Self || !bOk || !Response.IsValid() || Response->GetResponseCode() != 200) return;
-		if (UTexture2D* T = TextureFromPng(Response->GetContent())) Self->Sprites.Add(Key, T);
+		FYgoPixels Pixels;
+		UTexture2D* T = TextureFromPng(Response->GetContent(), bData, bData ? &Pixels : nullptr);
+		if (!T) return;
+		if (bData) Self->Kept.Add(Key, MoveTemp(Pixels));
+		Self->Sprites.Add(Key, T);
 	});
 	Req->ProcessRequest();
 	return nullptr;
 }
 
-UTexture2D* UYgoLab::TextureFromPng(const TArray<uint8>& Png)
+UTexture2D* UYgoLab::TextureFromPng(const TArray<uint8>& Png, bool bData, FYgoPixels* OutPixels)
 {
 	TArray<uint8> Bgra; int32 W = 0, H = 0;
 	if (!DecodeImage(EImageFormat::PNG, Png, Bgra, W, H)) return nullptr;
@@ -437,8 +446,9 @@ UTexture2D* UYgoLab::TextureFromPng(const TArray<uint8>& Png)
 	void* Dest = Mip.BulkData.Lock(LOCK_READ_WRITE);
 	FMemory::Memcpy(Dest, Bgra.GetData(), Bgra.Num());
 	Mip.BulkData.Unlock();
-	T->SRGB = true;
+	T->SRGB = !bData;
 	T->AddressX = TA_Clamp; T->AddressY = TA_Clamp;
 	T->UpdateResource();
+	if (OutPixels) { OutPixels->Width = W; OutPixels->Height = H; OutPixels->Bgra = MoveTemp(Bgra); }
 	return T;
 }

@@ -22,6 +22,12 @@ se genera con `Scripts/make_assets.py` y no se versiona.
   la cámara. El bloom sólo toma luz por encima de 1, que es la de los efectos.
 - `YgoStage`: detecta llegadas (mismas reglas que `noticeArrivals` en `web/duel.js`) y los ataques, destrucciones y LP del duelo (`stageEvents`), pone a cada
   carta su figura (monstruo, magia, trampa o el escudo del Milenio de una carta boca abajo) y lanza sus efectos.
+- El escudo del Milenio (en `YgoStage`) es un sólido, no una imagen: una malla con sus dos caras y su
+  canto, levantada desde el relieve de sus dos dibujos (`tools/make_shield_relief.py` escribe
+  `web/fx/shield-millennium-*-relief.png`: normal, metal y altura). Su material, `M_FxMetal`, calcula la
+  luz él mismo (la escena no tiene luces, para que el video salga como se filmó): una luz principal y un
+  cuarto inventado que el oro refleja al girar. Entra cayendo y girando rápido, y se asienta en una vuelta
+  cada 6 s con un leve cabeceo.
 - `YgoSummonFx`: círculo mágico, onda expansiva, chispas, pilar de luz y motas. Son los mismos tiempos
   que la versión 2D, alargados a 2.2 s.
 - `YgoFx`: activación de magia y de trampa, carta boca abajo e impacto de un ataque.
@@ -97,7 +103,7 @@ Da correr el juego en el editor en segundos, leer el registro, y pedirle a Slate
 ## Probar sin cámara
 
 `tools/fake_lab.py` sirve el mismo contrato con una captura guardada y un duelo de guion: dos
-invocaciones, un ataque y cambios de fase, en un ciclo de 40 s. Con `-YgoShots` Unreal guarda
+invocaciones, un monstruo boca abajo con su escudo, un ataque y cambios de fase, en un ciclo de 40 s. Con `-YgoShots` Unreal guarda
 capturas de pantalla para revisar cómo se ve:
 
 Ojo: una de cada dos capturas de `-YgoShots` sale sin los efectos translúcidos, aunque en pantalla sí

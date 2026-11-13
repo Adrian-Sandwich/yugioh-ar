@@ -3,6 +3,7 @@ camera or cards: the same HTTP contract (/snapshot with X-Tracks, /scene, /duel,
 /cutout/<ref>), a saved capture as the video, the saved playmat calibration, and a scripted duel
 on a 40 s loop:
 
+     5 s  a face-down monster in Main Monster Zone 1 and a set card (card backs seen until 30 s)
      3 s  Dark Magician arrives in Main Monster Zone 3 (Normal Summon)
      9 s  Blue-Eyes White Dragon arrives in Main Monster Zone 5 (Special Summon)
     14 s  Battle Phase; 16 s the rival takes 2500; 19 s Main Phase 2
@@ -14,15 +15,13 @@ on a 40 s loop:
 Only the timeline is invented: the camera pose comes from scene3d.py, card sheets from card_info,
 sprites from ar_overlay, exactly as camera_viewer.py serves them.
 """
-import argparse, json, sys, time
+import argparse, json, re, sys, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import numpy as np  # noqa: E402
-
 from ar_overlay import SpriteOverlay  # noqa: E402
 from card_info import card_sheet  # noqa: E402
 from playmat import CALIBRATION, Mat  # noqa: E402
@@ -34,6 +33,7 @@ CARDS = [  # (arrives, leaves, copy id, card id, sprite, zone, how it came)
     (3., 24., 'c1', 'c0285d04-cadd-402d-a865-799a182d7510', 'tdoane:sprite:46986414.png', 'monster:2', 'Invocación Normal'),
     (9., 24., 'c2', 'e0404755-1ade-4c7c-9a2a-b29b7755d860', 'tdoane:sprite:89631139.png', 'monster:4', 'Invocación Especial'),
 ]
+BACKS = ('monster:0', 'spell:3')  # card backs seen from 5 s to 30 s: a face-down monster (its shield) and a set card
 
 
 class Lab:
@@ -73,7 +73,8 @@ class Lab:
                 'result': None, 'players': [
                     {'name': 'Yugi', 'lp': 8000, 'hand': 3, 'deck': 32, 'extra_deck': 0, 'graveyard': 1, 'banished': 0},
                     {'name': 'Kaiba', 'lp': 5500 if 16 <= t < 24 else 8000, 'hand': 4, 'deck': 31, 'extra_deck': 0, 'graveyard': 0, 'banished': 0}],
-                'board': board, 'questions': [], 'pending_attack': None, 'recent': recent[::-1], 'calibrated': True, 'mode': 'one'}
+                'board': board, 'questions': [], 'pending_attack': None, 'recent': recent[::-1], 'calibrated': True, 'mode': 'one',
+                'backs_seen': [{'player': 0, 'zone': zone} for zone in BACKS if 5 <= t < 30]}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -97,6 +98,8 @@ class Handler(BaseHTTPRequestHandler):
         if url.path.startswith('/cutout/'):
             png = lab.sprites.cutout_png(unquote(url.path[len('/cutout/'):]))
             return self.send(200, png, 'image/png') if png else self.send(404, b'No sprite', 'text/plain')
+        if re.fullmatch(r'/fx/[\w.-]+\.png', url.path) and (ROOT / 'web' / url.path[1:]).is_file():
+            return self.send(200, (ROOT / 'web' / url.path[1:]).read_bytes(), 'image/png')
         self.send(404, b'Not found', 'text/plain')
 
 

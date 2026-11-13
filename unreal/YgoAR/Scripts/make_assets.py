@@ -264,16 +264,59 @@ col += float3(1.0, 0.92, 0.75) * saturate(1.0 - abs(s - lerp(-1.5, 1.5, Sheen)) 
 return float4(col, inside * lerp(Body, 1.0, rim) * Alpha);
 '''
 
-COIN = r'''
-// A face-down monster's Millennium shield, turning (web/duel.js drawMillennium): its front on one side
-// of the plane, its back on the other (read mirrored, so it shows the right way round). Rim draws the
-// gold silhouette that gives it a thickness; Shade darkens it as it turns away, Shine lights it as it
-// faces the camera. Output: colour and opacity.
-float4 f = Texture2DSample(Front, FrontSampler, UV);
-float4 b = Texture2DSample(Back, BackSampler, float2(1 - UV.x, UV.y));
-float4 c = Side > 0 ? f : b;
-float3 col = Rim > 0.5 ? float3(0.578, 0.287, 0.034) : c.rgb * (1 - Shade) + Shine;
-return float4(col, c.a * Alpha);
+METAL = r'''
+// A face-down monster's Millennium shield as a solid thing (AYgoStage builds its mesh): its two
+// drawings as the colour, and their relief maps (tools/make_shield_relief.py: normal x and y, how
+// metallic, height) for the light. The scene has no lights (the video must come out as filmed), so
+// the light is worked out here: one key light, and a made-up room to reflect (a bright ceiling, a
+// dark floor, a soft band that only metal picks up), which is what makes gold read as gold when it turns. Vertex colour:
+// red on the edge between the two faces, green on the back face. AxisX/Y/Z are the shield's right,
+// down and front in the world. Output: colour (HDR: the glints bloom).
+const float PI = 3.1415927;
+float wall = step(0.5, VC.r), rear = step(0.5, VC.g);
+float2 uv = rear > 0.5 ? float2(1 - UV.x, UV.y) : UV;
+float4 art = lerp(Texture2DSample(ArtFront, ArtFrontSampler, uv), Texture2DSample(ArtBack, ArtBackSampler, uv), rear);
+float4 rel = lerp(Texture2DSample(ReliefFront, ReliefFrontSampler, uv), Texture2DSample(ReliefBack, ReliefBackSampler, uv), rear);
+const float3 gold = float3(0.78, 0.38, 0.06);
+float covered = saturate(art.a * 1.5);
+float3 base = lerp(gold, art.rgb, covered);
+float metal = lerp(1.0, rel.b, covered);
+float2 n2 = (rel.rg * 2.0 - 1.0) * Relief;
+float side = rear > 0.5 ? -1.0 : 1.0;
+float3 nl = normalize(float3(n2, 1.0));
+float3 N = normalize(AxisX.rgb * nl.x * side + AxisY.rgb * nl.y + AxisZ.rgb * nl.z * side);
+if (wall > 0.5)
+{
+    // The edge faces outward, where the bevel's normal already leans; a little toward the nearer face.
+    float2 o = rel.rg * 2.0 - 1.0;
+    o = o / max(length(o), 0.05);
+    N = normalize(AxisX.rgb * o.x + AxisY.rgb * o.y + AxisZ.rgb * 0.2 * side);
+    base = gold; metal = 1.0;
+}
+float3 Vn = normalize(V);
+if (dot(N, Vn) < 0.0) N = reflect(N, Vn);   // a normal bent away from the eye: no black rims
+float3 L = normalize(Light.rgb);
+float3 H = normalize(L + Vn);
+float ndl = saturate(dot(N, L)), ndh = saturate(dot(N, H)), ndv = saturate(dot(N, Vn));
+float rough = lerp(0.5, 0.26, metal);
+float a2 = rough * rough * rough * rough;
+float d = ndh * ndh * (a2 - 1.0) + 1.0;
+float spec = a2 / (PI * d * d) * 0.25 * ndl;
+float3 R = reflect(-Vn, N);
+// The room: ceiling over floor, the key light's panel, and a band that sweeps across the metal as it turns.
+float room = lerp(0.10, 0.85, smoothstep(-0.35, 0.55, R.z));
+room += 1.6 * pow(saturate(dot(R, L)), 10.0);
+float band = 0.5 + 0.5 * sin(R.x * 2.3 + R.y * 1.4 + 0.6);
+room += 0.45 * band * band * band * metal * metal * smoothstep(-0.2, 0.4, R.z);
+float fres = pow(1.0 - ndv, 5.0) * 0.35;   // metal turned edge-on brightens, it does not go white
+float3 F0 = lerp(float3(0.04, 0.04, 0.04), base, metal);
+float3 F = F0 + (1.0 - F0) * fres;
+float cavity = 0.72 + 0.28 * rel.a;
+float3 col = base * (1.0 - metal) * (0.42 + 0.68 * ndl) + base * metal * 0.22;
+col += F * (room * lerp(0.3, 1.0, metal) + spec * 2.2);
+col *= cavity;
+col += Flash * float3(1.0, 0.82, 0.5);
+return col;
 '''
 
 # --- building blocks --------------------------------------------------------------------------
@@ -449,19 +492,26 @@ def ui_plate():
     finish(m)
 
 
-def coin():
-    m = new_material('M_FxCoin', unreal.BlendMode.BLEND_TRANSLUCENT)
-    c = custom(m, COIN, unreal.CustomMaterialOutputType.CMOT_FLOAT4, [
-        ('UV', node(m, unreal.MaterialExpressionTextureCoordinate, -900, -400)),
-        ('Front', texture(m, 'Front', -300)),
-        ('Back', texture(m, 'Back', -200)),
-        ('Side', node(m, unreal.MaterialExpressionTwoSidedSign, -900, -100)),
-        ('Alpha', scalar(m, 'Alpha', 1.0, 0)),
-        ('Shade', scalar(m, 'Shade', 0.0, 100)),
-        ('Shine', scalar(m, 'Shine', 0.0, 200)),
-        ('Rim', scalar(m, 'Rim', 0.0, 300)),
+def metal():
+    if assets.does_asset_exist(f'{ROOT}/M_FxCoin'):
+        assets.delete_asset(f'{ROOT}/M_FxCoin')  # the flat shield this one replaced
+    m = new_material('M_FxMetal', unreal.BlendMode.BLEND_OPAQUE)
+    c = custom(m, METAL, unreal.CustomMaterialOutputType.CMOT_FLOAT3, [
+        ('UV', node(m, unreal.MaterialExpressionTextureCoordinate, -900, -600)),
+        ('VC', node(m, unreal.MaterialExpressionVertexColor, -900, -500)),
+        ('V', node(m, unreal.MaterialExpressionCameraVectorWS, -900, -400)),
+        ('ArtFront', texture(m, 'ArtFront', -300)),
+        ('ArtBack', texture(m, 'ArtBack', -200)),
+        ('ReliefFront', texture(m, 'ReliefFront', -100)),
+        ('ReliefBack', texture(m, 'ReliefBack', 0)),
+        ('AxisX', vector(m, 'AxisX', (1, 0, 0, 0), 100)),
+        ('AxisY', vector(m, 'AxisY', (0, 1, 0, 0), 200)),
+        ('AxisZ', vector(m, 'AxisZ', (0, 0, 1, 0), 300)),
+        ('Light', vector(m, 'Light', (-0.4, -0.5, 0.75, 0), 400)),
+        ('Relief', scalar(m, 'Relief', 1.0, 500)),
+        ('Flash', scalar(m, 'Flash', 0.0, 600)),
     ])
-    colour_and_opacity(m, c)
+    mel.connect_material_property(c, '', unreal.MaterialProperty.MP_EMISSIVE_COLOR)
     finish(m)
 
 
@@ -493,5 +543,5 @@ def audio():
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
 
 
-for build in (video, magic, beam, particle, sprite, shadow, shield, shard, coin, ui_plate, audio):
+for build in (video, magic, beam, particle, sprite, shadow, shield, shard, metal, ui_plate, audio):
     build()

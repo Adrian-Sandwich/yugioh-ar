@@ -7,7 +7,7 @@ public class YgoAR : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DeveloperSettings" });
 		PrivateDependencyModuleNames.AddRange(new string[] {
-			"HTTP", "Json", "ImageWrapper", "RenderCore", "RHI", "Slate", "SlateCore", "UMG", "InputCore"
+			"HTTP", "Json", "ImageWrapper", "RenderCore", "RHI", "Slate", "SlateCore", "UMG", "InputCore", "ProceduralMeshComponent"
 		});
 	}
 }
