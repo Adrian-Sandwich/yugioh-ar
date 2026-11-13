@@ -9,7 +9,7 @@ Intrinsics: the focal length the mats' own homographies imply (Zhang 2000: a pla
 orthogonal and equally long), with the principal point at the image centre and square pixels. Seen
 nearly head-on, a homography cannot tell the focal length; then an assumed field of view is used
 (and it barely matters: depth hardly changes across the table). A ChArUco calibration of the camera
-would replace both (PLAN_3D_Y_REVISION.md).
+would replace both and add lens distortion; with the camera at an angle the mat is enough.
 Pose: IPPE (Collins and Bartoli 2014) gives both poses of a plane; the one with the camera above the
 table and the smaller reprojection error wins.
 """

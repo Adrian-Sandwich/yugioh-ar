@@ -61,7 +61,23 @@ Unreal dibuja todas las cartas de la mesa (`/analysis?view=table`), también las
 zonas sólo deciden qué cuenta para el duelo: una carta fuera de ellas tiene figura, pero el notario no la anota.
 
 Con la cámara cenital de hoy, la figura se inclina hacia la cámara y se ve como en la vista 2D. Con
-una cámara en ángulo (`PLAN_3D_Y_REVISION.md`), la figura se para vertical.
+una cámara en ángulo, la figura se para vertical.
+
+### Cámara en ángulo
+
+No hace falta calibrar la cámara aparte (ChArUco): inclinada 12° o más respecto a la vertical, el
+propio tapete da la distancia focal (`scene3d.py`; `/scene` dice `"source": "homography"` en vez de
+`"assumed"`). Los pasos:
+
+1. Poner la cámara del lado del jugador mirando la mesa a unos 30-40° de la vertical, con el tapete
+   entero en el cuadro.
+2. Volver a marcar las esquinas del tapete en `/duelo` (la calibración guardada es de la toma cenital).
+3. Mirar `/scene`: `tilt_deg` debe rondar el ángulo real y `reprojection_px` quedar bajo 2.
+
+Comprobado sólo con la toma simulada (`tools/fake_lab.py --tilt`), no con la cámara real. Con ella y
+una sola carta, el reconocimiento aguanta igual hasta 40° (0.91-0.93, como en cenital); a 50° baja a
+0.80 y pierde el contorno fino, y a 60° ya no la nombra. Falta ver con la cámara real cuánto bajan las
+cartas del fondo, que se ven más chicas y escorzadas.
 
 ## Instalar
 
@@ -103,7 +119,9 @@ Da correr el juego en el editor en segundos, leer el registro, y pedirle a Slate
 ## Probar sin cámara
 
 `tools/fake_lab.py` sirve el mismo contrato con una captura guardada y un duelo de guion: dos
-invocaciones, un monstruo boca abajo con su escudo, un ataque y cambios de fase, en un ciclo de 40 s. Con `-YgoShots` Unreal guarda
+invocaciones, un monstruo boca abajo con su escudo, un ataque y cambios de fase, en un ciclo de 40 s. Con
+`--tilt 40` filma la misma mesa desde el lado del jugador, a 40° de la vertical (deforma la captura y
+el tapete con la homografía del plano de la mesa). Con `-YgoShots` Unreal guarda
 capturas de pantalla para revisar cómo se ve:
 
 Ojo: una de cada dos capturas de `-YgoShots` sale sin los efectos translúcidos, aunque en pantalla sí

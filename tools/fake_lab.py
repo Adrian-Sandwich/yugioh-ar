@@ -9,16 +9,19 @@ on a 40 s loop:
     14 s  Battle Phase; 16 s the rival takes 2500; 19 s Main Phase 2
     24 s  both cards leave; 40 s the loop starts again (later than the 15 s arrival memory)
 
-    python tools/fake_lab.py [--port 8799] [--image data/captures/<file>.jpg]
+    python tools/fake_lab.py [--port 8799] [--image data/captures/<file>.jpg] [--tilt 40] [--tilt 40]
     UnrealEditor.exe unreal/YgoAR/YgoAR.uproject -game -LabUrl=http://127.0.0.1:8799
 
 Only the timeline is invented: the camera pose comes from scene3d.py, card sheets from card_info,
 sprites from ar_overlay, exactly as camera_viewer.py serves them.
 """
-import argparse, json, re, sys, time
+import argparse, json, math, re, sys, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
+
+import cv2
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -37,11 +40,31 @@ BACKS = ('monster:0', 'spell:3')  # card backs seen from 5 s to 30 s: a face-dow
 
 
 class Lab:
-    def __init__(self, image):
+    def __init__(self, image, tilt=0., distance=0.):
         self.jpeg = Path(image).read_bytes()
         cal = json.loads(CALIBRATION.read_text(encoding='utf-8'))
         self.mats = [Mat(m['player'], m['corners'], size_mm=m.get('size_mm', (600, 350))) for m in cal['mats']]
         self.scene = scene(self.mats, cal['image_size'])
+        if tilt: self.tilt(tilt, distance, cal['image_size'])
+
+    def tilt(self, degrees, distance, image_size):
+        """Film the same table from the player's side, looking down at `degrees` from the vertical: the
+        capture and the mats' corners go through the homography of the table plane between both cameras
+        (what stands above the table is smeared, as in any such warp)."""
+        K = np.float64([[self.scene['intrinsics']['fx'], 0, self.scene['intrinsics']['cx']],
+                        [0, self.scene['intrinsics']['fy'], self.scene['intrinsics']['cy']], [0, 0, 1]])
+        plane = lambda R, t: K @ np.column_stack([R[:, 0], R[:, 1], t])
+        R0 = np.float64(self.scene['camera']['rotation']); t0 = np.float64(self.scene['camera']['translation_mm'])
+        s, c = math.sin(math.radians(degrees)), math.cos(math.radians(degrees))
+        w, h = self.mats[0].size_mm; centre = np.float64([w / 2, h / 2, 0])
+        distance = distance or float(np.linalg.norm(t0)) * 1.25
+        R1 = np.float64([[1, 0, 0], [0, c, s], [0, -s, c]]); t1 = -R1 @ (centre + distance * np.float64([0, s, -c]))
+        H = plane(R1, t1) @ np.linalg.inv(plane(R0, t0))
+        frame = cv2.warpPerspective(cv2.imdecode(np.frombuffer(self.jpeg, np.uint8), cv2.IMREAD_COLOR), H, tuple(image_size))
+        self.jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 90])[1].tobytes()
+        self.mats = [Mat(m.player, cv2.perspectiveTransform(np.float64(m.corners).reshape(-1, 1, 2), H).reshape(-1, 2).tolist(),
+                         size_mm=m.size_mm) for m in self.mats]
+        self.scene = scene(self.mats, image_size)
         self.sprites = SpriteOverlay()
         self.started = time.time()
         self.names = {c[3]: (card_sheet(c[3]) or {}).get('name', c[3]) for c in CARDS}
@@ -107,9 +130,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--port', type=int, default=8799)
     ap.add_argument('--image', default=str(ROOT / 'data/captures/carta-2026-09-25T04-13-54-278Z.jpg'))
+    ap.add_argument('--tilt', type=float, default=0., help='film the table from the side: degrees from the vertical (0 = as captured)')
+    ap.add_argument('--distance', type=float, default=0., help='with --tilt: mm from the camera to the mat centre (default: 1.25 x the capture\'s)')
     a = ap.parse_args()
-    server = ThreadingHTTPServer(('127.0.0.1', a.port), Handler); server.lab = Lab(a.image)
-    print(f'labo simulado en http://127.0.0.1:{a.port} (ciclo de {LOOP:.0f} s)', flush=True)
+    server = ThreadingHTTPServer(('127.0.0.1', a.port), Handler); server.lab = Lab(a.image, a.tilt, a.distance)
+    k, cam = server.lab.scene['intrinsics'], server.lab.scene['camera']
+    print(f'labo simulado en http://127.0.0.1:{a.port} (ciclo de {LOOP:.0f} s); cámara a {cam["tilt_deg"]:.0f} grados, '
+          f'{k["hfov_deg"]:.0f} grados de campo ({k["source"]})', flush=True)
     server.serve_forever()
 
 
