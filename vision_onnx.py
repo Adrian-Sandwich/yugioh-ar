@@ -168,6 +168,13 @@ class ResearchRecognizer:
         fresh=[i for i in range(len(boxes)) if i not in reused]
         by_deck=bool(deck) and self.mode=='embedding'
         identified=dict(zip(fresh,self.identify([crop(image,points[i]) for i in fresh],embeddings=by_deck)))
+        # A card far from a tilted camera is foreshortened into a near square: which of its sides is the
+        # long one is then a guess, and a wrong guess flattens the card lying on its side, which no
+        # half turn fixes (13/11/2026: a card 161 x 164 px read as another card at 0.28). Those are
+        # also read a quarter turn round, and the better reading wins.
+        unsure=[i for i in fresh if identified[i][0]<ORIENTATION_SKIP_SCORE and side_ratio(points[i])<SQUARE_RATIO]
+        for i,turned in zip(unsure,self.identify([crop(image,np.roll(points[i],-1,axis=0)) for i in unsure],embeddings=by_deck)):
+            if turned[0]>identified[i][0]: identified[i]=(turned[0],turned[1]+1)+tuple(turned[2:])
         encoded=len(fresh)
         for index,(box,geometry) in enumerate(zip(boxes,geometries)):
             quad=points[index]
@@ -195,6 +202,15 @@ class ResearchRecognizer:
                                     'embedding' if self.mode=='embedding' else 'classifier',acceptance=acceptance,**extra))
         return {'detections':result,'processing_ms':round((time.perf_counter()-started)*1000,1),'mode':self.mode,
                 'experimental_thresholds':True,'geometry_ms':geometry_ms,'encoded_cards':encoded,'reused_cards':len(reused),'outside_regions':outside}
+
+
+SQUARE_RATIO=1.3  # a card is 1.46 times as tall as wide; seen below this its long side is not certain
+
+
+def side_ratio(quad):
+    """Longer over shorter side of a quadrilateral (opposite sides averaged)."""
+    q=np.float32(quad);a=(np.linalg.norm(q[1]-q[0])+np.linalg.norm(q[2]-q[3]))/2;b=(np.linalg.norm(q[2]-q[1])+np.linalg.norm(q[3]-q[0]))/2
+    return float(max(a,b)/max(min(a,b),1e-6))
 
 
 def detection(box,geometry,quad,rotation,card_id,score,margin,accepted,top5,source,**extra):
